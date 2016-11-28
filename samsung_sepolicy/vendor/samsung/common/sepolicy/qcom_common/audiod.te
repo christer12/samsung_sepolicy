@@ -1,0 +1,13 @@
+# audiod
+
+#type audiod, domain;
+#type audiod_exec, exec_type, file_type;
+
+#init_daemon_domain(audiod)
+
+# rules
+unix_socket_connect(audiod, property, init)
+
+# for B2C users
+typeattribute audiod trusteddomain;
+typeattribute audiod device_domain;

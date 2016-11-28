@@ -1,0 +1,2 @@
+
+allow secure_storage vold:fd use;

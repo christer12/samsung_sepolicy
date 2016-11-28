@@ -1,0 +1,3 @@
+############ marvell############ knox_common #############_common #############
+type codecIPC_server_service,   service_manager_type;
+type FMRadiod_service,          service_manager_type;

@@ -1,0 +1,37 @@
+# diagexe
+type diagexe, domain;
+type diagexe_exec, exec_type, file_type;
+init_daemon_domain(diagexe)
+
+#neverallow Google CTS-android-5.0.2_r1 :allow diagexe device:chr_file rw_file_perms;
+allow diagexe init:unix_stream_socket connectto;
+allow diagexe media_rw_data_file:dir create_dir_perms;
+allow diagexe media_rw_data_file:file create_file_perms;
+allow diagexe mif_device:chr_file { read write open };
+
+# TG request(sky.suh, CP team) by email / VIA Silent logging / diagnostic daemon needs open permission under /dev/cdma_cplog / 6.0.1_0008 / 
+allow diagexe radio_device:chr_file { read write open };
+
+allow diagexe property_socket:sock_file write;
+allow diagexe self:capability { setuid dac_override };
+allow diagexe sysfs_sec:file rw_file_perms;
+allow diagexe sysfs_ss_writable:file rw_file_perms;
+allow diagexe shell_exec:file { read execute open execute_no_trans };
+allow diagexe system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow diagexe system_data_file:file create_file_perms;
+allow diagexe system_data_file:file r_file_perms;
+allow diagexe system_data_file:sock_file { create unlink };
+allow diagexe system_file:file execute_no_trans;
+allow diagexe system_prop:property_service set;
+allow diagexe usb_serial_device:chr_file { read write ioctl open };
+
+# the sdcard access 
+allow diagexe { mnt_user_file storage_file }:dir { getattr search };
+allow diagexe { mnt_user_file storage_file }:lnk_file { getattr read };
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=10921 comm="diagexe" name="/" dev="sdcardfs" ino=262149 scontext=u:r:diagexe:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { read } for  pid=12656 comm="diagexe" name="primary" dev="tmpfs" ino=10314 scontext=u:r:diagexe:s0 tcontext=u:object_r:storage_file:s0 tclass=lnk_file permissive=0
+# avc:  denied  { read write } for  pid=3252 comm="diagexe" name="cdma_cplog" dev="tmpfs" ino=3759 scontext=u:r:diagexe:s0 tcontext=u:object_r:radio_device:s0 tclass=chr_file permissive=1 SEPF_SECMOBILE_6.0.1_0008 syscall=56
+# avc:  denied  { open } for  pid=3252 comm="diagexe" path="/dev/cdma_cplog" dev="tmpfs" ino=3759 scontext=u:r:diagexe:s0 tcontext=u:object_r:radio_device:s0 tclass=chr_file permissive=1 SEPF_SECMOBILE_6.0.1_0008 syscall=56

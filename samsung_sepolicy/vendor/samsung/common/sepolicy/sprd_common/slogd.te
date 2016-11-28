@@ -1,0 +1,84 @@
+#
+# slogd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type slogd, domain;
+type slogd_exec, exec_type, file_type;
+typealias slogd alias slog;
+typealias slogd_exec alias slog_exec;
+
+typeattribute slogd trusteddomain;
+typeattribute slogd device_domain;
+init_daemon_domain(slogd)
+
+unix_socket_connect(slogd, property, init)
+
+typeattribute slogd mlstrustedsubject;
+
+#permissive slogd;
+
+
+########## self and domain_type
+allow slogd domain:dir { read search open getattr };
+allow slogd domain:{ file lnk_file } { read getattr open };
+allow slogd kernel:system { syslog_read syslog_mod };
+allow slogd rild:unix_stream_socket connectto;
+allow slogd self:capability2 syslog;
+allow slogd self:capability { chown dac_override };
+#Assert_cts.te:neverallow { domain -debuggerd -vold -dumpstate -system_server } self:capability sys_ptrace;
+
+########## fs_type
+allow slogd debugfs:file r_file_perms;
+allow slogd proc:file rw_file_perms;
+
+########## dev_type
+allow slogd slog_device:chr_file rw_file_perms;
+allow slogd usb_device:dir r_dir_perms;
+
+
+########## file_type
+allow slogd anr_data_file:dir create_dir_perms;
+allow slogd anr_data_file:file rw_file_perms;
+allow slogd bluetooth_data_file:dir r_dir_perms;
+allow slogd bluetooth_data_file:file rw_file_perms;
+allow slogd logdr_socket:sock_file rw_file_perms; 
+allow slogd shell_data_file:dir create_dir_perms;
+allow slogd shell_data_file:file create_file_perms;
+allow slogd shell_data_file:sock_file create_file_perms;
+allow slogd shell_exec:file rx_file_perms;
+allow slogd system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow slogd system_data_file:file create_file_perms;
+allow slogd system_data_file:file r_file_perms;
+
+allow slogd system_file:file execute_no_trans;
+allow slogd tombstone_data_file:dir create_dir_perms;
+allow slogd tombstone_data_file:file create_file_perms;
+allow slogd vfat:dir create_dir_perms;
+allow slogd vfat:file create_file_perms;
+
+########## etc_type
+allow slogd slog_prop:property_service set;
+
+
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=8529 comm="slogd" name="property_service" dev="tmpfs" ino=1273 scontext=u:r:slogd:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+# avc:  denied  { connectto } for  pid=8529 comm="slogd" path="/dev/socket/property_service" scontext=u:r:slogd:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { create } for  pid=8529 comm="slogd" name="snapshot_14-18-50.log" scontext=u:r:slogd:s0 tcontext=u:object_r:vfat:s0 tclass=file permissive=1
+# avc:  denied  { read append open } for  pid=8529 comm="slogd" path="/storage/extSdCard/slogd/2012-01-01-11-48-11/misc/snapshot_14-18-50.log" dev="sdcardfs" ino=182 scontext=u:r:slogd:s0 tcontext=u:object_r:vfat:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=8578 comm="query_task_fd" name="task" dev="proc" ino=2180 scontext=u:r:slogd:s0 tcontext=u:r:ueventd:s0 tclass=dir permissive=1
+# avc:  denied  { dac_override } for  pid=8578 comm="query_task_fd" capability=1  scontext=u:r:slogd:s0 tcontext=u:r:slogd:s0 tclass=capability permissive=1
+# avc:  denied  { getattr } for  pid=8582 comm="ps" path="/proc/163" dev="proc" ino=1286 scontext=u:r:slogd:s0 tcontext=u:r:servicemanager:s0 tclass=dir permissive=1
+# avc:  denied  { read write } for  pid=8589 comm="slogd" name="slogd_wcn" dev="tmpfs" ino=4482 scontext=u:r:slogd:s0 tcontext=u:object_r:slogd_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { search } for  pid=8168 comm="df" name="usb-ffs" dev="tmpfs" ino=4361 scontext=u:r:slogd:s0 tcontext=u:object_r:usb_device:s0 tclass=dir permissive=0
+# avc:  denied  { read } for  pid=8474 comm="slogd" name="traces.txt" dev="mmcblk0p26" ino=132547 scontext=u:r:slogd:s0 tcontext=u:object_r:anr_data_file:s0 tclass=file permissive=1
+# avc:  denied  { create } for  pid=4630 comm="slogd" name="last_log" scontext=u:r:slogd:s0 tcontext=u:object_r:vfat:s0 tclass=dir permissive=0 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { create } for  pid=7138 comm="slogd" name="slogd" scontext=u:r:slogd:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=1904 comm="slogd" name="logdr" dev="tmpfs" ino=12418 scontext=u:r:slogd:s0 tcontext=u:object_r:logdr_socket:s0 tclass=sock_file permissive=1

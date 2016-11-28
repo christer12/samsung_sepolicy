@@ -1,0 +1,28 @@
+#!/bin/bash
+
+
+err() {
+	echo "$@" 1>&2
+	exit 255
+}
+
+
+if [[ $# -lt 2 ]] || [[ ! -f "$1" ]]; then
+	err "Usage: addAttrsToPolicy POLICY_FILE NUMBER_OF_ATTRS"
+fi
+
+POLICY="$1"
+NUM="$2"
+
+## LOCK ##
+exec 201>/$INSTANCE/locks/dtLock
+flock 201
+
+#pick the last line where an attribute is defined
+ATTR_LINE=$(cat "$POLICY" |grep -n "^ *attribute "|tail -n1|cut -d":" -f1)
+ATTR_LINE=$(( ATTR_LINE + 1 ))
+
+for (( i=$NUM; i>=1; i-- ))
+do
+	sed -i $ATTR_LINE'i'"attribute newAttr$i;" "$POLICY"
+done

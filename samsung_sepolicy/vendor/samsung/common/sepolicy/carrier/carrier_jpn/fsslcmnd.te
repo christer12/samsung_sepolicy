@@ -1,0 +1,33 @@
+# fsslcmnd .
+type fsslcmnd, domain;
+type fsslcmnd_exec, exec_type, file_type;
+init_daemon_domain(fsslcmnd)
+
+#Reset Log .
+allow fsslcmnd dumplog_data_file:dir create_dir_perms;
+allow fsslcmnd dumplog_data_file:notdevfile_class_set create_file_perms;
+allow fsslcmnd dumplog_data_file:file rw_file_perms;
+
+#Check system folder .
+allow fsslcmnd system_file:dir r_dir_perms;
+allow fsslcmnd system_file:file r_file_perms;
+allow fsslcmnd system_file:file execute;
+allow fsslcmnd system_file:lnk_file read;
+allow fsslcmnd system_file:dir { search };
+
+#Check default.prop .
+allow fsslcmnd rootfs:file { read open };
+
+#Reboot .
+allow fsslcmnd self:capability { sys_boot chown dac_override setgid setuid};
+
+# Debug Log .
+#allow fsslcmnd app_data_file:dir create_dir_perms;
+#allow fsslcmnd app_data_file:notdevfile_class_set create_file_perms;
+#allow fsslcmnd app_data_file:file rw_file_perms;
+
+allow fsslcmnd cgroup:dir { create add_name };
+
+# for B2C users
+typeattribute fsslcmnd trusteddomain;
+typeattribute fsslcmnd device_domain;

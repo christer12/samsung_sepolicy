@@ -1,0 +1,256 @@
+#
+# shell
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#shell should not allow to access container's data files
+#type shell, domain, mlstrustedsubject;
+#type shell, domain;
+#type shell_exec, exec_type, file_type;
+
+# run dumpstate, dumpsys, bugreport on its own domain to get proper result
+#changeBySEA domain_auto_trans(shell, bugreport_exec, bugreport)
+#changeBySEA domain_auto_trans(shell, dumpstate_exec, dumpstate)
+#changeBySEA domain_auto_trans(shell, dumpsys_exec, dumpsys)
+#changeBySEA need to check : domain_auto_trans(shell, tima_dump_exec, system)
+
+# requested from s_h.song(System S/W 1 group) for boot-chart
+dumplog_create(shell)
+
+#changeBySEA need to check : r_dir_file(shell, apk_data_file)
+r_dir_file(shell, firmware)
+
+# setprop toolbox command
+unix_socket_connect(shell, property, init)
+
+# Run logcat.
+access_logcat(shell)
+
+########## self and domain_type
+allow shell init:unix_stream_socket connectto;
+allow shell netd:unix_stream_socket connectto;
+allow shell self:netlink_route_socket { write getattr setopt read bind create nlmsg_read };
+allow shell self:rawip_socket { getopt create };
+allow shell self:tcp_socket { connect setopt read bind create accept write getattr getopt listen  shutdown };
+allow shell self:udp_socket { create ioctl };
+
+########## fs_typev
+allow shell devpts:chr_file rw_file_perms;
+allow shell rootfs:dir r_dir_perms;
+#changeBySEA allow shell proc_avc_msg:file read;
+
+########## dev_type
+allow shell adb_device:chr_file read;
+allow shell console_device:chr_file rw_file_perms;
+allow shell full_device:chr_file read;
+allow shell tty_device:chr_file rw_file_perms;
+
+########## file_type
+allow shell anr_data_file:file r_file_perms;
+#Remote Code Execution issue: allow shell dalvikcache_data_file:dir w_dir_perms;
+#Remote Code Execution issue: allow shell dalvikcache_data_file:file { write setattr };
+#Remote Code Execution issue: allow shell dalvikcache_data_file:file create_file_perms;
+allow shell dnsproxyd_socket:sock_file w_file_perms;
+allow shell efs_file:dir r_dir_perms;
+allow shell media_rw_data_file:dir create_dir_perms;
+allow shell media_rw_data_file:file create_file_perms;
+allow shell shell_data_file:dir create_dir_perms;
+allow shell shell_data_file:file create_file_perms;
+allow shell shell_data_file:file rx_file_perms;
+allow shell shell_exec:file rx_file_perms;
+allow shell system_app_data_file:dir r_dir_perms;
+allow shell system_file:file rx_file_perms;
+allow shell tima_dump_exec:file rx_file_perms;
+allow shell zygote_exec:file rx_file_perms;
+
+########## etc_type
+allow shell csc_prop:property_service set;
+allow shell node:tcp_socket node_bind;
+allow shell port:tcp_socket { name_connect name_bind };
+allow shell port:udp_socket name_bind;
+allow shell setupwizard_prop:property_service set;
+#changeBySEA allow shell system_prop:property_service set;
+
+########## known issue.
+# Allow run dumpstate, dumpsys bugreport from shell
+allow shell bugreport:file rx_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow shell bugreport:process signal;
+allow shell dumpstate:file rx_file_perms;
+
+#allow shell dumpstate:process signal;
+#violate neverallow rule.
+
+allow shell dumpsys:file rx_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow shell dumpsys:process signal;
+
+# ctl interface
+allow shell ctl_dumpstate_prop:property_service set;
+
+# Access sdcard.
+allow shell sdcard_type:dir create_dir_perms;
+allow shell sdcard_type:file create_file_perms;
+
+# Accesses to apk_tmp_file and shell_data_file
+#neverallow by Google: allow shell apk_tmp_file:dir rw_dir_perms;
+#neverallow by Google: allow shell apk_tmp_file:file rw_file_perms;
+#neverallow by Google: allow shell dalvikcache_data_file:file write;
+
+# Property Service
+allow shell shell_prop:property_service set;
+
+# for monkey test
+allow shell input_device:chr_file rw_file_perms;
+
+# for CTS
+# XXX Suspect
+allow shell log_device:chr_file r_file_perms;
+#changeBySEA : allow shell vold:unix_stream_socket connectto;
+#neverallow by Google: allow shell vold_socket:sock_file w_file_perms;
+
+# for logcat
+#neverallow by Google: allow shell self:capability2 syslog;
+
+# for Bugreport
+#changeBySEA need to check : allow shell device:sock_file write;
+
+# for SPrint
+#changeBySEA dup with aosp : allow shell input_device:chr_file { read ioctl };
+
+# SDcard Encryption
+#neverallow by Google: allow shell efs_file:file setattr;
+allow shell usb_bus_device:chr_file r_file_perms;
+
+# MobileCare Log
+#neverallow by Google: allow shell wifi_data_file:dir w_dir_perms;
+#neverallow by Google: allow shell wifi_data_file:sock_file create_file_perms;
+#neverallow dup with netd : allow shell wifi_data_file:sock_file r_file_perms;
+
+#neverallow : allow shell wpa:unix_dgram_socket sendto;
+#neverallow dup with netd : allow shell wpa_socket:sock_file w_file_perms;
+allow shell adbd:fifo_file rw_file_perms;
+allow shell adbd:unix_stream_socket getopt;
+
+# F5 VPN
+#changeBySEA need to check : allow shell cgroup:dir create_dir_perms;
+#changeBySEA need to check : allow shell cgroup:file create_file_perms;
+
+# Reads /proc/pid entries to check that no unexpected root
+# processes are running.
+#changeBySEA allow shell { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#changeBySEA allow shell { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } r_file_perms;
+
+# Walk the file tree, stat any file.
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file}:dir r_dir_perms;
+
+#changeBySEA allow shell { fs_type -proc -sysfs -selinuxfs -rootfs }:dir r_dir_perms;
+#changeBySEA allow shell { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device -trstdomain_no_rw_device } :dir r_dir_perms;
+#Give read permission to correct CTS denials
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:file_class_set r_file_perms;
+#changeBySEA allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file}:file_class_set r_file_perms;
+
+#changeBySEA allow shell { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device -trstdomain_no_rw_device }:dir_file_class_set getattr;
+#changeBySEA allow shell { fs_type -device -trstdomain_no_read_fs  }:dir_file_class_set getattr;
+#changeBySEA allow shell dev_type:lnk_file read;
+
+# for B2C users
+#changeBySEA allow shell { domain -containerdomain -fixmo_app -good_app }:process getattr;
+
+# for AWS denials
+binder_call(shell, bintvoutservice)
+binder_call(shell, jackservice)
+binder_call(shell, sensorhubservice)
+
+# for Systrace
+binder_call(shell, healthd)
+allow shell debug_prop:property_service set;
+allow shell debugfs:file read;
+
+# Create and use network sockets.
+net_domain(shell)
+
+# logd access
+read_logd(shell)
+control_logd(shell)
+
+# patchoat at CTS, run cts --class dot.junit.opcodes.invoke_direct.JUnit_Test_invoke_direct --method testVFE15
+#                 run cts --class dot.junit.opcodes.invoke_direct_range.JUnit_Test_invoke_direct_range --method testVFE15
+allow shell shell_data_file:lnk_file create_file_perms;
+
+# allow shell to read lowmemorykiller for TinyMonitor Tool
+allow shell sysfs_lowmemorykiller:file r_file_perms;
+
+# P151118-06408 : DFT test
+allow shell sysfs_battery_supply:file r_file_perms;
+
+# System Memory team request.
+# /sys/class/sec/sec-thermistor/temperature
+# /sys/devices/platform/sec-thermistor/temperature
+# /sys/class/sec/sec-ap-thermistor/temperature
+# temporary allow, find clear solution to change the context.
+allow shell sysfs_sec:file { open read };
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow shell audit_log:file { open read };
+allow shell audit_log:dir { open read };
+
+########## etc_type
+########## known issue.
+# Knox 20
+#changeBySEA allow shell container_app:process getattr;
+
+# Fixmo
+#changeBySEA allow shell fixmo_app:process getattr;
+#changeBySEA allow shell fixmo_app_data_file:dir getattr;
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow shell vibrator_device:chr_file read;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ android m #############
+allow shell tmpfs:lnk_file read;
+allow shell zygote_exec:lnk_file read;
+allow shell dumplog_data_file:file r_file_perms;
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402394448.121:264): avc:  denied  { create } for  pid=26494 comm="sh" name="1402394443719" scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402394448.121:264): avc:  denied  { write } for  pid=26494 comm="sh" name="0" dev="mmcblk0p25" ino=522241 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402394448.211:265): avc:  denied  { remove_name } for  pid=26501 comm="rm" name="1402394443719" dev="mmcblk0p25" ino=522300 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402394448.211:265): avc:  denied  { unlink } for  pid=26501 comm="rm" name="1402394443719" dev="mmcblk0p25" ino=522300 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { add_name } for  pid=2378 comm="sh" name="1402396718760" scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { create } for  pid=2378 comm="sh" name="1402396718760" scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { write } for  pid=2378 comm="sh" name="0" dev="mmcblk0p25" ino=522241 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { write } for  pid=2378 comm="sh" name="1402396718760" dev="mmcblk0p25" ino=522259 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.577:212): avc:  denied  { remove_name } for  pid=2405 comm="rm" name="1402396718760" dev="mmcblk0p25" ino=522259 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# audit(1421386937.856:220): avc:  denied  { getattr } for  pid=24613 comm="ls" path="/efs" dev="mmcblk0p13" ino=2 scontext=u:r:shell:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { read } for  pid=20430 comm="sh" name="/" dev="tmpfs" ino=5389 scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { open } for  pid=20430 comm="sh" path="/dev" dev="tmpfs" ino=5389 scontext=u:r:shell:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { read } for  pid=10637 comm="sh" name="app_process" dev="dm-0" ino=809 scontext=u:r:shell:s0 tcontext=u:object_r:zygote_exec:s0 tclass=lnk_file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { read } for  pid=24737 comm="Thread-326" name="sec_log.log" dev="sda18" ino=262230 scontext=u:r:shell:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0
+# avc:  denied  { search } for  pid=15531 comm="m.android.shell" name="com.android.settings" dev="mmcblk0p21" ino=130141 scontext=u:r:shell:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=dir
+# avc:  denied  { read } for  pid=7236 comm="sh" name="batt_read_raw_soc" dev="sysfs" ino=29732 scontext=u:r:shell:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=0
+# avc:  denied  { execute } for  pid=9511 comm="sh" name="tima_dump_log" dev="sda14" ino=676 scontext=u:r:shell:s0 tcontext=u:object_r:tima_dump_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=9564 comm="sh" path="/system/bin/tima_dump_log" dev="sda14" ino=676 scontext=u:r:shell:s0 tcontext=u:object_r:tima_dump_exec:s0 tclass=file permissive=1
+

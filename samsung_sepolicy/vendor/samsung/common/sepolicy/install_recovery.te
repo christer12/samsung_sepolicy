@@ -1,0 +1,61 @@
+#
+# install_recovery(flash_recovery)
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typealias install_recovery alias flash_recovery; 
+typealias install_recovery_exec alias flash_recovery_sh_file;
+
+dumplog_create(flash_recovery)
+
+########## self and domain_type
+allow flash_recovery self:capability { chown dac_override fowner fsetid };
+
+########## fs_type
+########## dev_type
+
+#neverallow by Google: neverallow { domain -kernel -init -recovery -vold -uncrypt } block_device:blk_file { open read write }
+#allow flash_recovery block_device:blk_file rw_file_perms;
+allow flash_recovery block_device:dir rw_dir_perms;
+allow flash_recovery block_device:file rw_file_perms;
+allow flash_recovery bootblk_device:blk_file r_file_perms;
+allow flash_recovery dw_mmc_device:dir ra_dir_perms;
+allow flash_recovery dw_mmc_device:lnk_file r_file_perms;
+allow flash_recovery emmcblk_device:blk_file { rw_file_perms setattr };
+allow flash_recovery recoveryblk_device:blk_file rw_file_perms;
+
+########## file_type
+allow flash_recovery cache_file:dir rw_dir_perms;
+allow flash_recovery cache_file:file create_file_perms;
+allow flash_recovery flash_recovery_sh_file:file { entrypoint r_file_perms };
+allow flash_recovery shell_data_file:file { create unlink };
+allow flash_recovery shell_data_file:dir remove_name;
+allow flash_recovery shell_exec:file r_file_perms;
+allow flash_recovery system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow flash_recovery system_data_file:file unlink;
+allow flash_recovery system_file:file x_file_perms;
+
+########## etc_type
+########## known issue.
+# FOTA from KK binary test
+allow flash_recovery media_data_file:dir create_dir_perms;
+allow flash_recovery media_data_file:file create_file_perms;
+# DMVerity FOTA Self-verification test
+allow flash_recovery media_rw_data_file:dir create_dir_perms;
+allow flash_recovery media_rw_data_file:file create_file_perms;
+
+
+# create and delete /data/fota
+allow flash_recovery fota_data_file:dir { rmdir rw_dir_perms link unlink rename };
+allow flash_recovery fota_data_file:file create_file_perms;
+
+
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=3512 comm="rm" name="/" dev="sdcardfs" ino=1179652 scontext=u:r:flash_recovery:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+# avc:  denied  { getattr } for  pid=4093 comm="rm" path="/data/media/0/ENG_G900H_OXY_NG3_ENG_to_NK5V_ENG_Update_FWD.zip" dev="mmcblk0p21" ino=129880 scontext=u:r:install_recovery:s0 tcontext=u:object_r:media_data_file:s0 tclass=file
+# avc:  denied  { write } for  pid=4093 comm="rm" name="0" dev="mmcblk0p21" ino=129793 scontext=u:r:install_recovery:s0 tcontext=u:object_r:media_data_file:s0 tclass=dir
+# avc:  denied  { remove_name } for  pid=4093 comm="rm" name="ENG_G900H_OXY_NG3_ENG_to_NK5V_ENG_Update_FWD.zip" dev="mmcblk0p21" ino=129880 scontext=u:r:install_recovery:s0 tcontext=u:object_r:media_data_file:s0 tclass=dir
+# avc:  denied  { unlink } for  pid=4093 comm="rm" name="ENG_G900H_OXY_NG3_ENG_to_NK5V_ENG_Update_FWD.zip" dev="mmcblk0p21" ino=129880 scontext=u:r:install_recovery:s0 tcontext=u:object_r:media_data_file:s0 tclass=file

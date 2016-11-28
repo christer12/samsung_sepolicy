@@ -1,0 +1,54 @@
+#/sepolicy/sec_common/actlmand.te
+#allow actlmand self:capability sys_rawio;
+#allow actlmand block_device:blk_file rw_file_perms;
+
+#/sepolicy/sec_common/syscope.te
+#allow syscope_app init:binder call;
+#allow syscope_app block_device:blk_file w_file_perms;
+#allow syscope_app emmcblk_device:blk_file rw_file_perms;
+#allow syscope_app paramblk_device:blk_file rw_file_perms;
+#allow syscope_app system_data_file:dir create_dir_perms;
+#allow syscope_app system_data_file:file create_file_perms;
+#allow syscope_app emmcblk_device:blk_file create_file_perms;
+#allow syscope_app padblk_device:blk_file create_file_perms;
+#allow syscope_app persistblk_device:blk_file w_file_perms;
+
+
+#/sepolicy/system_app.te -> for SecurityMagerService(com.sec.android.service.sm)
+#allow s_system_app kiesexe:process signal;
+#allow s_system_app efsblk_device:blk_file rw_file_perms;
+#allow s_system_app emmcblk_device:blk_file rw_file_perms;
+#allow s_system_app paramblk_device:blk_file rw_file_perms;
+#allow s_system_app default_prop:property_service set;
+#allow s_system_app emmcblk_device:blk_file create_file_perms;
+#allow s_system_app padblk_device:blk_file create_file_perms;
+
+# for ipsecservice
+#allow s_system_app rild:tun_socket relabelfrom;
+#avc:  denied  { relabelfrom } for  pid=6782 comm="m.ipsec.service" scontext=u:r:s_system_app:s0 tcontext=u:r:rild:s0 tclass=tun_socket permissive=0
+
+#/sepolicy/sec_common/apaservice.te
+#allow apaservice app_library_file:file execute;
+#allow apaservice apk_data_file:file execute;
+
+##
+# com.ipsec.service(darkangel@samsung.com/CP System), com.sec.android.service.sm, com.sec.android.security.NetworkGuard
+##
+##
+# com.sec.imsservice(sj76.kim@samsung.com/CP System)
+##
+##
+# com.samsung.android.MtpApplication(inchul23.lee@samsung.com/Service Dev)
+##
+
+#/sepolicy/knox_common/policyloader_app.te
+#mmac_manage_policy(policyloader_app)
+
+#/sepolicy/slsi_common/exyrngd.te,qrngd.te : bumhan.kim@samsung.com/Security team.
+#allow exyrngd hw_random_device:chr_file r_file_perms;
+#allow qrngd hw_random_device:chr_file r_file_perms;
+
+#/sepolicy/mediaserver.te
+#allow mediaserver downfilters_lib_file:file x_file_perms;
+
+

@@ -1,0 +1,31 @@
+#
+# wcnd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+allow wcnd download:unix_stream_socket connectto;
+allow wcnd self:capability { setuid net_admin };
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow wcnd efs_file:dir search;
+
+########## etc_type
+########## known issue.
+
+# access to /efs/wifi/.mac.info and /data/.wifiver.info
+allow wcnd wifiver_data_file:file rw_file_perms;
+allow wcnd wifi_efs_file:dir rw_dir_perms;
+allow wcnd wifi_efs_file:file rw_file_perms;
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=1858 comm="wcnd" name="/" dev="mmcblk0p5" ino=2 scontext=u:r:wcnd:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { connectto } for  pid=1939 comm="wcnd" path=0065787465726E616C5F77636E scontext=u:r:wcnd:s0 tcontext=u:r:download:s0 tclass=unix_stream_socket permissive=0
+# avc:  denied  { setuid } for  pid=1858 comm="wcnd" capability=7  scontext=u:r:wcnd:s0 tcontext=u:r:wcnd:s0 tclass=capability permissive=0
+# avc:  denied  { read } for  pid=6957 comm="wcnd" name=".mac.info" dev="mmcblk0p17" ino=20 scontext=u:r:wcnd:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=6957 comm="wcnd" path="/efs/wifi/.mac.info" dev="mmcblk0p17" ino=20 scontext=u:r:wcnd:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { net_admin } for  pid=239 comm="wcnd" capability=12  scontext=u:r:wcnd:s0 tcontext=u:r:wcnd:s0 tclass=capability permissive=0 SEPF_SM-J105H_5.1.1_0043
+

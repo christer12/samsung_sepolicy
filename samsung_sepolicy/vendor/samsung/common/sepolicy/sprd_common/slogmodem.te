@@ -1,0 +1,26 @@
+
+allow slogmodem media_rw_data_file:dir { add_name create getattr open read remove_name rmdir search unlink write };
+allow slogmodem media_rw_data_file:file { create getattr open read rename unlink write };
+allow slogmodem sdcard_type:dir create_dir_perms;
+allow slogmodem sdcard_type:file create_file_perms;
+allow slogmodem self:capability { dac_override dac_read_search };
+
+# avc:  denied  { dac_read_search } for  pid=6385 comm="slogmodem" capability=2  scontext=u:r:slogmodem:s0 tcontext=u:r:slogmodem:s0 tclass=capability permissive=0 SEPF_SM-J120H_5.1.1_0039
+# avc:  denied  { dac_override } for  pid=6387 comm="slogmodem" capability=1  scontext=u:r:slogmodem:s0 tcontext=u:r:slogmodem:s0 tclass=capability permissive=0 SEPF_SM-J120H_5.1.1_0039
+
+
+
+# [J210F] : [Silent Logging Not Working] : AVC and Permission denied error
+# Details of the Issue being Observed :
+# SLOG & SLOGMODEM are SPRD provided daemons used to capture the AP and CP silent logs.
+# In latest M deliverable, SPRD has modified the code as per the M standard and after that SLOG and SLOGMODEM has stopped working due to permission and AVC errors.
+# avc:  denied  { create } for  pid=8318 comm="slogmodem" scontext=u:r:slogmodem:s0 tcontext=u:r:slogmodem:s0 tclass=netlink_kobject_uevent_socket permissive=1 SEPF_SECMOBILE_6.0.1_001
+# avc:  denied  { bind } for  pid=8318 comm="slogmodem" scontext=u:r:slogmodem:s0 tcontext=u:r:slogmodem:s0 tclass=netlink_kobject_uevent_socket permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { read } for  pid=8318 comm="slogmodem" name="mmcblk0p8" dev="tmpfs" ino=6627 scontext=u:r:slogmodem:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive
+# avc:  denied  { open } for  pid=8318 comm="slogmodem" path="/dev/block/mmcblk0p8" dev="tmpfs" ino=6627 scontext=u:r:slogmodem:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file
+# /dev/block/mmcblk0p8, l_modem, SPRDCP.img
+# avc:  denied  { read } for  pid=8318 comm="slogmodem" scontext=u:r:slogmodem:s0 tcontext=u:r:slogmodem:s0 tclass=netlink_kobject_uevent_socket permissive=1 SEPF_SECMOBILE_6.0.1_0011
+allow slogmodem emmcblk_device:blk_file { read open };
+allow slogmodem self:netlink_kobject_uevent_socket { read bind create };
+
+

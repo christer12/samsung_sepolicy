@@ -1,0 +1,1028 @@
+<?xml version="1.0" encoding="utf-8"?>
+<policy>
+<!--Here are the rules:
+    1. Reserved for AOSP (platform): 0;
+    2. Reserved for KNOX 1.0 container: 1;
+    3. Reserved for Persona Containers: 2 - 101;
+    4. Reserved for Good container: 102 - 105;
+    5. Reserved for Fixmo/STIG: 106-110;
+    6. Open to other containers: 111-200;
+    7. MyContainer: 201-500;
+    8. BBCContainer: 501-700;
+    9. Other: 701 - 1023.
+    Attentions:
+    1. Samsung Container signed by KNOX is category 1. It's quite special since the hard-coded work before;
+    2. The apps signed by platform, release, media and shared are category 0, univerally available to all categories;
+    3. GOOD signed by GOOD is category 102-105, STIG signed by Fixmo is category 106-110;
+    4. Untrusted apps are category 1023. By default, apps are in category of 1023;
+    5. In the future, if someone wants to add new items, please follow the rules:
+       If it's system app, please add to section 1;
+       If it's knox container, please add to section 2;
+       If it's third party's container, please add to section 3;
+       If it's untrusted, please add to section 4.
+    6. Please double confirm that whether you have already put proper seinfo category and allowcategory value.
+       Otherwise, the default value will be category="1023", allowcategory="0,701-1023".
+-->
+<!-- Section 1: System Apps are placed here -->
+<!-- Platform dev key with AOSP -->
+    <signer signature="@PLATFORM" >
+    <allow-all />
+    <seinfo value="platform" category="0" allowcategory="0,2-1023" />
+        <!-- commenting out for integration test purposes -->	
+        <service name="com.samsung.android.spayfw" category="0" seinfo="spay"/>      
+        <service name="com.samsung.android.spay" category="0" seinfo="spay"/>
+        <!-- Adding TestWallet for Test Purposes -->
+        <service name="com.spay.testwallet" category="0" seinfo="spay"/>
+        <service name="com.samsung.android.spaytzsvc.api.test" category="0" seinfo="spay"/>
+        <containerallowpackage srcpkgname="android" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.sec.knox.foldercontainer" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.phone" destpkgname="allknoxpackages"/>		
+        <containerallowpackage srcpkgname="com.sec.knoxcts" destpkgname="com.sec.knoxcts.pal.service"/>
+        <containerallowpackage srcpkgname="com.sec.knox.switcher" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.systemui" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.knox.rcp.components" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.nfc" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.bluetooth" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.sec.modem.settings" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.settings" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.app.cocktailbarservice" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.clipboarduiservice" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.sec.android.inputmethod" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.incallui" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.incallui" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.hmt.vrsvc" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.SettingsReceiver" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.android.mms.service" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.fingerprint.service" destpkgname="allknoxpackages"/>
+		<containerallowpackage srcpkgname="com.android.stk" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.app.assistantmenu" destpkgname="allknoxpackages"/>
+		<containerallowpackage srcpkgname="com.sec.android.app.camera" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.sec.android.emergencymode.service" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.sec.android.application.csc" destpkgname="allknoxpackages"/>
+        <containerallowpackage srcpkgname="com.samsung.android.bbc.bbcagent" destpkgname="allknoxpackages"/>
+    	<containerallowpackage srcpkgname="com.sec.knox.knoxsetupwizardclient" destpkgname="allknoxpackages"/>
+    	<containerallowpackage srcpkgname="com.samsung.android.service.aircommand" destpkgname="allknoxpackages"/>    	
+    </signer>
+
+<!-- Media dev key in AOSP -->
+    <signer signature="@MEDIA" >
+        <allow-all />
+        <seinfo value="media" category="0" allowcategory="0,2-1023" />
+    </signer>
+
+<!-- shared dev key in AOSP -->
+    <signer signature="@SHARED" >
+        <allow-all />
+        <seinfo value="shared" category="0" allowcategory="0,2-1023" />
+            <containerallowpackage srcpkgname="com.sec.android.app.launcher" destpkgname="allknoxpackages"/>
+            <containerallowpackage srcpkgname="com.android.app.launcher" destpkgname="allknoxpackages"/>
+            <containerallowpackage srcpkgname="com.android.contacts" destpkgname="allknoxpackages"/>
+            <containerallowpackage srcpkgname="android.process.acore" destpkgname="allknoxpackages"/>
+            <containerallowpackage srcpkgname="com.android.providers.contacts" destpkgname="allknoxpackages"/>
+            <containerallowpackage srcpkgname="com.android.providers.userdictionary" destpkgname="allknoxpackages"/>
+    </signer>
+
+<!-- release dev key in AOSP -->
+    <signer signature="@RELEASE" >
+        <allow-all />
+        <seinfo value="release" category="0" allowcategory="0,2-1023" />		
+            <containerallowpackage srcpkgname="com.android.mms" destpkgname="allknoxpackages"/>
+            <containerallowpackage srcpkgname="com.android.providers.calendar" destpkgname="allknoxpackages"/>
+    </signer>
+
+<!-- Section 2: Samsung Container is placed here -->
+<!-- knox container key in AOSP -->
+    <signer signature="@CONTAINER" >
+        <allow-all />
+        <container value="true" />
+        <seinfo value="container" category="1" allowcategory="1" />
+    </signer>
+
+    <signer signature="@CONTAINER2" >
+        <allow-all />
+        <container value="true" />
+        <seinfo value="container" category="1" allowcategory="1" />
+    </signer>
+
+<!-- Section 4: All the other apps (non-container) are placed here -->
+<!-- GOOGLE signed apps --> 
+    <signer signature="@GOOGLE" >        
+        <allow-all />
+        <seinfo value="untrusted" category="701" />
+            <service name="com.google.android.gsf" category="701" seinfo="untrusted" containerallowcategory = "106" />
+            <service name="com.google.android.tts" category="701" seinfo="untrusted" containerallowcategory = "106" />
+            <service name="com.google.android.talk" category="701" seinfo="untrusted" containerallowcategory = "106" />
+            <service name="com.android.vending" category="701" seinfo="gmscore" containerallowcategory = "106" />
+            <service name="com.android.chrome" category="701" seinfo="chrome" />
+            <service name="com.google.android.gms" category="701" seinfo="gmscore" />
+            <containerallowpackage srcpkgname="com.google.android.gms" destpkgname="allknoxpackages"/>
+    </signer>
+
+    <signer signature="@GOOGLE2" >
+        <allow-all />
+        <seinfo value="untrusted" category="701" />
+    </signer>
+
+<!-- Samsung Pre-Signed App -->
+    <signer signature="@CLOUDLAB" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+    <signer signature="@SENSORG" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+    <signer signature="@CONNECTG" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+    <signer signature="@SECMMG" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- S-Voice -->
+    <signer signature="@VLINGO" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Chaton -->
+    <signer signature="@CHATON" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- SamsungApps for J -->
+    <signer signature="@SAMSUNGAPPS" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- peel samsung app -->
+    <signer signature="@PEEL" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung SPP -->
+    <signer signature="@SECSPP" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung CloudAgent -->
+    <signer signature="@CLOUDAGENT" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Music Hub -->
+    <signer signature="@SECMUSICHUB" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Music -->
+    <signer signature="@SECMUSIC" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Collage App -->
+    <signer signature="@SECCOLLAGE" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung SNS App -->
+    <signer signature="@SECSNS" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- SEC GameHub -->
+    <signer signature="@GAMEHUB" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- SEC B2B Enterprise Permission -->
+    <signer signature="@SECB2B" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Photo Retouch -->
+    <signer signature="@SECPHOTORT" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung CHS -->
+    <signer signature="@SECCHS" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Mobile Print -->
+    <signer signature="@SECPRINTSVC" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Readershub -->
+    <signer signature="@READERSHUB" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Learninghub -->
+    <signer signature="@SECLEARHUB" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung CM -->
+    <signer signature="@SECCM" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung PCW -->
+    <signer signature="@SECPCW" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung PIN SVC -->
+    <signer signature="@SECPINSVC" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Smartcard -->
+    <signer signature="@SECSMARTCARD" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung SphericalMosaic -->
+    <signer signature="@SECSM" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- SconeProxySVC -->
+    <signer signature="@SCONEPROXY" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- S pen SDK -->
+    <signer signature="@SPENSDK" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- S Translator -->
+    <signer signature="@STRANSLATOR" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>    
+
+<!-- Samsung S Name Card -->
+    <signer signature="@SNAMECARD" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+<!-- Samsung Accessary Galaxy Gear - START -->
+    <signer signature="@SAFOTAPROVIDER" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+    <signer signature="@SAGEARMANAGERS" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>    
+
+    <signer signature="@SAFTCORE" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>
+
+    <signer signature="@SAVOICERECODERPROVIDER" >
+        <allow-all />
+        <seinfo value="samsung" />
+    </signer>        
+
+<!-- Samsung Accessary Galaxy Gear - END -->
+<!-- for VMware -->
+    <signer signature="@VMWARE" >
+        <allow-all />
+        <seinfo value="vmware" />
+    </signer>
+
+<!-- Junos Pulse -->
+    <signer signature="@JUNOSPULSE" >
+        <allow-all />
+        <seinfo value="vpn_untrusted" />
+    </signer>
+
+<!-- For keyboard support -->
+    <signer signature="@SWYPE" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@SWIFTKEY" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@GOKEYBOARD" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@SLIDEITVLITE" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@TOUCHPAL" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+<!-- SKT app support -->
+    <signer signature="@TBMON" >
+        <allow-all />
+        <seinfo value="tbaseplatform" />
+    </signer>
+
+    <signer signature="@AITYPE" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@DODOL" >
+         <allow-all />
+         <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@TSKOREAN" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@GINGERBREAD" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@MULTILING" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@EMOJIKEYBOARD" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@SMARTKEYBOARD" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@SMOAKEY" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@BAIDUKEYBOARD" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+    <signer signature="@SOUGOUKEYBOARD" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+<!-- CAC support -->
+    <signer signature="@CACCARD" >
+        <allow-all />
+        <seinfo value="caccard" />
+    </signer>
+
+<!-- Centrify -->
+    <signer signature="@CENTRIFY" >
+        <allow-all />
+        <seinfo value="knox_untrusted" />
+        <!-- APK needs access to centrify container client -->
+    </signer>
+
+<!-- Centrify KnoxEMM signed Samsung -->
+    <signer signature="@SAMSUNGKNOXEMM" >
+        <allow-all />
+        <seinfo value="knox_untrusted" />
+            <!-- APK needs access to centrify container client -->
+            <service name="com.samsung.knoxemm.mdm" category="1023" seinfo="knox_untrusted" containerallowcategory = "106" />
+    </signer>
+
+<!-- Sprint ItsOn -->
+    <signer signature="@SPRINTSON">
+        <allow-all />
+        <seinfo value="sprintitson" />
+    </signer>
+
+<!-- Sprint Extension -->
+    <signer signature="@SPR_EXTENSION">
+        <allow-all />
+        <seinfo value="spr_ext" />
+    </signer>
+
+<!-- Talkback -->
+    <signer signature="@TALKBACK" >
+        <allow-all />
+        <seinfo value="untrusted" />
+    </signer>
+
+<!-- lightflowlite -->
+    <signer signature="@LIGHTFLOWLITE" >
+        <allow-all />
+        <seinfo value="untrusted" />
+    </signer>
+
+<!-- LETS GO CAMERA -->
+    <signer signature="@LGCAMERA" >
+        <allow-all />
+        <seinfo value="untrusted" />
+    </signer>
+
+<!-- DeviceManager3LM Docomo -->
+    <signer signature="@DEVICEMANAGER3LM" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+<!-- iWnnIME JPN -->
+    <signer signature="@IWNNIME" >
+        <allow-all />
+        <seinfo value="keyboard" />
+    </signer>
+
+<!-- mmb JPN -->
+    <signer signature="@MMB" >
+        <allow-all />
+        <seinfo value="mmb" />
+    </signer>
+
+<!-- Japan carrier applications -->
+    <signer signature="@JPNANDROIDGGM" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNNTTDOCOMO" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNBRIDGELAUNCHER" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNCATEGORYNAVI" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNCONTENTSHEADLINE" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNDECOEMOJIMANAGER" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNKOENOTAKUHAIBIN" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNMFSADDON" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNMONTHLYTRAFFIC" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNSUGOTOKUCONTENTS" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNTWITTER" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNCHKAPL" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNDCMICTAG" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNDMAPNAVI" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNDOCOMOREMOTE" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNEBOOKVIEWER" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNHANASHITE" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNID" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNRWPUSHCONTROLLER" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNTORUCA" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+    <signer signature="@JPNJA15" >
+        <allow-all />
+        <seinfo value="jpnapps" />
+    </signer>
+
+<!-- Begin of Trustonic Partners Signature and seinfo -->
+    <signer signature="@GOODKNOX1" >
+        <allow-all />
+        <seinfo value="good_trustonicpartner" />
+    </signer>
+
+    <signer signature="@GOODKNOX2" >
+        <allow-all />
+        <seinfo value="good_trustonicpartner" />
+    </signer>
+
+    <signer signature="@DISCRETIX" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@FSA" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@GD3S" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@GEMALTO" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@INGENICO" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@INTERCEDE" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@INTERDIGITAL" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@INTERPAY" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@IRDETO" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@KOOLSPAN_KS201403" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+<!--
+<signer signature="@PROXAMA" >
+<allow-all />
+<seinfo value="trustonicpartner" />
+</signer>
+-->    
+    <signer signature="@SECUNET" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@SECUREKEY" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@SEQUITUR" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@SKT" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@SYMANTEC" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@THUNDERSOFT" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@TRUSTONIC" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@VERIMATRIX" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@VIACCESS" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@LEDGER" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@RIVETZ" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@TEEPINPAD" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@INTERPAYSHCARD" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@ATSOLUTIONS" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@ETRIFIDO" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@HANA_PUBLIC" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@ATSOTP2" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@SHINHAN_BANK" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@KEBHanaCard_public" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@HanaCardService_public" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@FIDO" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@KB_BizBank" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@KB_StarBank" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@KB_TalkBank" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+
+    <signer signature="@smcardcert_cer" >
+        <allow-all />
+        <seinfo value="trustonicpartner" />
+    </signer>
+<!-- End of Trustonic Partners Signature and seinfo -->
+
+<!-- Begin of DMB apks Partners Signature and seinfo -->
+    <signer signature="@CABLE_DMB" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@DONGGUK_DMB" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@HYBRID_DMB_1" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@HYBRID_DMB_2" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@IITP_DMB" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+ 
+    <signer signature="@KAI_MEDIA_BASIC_PLAYER" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@KAI_MEDIA_CODEC_HQTESTAPP" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@KAI_MEDIA_CODEC_TESTAPP" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@OMNITEL_TEST_APP" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@RADIO_DNS" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@SMART_DMB_HD" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@SMART_DMB_LITE" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+    <signer signature="@SMART_DMB" >
+        <allow-all />
+        <seinfo value="trusted_dmb" />
+    </signer>
+
+<!-- Begin of DMB apks Partners Signature and seinfo -->
+
+<!-- All other keys -->
+    <default>
+        <allow-all />     
+        <seinfo value="default" />
+    </default>  
+
+<!-- CMCC app support -->
+    <signer signature="@MMPHONE" >
+        <allow-all />
+        <seinfo value="mmphone" />
+    </signer>
+
+<!-- VZW LLK preload app support -->
+    <signer signature="@LLKPRELOAD" >
+        <allow-all />
+        <seinfo value="llk_untrusted" />
+    </signer>
+
+<!-- Bulk enrollment -->
+    <signer signature="@UMCJSAGENT" >
+        <allow-all />
+        <seinfo value="umcjsagent" />
+    </signer>
+
+<!-- TMO carrier applications -->
+    <signer signature="@TMOSIMLOCK" >
+        <allow-all />
+        <seinfo value="tmosimlock" />
+    </signer>
+
+<!-- LGUIWLAN -->
+    <signer signature="@LGUIWLAN" >
+        <allow-all />
+        <seinfo value="lguiwlan" />
+    </signer>
+
+<!-- LGUMirrorCall2 -->
+    <signer signature="@LGUMirrorCall2" >
+        <allow-all />
+        <seinfo value="lguiwlan" />
+    </signer>
+
+<!-- filtered_untrusted com.expway.embmsserver* -->
+    <signer signature="@EweMBMSServer-KT" >
+        <allow-all />
+        <seinfo value="filtered_untrusted" />
+    </signer>
+
+<!-- filtered_untrusted com.jio.emiddleware -->
+    <signer signature="@EweMBMSServer-RJIL" >
+        <allow-all />
+        <seinfo value="filtered_untrusted" />
+    </signer>
+    <signer signature="@EweMBMSServer-RJIL_20160520" >
+        <allow-all />
+        <seinfo value="Reliance_Jio" />
+    </signer>
+
+<!-- com.visionobject.resourcemanager, com.myscript.atk.rmc.service.sample -->
+    <signer signature="@VISIONOBJECT" >
+        <allow-all />
+        <seinfo value="filtered_untrusted" />
+    </signer>
+
+<!-- jp.co.fsi.fs1seg  -->
+    <signer signature="@JP_CO_FSI_FS1SEG" >
+      <allow-all />
+      <seinfo value="filtered_untrusted" />
+    </signer>
+
+<!-- com.kddi.android.evc  -->
+    <signer signature="@KDDI_EVC_SYNCCALL" >
+      <allow-all />
+      <seinfo value="filtered_untrusted" />
+    </signer>
+
+<!-- com.kddi.test.enhancedvoicecallpftest  -->
+    <signer signature="@KDDI_ENHANCEDVOICECALL_TEST" >
+      <allow-all />
+      <seinfo value="filtered_untrusted" />
+    </signer>
+
+<!-- com.wits.obdm_permissions, com.wits.monitor   -->
+    <signer signature="@VZW_OBDM_SIGNED" >
+      <allow-all />
+      <seinfo value="vzw_untrusted" />
+    </signer>
+
+<!-- com.innowireless.xcal.verizon.router, com.innowireless.xcal.mobile4g   -->
+    <signer signature="@XCAL_MOBILE" >
+      <allow-all />
+      <seinfo value="xcal_untrusted" />
+    </signer>
+
+<!-- plugin start-->
+
+    <signer signature="@AHRANTA" >
+        <allow-all />
+        <seinfo value="Ahranta" />
+    </signer>
+
+    <signer signature="@COMMUNITAKE1" >
+        <allow-all />
+        <seinfo value="communitake" />
+    </signer>
+ 
+    <signer signature="@COMMUNITAKE2" >
+        <allow-all />
+        <seinfo value="communitake" />
+    </signer>
+
+   <signer signature="@COMMUNITAKE3" >
+        <allow-all />
+        <seinfo value="communitake" />
+    </signer>
+
+    <signer signature="@KOINO" >
+        <allow-all />
+        <seinfo value="koino" />
+    </signer>
+
+    <signer signature="@LOGMEIN" >
+        <allow-all />
+        <seinfo value="logmein" />
+    </signer>
+
+    <signer signature="@SOTI1" >
+        <allow-all />
+        <seinfo value="soti" />
+    </signer>
+
+    <signer signature="@SOTI2" >
+        <allow-all />
+        <seinfo value="soti" />
+    </signer>
+
+    <signer signature="@TEAMVIEWER" >
+        <allow-all />
+        <seinfo value="teamviewer" />
+    </signer>
+
+    <signer signature="@WISEMO1" >
+        <allow-all />
+        <seinfo value="wisemo" />
+    </signer>
+   
+    <signer signature="@WISEMO2" >
+        <allow-all />
+        <seinfo value="wisemo" />
+    </signer>
+
+   <signer signature="@WISEMO3" >
+        <allow-all />
+        <seinfo value="wisemo" />
+    </signer>
+
+   <signer signature="@WISEMO4" >
+        <allow-all />
+        <seinfo value="wisemo" />
+    </signer>
+
+   <signer signature="@WISEMO5" >
+        <allow-all />
+        <seinfo value="wisemo" />
+    </signer>
+
+   <signer signature="@WISEMO6" >
+        <allow-all />
+        <seinfo value="wisemo" />
+    </signer>
+
+<!-- plugin end -->
+
+</policy>

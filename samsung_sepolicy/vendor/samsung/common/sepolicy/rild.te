@@ -1,0 +1,293 @@
+#
+# rild
+#
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute rild trusteddomain;
+typeattribute rild mlstrustedsubject;
+#typeattribute rild system_domain;
+# temporary permissive to gather the log.
+# permissive rild;
+
+dumplog_create(rild)
+binder_call(rild, system)
+binder_use(rild)
+
+########## self and domain_type
+allow rild bluetooth:dir create_dir_perms;
+allow rild bluetooth:file create_file_perms;
+allow rild cellgeofenced:dir create_dir_perms;
+allow rild cellgeofenced:file create_file_perms;
+# P160524-00489 / new solution ERIS replace a vpnclient / SEPF_SECMOBILE_6.0.1_0011
+allow rild eris:tun_socket relabelfrom;
+allow rild init:dir r_dir_perms;
+allow rild init:file r_file_perms;
+allow rild init:tun_socket relabelfrom;
+allow rild mediaserver:dir create_dir_perms;
+allow rild mediaserver:file create_file_perms;
+allow rild platform_app:dir create_dir_perms;
+allow rild platform_app:file create_file_perms;
+allow rild radio:dir r_dir_perms;
+allow rild radio:file r_file_perms;
+allow rild samsung_app:dir r_dir_perms;
+allow rild samsung_app:file r_file_perms;
+allow rild self:capability { chown dac_override dac_read_search };
+allow rild self:{ netlink_socket packet_socket netlink_route_socket } create_socket_perms;
+allow rild self:process execmem;
+allow rild smdexe:dir r_dir_perms;
+allow rild smdexe:file r_file_perms;
+allow rild system_app:dir search;
+allow rild system_app:file r_file_perms;
+allow rild vpnclientd:tun_socket relabelfrom;
+allow rild wpa:dir r_dir_perms;
+allow rild wpa:file r_file_perms;
+
+########## fs_type
+allow rild proc:file w_file_perms;
+allow rild proc_net:file w_file_perms;
+allow rild sysfs:file create_file_perms;
+allow rild sysfs_sec:dir rw_dir_perms;
+allow rild sysfs_sec:{ file lnk_file } rw_file_perms;
+allow rild sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow rild ashmem_device:chr_file execute;
+allow rild emmcblk_device:blk_file r_file_perms;
+allow rild esoc_device:chr_file rw_file_perms;
+allow rild recoveryblk_device:blk_file r_file_perms;
+allow rild tun_device:chr_file rw_file_perms;
+allow rild usb_device:chr_file w_file_perms;
+
+########## file_type
+allow rild anr_data_file:dir rw_dir_perms;
+allow rild anr_data_file:file rw_file_perms;
+allow rild app_data_file:dir create_dir_perms;
+allow rild app_data_file:file create_file_perms;
+allow rild app_efs_file:dir create_dir_perms;
+allow rild app_efs_file:file create_file_perms;
+allow rild dumpstate_exec:file x_file_perms;
+allow rild dumpstate_socket:sock_file create_file_perms;
+allow rild imei_efs_file:dir create_dir_perms;
+allow rild imei_efs_file:file create_file_perms;
+## TG request(simiso.kim, CP team) by email, 6.0.1_0008 , New socket to get iptables and tc command from rild to netd
+allow rild qosd_socket:sock_file rw_file_perms;
+allow rild radio_data_file:dir create_dir_perms;
+allow rild rild_data_file:dir create_dir_perms;
+allow rild rild_data_file:file create_file_perms;
+allow rild rild_tmpfs:dir create_dir_perms;
+
+#allow rild rild_tmpfs:file { create_file_perms execute };
+#violate neverallow rule. change to:
+allow rild rild_tmpfs:file create_file_perms;
+allow rild sec_efs_file:dir create_dir_perms;
+allow rild sec_efs_file:file create_file_perms;
+allow rild system_app_data_file:dir  rw_dir_perms;
+allow rild system_app_data_file:file create_file_perms;
+allow rild system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow rild system_data_file:file create_file_perms;
+allow rild system_data_file:file r_file_perms;
+allow rild tombstone_data_file:dir r_dir_perms; 
+allow rild tombstone_data_file:file r_file_perms; 
+allow rild zygote_exec:file rx_file_perms;
+
+########## etc_type
+allow rild ctl_dumpstate_prop:property_service set;
+allow rild setupwizard_prop:property_service set;
+allow rild system_prop:property_service set;
+allow rild rild_prop:property_service set;
+
+########## known issue.
+## create ril log to sdcard_internal
+allow rild media_rw_data_file:dir create_dir_perms;
+allow rild media_rw_data_file:file create_file_perms;
+allow rild sdcard_internal:dir create_dir_perms;
+allow rild sdcard_internal:file create_file_perms;
+
+# AWS
+#allow rild dalvikcache_data_file:file execute;
+#violate neverallow rule
+
+# I9502 efs_gsm and uart device# I9502 efs_gsm and uart device
+allow rild efs_gsm_file:dir create_dir_perms;
+allow rild efs_gsm_file:file create_file_perms;
+allow rild uart_device:chr_file rw_file_perms;
+
+# Access restriction of nv_data, reqested from CP system(js074.lee)
+allow rild nv_core_efs_file:file create_file_perms;
+type_transition rild efs_file:file nv_core_efs_file ".nv_core.bak";
+type_transition rild efs_file:file nv_core_efs_file ".nv_core.bak.md5";
+
+# customized drm (i.e : /data/.sktdrm)
+allow rild drm_playready_file:dir create_dir_perms;
+allow rild drm_playready_file:file create_file_perms;
+
+# request from CP system(leo.nam)
+# need to remove at next OS, rild team will use /data/misc/radio folder
+type_transition rild system_data_file:dir rild_data_file ".attipv6";
+type_transition rild system_data_file:file rild_data_file ".data_usage_rx";
+type_transition rild system_data_file:file rild_data_file ".data_usage_tx";
+
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow rild knox_kap_device:chr_file r_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow rild at_distributor:dir r_dir_perms;
+allow rild at_distributor:file r_file_perms;
+allow rild platformappdomain:dir r_dir_perms;
+allow rild platformappdomain:file r_file_perms;
+allow rild qmuxd:unix_stream_socket connectto;
+allow rild self:capability dac_override;
+allow rild self:packet_socket { read create ioctl };
+########## fs_type
+allow rild proc:file w_file_perms;
+########## dev_type
+allow rild device:dir rw_dir_perms;
+allow rild device:file create_file_perms;
+allow rild diag_device:chr_file rw_file_perms;
+allow rild radio_device:chr_file rw_file_perms;
+allow rild smd_cxm_qmi_device:chr_file w_file_perms;
+allow rild qseecom_device:chr_file w_file_perms;
+
+########## file_type
+allow rild app_efs_file:file r_file_perms;
+allow rild imei_efs_file:file rw_file_perms;
+allow rild media_rw_data_file:dir rw_dir_perms;
+allow rild qmux_radio_socket:dir rw_dir_perms;
+allow rild qmux_radio_socket:sock_file create_file_perms;
+allow rild system_app:dir search; 
+allow rild system_app:file r_file_perms;
+
+########## etc_type
+#neverallow Google CTS-android-5.0.2_r1 : allow rild default_prop:property_service set;
+
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow rild at_distributor:dir r_dir_perms;
+allow rild at_distributor:file r_file_perms;
+allow rild cbd_log_data:dir rw_dir_perms;
+allow rild cbd_log_data:file create_file_perms;
+allow rild logdr_socket:sock_file write;
+allow rild platformappdomain:dir r_dir_perms;
+allow rild platformappdomain:file r_file_perms;
+allow rild gpsd:dir r_dir_perms;
+allow rild gpsd:file r_file_perms;
+allow rild mediaserver:dir r_dir_perms;
+allow rild mediaserver:file r_file_perms;
+allow rild mlexe:dir r_dir_perms;
+allow rild mlexe:file r_file_perms;
+allow rild self:capability { chown dac_override };
+allow rild self:netlink_kobject_uevent_socket read;
+allow rild self:packet_socket { read create ioctl };
+
+########## fs_type
+########## dev_type
+allow rild block_device:dir r_dir_perms;
+allow rild diag_device:chr_file rw_file_perms;
+allow rild emmcblk_device:blk_file rw_file_perms;
+allow rild mbin_device:lnk_file r_file_perms;
+allow rild mif_device:chr_file rw_file_perms;
+allow rild mif_device:lnk_file w_file_perms;
+allow rild radio_device:chr_file rw_file_perms;
+allow rild radioblk_device:blk_file rw_file_perms;
+
+########## file_type
+allow rild bin_nv_data_efs_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow rild dumplog_data_file:file x_file_perms;
+allow rild imei_efs_file:dir r_dir_perms;
+allow rild imei_efs_file:file w_file_perms;
+
+#allow rild system_file:dir create_dir_perms;
+#violate neverallow rule. change to:
+allow rild system_file:dir r_dir_perms;
+
+### read /data/system/users/0/settings_global.xml
+allow rild users_system_data_file:file r_file_perms;
+
+########## etc_type
+allow rild ctl_rildaemon_prop:property_service set;
+
+########## known issue.
+#r_dir_file(rild, file_type)
+# replacing r_dir_file macro and removing container related access
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow rild { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA : allow rild { file_type -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow rild { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#changeBySEA : allow rild { file_type -trstdomain_no_read_file -vold_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+#changeBySEA : allow rild { shell_data_file app_data_file }:file r_file_perms;
+
+########## androd-m-preview: denials ########
+allow rild log_device:chr_file w_file_perms;
+
+############ avc_log #############
+# P140708-00188 : avc:  denied  { read } for  pid=2280 comm="rild" name="mdm_err.log" dev="mmcblk0p27" ino=393248 scontext=u:r:rild:s0 tcontext=u:object_r:tombstone_data_file:s0 tclass=file
+# audit(1404748827.415:197): item=0 name="/tombstones/mdm/mdm_err.log" inode=393248 dev=b3:1b mode=0100660 ouid=1000 ogid=1001 rdev=00:00 obj=u:object_r:tombstone_data_file:s0
+# P140708-00188 : avc:  denied  { search } for  pid=2280 comm="rild" name="tombstones" dev="mmcblk0p27" ino=393224 scontext=u:r:rild:s0 tcontext=u:object_r:tombstone_data_file:s0 tclass=dir
+# avc:  denied  { execute } for  pid=2391 comm="Compiler" path=2F6465762F6173686D656D2F64616C76696B2D6A69742D636F64652D6361636865202864656C6574656429 dev="tmpfs" ino=18457 scontext=u:r:rild:s0 tcontext=u:object_r:rild_tmpfs:s0
+# avc:  denied  { setattr } for  pid=1786 comm="rild" name="settings.db-wal" dev="mmcblk0p27" ino=785670 scontext=u:r:rild:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file
+#from CTS testing
+# avc:  denied  { open } for  pid=999 comm="rild" name="cmdline" dev="proc" ino=15637 scontext=u:r:rild:s0 tcontext=u:r:radio:s0 #tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { read } for  pid=999 comm="rild" name="cmdline" dev="proc" ino=15637 scontext=u:r:rild:s0 tcontext=u:r:radio:s0 #tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { search } for  pid=999 comm="rild" name="2251" dev="proc" ino=15631 scontext=u:r:rild:s0 tcontext=u:r:radio:s0 #tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { getattr } for  pid=999 comm="rild" path="/proc/2251/cmdline" dev="proc" ino=15637 scontext=u:r:rild:s0 #tcontext=u:r:radio:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { open } for  pid=1151 comm="rild" path="/data/data/com.android.providers.settings/databases/settings.db" dev="mmcblk0p27" ino=785683 scontext=u:r:rild:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file
+# { write getattr setattr read lock open } for settigs.db 
+# avc:  denied  { write } for  pid=462 comm="rild" #name="accept_ra_defrtr" dev="proc" ino=10454 scontext=u:r:rild:s0 tcontext=u:object_r:proc_net:s0 tclass=file
+# avc:  denied  { open } for  pid=554 comm="rild" path="/dev/subsys_esoc0" dev="tmpfs" ino=10551 scontext=u:r:rild:s0 tcontext=u:object_r:device:s0 #tclass=chr_file
+# avc:  denied  { read write } for  pid=554 comm="rild" name="esoc-0" dev="tmpfs" ino=10550 scontext=u:r:rild:s0 tcontext=u:object_r:device:s0 #tclass=chr_file
+# avc:  denied  { read write } for  pid=598 comm="rild" name="tun" dev="tmpfs" ino=9417 scontext=u:r:rild:s0 tcontext=u:object_r:tun_device:s0 tclass=chr_file
+# avc:  denied  { open ioctl } for  pid=598 comm="rild" path="/dev/tun" dev="tmpfs" ino=9417 scontext=u:r:rild:s0 tcontext=u:object_r:tun_device:s0 tclass=chr_file
+# avc:  denied  { relabelfrom } for  pid=21111 comm="rild" scontext=u:r:rild:s0 tcontext=u:r:init:s0 tclass=tun_socket SEPF_SM-N910T_4.4.4_A018 # init is vpnclientpm or tsdaemon
+# avc:  denied  { create } for  pid=2929 comm="rild" name="lli_20140714_113028.dump" scontext=u:r:rild:s0 tcontext=u:object_r:sdcard_internal:s0 tclass=file
+# avc:  denied  { read append open } for  pid=2929 comm="rild" path="/mnt/shell/emulated/0/log/lli_20140714_113028.dump" dev="sdcardfs" ino=1572994 scontext=u:r:rild:s0 tcontext=u:object_r:sdcard_internal:s0 tclass=file
+# avc:  denied  { create } for  pid=2929 comm="rild" name="lli_20140714_113028.dump" scontext=u:r:rild:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file
+# avc:  denied  { write } for  pid=1136 comm="rild" name="hall_irq_ctrl" dev="sysfs" ino=29948 scontext=u:r:rild:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file SEPF_SM-G900F_L_A001
+# item=0 name="/sys/class/sec/sec_key/hall_irq_ctrl" inode=29948 dev=00:0c mode=0100220 ouid=1000 ogid=1001 rdev=00:00 obj=u:object_r:sysfs_sec:s0
+# avc:  denied  { search } for  pid=1075 comm="rild" name="6380" dev="proc" ino=49646 scontext=u:r:s_rild:s0 tcontext=u:r:s_system_app:s0:c2 tclass=dir
+# I9502 efs_gsm and uart device
+# audit(1356999244.795:208): avc:  denied  { write } for  pid=8169 comm="rild" name="ttySAC3" dev="tmpfs" ino=2400 scontext=u:r:s_rild:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file
+# audit(1356999236.725:207): item=0 name="/dev/ttySAC3" inode=2400 dev=00:0c mode=020660 ouid=1000 ogid=1001 rdev=cc:43 obj=u:object_r:uart_device:s0
+# avc:  denied  { write } for  pid=2597 comm="rild" name="nv_gsm_data.bin" dev="mmcblk0p23" ino=12 scontext=u:r:s_rild:s0 tcontext=u:object_r:unlabeled:s0 tclass=file
+# item=0 name="/efs_gsm/nv_gsm_data.bin" inode=12 dev=103:0f mode=0100700 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:unlabeled:s0
+# JA3G_CTC avc:  denied  { write } for  pid=10790 comm="rild" name="ttyUSB0" dev="tmpfs" ino=58086 scontext=u:r:s_rild:s0 tcontext=u:object_r:usb_device:s0 tclass=chr_file
+# JA3G_CTC avc:  denied  { write } for  pid=2530 comm="rild" name="cdma_ipc0" dev="tmpfs" ino=2245 scontext=u:r:s_rild:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# JA3G_CTC avc:  denied  { write } for  pid=2585 comm="rild" name="cdma_boot0" dev="tmpfs" ino=5265 scontext=u:r:s_rild:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# JA3G_CTC avc:  denied  { set } for property=ctl.dumpstate scontext=u:r:s_rild:s0 tcontext=u:object_r:ctl_dumpstate_prop:s0 tclass=property_service
+# I9502ZNEHNL2 avc:  denied  { create } for  pid=2599 comm="rild" name=".nv_gsm_data.bak" scontext=u:r:s_rild:s0 tcontext=u:object_r:efs_gsm_file:s0 tclass=file
+# I9502ZNEHNL2 avc:  denied  { setattr } for  pid=3260 comm="rild" path="/efs_gsm/nv_gsm_data.bin" dev="mmcblk0p23" ino=13 scontext=u:r:s_rild:s0 tcontext=u:object_r:efs_gsm_file:s0 tclass=file 
+# avc:  denied  { set } for property=persist.data_netmgrd_mtu scontext=u:r:s_rild:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=persist.ril.ims.eutranParam scontext=u:r:s_rild:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=persist.ril.ims.utranParam scontext=u:r:s_rild:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=3138 comm="rild" name="/" dev="tmpfs" ino=15645 scontext=u:r:rild:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3138 comm="rild" name="qmi_dump" scontext=u:r:rild:s0 tcontext=u:object_r:device:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=3138 comm="rild" path="/dev/qmi_dump" dev="tmpfs" ino=113053 scontext=u:r:rild:s0 tcontext=u:object_r:device:s0 tclass=file permissive=1
+# avc:  denied  { set } for property=ctl.ril-daemon1 scontext=u:r:rild:s0 tcontext=u:object_r:ctl_rildaemon_prop:s0 tclass=property_service
+# avc:  denied  { relabelfrom } for  pid=12226 comm="rild" scontext=u:r:rild:s0 tcontext=u:r:vpnclientd:s0 tclass=tun_socket permissive=0
+# avc:  denied  { create } for  pid=3194 comm="rild" name="settings.db" scontext=u:r:rild:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file permissive=0 SEPF_SM-G925T_6.0_0001
+# avc:  denied  { read } for  pid=5093 comm="rild" name="settings_global.xml" dev="sda18" ino=262274 scontext=u:r:rild:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=0
+# avc:  denied  { write } for  pid=995 comm="rild" name="qseecom" dev="tmpfs" ino=9036 scontext=u:r:rild:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=0 SEPF_SM-S920L_5.0.2-1_0043
+# avc:  denied  { write } for  pid=2109 comm="rild" name="qosd" dev="tmpfs" ino=17239 scontext=u:r:rild:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=0 SEPF_SECMOBILE_6.0.1_0008 syscall=203
+# avc:  denied  { relabelfrom } for  pid=20090 comm="rild" scontext=u:r:rild:s0 tcontext=u:r:eris:s0 tclass=tun_socket permissive=0 SEPF_SECMOBILE_6.0.1_0011
+

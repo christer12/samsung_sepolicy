@@ -1,0 +1,17 @@
+# create new domain run_hawk_on_boot
+type run_hawk_on_boot, domain;
+type run_hawk_on_boot_exec, exec_type, file_type;
+
+init_daemon_domain(run_hawk_on_boot)
+
+allow run_hawk_on_boot self:capability dac_override;
+# only read permission can be granted
+allow run_hawk_on_boot shell_exec:file read;
+allow run_hawk_on_boot system_file:file execute_no_trans;
+allow run_hawk_on_boot kernel:system syslog_mod;
+allow run_hawk_on_boot proc:file create_file_perms;
+allow run_hawk_on_boot self:capability2 syslog;
+allow run_hawk_on_boot init:unix_stream_socket unix_stream_socket_perms;
+allow run_hawk_on_boot property_socket:sock_file create_file_perms;
+allow run_hawk_on_boot radio_prop:property_service set;
+

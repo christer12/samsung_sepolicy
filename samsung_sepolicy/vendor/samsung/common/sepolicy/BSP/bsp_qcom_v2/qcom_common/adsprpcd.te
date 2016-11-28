@@ -1,0 +1,5 @@
+# for B2C users
+typeattribute adsprpcd trusteddomain;
+typeattribute adsprpcd device_domain;
+
+

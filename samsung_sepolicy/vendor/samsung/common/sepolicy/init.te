@@ -1,0 +1,226 @@
+#
+# init
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# temporary permissive to gather the log.
+#permissive init;
+
+########## self and domain_type
+allow init emmc_quickverify:process dyntransition;
+allow init ffu:process dyntransition;
+allow init kernel:key { view read search };
+allow init kernel:system { module_request syslog_mod };
+allow init prepare_param:process transition;
+allow init self:capability sys_module;
+
+########## fs_type
+#neverallow by Google: allow init {fs_type dev_type file_type }:dir_file_class_set relabelto;
+allow init {fs_type dev_type file_type -contextmount_type -exec_type -system_file -system_library_file -rootfs }:dir_file_class_set relabelto;
+allow init sysfs:dir write;
+allow init sysfs:lnk_file setattr;
+allow init sysfs_type:dir_file_class_set relabelfrom;
+allow init sysfs_type:{ file lnk_file } r_file_perms;
+allow init firmware:filesystem relabelto;
+allow init functionfs:filesystem mount;
+allow init pstore:filesystem mount;
+
+########## dev_type
+allow init ap_device:file create_file_perms;
+allow init { dev_type -kmem_device }:dir_file_class_set relabelfrom;
+allow init block_device:blk_file relabelfrom;
+allow init efsblk_device:blk_file setattr;
+allow init emmcblk_device:blk_file { relabelfrom setattr };
+allow init keychord_device:chr_file write;
+
+########## file_type
+#neverallow by Google: (keystore_data_file:dir *;)
+#allow init data_file_type:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold } vold_data_file:dir ~{ open create read getattr setattr search relabelto ioctl }
+#allow init { data_file_type -keystore_data_file }:dir create_dir_perms;
+allow init { data_file_type -keystore_data_file -vold_data_file }:dir create_dir_perms;
+allow init vold_data_file:dir { open create read getattr setattr search ioctl };
+#neverallow Google CTS-android-m-preview:neverallow init { file_type fs_type }:file execute_no_trans
+#allow init energy-awareness_exec:file execute_no_trans;
+
+#neverallow by Google: neverallow { domain -system_server } security_file:dir { rename write add_name remove_name rmdir };
+allow init security_file:dir ~{ rename write add_name remove_name rmdir };
+allow init system_fifo:dir { relabelfrom relabelto  create_dir_perms };
+
+#neverallow by Google:neverallow domain { system_file exec_type }:{ dir { { chr_file blk_file } { file lnk_file sock_file fifo_file } } } mounton
+#allow init system_file:dir mounton;
+
+########## etc_type
+allow init port:tcp_socket name_connect;
+allow init port:{ tcp_socket udp_socket } name_bind;
+allow init node:{ tcp_socket udp_socket } node_bind;
+
+########## known issue.
+# VPN issue
+allow init node:rawip_socket node_bind;
+
+# init process: debug_interface, mld
+# will be removed after generate specific domain.
+allow init sdcard_type:dir create_dir_perms;
+allow init sdcard_type:file create_file_perms;
+
+# Transitions to seclabel processes in init.rc
+allow init flash_recovery:process transition;
+
+# not transited process, lpm  
+allow init ashmem_device:chr_file execute;
+
+# emmc_quickverify in recovery mode /sbin/emmc_quickverify u:object_r:rootfs:s0 emmc_quickverify
+allow init kernel:system syslog_read;
+#neverallow by Google: neverallow domain rootfs:file { create write setattr relabelto append unlink link rename };
+
+# init should delete SPD policy when the verification is fail, "Function: selinux_android_load_priority , spota verifySig or checkHash fails."
+#neverallow by Google: neverallow { domain -system_server } security_file:file { create setattr write append unlink link rename };
+# allow init security_file:file unlink;
+
+#  /data/system/container was security_file at Kitkat, but now it is container_system_file
+allow init security_file:dir relabelfrom ;
+allow init security_file:file relabelfrom;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -servicemanager } *:binder set_context_mgr
+#allow init domain:binder set_context_mgr;
+
+########## androd-m-preview: denials ########
+#neverallow Google CTS-android-m-preview: neverallow init { file_type fs_type }:file execute_no_trans
+#allow init rootfs:file execute_no_trans;
+allow init tz_device:chr_file r_file_perms;
+allow init zygote_exec:lnk_file r_file_perms;
+allow init kmsg_device:chr_file w_file_perms;
+allow init icd_device:file create_file_perms;
+allow init proc_avc_msg:file w_file_perms;
+
+########## androd-m-preview: denials ########
+allow init { ap_device asec_apk_file efs_file hidden_file persdata_data_file storage_file system_data_file usb_device sec_efs_file }:dir mounton;
+allow init device:chr_file create_file_perms;
+allow init log_device:chr_file w_file_perms;
+allow init device:file relabelfrom;
+allow init kernel:security read_policy;
+allow init secure_storage_device:dir relabelfrom;
+allow init socket_device:sock_file create_file_perms;
+allow init tz_device:chr_file w_file_perms;
+allow init property_socket:sock_file write;
+allow init proc_avc_msg:file w_file_perms;
+allow init kmsg_device:chr_file { open read relabelto setattr };
+allow init audit_log:file rw_file_perms;
+
+########## androd-m-early_access: denials ########
+allow init sdcardd_exec:file getattr;
+allow init init_tmpfs:file w_file_perms;
+allow init mmc_block_device:blk_file w_file_perms;
+
+# chown/chmod lnk_file in /dev.
+allow init { dev_type -kmem_device }:lnk_file { read open setattr };
+
+# fsck writes klog, but mknod by init(do_check_fs).
+type_transition init device:chr_file klog_device "__kmsg";
+allow init klog_device:chr_file { create open write unlink };
+allow init device:dir { write add_name remove_name };
+# avc:  denied  { write } for  pid=2959 comm="e2fsck" path=2F6465762F5F5F6B6D7367202864656C6574656429 dev="tmpfs" ino=4382 scontext=u:r:fsck:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=0
+
+# reload policy for SPD
+allow init kernel:security load_policy;
+# avc:  denied  { load_policy } for  pid=1 comm="init" scontext=u:r:init:s0 tcontext=u:object_r:kernel:s0 tclass=security permissive=0
+
+#transition for /data/.wifiver.info
+allow init system_data_file:dir ra_dir_perms;
+type_transition init system_data_file:file wifiver_data_file ".wifiver.info";
+allow init wifiver_data_file:file create_file_perms;
+
+# configfs /sys/kernel/config
+allow init configfs:filesystem mount;
+allow init configfs:dir { create_dir_perms mounton };
+allow init configfs:{ file lnk_file } create_file_perms;
+
+# chown/chmod files on dev_type.
+allow init { dev_type -kmem_device }:file { read open setattr };
+
+# For fix the J7 MSM 8939 chipset booting problem - the device goes to recovery mode every booting up
+allow init emmcblk_device:blk_file rw_file_perms;
+
+# P160219-04277 [G903F] IMEI writing 중 "Check 1st IMEI Signature Fail"
+# rm /dev/mbin0 to control nv revision
+allow init device:dir { write remove_name };
+allow init { device mbin_device }:lnk_file unlink;
+
+# OMR_v3: init mount /omr 
+allow init omr_file:dir mounton;
+# avc:  denied  { mounton } for  pid=1 comm="init" path="/omr" dev="rootfs" ino=14965 scontext=u:r:init:s0 tcontext=u:object_r:omr_file:s0 tclass=dir permissive=1
+
+#knox_changer refactorying / to clean-up file-system cache write '1' / sh4615.lee
+allow init proc_drop_caches:file rw_file_perms;
+
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1398853016.740:14): avc:  denied  { read } for  pid=1 comm="init" name="pipes" dev="tmpfs" ino=10176 scontext=u:r:init:s0 #tcontext=u:object_r:system_fifo:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398853016.740:15): avc:  denied  { open } for  pid=1 comm="init" name="pipes" dev="tmpfs" ino=10176 scontext=u:r:init:s0 #tcontext=u:object_r:system_fifo:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398853016.740:16): avc:  denied  { setattr } for  pid=1 comm="init" name="pipes" dev="tmpfs" ino=10176 scontext=u:r:init:s0 #tcontext=u:object_r:system_fifo:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398853016.740:17): avc:  denied  { getattr } for  pid=1 comm="init" path="/dev/pipes" dev="tmpfs" ino=10176 scontext=u:r:init:s0 #tcontext=u:object_r:system_fifo:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398853016.740:18): avc:  denied  { relabelfrom } for  pid=1 comm="init" name="pipes" dev="tmpfs" ino=10176 scontext=u:r:init:s0 #tcontext=u:object_r:system_fifo:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398853016.740:19): avc:  denied  { relabelto } for  pid=1 comm="init" name="pipes" dev="tmpfs" ino=10176 scontext=u:r:init:s0 #tcontext=u:object_r:system_fifo:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#audit(1388891429.010:20): avc:  denied  { setattr } for  pid=1 comm="init" name="mmcblk0p12" dev="tmpfs" ino=10117 scontext=u:r:init:s0 tcontext=u:object_r:efsblk_device:s0 #tclass=blk_file
+#audit(1388891428.390:12): avc:  denied  { relabelfrom } for  pid=219 comm="init" name="mmcblk0p23" dev="tmpfs" ino=10161 scontext=u:r:init:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file
+#audit(1388891428.460:13): avc:  denied  { syslog_mod } for  pid=1 comm="init" scontext=u:r:init:s0 tcontext=u:r:kernel:s0 tclass=system
+#audit(1388891429.060:21): avc:  denied  { transition } for  pid=270 comm="init" path="/system/bin/prepare_param.sh" dev="mmcblk0p23" ino=452 scontext=u:r:init:s0 #tcontext=u:r:prepare_param:s0 tclass=process
+#audit(1388891428.570:17): avc:  denied  { setattr } for  pid=1 comm="init" name="container" dev="mmcblk0p26" ino=261638 scontext=u:r:init:s0 #tcontext=u:object_r:security_file:s0 tclass=dir
+#audit(1388891428.580:18): avc:  denied  { relabelfrom } for  pid=1 comm="init" name="container" dev="mmcblk0p26" ino=261638 scontext=u:r:init:s0 #tcontext=u:object_r:security_file:s0 tclass=dir
+#audit(1388891428.580:19): avc:  denied  { relabelfrom } for  pid=1 comm="init" name="enterprisedata.xml" dev="mmcblk0p26" ino=261692 scontext=u:r:init:s0 #tcontext=u:object_r:security_file:s0 tclass=file
+#type=1400 msg=audit(1403717016.756:367): avc:  denied  { dyntransition } for  pid=9478 comm="zygote" scontext=u:r:init:s0 tcontext=u:r:platform_app:s0 tclass=process #SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+#type=1400 msg=audit(1403717018.696:370): avc:  denied  { dyntransition } for  pid=9616 comm="zygote" scontext=u:r:init:s0 tcontext=u:r:untrusted_app:s0 tclass=process #SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+# zygote context error issue, not necessary for init.
+#allow init domain:process { dyntransition transition };
+#type=1400 msg=audit(1390261549.330:22): avc:  denied  { add_name } for  pid=1 comm="init" name=".playready" scontext=u:r:init:s0 tcontext=u:object_r:app_data_file:s0 #tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+#type=1400 msg=audit(1390261549.210:15): avc:  denied  { relabelto } for  pid=1 comm="init" scontext=u:r:init:s0 tcontext=u:object_r:firmware:s0 tclass=filesystem SEPF_SAMSUNG-#SM-N900A_4.4.3_0018
+#type=1400 msg=audit(1390261549.880:23): avc:  denied  { relabelto } for  pid=1 comm="init" name=".secure_storage" dev="tmpfs" ino=9360 scontext=u:r:init:s0 #tcontext=u:object_r:secure_storage_device:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+#type=1400 msg=audit(1403717021.536:371): avc:  denied  { setattr } for  pid=9700 comm="zygote" name="0" dev="sdcardfs" ino=522241 scontext=u:r:init:s0 #tcontext=u:object_r:sdcard_internal:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+# zygote context error issue, not necessary for init.
+#allow init sdcard_internal:dir { create_dir_perms mounton };
+#audit(1389734574.840:12): avc:  denied  { relabelto } for  pid=1 comm="init" scontext=u:r:init:s0 tcontext=u:object_r:firmware:s0 tclass=filesystem
+# avc:  denied  { name_connect } for  pid=2713 comm="lhd" dest=6477 scontext=u:r:init:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket
+# avc:  denied  { name_bind } for  pid=20499 comm="olsrd" src=1978 scontext=u:r:init:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { name_bind } for  pid=20499 comm="olsrd" src=698 scontext=u:r:init:s0 tcontext=u:object_r:port:s0 tclass=udp_socket SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { node_bind } for  pid=20499 comm="olsrd" src=1978 scontext=u:r:init:s0 tcontext=u:object_r:node:s0 tclass=tcp_socket SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { node_bind } for  pid=20499 comm="olsrd" src=60699 scontext=u:r:init:s0 tcontext=u:object_r:node:s0 tclass=udp_socket SEPF_SM-N910F_4.4.4_0018
+#audit(1388577642.275:13): avc:  denied  { sys_module } for  pid=2696 comm="macloader" capability=16  scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
+#type=1300 audit(1388577643.425:57): arch=40000028 syscall=294 per=800000 success=yes exit=0 a0=3 a1=0 a2=40 a3=b89afaf8 items=0 ppid=2660 pid=2970 auid=4294967295 uid=0 gid=0 #euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="iptatype=1400 audit(1388577643.430:58): avc:  denied  { sys_module } for  pid=2696 #comm="macloader" capability=16  scontext=u:r:init:s0 tcontext=u:r:init:s0 tclass=capability
+# P140707-00011 : avc:  denied  { transition } for  pid=428 comm="init" path="/system/etc/install-recovery.sh" dev="mmcblk0p24" ino=3776 scontext=u:r:init:s0 tcontext=u:r:flash_recovery:s0 tclass=process
+# P140707-02021 : avc:  denied  { execute } for  pid=2787 comm="lpm" path="/dev/ashmem" dev="tmpfs" ino=8208 scontext=u:r:init:s0 tcontext=u:object_r:ashmem_device:s0 tclass=chr_file
+# avc:  denied  { create } for  pid=281 comm="emmc_quickverif" name="emmc_checksum.log" scontext=u:r:init:s0 tcontext=u:object_r:rootfs:s0 tclass=file
+# avc:  denied  { append } for  pid=281 comm="emmc_quickverif" path="/tmp/emmc_checksum.log" dev="rootfs" ino=11272 scontext=u:r:init:s0 tcontext=u:object_r:rootfs:s0 tclass=file
+# avc:  denied  { syslog_read } for  pid=281 comm="emmc_quickverif" scontext=u:r:init:s0 tcontext=u:r:kernel:s0 tclass=system
+# avc:  denied  { mounton } for  pid=404 comm="update_binary" path="/system" dev="mmcblk0p24" ino=2 scontext=u:r:recovery:s0 tcontext=u:object_r:system_file:s0 tclass=dir
+# avc:  denied  { unlink } for  pid=1 comm="init" name="sepolicy" dev="mmcblk0p26" ino=130572 scontext=u:r:init:s0 tcontext=u:object_r:security_file:s0 tclass=file
+# P140818-00020 avc:  denied  { relabelfrom } for  pid=266 comm="init" name="dm-0" dev="tmpfs" ino=9925 scontext=u:r:init:s0 tcontext=u:object_r:block_device:s0 tclass=blk_file SEPF_SM-N910T_4.4.4_A019
+# avc:  denied  { rlimitinh } for  pid=297 comm="prepare_param.s" scontext=u:r:init:s0 tcontext=u:r:prepare_param:s0 tclass=process
+# avc:  denied  { siginh } for  pid=297 comm="prepare_param.s" scontext=u:r:init:s0 tcontext=u:r:prepare_param:s0 tclass=process
+# arch=40000028 syscall=11 per=800000 success=yes exit=0 a0=b6d7e8d1 a1=b6d7305c a2=60884 a3=1000000 items=3 ppid=1 pid=297 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="preaudit(1388928367.200:12): argc=3 a0="/system/bin/sh" a1="/system/bin/prepare_param.sh" a2="/dev/block/platform/msm_sdcc.1/by-name/param"
+# argc=2 a0="/system/bin/sh" a1="/system/bin/prepare_param.sh"
+# cwd="/"
+# item=0 name="/system/bin/prepare_param.sh" inode=612 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:prepare_param_sh_file:s0
+# item=1 name=(null) inode=688 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:shell_exec:s0
+# item=2 name=(null) inode=543 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:system_file:s0
+# avc:  denied  { setattr } for  pid=1 comm="init" name="mmcblk0p12" dev="tmpfs" ino=7541 scontext=u:r:init:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file
+# avc:  denied  { execute_no_trans } for  pid=507 comm="init" path="/system/bin/energy-awareness" dev="sda13" ino=666 scontext=u:r:init:s0 tcontext=u:object_r:energy-awareness_exec:s0 tclass=file permissive=0 SEPF_SM-N916S_5.0.2_0002
+# avc:  denied  { mounton } for  pid=2924 comm="init" path="/.system" dev="sda15" ino=2 scontext=u:r:init:s0 tcontext=u:object_r:system_file:s0 tclass=dir permissive=0
+# avc:  denied  { read } for  pid=1 comm="init" name="cooling_device0" dev="sysfs" ino=19487 scontext=u:r:init:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=lnk_file permissive=1
+# avc:  denied  { write } for  pid=1 comm="init" name="property_service" dev="tmpfs" ino=2773 scontext=u:r:init:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { setattr } for  pid=1 comm="init" name="m9kefs1" dev="tmpfs" ino=8344 scontext=u:r:init:s0 tcontext=u:object_r:modem_device:s0 tclass=lnk_file permissive=1
+# avc:  denied  { mounton } for  pid=1 comm="init" path="/storage" dev="rootfs" ino=12448 scontext=u:r:init:s0 tcontext=u:object_r:storage_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=1 comm="init" name="android0" dev="sysfs" ino=22026 scontext=u:r:init:s0 tcontext=u:object_r:sysfs:s0 tclass=dir permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { mounton } for  pid=1933 comm="init" path="/efs" dev="rootfs" ino=2206 scontext=u:r:init:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { setattr } for  pid=1 comm="init" name="subsystem" dev="sysfs" ino=19717 scontext=u:r:init:s0 tcontext=u:object_r:sysfs:s0 tclass=lnk_file permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { mounton } for  pid=1 comm="init" path="/sys/kernel/config" dev="sysfs" ino=11492 scontext=u:r:init:s0 tcontext=u:object_r:configfs:s0 tclass=dir permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { create } for  pid=1 comm="init" name="g1" scontext=u:r:init:s0 tcontext=u:object_r:configfs:s0 tclass=dir permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { write } for  pid=1 comm="init" name="serialnumber" dev="configfs" ino=7297 scontext=u:r:init:s0 tcontext=u:object_r:configfs:s0 tclass=file permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { create } for  pid=1 comm="init" name="mtp.0" scontext=u:r:init:s0 tcontext=u:object_r:configfs:s0 tclass=lnk_file permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { write } for  pid=1 comm="init" name="keychord" dev="tmpfs" ino=12513 scontext=u:r:init:s0 tcontext=u:object_r:keychord_device:s0 tclass=chr_file permissive=0
+# avc:  denied  { mounton } for  pid=1 comm="init" path="/cpefs" dev="rootfs" ino=12311 scontext=u:r:init:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=dir permissive=1 SEPF_SM-G930W8_6.0_0001
+# avc:  denied  { setattr } for  pid=1 comm="init" name="icd" dev="tmpfs" ino=3390 scontext=u:r:init:s0 tcontext=u:object_r:icd_device:s0 tclass=file permissive=0
+# avc:  denied  { search } for  pid=1 comm="init" scontext=u:r:init:s0 tcontext=u:r:kernel:s0 tclass=key permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { write } for  pid=1 comm="init" name="drop_caches" dev="proc" ino=1035 scontext=u:r:init:s0 tcontext=u:object_r:proc_drop_caches:s0 tclass=file permissive=0

@@ -1,0 +1,10 @@
+# create  new domain memsicd
+
+type memsicd, domain;
+type memsicd_exec, exec_type, file_type;
+
+init_daemon_domain(memsicd)
+
+allow memsicd memsic_device:chr_file create_file_perms;
+allow memsicd input_device:dir create_dir_perms;
+

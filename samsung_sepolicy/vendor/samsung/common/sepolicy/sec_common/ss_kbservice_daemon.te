@@ -1,0 +1,45 @@
+#
+#  ss_kbservice_daemon
+#
+
+############ sec_common #############
+########## type and macro.
+type ss_kbservice_daemon, domain, mlstrustedsubject;
+type ss_kbservice_daemon_exec, exec_type, file_type;
+typeattribute ss_kbservice_daemon trusteddomain;
+#typeattribute ss_kbservice_daemon system_domain;
+
+init_daemon_domain(ss_kbservice_daemon)
+
+########## self and domain_type
+allow ss_kbservice_daemon kernel:system module_request;
+
+########## fs_type
+########## dev_type
+allow ss_kbservice_daemon uhid_device:chr_file { write ioctl open };
+########## file_type
+allow ss_kbservice_daemon system_data_file:dir { write add_name remove_name };
+allow ss_kbservice_daemon system_data_file:sock_file { create setattr unlink };
+
+########## etc_type
+allow ss_kbservice_daemon permission_service:service_manager find;
+
+########## known issue.
+# type transtion from system_data_file to ss_kbservice_daemon_socket
+allow ss_kbservice_daemon system_data_file:dir rw_dir_perms;
+type_transition ss_kbservice_daemon system_data_file:sock_file ss_kbservice_daemon_socket "ss_kbservice_daemon";
+allow ss_kbservice_daemon ss_kbservice_daemon_socket:sock_file create_file_perms;
+
+############ avc_log #############
+#from CTS testing
+#avc:  denied  { ioctl } for  pid=283 comm="ss_kbservice_da" path="/dev/uinput" dev="tmpfs" ino=10477 scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:uhid_device:s0 tclass=chr_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { write } for  pid=283 comm="ss_kbservice_da" name="uinput" dev="tmpfs" ino=10477 scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:uhid_device:s0 tclass=chr_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { open } for  pid=283 comm="ss_kbservice_da" name="uinput" dev="tmpfs" ino=10477 scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:uhid_device:s0 tclass=chr_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { add_name } for  pid=283 comm="ss_kbservice_da" name="ss_kbservice_daemon" scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_0001
+#avc:  denied  { write } for  pid=283 comm="ss_kbservice_da" name="/" dev="mmcblk0p26" ino=2 scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_0001
+#avc:  denied  { create } for  pid=283 comm="ss_kbservice_da" name="ss_kbservice_daemon" scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { setattr } for  pid=283 comm="ss_kbservice_da" name="ss_kbservice_daemon" dev="mmcblk0p26" ino=15 scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { find } for service=permission scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:permission_service:s0 tclass=service_manager 
+
+
+

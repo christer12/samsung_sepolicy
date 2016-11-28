@@ -1,0 +1,5 @@
+
+binder_call(radio, dmb)
+
+############ SKT #############
+allow radio tbased:binder call;

@@ -1,0 +1,46 @@
+# JPN
+# felica subsystem
+
+# felica device access.
+allow felica felica_device:chr_file rw_file_perms;
+allow felica felicashell_device:chr_file r_file_perms;
+allow felica nfcfelica_device:chr_file rw_file_perms;
+
+#For felica Factory TestTool START
+allow felica dalvikcache_data_file:file read;
+#allow felica fimg2d_video_device:chr_file {read write open ioctl};
+#allow felica pvrsync_device:chr_file {read write open};
+#For felica Factory TestTool END
+
+#For felica Diag START
+#allow felica system_data_file:file {open execute};
+#allow felica system:unix_stream_socket {setopt};
+#For felica Diag END
+
+#For felica FN device Test Tool START
+#allow felica block_device:blk_file {open write};
+#For felica FN device Test Tool END
+
+# Data file accesses.
+allow felica felica_data_file:dir create_dir_perms;
+allow felica felica_data_file:notdevfile_class_set create_file_perms;
+#allow felica efs_file:file create_file_perms;
+
+#allow nfc sysfs_nfc_power_writable:file rw_file_perms;
+#allow felica sysfs:file write;
+#allow felica fimg2d_video_device:chr_file rw_file_perms;
+#allow felica system:unix_stream_socket connectto;
+#allow felica system:unix_stream_socket { setopt };
+#allow felica pvrsync_device:chr_file rw_file_perms;
+
+# for B2C users
+#changeBySEA : typeattribute felica trusteddomain;
+#changeBySEA : typeattribute felica trusted_app_domain;
+
+
+allow felica_app sec_efs_file:dir create_dir_perms;
+allow felica_app sec_efs_file:file create_file_perms;
+# avc:  denied  { write open } for  pid=13793 comm="sung.felicalock" path="/efs/sec_efs/FeliCaLock/03" dev="sda3" ino=20 scontext=u:r:felica_app:s0:c512,c768 tcontext=u:object_r:sec_efs_file:s0:c512,c768 tclass=file permissive=1
+# avc:  denied  { create } for  pid=13793 comm="sung.felicalock" name="03" scontext=u:r:felica_app:s0:c512,c768 tcontext=u:object_r:sec_efs_file:s0:c512,c768 tclass=file permissive=1
+# avc:  denied  { ioctl } for  pid=13793 comm="sung.felicalock" path="/efs/sec_efs/FeliCaLock/03" dev="sda3" ino=20 scontext=u:r:felica_app:s0:c512,c768 tcontext=u:object_r:sec_efs_file:s0:c512,c768 tclass=file permissive=1
+

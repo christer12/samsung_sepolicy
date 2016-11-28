@@ -1,0 +1,15 @@
+#
+# property_contexts
+#
+
+
+############ marvell_common #############
+marvell.ril.       u:object_r:rild_prop:s0
+mdc_initial_max_retry       u:object_r:radio_prop:s0
+
+
+
+############ avc_log #############
+# avc:  denied  { set } for property=marvell.ril.ppp.enabled scontext=u:r:marvelltel:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=mdc_initial_max_retry scontext=u:r:marvelltel:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+

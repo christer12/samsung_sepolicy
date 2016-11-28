@@ -1,0 +1,21 @@
+# special policy for eng build
+userdebug_or_eng(`
+# allow user to test wifi with shell
+#============= shell ==============
+#neverallow by Google: allow shell wifi_data_file:dir { write remove_name add_name };
+#neverallow by Google: allow shell wifi_data_file:sock_file { create unlink setattr };
+allow shell wpa:unix_dgram_socket sendto;
+allow shell wpa_socket:sock_file write;
+
+############ slsi_common #############
+allow shell drm_efs_file:file r_file_perms;
+
+
+############  carrier_kor_lisi\common_lgt\adbd.te #############
+#============= adbd ==============
+#changeBySEA : allow adbd efs_file:dir { write getattr add_name };
+#changeBySEA : allow adbd efs_file:file { write create open setattr };
+
+')
+
+

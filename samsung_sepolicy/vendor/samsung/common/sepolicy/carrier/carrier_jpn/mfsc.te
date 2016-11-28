@@ -1,0 +1,40 @@
+# mfsc subsystem
+type mfsc, domain;
+type mfsc_exec, exec_type, file_type;
+
+init_daemon_domain(mfsc)
+
+# mfsc device access.
+allow mfsc nfc_device:chr_file rw_file_perms;
+allow mfsc nfc_device:chr_file { read write open ioctl };
+allow mfsc felica_device:chr_file rw_file_perms;
+
+allow mfsc nfcfelica_device:chr_file rw_file_perms;
+allow mfsc nfcfelica_device:chr_file {getattr};
+allow mfsc mfsc:capability { dac_override fsetid };
+# Data file accesses.
+allow mfsc mfsc:netlink_socket { write read create bind };
+
+allow mfsc app_data_file:dir create_dir_perms;
+#allow mfsc app_data_file:notdevfile_class_set create_file_perms;
+allow mfsc app_data_file:{ file sock_file fifo_file } create_file_perms;
+allow mfsc app_data_file:lnk_file { create rename setattr unlink w_file_perms getattr open ioctl lock };
+allow mfsc app_data_file:file rw_file_perms;
+
+allow mfsc system_data_file:dir create_dir_perms;
+allow mfsc system_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
+allow mfsc system_data_file:file r_file_perms;
+
+allow mfsc qmux_radio_socket:dir rw_dir_perms;
+allow mfsc qmux_radio_socket:sock_file create_file_perms;
+
+allow mfsc qmuxd:unix_stream_socket { connectto };
+
+allow mfsc fsslcmnd_exec:file { getattr };
+allow mfsc dumplog_data_file:dir create_dir_perms;
+allow mfsc dumplog_data_file:notdevfile_class_set create_file_perms;
+allow mfsc dumplog_data_file:file rw_file_perms;
+
+# for B2C users
+typeattribute mfsc trusteddomain;
+typeattribute mfsc device_domain;

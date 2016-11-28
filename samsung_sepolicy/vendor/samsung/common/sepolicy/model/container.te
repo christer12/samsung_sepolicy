@@ -1,0 +1,10 @@
+#
+# Container related policy
+#
+
+type container_app, containerdomain, domain;
+type container_service, containerdomain, domain;
+
+app_domain(container_app)
+app_domain(container_service)
+

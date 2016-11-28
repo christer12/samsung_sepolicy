@@ -1,0 +1,49 @@
+#
+# uncrypt
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+#typeattribute uncrypt trusteddomain;
+#typeattribute uncrypt system_domain;
+# temporary permissive to gather the log.
+# permissive uncrypt;
+
+########## self and domain_type
+allow uncrypt self:capability { fowner chown };
+
+########## fs_type
+########## dev_type
+allow uncrypt userdatablk_device:lnk_file r_file_perms;
+allow uncrypt userdatablk_device:blk_file w_file_perms;
+allow uncrypt emmcblk_device:lnk_file r_file_perms;
+allow uncrypt emmcblk_device:blk_file w_file_perms;
+allow uncrypt kmsg_device:chr_file rw_file_perms;
+
+########## file_type
+allow uncrypt cache_file:dir create_dir_perms;
+allow uncrypt fota_data_file:dir r_dir_perms;
+allow uncrypt fota_data_file:file r_file_perms;
+allow uncrypt media_rw_data_file:dir r_dir_perms;
+allow uncrypt media_rw_data_file:file r_file_perms;
+allow uncrypt system_data_file:dir r_dir_perms;
+allow uncrypt system_data_file:file r_file_perms;
+
+########## etc_type
+set_prop(uncrypt, vold_prop)
+
+########## known issue.
+
+############ avc_log #############
+#avc:  denied  { open } for  pid=28440 comm="uncrypt" name="update.zip" dev="mmcblk0p26" ino=523293 scontext=u:r:uncrypt:s0 tcontext=u:object_r:system_data_file:s0 tclass=file SEPF_SM-G900F_5.0_A001 arch=40000028 syscall=322 per=800000 success=no exit=-13 a0=ffffff9c a1=bee0679c a2=20000 a3=0 items=1 ppid=1 pid=28440 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="uncrypt" exe="/system/bin/uncrypt" subj=u:r:uncrypt:s0 key=(null) cwd="/" item=0 name="/data/fota/update.zip" inode=523293 dev=b3:1a mode=0100600 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:system_data_file:s0
+#avc:  denied  { write } for  pid=8241 comm="uncrypt" name="mmcblk0p26" dev="tmpfs" ino=9720 scontext=u:r:uncrypt:s0 tcontext=u:object_r:userdatablk_device:s0 tclass=blk_file SEPF_SM-G900F_5.0_A001 type=1300 msg=audit(1414404695.738:197): arch=40000028 syscall=322 per=800000 success=no exit=-13 a0=ffffff9c a1=b6c60070 a2=20001 a3=0 items=1 ppid=1 pid=8241 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="uncrypt" exe="/system/bin/uncrypt" subj=u:r:uncrypt:s0 key=(null) type=1307 msg=audit(1414404695.738:197):  cwd="/"type=1302 msg=audit(1414404695.738:197): item=0 name="/dev/block/platform/msm_sdcc.1/by-name/userdata" inode=9720 dev=00:0b mode=060600 ouid=0 ogid=0 rdev=b3:1a obj=u:object_r:userdatablk_device:s0 
+# avc:  denied  { getattr } for  pid=15726 comm="uncrypt" path="/data/media" dev="mmcblk0p26" ino=130836 scontext=u:r:uncrypt:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_A001
+#  item=0 name="/data/media/0/fota/test.zip" inode=131614 dev=b3:1a mode=0100664 ouid=1023 ogid=1023 rdev=00:00 obj=u:object_r:media_rw_data_file:s0
+# avc:  denied  { read } for  pid=9316 comm="uncrypt" name="test.zip" dev="mmcblk0p26" ino=131614 scontext=u:r:uncrypt:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SM-G900F_5.0_A001
+# avc:  denied  { open } for  pid=9316 comm="uncrypt" name="test.zip" dev="mmcblk0p26" ino=131614 scontext=u:r:uncrypt:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SM-G900F_5.0_A001
+# avc:  denied  { read } for  pid=8209 comm="uncrypt" name="2400258.cfg" dev="dm-0" ino=131815 scontext=u:r:uncrypt:s0 tcontext=u:object_r:fota_data_file:s0 tclass=file permissive=0
+# avc:  denied  { set } for property=vold.forceencryption scontext=u:r:uncrypt:s0 tcontext=u:object_r:vold_prop:s0 tclass=property_service
+# avc:  denied  { chown } for  pid=21194 comm="uncrypt" capability=0  scontext=u:r:uncrypt:s0 tcontext=u:r:uncrypt:s0 tclass=capability permissive=0
+# avc:  denied  { write } for  pid=10256 comm="uncrypt" name="kmsg" dev="tmpfs" ino=9553 scontext=u:r:uncrypt:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=0 SEPF_SECMOBILE_6.0.1_0002 
+

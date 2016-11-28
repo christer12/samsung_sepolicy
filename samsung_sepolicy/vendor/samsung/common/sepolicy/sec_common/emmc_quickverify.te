@@ -1,0 +1,25 @@
+#
+# emmc_quickverify
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type emmc_quickverify, domain;
+
+########## self and domain_type
+allow emmc_quickverify kernel:system syslog_read;
+
+########## fs_type
+allow emmc_quickverify rootfs:file x_file_perms;
+allow emmc_quickverify tmpfs:dir create_dir_perms;
+allow emmc_quickverify tmpfs:file create_file_perms;
+
+########## dev_type
+allow emmc_quickverify kmsg_device:chr_file rw_file_perms;
+allow emmc_quickverify emmcblk_device:blk_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############

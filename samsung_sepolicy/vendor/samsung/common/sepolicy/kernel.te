@@ -1,0 +1,204 @@
+#
+# kernel
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# temporary permissive to gather the log.
+#permissive kernel;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -adbd -init -runas -zygote } shell:process { transition dyntransition }
+#domain_auto_trans(kernel, shell_exec, shell)
+allow kernel shell_exec:file { getattr open read execute };
+#allow kernel shell:process transition;
+allow shell shell_exec:file { entrypoint open read execute getattr };
+allow shell kernel:process sigchld;
+allow kernel shell:process { siginh rlimitinh };
+type_transition kernel shell_exec:process shell;
+
+domain_auto_trans(kernel, corehelper_sh_file, corehelper)
+
+########## self and domain_type
+#neverallow by Google: not allow sys_ptrace allow kernel self:capability { mknod sys_module sys_ptrace };
+allow kernel self:capability { mknod sys_module fowner fsetid net_raw };
+allow kernel self:system { module_request syslog_read };
+allow kernel mediaserver:fd use;
+
+#neverallow by Google: neverallow domain kernel:process { transition dyntransition };
+allow kernel self:process ~{ transition dyntransition };
+
+########## fs_type
+allow kernel labeledfs:filesystem { mount unmount };
+allow kernel proc_avc_msg:file rw_file_perms;
+allow kernel rootfs:dir setattr;
+allow kernel sdcard_external:dir rw_dir_perms;
+allow kernel sdcard_external:file rw_file_perms;
+allow kernel sdcard_internal:dir rw_dir_perms;
+allow kernel sdcard_internal:file rw_file_perms;
+allow kernel sysfs_battery_supply:file r_file_perms;
+allow kernel sysfs_sec:file { read open };
+# avc:  denied  { open } for  pid=301 comm="kworker/2:1" path="/sys/devices/virtual/sec/sec_key/certify_hall_detect" dev="sysfs" ino=50285 scontext=u:r:kernel:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=1
+
+allow kernel sysfs_lcd_writable:file { read open };
+# avc:  denied  { read } for  pid=28 comm="kworker/1:1" name="window_type" dev="sysfs" ino=13001 scontext=u:r:kernel:s0 tcontext=u:object_r:sysfs_lcd_writable:s0 tclass=file permissive=1
+
+
+########## dev_type
+allow kernel device:chr_file { getattr create setattr };
+allow kernel device:dir create_dir_perms;
+allow kernel ashmem_device:chr_file x_file_perms;
+allow kernel block_device:blk_file create_file_perms;
+allow kernel device:blk_file create_file_perms;
+allow kernel emmcblk_device:blk_file create_file_perms;
+
+#neverallow by Google: (kmem_device:chr_file ~{ create relabelto unlink setattr };)
+#allow kernel kmem_device:file_class_set create_file_perms;
+#allow kernel kmem_device:dir create_dir_perms;
+allow kernel kmem_device:chr_file { create unlink setattr relabelto };
+allow kernel loop_device:blk_file create_file_perms;
+allow kernel ram_device:blk_file create_file_perms;
+allow kernel swap_device:blk_file create_file_perms;
+
+########## file_type
+## relabelto was recovery denials. Refer to the avc_log part.
+#neverallow by Google: allow kernel file_type:dir relabelto;
+#neverallow by Google: allow kernel file_type:file relabelto;
+allow kernel property_data_file:dir r_dir_perms;
+allow kernel property_data_file:file r_file_perms;
+#P151117-03109
+allow kernel asec_apk_file:file r_file_perms;
+
+## root cause: Domain transition issue of Recovery.
+#neverallow by Google: allow kernel system_file:dir create_dir_perms;
+#neverallow by Google: allow kernel system_file:file { create_file_perms x_file_perms };
+#neverallow by Google: allow kernel system_file:lnk_file create_file_perms;
+
+# to allow the access, /efs/maxim
+allow kernel sec_efs_file:dir create_dir_perms;
+allow kernel sec_efs_file:file create_file_perms;
+# avc:  denied  { read } for  pid=28 comm="kworker/1:1" name="gyro_cal_data" dev="mmcblk0p12" ino=44 scontext=u:r:kernel:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=1
+
+# wifi dreiver access to /efs/wifi
+allow kernel wifi_efs_file:dir r_dir_perms;
+allow kernel wifi_efs_file:file r_file_perms;
+# avc:  denied  { search } for  pid=10971 comm=4152364B2073746172747570 name="wifi" dev="mmcblk0p3" ino=47 scontext=u:r:kernel:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=dir permissive=0
+
+########## etc_type
+allow kernel node:tcp_socket node_bind;
+allow kernel port:tcp_socket name_bind;
+allow kernel powerctl_prop:property_service set;
+
+########## known issue.
+# recovery kernel log
+#neverallow Google CTS-android-5.0.2_r1 : allow kernel default_prop:property_service set;
+allow kernel system_prop:property_service set;
+
+# recovery kernel : emmc_quickverify of recovery
+#neverallow by Google: allow kernel rootfs:file create_file_perms;
+
+# cts testMountAndUnmountObbNormal for app_data_file and allow read for app data.
+allow kernel app_data_file:file r_file_perms;
+
+# Multi Security Contexts
+allow kernel app_data_type:file w_file_perms;
+
+# MTP request
+allow kernel { container_app_data_backend media_rw_data_file personal_page_file sdcard_type }:dir r_dir_perms;
+allow kernel { container_app_data_backend media_rw_data_file personal_page_file sdcard_type }:file rw_file_perms;
+
+
+########## androd-m-preview: denials ########
+#neverallow Google CTS-android-m-preview: neverallow domain init:process dyntransition
+#allow kernel init:process dyntransition;
+allow kernel self:capability dac_override;
+allow kernel system_data_file:file r_file_perms;
+allow kernel serial_device:chr_file rw_file_perms;
+allow kernel container_app_data_backend:file w_file_perms;
+allow kernel platform_app:fd use;
+allow kernel system_app:fd use;
+allow kernel app_efs_file:dir rw_dir_perms;
+allow kernel app_efs_file:file create_file_perms;
+allow kernel efs_file:file r_file_perms;
+allow kernel efs_file:dir r_dir_perms;
+allow kernel media_rw_data_file:file r_file_perms;
+allow kernel sensor_efs_file:file r_file_perms;
+
+allow kernel isolated_app:fd use;
+allow kernel { isolated_app_tmpfs platform_app_tmpfs untrusted_app_tmpfs }:file write;
+
+allow kernel tmpfs:chr_file r_file_perms;
+allow kernel dev_type:{ dir file } relabelto;
+allow kernel sysfs_type:dir_file_class_set { relabelfrom relabelto };
+allow kernel tmpfs:dir_file_class_set { relabelfrom relabelto };
+allow kernel wifi_data_file:dir rw_dir_perms;
+allow kernel wifi_data_file:file create_file_perms;
+
+# restorecon_recursive("/sbin");
+allow kernel self:capability sys_admin;
+# avc:  denied  { sys_admin } for  pid=1 comm="init" capability=21 scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability permissive=0
+
+# raised by CL6113873(dragon.kwon)
+allow kernel obb_apk_file:file read;
+
+
+# 2mic chip(Audience) debugging. requested by chihyun.cho
+userdebug_or_eng(`
+allow kernel adnc_device:chr_file r_file_perms;
+allow kernel storage_file:lnk_file r_file_perms;
+allow kernel mnt_user_file:lnk_file r_file_perms;
+allow kernel media_rw_data_file:dir { write add_name };
+allow kernel media_rw_data_file:file create;
+')
+
+############ avc_log #############
+# avc:  denied  { relabelto } for  pid=2627 comm="recovery" name="media" dev="mmcblk0p21" ino=523265 scontext=u:r:kernel:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+# avc:  denied  { relabelto } for  pid=2627 comm="recovery" name="Over_the_horizon.mp3" dev="mmcblk0p21" ino=523268 scontext=u:r:kernel:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file
+# avc:  denied  { execute } for  pid=2627 comm="recovery" path="/dev/ashmem" dev="tmpfs" ino=2446 scontext=u:r:kernel:s0 #tcontext=u:object_r:ashmem_device:s0 tclass=chr_file
+# avc:  denied  { setattr } for  pid=1764 comm="ueventd" name="mmcblk0rpmb" dev="tmpfs" ino=3306 scontext=u:r:kernel:s0 #tcontext=u:object_r:block_device:s0 tclass=blk_fil
+# avc:  denied  { create } for  pid=1764 comm="ueventd" name="mmcblk0" scontext=u:r:kernel:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file
+# avc:  denied  { mount } for  pid=2627 comm="recovery" name="/" dev="mmcblk0p19" ino=2 scontext=u:r:kernel:s0 #tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# avc:  denied  { unmount } for  pid=2627 comm="recovery" scontext=u:r:kernel:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# avc:  denied  { read write open } for  pid=85 comm="ecryptfs-kthrea" name="/" dev="mmcblk1p1" ino=1 scontext=u:r:kernel:s0 tcontext=u:object_r:sdcard_external:s0 tclass=dir SEPF_SM-G900F_4.4.3_0018
+# avc:  denied  { read } for  pid=5834 comm="loop0" path="/mnt/secure/asec/com.nhn.android.search-1.asec" dev="mmcblk1p1" ino=4285 #scontext=u:r:kernel:s0 tcontext=u:object_r:sdcard_external:s0 tclass=file
+# avc:  denied  { write } for  pid=85 comm="ecryptfs-kthrea" name="SM-G900F_sleep_observer_20140701_095629.log.txt" dev="mmcblk1p1" ino=334 scontext=u:r:kernel:s0 tcontext=u:object_r:sdcard_external:s0 tclass=file SEPF_SM-G900F_4.4.3_0018
+# avc:  denied  { read write open } for  pid=85 comm="ecryptfs-kthrea" name="/" dev="sdcardfs" ino=1 scontext=u:r:kernel:s0 tcontext=u:object_r:sdcard_internal:s0 tclass=dir SEPF_SM-G900F_4.4.3_0018
+# avc:  denied  { mknod } for  pid=48 comm="kdevtmpfs" capability=27  scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability
+# avc:  denied  { syslog_read } for  pid=2626 comm="emmc_quickverif" scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=system
+# avc:  denied  { setattr } for  pid=1764 comm="ueventd" name="vnswap0" dev="tmpfs" ino=2493 scontext=u:r:kernel:s0 tcontext=u:object_r:swap_device:s0 #tclass=blk_file
+# avc:  denied  { unlink } for  pid=2715 comm="recovery" name="csc_contents" dev="mmcblk0p18" ino=3477 scontext=u:r:kernel:s0 tcontext=u:object_r:system_file:s0 tclass=lnk_file
+# avc:  denied  { set } for property=security.recovery scontext=u:r:kernel:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=sys.qseecomd.enable scontext=u:r:kernel:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { create } for  pid=2626 comm="emmc_quickverif" name="emmc_checksum.log" scontext=u:r:kernel:s0 tcontext=u:object_r:rootfs:s0 tclass=file
+# avc:  denied  { append } for  pid=2626 comm="emmc_quickverif" path="/tmp/emmc_checksum.log" dev="rootfs" ino=3363 scontext=u:r:kernel:s0 tcontext=u:object_r:rootfs:s0 tclass=file
+# avc:  denied  { write } for  pid=2627 comm="recovery" path="/tmp/recovery_backup.txt" dev="rootfs" ino=3366 scontext=u:r:kernel:s0 tcontext=u:object_r:rootfs:s0 tclass=file
+# avc:  denied  { create } for  pid=48 comm="kdevtmpfs" name="mmcblk1" scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=blk_file
+# avc:  denied  { setattr } for  pid=48 comm="kdevtmpfs" name="mmcblk1" dev="devtmpfs" ino=134812 scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=blk_file
+# avc:  denied  { getattr } for  pid=48 comm="kdevtmpfs" path="/dm-0" dev="devtmpfs" ino=199539 scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=blk_file
+# avc:  denied  { unlink } for  pid=48 comm="kdevtmpfs" name="dm-0" dev="devtmpfs" ino=199539 scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=blk_file
+# avc:  denied  { read } for  pid=8994 comm="loop0" path="/data/data/com.android.cts.stub/files/test2.obb" dev="mmcblk0p26" ino=914863 scontext=u:r:kernel:s0 tcontext=u:object_r:app_data_file:s0 tclass=file
+# avc:  denied  { write } for  pid=11527 comm="kworker/u8:3" path="/data/knox/data/100/EN.FXZq8FN9I1k0wkbXhqqsia3l2r.." dev="mmcblk0p27" ino=1269 scontext=u:r:kernel:s0 tcontext=u:object_r:app_data_file:s0:c2 tclass=file SEPF_SM-N910F_4.4.4_A018
+# Ramdump Denials avc:  denied  { sys_ptrace } for  pid=529 comm="kworker/0:1" capability=19  scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability
+# avc:  denied  { create } for  pid=48 comm="kdevtmpfs" name="event15" scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { use } for  pid=903 comm="kswapd0" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=523677 scontext=u:r:kernel:s0 tcontext=u:r:isolated_app:s0:c512,c768 tclass=fd permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { write } for  pid=903 comm="kswapd0" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=523677 scontext=u:r:kernel:s0 tcontext=u:object_r:isolated_app_tmpfs:s0:c512,c768 tclass=file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { create } for  pid=48 comm="kdevtmpfs" name="bus" scontext=u:r:kernel:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+# avc:  denied  { read } for  pid=10319 comm="loop0" path="/storage/emulated/0/Android/obb/com.android.cts.os/test1.obb" dev="sdcardfs" ino=66189 scontext=u:r:kernel:s0 tcontext=u:object_r:obb_apk_file:s0:c512,c768 tclass=file permissive=0
+# avc:  denied  { fowner } for  pid=1065 comm="kworker/u16:2" capability=3  scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { fsetid } for  pid=1065 comm="kworker/u16:2" capability=4  scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { write } for  pid=20 comm="kworker/2:0" name="log" dev="sda18" ino=1703968 scontext=u:r:kernel:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=20 comm="kworker/2:0" name="debug_dump_1447429893.742727" scontext=u:r:kernel:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=20 comm="kworker/2:0" path="/data/misc/wifi/log/debug_dump_1447429893.742727" dev="sda18" ino=1704019 scontext=u:r:kernel:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=file permissive=1
+# avc:  denied  { add_name } for  pid=20 comm="kworker/2:0" name="debug_dump_1447429893.742727" scontext=u:r:kernel:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=dir permissive=1 SEPF_SM-G930W8_6.0_0001
+# avc:  denied  { read } for  pid=7532 comm="kworker/0:4" name="temp" dev="sysfs" ino=21742 scontext=u:r:kernel:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file SEPF_SAMSUNG-SM-T817A_6.0_0001
+# avc:  denied  { search } for  pid=1615 comm="irq/14-SSP_Int" name="/" dev="sda3" ino=2 scontext=u:r:kernel:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { net_raw } for  pid=6 comm="kworker/u16:0" capability=13  scontext=u:r:kernel:s0 tcontext=u:r:kernel:s0 tclass=capability permissive=0 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { read } for  pid=19093 comm="loop0" path="/mnt/secure/asec/smdl516026691.tmp.asec" dev="tmpfs" ino=116253 scontext=u:r:kernel:s0 tcontext=u:object_r:asec_apk_file:s0 tclass=file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { write } for  pid=106 comm="kswapd0" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=412675 scontext=u:r:kernel:s0 tcontext=u:object_r:platform_app_tmpfs:s0:c512,c768 tclass=file permissive=1
+# avc:  denied  { write } for  pid=106 comm="kswapd0" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=409883 scontext=u:r:kernel:s0 tcontext=u:object_r:untrusted_app_tmpfs:s0:c512,c768 tclass=file permissive=1
+# avc:  denied  { use } for  pid=9351 comm=65733730352073747265616D207468 path="/dev/ttyHS3" dev="tmpfs" ino=11276 scontext=u:r:kernel:s0 tcontext=u:r:mediaserver:s0 tclass=fd permissive=1
+# avc:  denied  { write } for  pid=31847 comm="kworker/u16:0" name="FactoryApp" dev="sda3" ino=24 scontext=u:r:kernel:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { read } for  pid=16440 comm="kworker/u16:5" path=2F73746F726167652F656D756C617465642F31302FE2809C26EFBFA52523EFBC81E2809D2E2E706E67 dev="sdcardfs" ino=131971 scontext=u:r:kernel:s0 tcontext=u:object_r:container_app_data_backend:s0:c522 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { create } for  pid=15335 comm="kworker/u16:1" name="gyro_cal_data" scontext=u:r:kernel:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { write } for  pid=1 comm="init" name="avc_msg" dev="proc" ino=4026535572 scontext=u:r:kernel:s0 tcontext=u:object_r:proc_avc_msg:s0 tclass=file permissive=1
+
+

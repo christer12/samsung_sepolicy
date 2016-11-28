@@ -1,0 +1,4 @@
+media.                          u:object_r:media_prop:s0
+monitor.	u:object_r:monitor_prop:s0
+slog.	u:object_r:slog_prop:s0
+

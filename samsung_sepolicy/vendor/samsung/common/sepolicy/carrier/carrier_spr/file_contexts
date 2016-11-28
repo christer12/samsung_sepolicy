@@ -1,0 +1,14 @@
+#### Kineto for secsprextension/java/com/oem/smartwifisupport
+/dev/socket/cfiat  u:object_r:cfiat_socket:s0
+/dev/socket/kipc   u:object_r:kipc_socket:s0
+
+############################# 
+# ItsOn file
+#
+#/system/vendor/itson(/.*)?  u:object_r:sprintitson_file:s0
+#/vendor/app(/.*)?  u:object_r:sprintitson_file:s0
+/carrier/itson(/.*)?  u:object_r:sprintitson_file:s0
+/dev/socket/itson(/.*)?                    u:object_r:itson_socket:s0
+/data/itson(/.*)?     u:object_r:sprintitson_file:s0
+/system/vendor/itson/itson-bootstrapper\.sh	u:object_r:itsonbs_exec:s0
+

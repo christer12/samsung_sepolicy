@@ -1,0 +1,16 @@
+
+
+## SEC added
+allow system_server gpsd:unix_dgram_socket sendto;
+allow system_server mif_device:chr_file w_file_perms;
+allow system_server mwireless_device:chr_file rw_file_perms;
+allow system_server sensor_device:chr_file r_file_perms;
+allow system_server tmpfs:dir rw_dir_perms;
+
+## avc_log
+# avc:  denied  { read } for  pid=3328 comm="system_server" name="accelerometer_sensor" dev="tmpfs" ino=2499 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=3328 comm="system_server" path="/dev/accelerometer_sensor" dev="tmpfs" ino=2499 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { sendto } for  pid=6094 comm="GpsChipInit" path="/data/gps/s_lpm" scontext=u:r:system_server:s0 tcontext=u:r:gpsd:s0 tclass=unix_dgram_socket permissive=1
+# avc:  denied  { write } for  pid=6093 comm="GnssLib" name="umts_atgps0" dev="tmpfs" ino=8760 scontext=u:r:system_server:s0 tcontext=u:object_r:mif_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=5654 comm="Binder_10" name="mfmchar0" dev="tmpfs" ino=13405 scontext=u:r:system_server:s0 tcontext=u:object_r:mwireless_device:s0 tclass=chr_file permissive=0 SEPF_SM-G361F_5.1_0011
+

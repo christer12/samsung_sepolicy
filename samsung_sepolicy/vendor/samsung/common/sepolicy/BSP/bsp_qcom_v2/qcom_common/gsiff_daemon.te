@@ -1,0 +1,9 @@
+
+typealias location alias gsiff_daemon;
+typealias location_exec alias gsiff_daemon_exec;
+
+# for B2C users
+typeattribute gsiff_daemon trusteddomain;
+typeattribute gsiff_daemon device_domain;
+
+

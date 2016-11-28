@@ -1,0 +1,75 @@
+#
+# Iris Daemon
+# Connects the java framework and Iris HAL(Hardware Abstract Layer).
+# Makes the Iris related services(e.g. Iris Recognition, Authentication using Iris and etc) available.
+# Sends and receives data(or callback) coming from either java framework or HAL
+# Contact: julianjy.lee, Multimedia R&D Group
+#
+
+
+# Basic Form of every rule
+# 1.PLM/JIRA #, OS, AP, Process Info : PXXXX-XXXX, M, Exynos5, android.process.xxxx
+# 2.comment and reason :
+# 3.Rule:
+# 4.Log with system call :
+
+########## type, macro
+type irisd, domain;
+type irisd_exec, exec_type, file_type;
+
+# service irisd /system/bin/irisd
+init_daemon_domain(irisd)
+
+# avc:  denied  { call } for  pid=3314 comm="irisd" scontext=u:r:irisd:s0 tcontext=u:r:system_server:s0 tclass=binder permissive=1
+binder_call(irisd, system_server)
+# No.38 Change iris service name(iris to samsung.iris) and level(system_service to app_service)
+#avc:  denied  { call } for  pid=3320 comm="irisd" scontext=u:r:irisd:s0 tcontext=u:r:system_app:s0 tclass=binder permissive=0
+binder_call(irisd, system_app)
+
+########## domain_rule
+# avc:  denied  { use } for  pid=3514 comm="system_server" path="anon_inode:dmabuf" dev="anon_inodefs" ino=8677 scontext=u:r:irisd:s0 tcontext=u:r:mediaserver:s0 tclass=fd permissive=1
+allow irisd mediaserver:fd use;
+
+########## fs_rule
+########## dev_rule
+#for tz_app open from grace model / by neoio.lee(Multimedia group) / SEPF_SECMOBILE_6.0.1_0011
+allow irisd qseecom_device:chr_file rw_file_perms;
+allow irisd mobicore-user_device:chr_file rw_file_perms;
+allow irisd s5p_smem_device:chr_file rw_file_perms;
+
+########## file_rule
+# TZ app loading from grace vzw model / sec_iris.mdt : splited tz app file after signing / N.32 by julianjy.lee(Multimedia R&D Group) / SEPF_SECMOBILE_6.0.1_0011
+allow irisd firmware:file r_file_perms;
+
+########## etc_rule
+########## multiple_rule
+# binding service_manager to add service: com.samsung.android.camera.iris.IIrisDaemon
+# avc:  denied  { call } for  pid=1083 comm="irisd" scontext=u:r:empty_service:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1
+# avc:  denied  { transfer } for  pid=1083 comm="irisd" scontext=u:r:empty_service:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1
+# avc:  denied  { add } for service=com.samsung.android.camera.iris.IIrisDaemon scontext=u:r:irisd:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+binder_use(irisd)
+allow irisd irisd_service:service_manager add;
+
+# not required binder_service(irisd)
+# but review to allow dumpstate as internal binder service
+# allow irisd dumpstate:fd use;
+# allow irisd dumpstate:unix_stream_socket { read write getopt getattr };
+# allow irisd dumpstate:fifo_file  { getattr write };
+# allow all services to run permission checks
+# avc:  denied  { find } for service=permission scontext=u:r:irisd:s0 tcontext=u:object_r:permission_service:s0 tclass=service_manager
+allow irisd permission_service:service_manager find;
+
+# files under /data/bio/ir
+allow irisd system_data_file:dir search;
+allow irisd iris_data_file:dir create_dir_perms;
+allow irisd iris_data_file:file create_file_perms;
+
+############ additional avc_log #############
+# avc:  denied  { read write } for  pid=859 comm="irisd" name="qseecom" dev="tmpfs" ino=16452 scontext=u:r:irisd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { open } for  pid=859 comm="irisd" path="/dev/qseecom" dev="tmpfs" ino=16452 scontext=u:r:irisd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { ioctl } for  pid=859 comm="irisd" path="/dev/qseecom" dev="tmpfs" ino=16452 ioctlcmd=970a scontext=u:r:irisd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { read write } for  pid=3341 comm="irisd" name="s5p-smem" dev="tmpfs" ino=4676 scontext=u:r:irisd:s0 tcontext=u:object_r:s5p_smem_device:s0 tclass=chr_file permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { read write } for  pid=3342 comm="irisd" name="mobicore-user" dev="tmpfs" ino=9114 scontext=u:r:irisd:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=3342 comm="irisd" path="/dev/mobicore-user" dev="tmpfs" ino=9114 ioctlcmd=4d09 scontext=u:r:irisd:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=1055 comm="irisd" name="sec_iris.mdt" dev="sda16" ino=148 scontext=u:r:irisd:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=1055 comm="irisd" path="/firmware/image/sec_iris.mdt" dev="sda16" ino=148 scontext=u:r:irisd:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1

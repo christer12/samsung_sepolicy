@@ -1,0 +1,224 @@
+#system.te:allow system_app dumplog_data_file:dir create_dir_perms;
+#system.te:allow system_app dumplog_data_file:file create_file_perms;
+
+#####################################
+# access_logcat(domain)
+# Ability to read from logcat logs
+# and execute the logcat command
+define(`access_logcat', `
+allow $1 log_device:chr_file read;
+allow $1 system_file:file x_file_perms;
+')
+
+#####################################
+# access_audit_logs(domain)
+# Ability to read audit logs
+define(`access_audit_logs', `
+allow $1 audit_log:file r_file_perms;
+')
+
+#####################################
+# dumplog_read(domain)
+# Allow domain to read dumplogs.
+define(`dumplog_read', `
+allow $1 dumplog_data_file:dir r_dir_perms;
+allow $1 dumplog_data_file:file r_file_perms;
+')
+
+#####################################
+# dumplog_create(domain)
+# Allow domain to read,write and create dumplogs.
+define(`dumplog_create', `
+allow $1 dumplog_data_file:dir create_dir_perms;
+allow $1 dumplog_data_file:file create_file_perms;
+allow $1 dumplog_data_file:sock_file create_file_perms;
+allow $1 bugreport_exec:file { execute execute_no_trans };
+allow $1 dumpstate_exec:file { execute execute_no_trans };
+allow $1 dumpsys_exec:file { execute execute_no_trans };
+')
+
+#####################################
+# modify_kmsg(domain)
+# Ability to read from kernel logs
+# and execute the klogctl syscall
+# in a non destructive manner. See
+# man 2 klogctl
+define(`modify_kmsg', `
+allow $1 kernel:system syslog_mod;
+allow $1 klog_device:chr_file create_file_perms;
+')
+
+# TODO Add timedaemon macro perhaps
+
+# mobicore_use(domain)
+# Allow domain to use mobicore
+define(`mobicore_use', `
+allow $1 mobicore_device:chr_file rw_file_perms;
+allow $1 mobicore-user_device:chr_file rw_file_perms;
+# TODO: Figure out proper sockets
+allow $1 mobicoredaemon:unix_stream_socket connectto;
+')
+
+#####################################
+# mobicore_create(domain)
+# Allow domain to create mobicore devices
+# TODO fill in mobicore rules here
+define(`mobicore_create', `
+mobicore_use($1)
+allow $1 mobicore-user_device:chr_file create_file_perms;
+allow $1 mobicore_device:chr_file create_file_perms;
+')
+
+#####################################
+# absolute_create(domain)
+# Allow domain to create absolute file
+# TODO fill in absolute rules here
+define(`absolute_create', `
+allow $1 persdata_data_file:dir create_dir_perms;
+allow $1 persdata_data_file:file create_file_perms;
+')
+
+#####################################
+# absolute_use(domain)
+# Allow domain to use absolute file
+# TODO fill in absolute rules here
+define(`absolute_use', `
+allow $1 persdata_data_file:dir rw_dir_perms;
+allow $1 persdata_data_file:file rw_file_perms;
+')
+
+#####################################
+# secure_storage_create(domain)
+# Allow domain to create secure_storage
+# TODO fill in secure_storage rules here
+define(`secure_storage_create', `
+allow $1 secure_storage_device:dir create_dir_perms;
+allow $1 secure_storage_device:file create_file_perms;
+allow $1 secure_storage_device:sock_file create_file_perms;
+allow $1 efs_file:dir create_dir_perms;
+allow $1 efs_file:file create_file_perms;
+')
+
+#####################################
+# apk_data_create(domain)
+# Allow domain to create apk_data
+# TODO fill in apk_data rules here
+define(`apk_data_create', `
+allow $1 apk_data_file:dir create_dir_perms;
+allow $1 apk_data_file:file create_file_perms;
+allow $1 apk_data_file:sock_file create_file_perms;
+')
+
+#####################################
+# app_data_create(domain)
+# Allow domain to create app_data
+# TODO fill in app_data rules here
+define(`app_data_create', `
+allow $1 app_data_file:dir create_dir_perms;
+allow $1 app_data_file:file create_file_perms;
+allow $1 app_data_file:sock_file create_file_perms;
+')
+
+#####################################
+# unix_socket_rw(domain, domain)
+# Allow domain to use unix_socket_rw file
+# TODO fill in unix_socket_rw rules here
+define(`unix_socket_rw', `
+allow $1 $2:unix_stream_socket connectto;
+allow $1 $2:unix_stream_socket { read write };
+')
+
+#####################################
+# container_trusted_agent( domain)
+# Allow domain full control of container data files and dirs
+define(`container_trusted_agent', `
+typeattribute $1 mlstrustedsubject;
+allow $1 container_app_data_file:file create_file_perms;
+allow $1 container_app_sdcard_file:file create_file_perms;
+allow $1 container_app_data_file:dir create_dir_perms;
+allow $1 container_app_sdcard_file:dir create_dir_perms;
+
+allow $1 container_app_data_backend:dir create_dir_perms;
+allow $1 container_app_data_backend:file create_file_perms;
+allow $1 container_app:dir r_dir_perms;
+allow $1 container_app:file r_file_perms;
+')
+
+#####################################
+# execute_dump(domain)
+# Allow domain to execute dumpstate, bugreport, dumpsys
+# TODO fill in execute_dump rules here
+define(`execute_dump', `
+allow $1 bugreport_exec:file { execute execute_no_trans };
+allow $1 dumpstate_exec:file { execute execute_no_trans };
+allow $1 dumpsys_exec:file { execute execute_no_trans };
+')
+
+#####################################
+# set_security_prop(domain)
+# Allow domain to set security prop
+# TODO fill in set_prop rules here
+define(`set_security_prop', `
+allow $1 init:unix_stream_socket connectto;
+allow $1 property_socket:sock_file write;
+allow $1 security_prop:property_service set;
+')
+
+#####################################
+# platform_app_domain(domain)
+# Allow permissions specific to platform apps.
+define(`platform_app_domain', `
+typeattribute $1 platformappdomain;
+#changeBySEA : typeattribute $1 mlstrustedsubject;
+')
+
+
+#####################################
+# selinux_getenforce(domain)
+# Allow domain to check whether SELinux is enforcing.
+define(`selinux_getenforce', `
+allow $1 selinuxfs:dir r_dir_perms;
+allow $1 selinuxfs:file r_file_perms;
+')
+
+#####################################
+# selinux_setenforce(domain)
+# Allow domain to set SELinux to enforcing.
+define(`selinux_setenforce', `
+allow $1 selinuxfs:dir r_dir_perms;
+allow $1 selinuxfs:file rw_file_perms;
+allow $1 kernel:security setenforce;
+')
+
+#####################################
+# Additional macro:
+define(`exec_perms', `{ execute execute_no_trans execmod }')
+define(`fs_mount_perms', `{ mount unmount remount }')
+define(`file_rx_execmod_perms', `{ r_file_perms link unlink rename execute execmod }')
+
+######################################
+# enable AOSP Neverallow
+define(`build_aosp_neverallow', ifelse(target_aosp_neverallow, `true', $1, ))
+
+
+######################################
+# not to include ENG Policy
+define(`nouse_userdebug_or_eng',)
+
+
+######################################
+# init_daemon_domain_rootfs(domain)
+# Set up a transition from init to the daemon domain
+# upon executing its binary.
+define(`init_daemon_domain_rootfs', `
+init_daemon_domain($1)
+allow kernel $1_exec:file relabelto;
+')
+
+######################################
+# recovery_daemon_domain(domain)
+# Set up a transition from recovery to the daemon domain
+# upon executing its binary.
+define(`recovery_daemon_domain', `
+domain_auto_trans(recovery, $1_exec, $1)
+')

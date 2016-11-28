@@ -1,0 +1,46 @@
+#
+# hostapd
+# 
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute hostapd trusteddomain;
+#typeattribute hostapd system_domain;
+# temporary permissive to gather the log.
+# permissive hostapd;
+
+########## self and domain_type
+allow hostapd kernel:system module_request;
+allow hostapd netd:unix_dgram_socket sendto;
+
+########## fs_type
+allow hostapd cgroup:dir create_dir_perms;
+allow hostapd cgroup:file create_file_perms;
+
+########## dev_type
+########## file_type
+allow hostapd efs_file:dir r_dir_perms;
+allow hostapd efs_file:file r_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow hostapd system_data_file:file rw_file_perms;
+allow hostapd system_data_file:file r_file_perms;
+allow hostapd system_data_file:dir rw_dir_perms;
+allow hostapd wifi_efs_file:dir r_dir_perms;
+allow hostapd wifi_efs_file:file r_file_perms;
+allow hostapd wifiver_data_file:file rw_file_perms;
+
+
+########## etc_type
+########## known issue.
+#from NSA
+allow hostapd self:netlink_route_socket { bind create };
+allow hostapd self:udp_socket { create ioctl };
+allow hostapd wifi_data_file:sock_file { create setattr write unlink };
+allow hostapd netd:fifo_file { read write };
+
+
+############ avc_log #############
+## avc_log
+# avc:  denied  { module_request } for  pid=30915 comm="hostapd" kmod="netdev-wlan0" scontext=u:r:hostapd:s0 tcontext=u:r:kernel:s0 tclass=system
+# avc:  denied  { write } for  pid=21002 comm="hostapd" name=".wifiver.info" dev="sda18" ino=13 scontext=u:r:hostapd:s0 tcontext=u:object_r:wifiver_data_file:s0 tclass=file permissive=0

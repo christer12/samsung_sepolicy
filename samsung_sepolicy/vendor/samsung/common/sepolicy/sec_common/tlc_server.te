@@ -1,0 +1,101 @@
+#
+#  tlc_server
+#
+
+############ sec_common #############
+########## type and macro.
+type tlc_server, domain;
+type tlc_server_exec, exec_type, file_type;
+typeattribute tlc_server trusteddomain;
+typeattribute tlc_server system_domain;
+typeattribute tlc_server mlstrustedsubject;
+
+init_daemon_domain(tlc_server)
+domain_auto_trans(system_server,tlc_server_exec,tlc_server)
+binder_use(tlc_server)
+mobicore_use(tlc_server)
+
+########## self and domain_type
+allow tlc_server kernel:system module_request;
+allow tlc_server system_server:fifo_file { read write getattr ioctl };
+
+allow tlc_server tlc_server_service:service_manager add;
+########## fs_type
+#neverallow Google CTS-android-5.0.2_r1 : allow tlc_server firmware_file:file { rx_file_perms open };
+allow tlc_server firmware_file:file r_file_perms;
+allow tlc_server firmware_file:dir r_dir_perms;
+allow tlc_server sysfs_ss_writable:dir r_dir_perms;
+allow tlc_server sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow tlc_server qseecom_device:chr_file { read write ioctl open };
+
+########## file_type
+allow tlc_server app_efs_file:file { read open };
+allow tlc_server dcm_data_file:dir create_dir_perms;
+allow tlc_server dcm_data_file:file create_file_perms;
+allow tlc_server efs_file:dir search;
+allow tlc_server efs_type:dir r_dir_perms;
+allow tlc_server efs_type:{ file lnk_file } r_file_perms;
+allow tlc_server platform_app_data_file:dir rw_dir_perms;
+allow tlc_server platform_app_data_file:file rw_file_perms;
+allow tlc_server radio_data_file:dir search;
+allow tlc_server radio_data_file:file { read open };
+allow tlc_server shell_exec:file { read execute open execute_no_trans };
+allow tlc_server system_file:file execute_no_trans;
+allow tlc_server tima_keystore_file:dir r_dir_perms;
+allow tlc_server tima_keystore_file:file r_file_perms;
+allow tlc_server wifi_efs_file:file { read open };
+
+########## etc_type
+allow tlc_server system_service:service_manager find;
+allow tlc_server tlc_server_service:service_manager add;
+
+
+########## self
+allow tlc_server self:capability dac_override;
+
+allow tlc_server sem_device:chr_file { write open };
+
+########## known issue.
+
+
+############ avc_log #############
+#from CTS testing
+#avc:  denied  { call } for  pid=1337 comm="tlc_server" scontext=u:r:tlc_server:s0 tcontext=u:r:servicemanager:s0 tclass=binder
+#avc:  denied  { transfer } for  pid=1337 comm="tlc_server" scontext=u:r:tlc_server:s0 tcontext=u:r:servicemanager:s0 tclass=binder
+#avc:  denied  { read } for  pid=1337 comm="tlc_server" path="pipe:[13582]" dev="pipefs" ino=13582 scontext=u:r:tlc_server:s0 tcontext=u:r:system_server:s0 tclass=fifo_file
+#avc:  denied  { write } for  pid=1337 comm="tlc_server" path="pipe:[13583]" dev="pipefs" ino=13583 scontext=u:r:tlc_server:s0 tcontext=u:r:system_server:s0 tclass=fifo_file
+#avc:  denied  { getattr } for  pid=1337 comm="tlc_server" path="pipe:[13582]" dev="pipefs" ino=13582 scontext=u:r:tlc_server:s0 tcontext=u:r:system_server:s0 tclass=fifo_file
+#avc:  denied  { ioctl } for  pid=1338 comm="sh" path="pipe:[13582]" dev="pipefs" ino=13582 scontext=u:r:tlc_server:s0 tcontext=u:r:system_server:s0 tclass=fifo_file
+#avc:  denied  { read write } for  pid=1337 comm="tlc_server" name="qseecom" dev="tmpfs" ino=9963 scontext=u:r:tlc_server:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { open } for  pid=1337 comm="tlc_server" name="qseecom" dev="tmpfs" ino=9963 scontext=u:r:tlc_server:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { ioctl } for  pid=1337 comm="tlc_server" path="/dev/qseecom" dev="tmpfs" ino=9963 scontext=u:r:tlc_server:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { read } for  pid=1337 comm="tlc_server" name="tz_ccm.mdt" dev="mmcblk0p1" ino=86 scontext=u:r:tlc_server:s0 tcontext=u:object_r:firmware_file:s0 tclass=file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { open } for  pid=1337 comm="tlc_server" name="tz_ccm.mdt" dev="mmcblk0p1" ino=86 scontext=u:r:tlc_server:s0 tcontext=u:object_r:firmware_file:s0 tclass=file SEPF_SM-G900F_5.0_0001i
+#avc:  denied  { getattr } for  pid=1337 comm="tlc_server" path="/firmware/image/tz_ccm.mdt" dev="mmcblk0p1" ino=86 scontext=u:r:tlc_server:s0 tcontext=u:object_r:firmware_file:s0 tclass=file SEPF_SM-G900F_5.0_0001
+#avc:  denied  { execute } for  pid=1338 comm="tlc_server" name="sh" dev="mmcblk0p23" ino=955 scontext=u:r:tlc_server:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#avc:  denied  { read open } for  pid=1338 comm="tlc_server" name="sh" dev="mmcblk0p23" ino=955 scontext=u:r:tlc_server:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#avc:  denied  { execute_no_trans } for  pid=1338 comm="tlc_server" path="/system/bin/sh" dev="mmcblk0p23" ino=955 scontext=u:r:tlc_server:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#avc:  denied  { execute_no_trans } for  pid=1338 comm="sh" path="/system/bin/ccm_gen_cert" dev="mmcblk0p23" ino=750 scontext=u:r:tlc_server:s0 tcontext=u:object_r:system_file:s0 tclass=file
+# avc:  denied  { search } for  pid=4422 comm="ccm_gen_cert" name="/" dev="mmcblk0p3" ino=2 scontext=u:r:tlc_server:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+# avc:  denied  { connectto } for  pid=4432 comm="tlc_server" path=006D636461656D6F6E scontext=u:r:tlc_server:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket
+# avc:  denied  { read write } for  pid=4432 comm="tlc_server" name="mobicore-user" dev="tmpfs" ino=11727 scontext=u:r:tlc_server:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# avc:  denied  { open } for  pid=4432 comm="tlc_server" path="/dev/mobicore-user" dev="tmpfs" ino=11727 scontext=u:r:tlc_server:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# avc:  denied  { ioctl } for  pid=4432 comm="tlc_server" path="/dev/mobicore-user" dev="tmpfs" ino=11727 scontext=u:r:tlc_server:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# avc:  denied  { search } for  pid=4422 comm="ccm_gen_cert" name="/" dev="mmcblk0p3" ino=2 scontext=u:r:tlc_server:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+# audit(1415850082.690:223): avc:  denied  { read } for  pid=13657 comm="ccm_gen_cert" name="serial_no" dev="mmcblk0p3" ino=36 scontext=u:r:tlc_server:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file
+# audit(1415850082.690:223): avc:  denied  { open } for  pid=13657 comm="ccm_gen_cert" path="/efs/FactoryApp/serial_no" dev="mmcblk0p3" ino=36 scontext=u:r:tlc_server:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file
+# audit(1415850082.690:223): item=0 name="/efs/FactoryApp/serial_no" inode=36 dev=b3:03 mode=0100744 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:app_efs_file:s0
+# audit(1415850082.680:222): avc:  denied  { read } for  pid=13657 comm="ccm_gen_cert" name=".mac.info" dev="mmcblk0p3" ino=16 scontext=u:r:tlc_server:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file
+# audit(1415850082.680:222): avc:  denied  { open } for  pid=13657 comm="ccm_gen_cert" path="/efs/wifi/.mac.info" dev="mmcblk0p3" ino=16 scontext=u:r:tlc_server:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file
+# audit(1415850082.680:222): item=0 name="/efs/wifi/.mac.info" inode=16 dev=b3:03 mode=0100660 ouid=1000 ogid=1010 rdev=00:00 obj=u:object_r:wifi_efs_file:s0
+# avc:  denied  { dac_override } for  pid=1128 comm="tlc_server" capability=1  scontext=u:r:tlc_server:s0 tcontext=u:r:tlc_server:s0 tclass=capability
+# audit(1416534453.878:171): avc:  denied  { write } for  pid=1897 comm="Binder_1" path="/data/knox/data/101/EN.FXblbPYB98I3xEaPny.ZQfzetrm8eV7w3oy5mV6Bb1M.E42Zgc4cxoVzdkNfpGUyP0U29FnF16qp8jU-/EN.FWblbPYB98I3xEaPny.ZQfzetrm8eV7w3oy52I3wY3bYsNxNGhCQAs6.6U--/EN.FXblbPYB98I3xEaPny.ZQfzetrm8eV7w3oy5-scTpdQIW8RlXZEMr6Dlu9yOfekIIlLMmwGlKXgM5CE-" dev="mmcblk0p26" ino=262101 scontext=u:r:tlc_server:s0 tcontext=u:object_r:platform_app_data_file:s0:c3 tclass=file
+# avc:  denied  { search } for  pid=4153 comm="cp" name="tz_dcm" dev="sda17" ino=130606 scontext=u:r:tlc_server:s0 tcontext=u:object_r:dcm_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=3874 comm="cp" name="dcm.dat" dev="sda18" ino=130607 scontext=u:r:tlc_server:s0 tcontext=u:object_r:dcm_data_file:s0 tclass=file permissive=0
+# avc:  denied  { write } for  pid=3874 comm="cp" name="tz_dcm" dev="sda18" ino=130606 scontext=u:r:tlc_server:s0 tcontext=u:object_r:dcm_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { getattr } for  pid=3895 comm="cp" path="/data/misc/tz_dcm/dcm.dat" dev="sda18" ino=130607 scontext=u:r:tlc_server:s0 tcontext=u:object_r:dcm_data_file:s0 tclass=file permissive=0
+# avc:  denied  { module_request } for  pid=3880 comm="ccm_gen_cert" kmod="personality-8" scontext=u:r:tlc_server:s0 tcontext=u:r:kernel:s0 tclass=system permissive=1
+# avc:  denied  { find } for service=SEAMService scontext=u:r:tlc_server:s0 tcontext=u:object_r:system_service:s0 tclass=service_manager
+

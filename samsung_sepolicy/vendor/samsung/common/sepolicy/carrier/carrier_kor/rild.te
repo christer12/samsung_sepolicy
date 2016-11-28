@@ -1,0 +1,33 @@
+
+allow rild app_efs_file:file r_file_perms;
+allow rild platform_app:dir r_dir_perms;
+allow rild platform_app:file r_file_perms;
+allow rild proc:file w_file_perms;
+allow rild self:packet_socket { read create ioctl };
+allow rild self:capability dac_override;
+allow rild app_data_file:file { create setattr };
+allow rild smdexe:dir search;
+allow rild smdexe:file { read getattr open };
+allow rild system_app:dir search;
+allow rild system_app:file { read getattr open };
+allow rild system:dir search;
+allow rild system:file { read getattr open };
+allow rild wpa:dir search;
+allow rild wpa:file create_file_perms;
+allow rild zygote_exec:file { read getattr open };
+allow rild bugreport_exec:file r_file_perms;
+allow rild dumpstate_exec:file r_file_perms;
+
+############ slsi_common #############
+allow rild at_distributor:dir r_dir_perms;
+allow rild at_distributor:file r_file_perms;
+
+############ SKT #############
+allow rild iwland:dir search;
+allow rild iwland:file { read getattr open };
+allow rild tbased:dir search;
+allow rild tbased:file { read getattr open };
+
+
+
+

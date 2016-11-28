@@ -1,0 +1,49 @@
+# mm-qcamera-daemon
+
+
+allow mm-qcamera-daemon mediaserver:fd use;
+allow mm-qcamera-daemon surfaceflinger:fd use;
+
+allow mm-qcamera-daemon adsprpc_device:chr_file r_file_perms;
+allow mm-qcamera-daemon camera_device:chr_file rw_file_perms;
+allow mm-qcamera-daemon camera_device:dir r_dir_perms;
+allow mm-qcamera-daemon genlock_device:chr_file rw_file_perms;
+allow mm-qcamera-daemon graphics_device:chr_file rw_file_perms;
+allow mm-qcamera-daemon graphics_device:dir r_dir_perms;
+allow mm-qcamera-daemon input_device:chr_file rw_file_perms;
+allow mm-qcamera-daemon input_device:dir r_dir_perms;
+allow mm-qcamera-daemon media_rw_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow mm-qcamera-daemon media_rw_data_file:file { create_file_perms x_file_perms };
+allow mm-qcamera-daemon media_rw_data_file:file create_file_perms;
+
+allow mm-qcamera-daemon kgsl_device:chr_file { rw_file_perms execute };
+allow mm-qcamera-daemon mpdecision:unix_stream_socket connectto;
+allow mm-qcamera-daemon sdcard_internal:dir create_dir_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow mm-qcamera-daemon sdcard_internal:file { create_file_perms x_file_perms };
+allow mm-qcamera-daemon sdcard_internal:file create_file_perms;
+
+allow mm-qcamera-daemon shell_data_file:dir rw_dir_perms;
+allow mm-qcamera-daemon socket_device:sock_file w_file_perms;
+allow mm-qcamera-daemon sysfs:file rw_file_perms;
+allow mm-qcamera-daemon sysfs_ss_writable:file rw_file_perms;
+allow mm-qcamera-daemon system_data_file:dir rw_dir_perms;
+# Remove execute permission to satisfy assertion that domains can not execute any type it can write(except kernel, init, and su)
+
+#neverallow Google CTS-android-5.0.2_r1 : allow mm-qcamera-daemon system_data_file:file { create_file_perms x_file_perms };
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mm-qcamera-daemon system_data_file:file create_file_perms;
+allow mm-qcamera-daemon system_data_file:file r_file_perms;
+
+allow mm-qcamera-daemon system_data_file:sock_file create_file_perms;
+allow mm-qcamera-daemon video_device:chr_file rw_file_perms;
+
+# for B2C users
+typeattribute mm-qcamera-daemon trusteddomain;
+typeattribute mm-qcamera-daemon device_domain;
+
+allow mm-qcamerad system_file:file execmod;
+# avc:  denied  { execmod } for  pid=380 comm="mm-qcamera-daem" path="/system/vendor/lib/libmmcamera_faceproc.so" dev="mmcblk0p23" ino=3572 scontext=u:r:mm-qcamerad:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+
+

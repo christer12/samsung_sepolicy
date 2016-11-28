@@ -1,0 +1,12 @@
+# grant additional permissions for healthd
+allow healthd rootfs:file entrypoint;
+allow healthd app_data_file:file create_file_perms;
+allow healthd fuse:file create_file_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow healthd system_data_file:file create_file_perms;
+allow healthd system_data_file:file r_file_perms;
+
+allow healthd dump_log_data_file:file create_file_perms;
+

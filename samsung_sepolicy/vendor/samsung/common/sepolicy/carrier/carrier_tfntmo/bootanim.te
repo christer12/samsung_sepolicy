@@ -1,0 +1,2 @@
+allow bootanim carrier_file:dir r_dir_perms;
+allow bootanim carrier_file:file r_file_perms;

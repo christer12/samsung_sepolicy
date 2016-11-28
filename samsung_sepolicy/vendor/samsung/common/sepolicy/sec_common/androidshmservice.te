@@ -1,0 +1,27 @@
+#
+# androidshmservice
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type androidshmservice, domain;
+type androidshmservice_exec, exec_type, file_type;
+
+# for B2C users
+typeattribute androidshmservice trusteddomain;
+typeattribute androidshmservice system_domain;
+
+init_daemon_domain(androidshmservice)
+binder_use(androidshmservice)
+unix_socket_rw(androidshmservice, init)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+

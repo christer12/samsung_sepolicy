@@ -1,0 +1,46 @@
+
+type tbased, domain;
+type tbased_exec, exec_type, file_type;
+init_daemon_domain(tbased)
+net_domain(tbased)
+
+allow tbased cgroup:dir create_dir_perms;
+allow tbased self:capability { setuid net_raw net_admin setgid dac_override };
+allow tbased system_data_file:dir create_dir_perms;
+#neverallow Google-android-5.0.2_r1 : allow tbased system_data_file:file { create_file_perms x_file_perms };
+#allow tbased system_data_file:file create_file_perms;
+allow tbased system_data_file:file r_file_perms;
+
+allow tbased init:unix_stream_socket { read write };
+allow tbased self:rawip_socket { getopt create setopt };
+allow tbased servicemanager:binder { transfer call };
+allow tbased shell_exec:file rx_file_perms;
+allow tbased system:binder call;
+allow tbased system_file:file execute_no_trans;
+allow tbased self:key_socket { write read };
+allow tbased self:netlink_route_socket { write nlmsg_write read bind create nlmsg_read };
+allow tbased self:udp_socket { create ioctl };
+allow tbased carrier_app:binder call;
+allow tbased device:dir { write create add_name };
+allow tbased radio_data_file:dir r_dir_perms;
+allow tbased kernel:system module_request;
+allow tbased node:udp_socket node_bind;
+allow tbased platform_app_data_file:dir create_dir_perms;
+#neverallow Google-android-5.0.2_r1 : allow tbased platform_app_data_file:file { create_file_perms x_file_perms };
+allow tbased platform_app_data_file:file create_file_perms;
+
+allow tbased port:udp_socket name_bind;
+allow tbased radio_data_file:file { read getattr open };
+allow tbased rild:unix_stream_socket connectto;
+allow tbased self:capability net_bind_service;
+allow tbased sysfs:file write;
+allow tbased app_data_file:file write;
+allow tbased untrusteddomain:fd use;
+allow tbased radio:fd use;
+allow tbased sdcard_internal:file w_file_perms;
+allow tbased tbased_service:service_manager add;
+
+# for B2C users
+typeattribute tbased trusteddomain;
+typeattribute tbased device_domain;
+

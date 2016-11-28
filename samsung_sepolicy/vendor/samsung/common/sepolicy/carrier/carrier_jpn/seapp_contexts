@@ -1,0 +1,22 @@
+
+# JPN 
+#felica Factory Tool
+user=felicalock domain=felica_app type=app_data_file levelFrom=user
+user=mfc domain=felica_app type=app_data_file levelFrom=user
+user=mfm domain=felica_app type=app_data_file levelFrom=user
+user=mfs domain=felica_app type=app_data_file levelFrom=user
+user=mfw domain=felica_app type=app_data_file levelFrom=user
+#user=system name=com.sec.android.app.felicatest domain=felica_app type=app_data_file levelFrom=user
+#mmb apk
+user=mmbisv domain=mmb_apk type=app_data_file levelFrom=user
+user=mmbi domain=mmb_apk type=app_data_file levelFrom=user
+user=_app seinfo=mmb domain=mmb_apk type=app_data_file levelFrom=user
+#OneSeg start
+user=oneseg domain=oneseg_apk type=app_data_file levelFrom=user
+#user=oneseg name=com.samsung.sec.mtv domain=oneseg_apk type=app_data_file
+#user=oneseg name=com.nextreaming.player.apps domain=oneseg_apk type=app_data_file
+#user=oneseg name=com.access.bml domain=oneseg_apk type=app_data_file
+
+#Japan carrier applications
+user=_app seinfo=jpnapps domain=carrier_app type=app_data_file levelFrom=user
+

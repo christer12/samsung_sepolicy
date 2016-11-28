@@ -1,0 +1,35 @@
+#
+# racoon
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute racoon trusteddomain;
+typeattribute racoon system_domain;
+# temporary permissive to gather the log.
+# permissive racoon;
+
+########## self and domain_type
+allow racoon netd:unix_stream_socket connectto;
+allow racoon keystore:unix_stream_socket connectto;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow racoon dnsproxyd_socket:sock_file write;
+allow racoon ppp_system_file:file rx_file_perms;
+allow racoon ppp_system_file:dir search;
+
+########## etc_type
+########## known issue.
+#from NSA
+binder_call(racoon, servicemanager)
+allow racoon port:udp_socket name_bind;
+allow racoon node:udp_socket node_bind;
+allow racoon self:udp_socket create_socket_perms;
+
+
+############ avc_log #############
+
+

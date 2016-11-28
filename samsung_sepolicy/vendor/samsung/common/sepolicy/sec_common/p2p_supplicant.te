@@ -1,0 +1,78 @@
+#
+# p2p_supplicant
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type p2p_supplicant, domain;
+type p2p_supplicant_exec, exec_type, file_type;
+# for B2C users
+typeattribute p2p_supplicant trusteddomain;
+typeattribute p2p_supplicant system_domain;
+
+init_daemon_domain(p2p_supplicant)
+########## self and domain_type
+allow p2p_supplicant self:packet_socket *;
+
+########## fs_type
+########## dev_type
+allow p2p_supplicant device:file r_file_perms;
+
+########## file_type
+allow p2p_supplicant system_data_file:dir { add_name remove_name };
+allow p2p_supplicant wifi_data_file:dir rw_dir_perms;
+########## etc_type
+########## known issue.
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow p2p_supplicant kernel:system module_request;
+allow p2p_supplicant self:capability { setuid net_admin setgid net_raw };
+allow p2p_supplicant self:netlink_route_socket *;
+allow p2p_supplicant self:netlink_socket *;
+allow p2p_supplicant self:packet_socket *;
+allow p2p_supplicant self:udp_socket *;
+allow p2p_supplicant system:unix_dgram_socket sendto;
+########## fs_type
+########## dev_type
+########## file_type
+allow p2p_supplicant system_wpa_socket:sock_file write;
+allow p2p_supplicant wifi_data_file:sock_file create_file_perms;
+allow p2p_supplicant wifi_data_file:file rw_file_perms;
+allow p2p_supplicant wifi_data_file:dir create_dir_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow p2p_supplicant kernel:system module_request;
+allow p2p_supplicant self:capability { setuid net_admin setgid net_raw };
+allow p2p_supplicant self:netlink_route_socket { write bind create read nlmsg_write };
+allow p2p_supplicant self:netlink_socket { write getattr setopt read bind create };
+allow p2p_supplicant self:packet_socket { bind create ioctl read write };
+allow p2p_supplicant self:udp_socket { create ioctl };
+allow p2p_supplicant system:unix_dgram_socket sendto;
+########## fs_type
+########## dev_type
+allow p2p_supplicant random_device:chr_file { read open };
+
+########## file_type
+allow p2p_supplicant system_wpa_socket:sock_file write;
+allow p2p_supplicant wifi_data_file:dir create_dir_perms;
+allow p2p_supplicant wifi_data_file:dir r_dir_perms;
+allow p2p_supplicant wifi_data_file:dir { write remove_name add_name };
+allow p2p_supplicant wifi_data_file:file { read write getattr open };
+allow p2p_supplicant wifi_data_file:sock_file { write create unlink setattr };
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

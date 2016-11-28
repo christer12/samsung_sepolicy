@@ -1,0 +1,23 @@
+#
+# undefined_service
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type undefined_service, domain;
+
+
+# trans to irsc_util domain.
+# init.baseband.rc:service irsc_util /system/bin/logwrapper /system/bin/irsc_util "/etc/sec_config"
+# init.rc service ftt /system/bin/logwrapper /system/bin/ftt_ctrld -d5
+allow undefined_service devpts:chr_file { read write open };
+domain_auto_trans(undefined_service, irsc_util_exec, irsc_util)
+domain_auto_trans(undefined_service, ftt_ctrld_exec, ftt_ctrld)
+allow irsc_util undefined_service:fd use;
+allow ftt_ctrld undefined_service:fd use;
+# avc:  denied  { read write } for  pid=3150 comm="logwrapper" name="0" dev="devpts" ino=3 scontext=u:r:undefined_service:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=1 Enterprise Policy
+# avc:  denied  { open } for  pid=3150 comm="logwrapper" path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:undefined_service:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=1 Enterprise Policy
+# avc:  denied  { use } for  pid=3189 comm="irsc_util" path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:irsc_util:s0 tcontext=u:r:undefined_service:s0 tclass=fd permissive=1 Enterprise Policy
+# avc:  denied  { use } for  pid=6397 comm="ftt_ctrld" path="/system/bin/linker" dev="sda14" ino=555 scontext=u:r:ftt_ctrld:s0 tcontext=u:r:undefined_service:s0 tclass=fd permissive=0
+
+

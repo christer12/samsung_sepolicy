@@ -1,0 +1,10 @@
+#
+# system_server
+#
+
+# CIQ FEATURE
+allow system_server diagandroid_app:unix_stream_socket connectto;
+
+############ avc_log #############
+# avc:  denied  { connectto } for  pid=1078 comm="android.bg" path=00636F6D2E6361727269657269712E69716167656E74 scontext=u:r:system_server:s0 tcontext=u:r:system_app:s0 tclass=unix_stream_socket SEPF_SAMSUNG-SM-N910A_4.4.4_A022
+

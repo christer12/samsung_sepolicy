@@ -1,0 +1,57 @@
+#
+# wlandutservice
+#
+
+
+########## type and macro.
+type mfgloader, domain;
+type mfgloader_exec, exec_type, file_type;
+typeattribute mfgloader trusteddomain;
+typeattribute mfgloader device_domain;
+
+init_daemon_domain(mfgloader)
+unix_socket_connect(mfgloader, property, init)
+
+############ aosp and sec_common #############
+allow mfgloader kernel:key search;
+
+########## self and domain_type
+allow mfgloader self:capability { net_admin net_raw dac_override sys_module };
+
+########## fs_type
+# For /sys//module/dhd/parameters
+allow mfgloader sysfs:file write;
+
+########## dev_type
+########## file_type
+allow mfgloader system_data_file:dir rw_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mfgloader system_data_file:{ file lnk_file } rw_file_perms;
+allow mfgloader system_data_file:file r_file_perms;
+allow mfgloader system_data_file:lnk_file rw_file_perms;
+allow mfgloader system_prop:property_service set;
+allow mfgloader wifi_efs_file:dir create_dir_perms;
+allow mfgloader wifi_efs_file:{ file lnk_file } create_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=9777 comm="mfgloader" name="firmware_path" dev="sysfs" ino=6483 scontext=u:r:mfgloader:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+#avc:  denied  { write } for  pid=9777 comm="mfgloader" name="firmware_path" dev="sysfs" ino=6483 scontext=u:r:mfgloader:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+#audit(1415154619.554:222): avc:  denied  { open } for  pid=9777 comm="mfgloader" name=".cid.info" dev="mmcblk0p26" ino=23 scontext=u:r:mfgloader:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#audit(1415154620.554:223): avc:  denied  { net_raw } for  pid=9777 comm="mfgloader" capability=13  scontext=u:r:mfgloader:s0 tcontext=u:r:mfgloader:s0 tclass=capability
+#audit(1415154620.564:224): avc:  denied  { net_admin } for  pid=9777 comm="mfgloader" capability=12  scontext=u:r:mfgloader:s0 tcontext=u:r:mfgloader:s0 tclass=capability
+#audit(1415154620.564:224): avc:  denied  { write } for  pid=9777 comm="mfgloader" name=".cid.info" dev="mmcblk0p26" ino=23 scontext=u:r:mfgloader:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#item=0 name="/data/.cid.info" inode=23 dev=b3:1a mode=0100664 ouid=1000 ogid=0 rdev=00:00 obj=u:object_r:system_data_file:s0
+#audit(1415154620.564:224): avc:  denied  { search } for  pid=9777 comm="mfgloader" name="wifi" dev="mmcblk0p12" ino=20 scontext=u:r:mfgloader:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=dir
+#audit(1415154620.564:224): avc:  denied  { dac_override } for  pid=9777 comm="mfgloader" capability=1  scontext=u:r:mfgloader:s0 tcontext=u:r:mfgloader:s0 tclass=capability
+#audit(1415154620.564:224): avc:  denied  { read } for  pid=9777 comm="mfgloader" name=".mac.info" dev="mmcblk0p12" ino=36 scontext=u:r:mfgloader:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file
+#audit(1415154620.564:224): avc:  denied  { open } for  pid=9777 comm="mfgloader" name=".mac.info" dev="mmcblk0p12" ino=36 scontext=u:r:mfgloader:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file
+# avc:  denied  { set } for property=wlan.driver.status scontext=u:r:mfgloader:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { sys_module } for  pid=5922 comm="mfgloader" capability=16  scontext=u:r:mfgloader:s0 tcontext=u:r:mfgloader:s0 tclass=capability
+#audit(1388534441.029:193): avc:  denied  { search } for  pid=3605 comm="mfgloader" scontext=u:r:mfgloader:s0 tcontext=u:r:kernel:s0 tclass=key permissive=0
+
+
+

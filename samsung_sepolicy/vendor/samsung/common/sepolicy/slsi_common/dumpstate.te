@@ -1,0 +1,11 @@
+allow dumpstate gatekeeper_service:service_manager find;
+allow dumpstate init:process getsched;
+allow dumpstate kernel:process getsched;
+
+## TG request(jongjin78.kim, Sensor team) by email / 6.0.1_0010 / Record sensorhubservice callstack in the dumpstate log
+allow dumpstate sensorhubservice:debuggerd dump_backtrace;
+
+# avc:  denied  { getsched } for  pid=3991 comm="ps" scontext=u:r:dumpstate:s0 tcontext=u:r:kernel:s0 tclass=process permissive=0
+# avc:  denied  { getsched } for  pid=3991 comm="ps" scontext=u:r:dumpstate:s0 tcontext=u:r:init:s0 tclass=process permissive=0
+# avc:  denied  { dump_backtrace } for  scontext=u:r:dumpstate:s0 tcontext=u:r:sensorhubservice:s0 tclass=debuggerd
+

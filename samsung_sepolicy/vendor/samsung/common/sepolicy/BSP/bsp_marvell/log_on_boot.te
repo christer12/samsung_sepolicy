@@ -1,0 +1,9 @@
+# create new domain log_on_boot
+type log_on_boot, domain;
+type log_on_boot_exec, exec_type, file_type;
+
+init_daemon_domain(log_on_boot)
+
+allow log_on_boot shell_exec:file read;
+allow log_on_boot system_file:file execute_no_trans;
+

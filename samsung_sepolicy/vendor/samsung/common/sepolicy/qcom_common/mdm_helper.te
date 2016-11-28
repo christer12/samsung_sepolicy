@@ -1,0 +1,25 @@
+# mdm_helper
+
+allow mdm_helper self:capability { dac_read_search dac_override chown fowner fsetid sys_resource net_raw };
+
+
+# temporary permissive to gather the log.
+# permissive mdm_helper;
+
+# CP Crash with encrypted device(jm0302.sung)
+allow mdm_helper tmpfs:{ file lnk_file } create_file_perms;
+allow mdm_helper tmpfs:dir create_dir_perms;
+allow mdm_helper mdm_helper_tmpfs:{ file lnk_file } create_file_perms;
+allow mdm_helper mdm_helper_tmpfs:dir create_dir_perms;
+
+allow mdm_helper sysfs_ss_writable:file rw_file_perms;
+
+#M_denial
+allow mdm_helper kmsg_device:chr_file rw_file_perms;
+allow mdm_helper modem_device:dir rw_dir_perms;
+
+############ avc_log #############
+# avc:  denied  { sys_resource } for  pid=1244 comm="lsof" capability=24  scontext=u:r:mdm_helper:s0 tcontext=u:r:mdm_helper:s0 tclass=capability permissive=0
+# avc:  denied  { net_raw } for  pid=4054 comm="ip" capability=13  scontext=u:r:mdm_helper:s0 tcontext=u:r:mdm_helper:s0 tclass=capability permissive=0
+# avc:  denied  { write } for  pid=3096 comm="mdm_helper" name="kmsg" dev="tmpfs" ino=16731 scontext=u:r:mdm_helper:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=3763 comm="ks" name="modem" dev="tmpfs" ino=8343 scontext=u:r:mdm_helper:s0 tcontext=u:object_r:modem_device:s0 tclass=dir permissive=1

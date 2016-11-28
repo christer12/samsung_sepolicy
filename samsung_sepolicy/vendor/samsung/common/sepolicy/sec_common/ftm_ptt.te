@@ -1,0 +1,53 @@
+#
+# FTM_ptt for WLAN test
+#
+# To measure WIFI performance in FTM mode, FTM_ptt service is used.
+#
+# In this case, phone has some features as below :.
+#  - the device gose to FTM mode.
+#  - the test case is performed as command such as Tx/Rx test etc.
+#
+# Contact: janghyun.sung, sinwoo.park
+#
+############ aosp and sec_common #############
+########## type and macro.
+type ftm_ptt, domain;
+type ftm_ptt_exec, exec_type, file_type;
+
+init_daemon_domain(ftm_ptt)
+
+#permissive ftm_ptt;
+typeattribute ftm_ptt trusteddomain;
+
+net_domain(ftm_ptt)
+
+########## self and domain_type
+allow ftm_ptt netd:unix_stream_socket connectto;
+allow ftm_ptt self:capability net_raw;
+allow ftm_ptt self:netlink_socket create_socket_perms;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow ftm_ptt dnsproxyd_socket:sock_file write;
+allow ftm_ptt fwmarkd_socket:sock_file write;
+
+########## etc_type
+allow ftm_ptt node:{ tcp_socket udp_socket } node_bind;
+allow ftm_ptt port:{ tcp_socket udp_socket } name_bind;
+allow ftm_ptt port:tcp_socket name_connect;
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { net_raw } for  pid=16240 comm="ftm_ptt" capability=13  scontext=u:r:ftm_ptt:s0 tcontext=u:r:ftm_ptt:s0 tclass=capability permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { name_bind } for  pid=16240 comm="ftm_ptt" src=1528 scontext=u:r:ftm_ptt:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { node_bind } for  pid=16240 comm="ftm_ptt" src=1528 scontext=u:r:ftm_ptt:s0 tcontext=u:object_r:node:s0 tclass=tcp_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { create } for  pid=16240 comm="ftm_ptt" scontext=u:r:ftm_ptt:s0 tcontext=u:r:ftm_ptt:s0 tclass=netlink_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { setopt } for  pid=16240 comm="ftm_ptt" scontext=u:r:ftm_ptt:s0 tcontext=u:r:ftm_ptt:s0 tclass=netlink_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { bind } for  pid=16240 comm="ftm_ptt" scontext=u:r:ftm_ptt:s0 tcontext=u:r:ftm_ptt:s0 tclass=netlink_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { write } for  pid=16240 comm="ftm_ptt" name="dnsproxyd" dev="tmpfs" ino=47183 scontext=u:r:ftm_ptt:s0 tcontext=u:object_r:dnsproxyd_socket:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { connectto } for  pid=16240 comm="ftm_ptt" path="/dev/socket/dnsproxyd" scontext=u:r:ftm_ptt:s0 tcontext=u:r:netd:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { write } for  pid=16240 comm="ftm_ptt" scontext=u:r:ftm_ptt:s0 tcontext=u:r:ftm_ptt:s0 tclass=netlink_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { read } for  pid=16240 comm="ftm_ptt" scontext=u:r:ftm_ptt:s0 tcontext=u:r:ftm_ptt:s0 tclass=netlink_socket permissive=1 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { write } for  pid=16240 comm="ftm_ptt" name="fwmarkd" dev="tmpfs" ino=47179 scontext=u:r:ftm_ptt:s0 tcontext=u:object_r:fwmarkd_socket:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1_0011

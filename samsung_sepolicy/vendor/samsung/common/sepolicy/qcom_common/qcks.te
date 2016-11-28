@@ -1,0 +1,69 @@
+# qcks
+type qcks, domain;
+type qcks_exec, exec_type, file_type;
+init_daemon_domain(qcks)
+
+domain_auto_trans(qcks, efsks_exec, efsks)
+
+# Allow rules
+allow qcks block_device:dir r_dir_perms;
+allow qcks block_device:lnk_file r_file_perms;
+allow qcks dw_mmc_device:dir ra_dir_perms;
+allow qcks dw_mmc_device:lnk_file r_file_perms;
+allow qcks efsks:process signal;
+allow qcks efsks_exec:file rx_file_perms;
+allow qcks firmware:file r_file_perms;
+allow qcks firmware:dir r_dir_perms;
+allow qcks init:unix_stream_socket connectto;
+allow qcks ks_exec:file rx_file_perms;
+allow qcks m9kefsblk_device:blk_file rw_file_perms;
+allow qcks emmcblk_device:blk_file rw_file_perms;
+allow qcks modem_device:dir rw_dir_perms;
+allow qcks modem_device:blk_file rw_file_perms;
+allow qcks modem_device:lnk_file rw_file_perms;
+allow qcks property_socket:sock_file write;
+allow qcks rild_prop:property_service set;
+allow qcks sdcard_external:dir create_dir_perms;
+allow qcks sdcard_external:file create_file_perms;
+allow qcks sdcard_type:dir r_dir_perms;
+allow qcks sdcard_type:file r_file_perms;
+allow qcks self:capability { fsetid dac_override setuid };
+allow qcks shell_exec:file rx_file_perms;
+allow qcks sysfs:file w_file_perms;
+allow qcks system_file:file x_file_perms;
+allow qcks system_data_file:dir w_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow qcks system_data_file:file create_file_perms;
+allow qcks system_data_file:file r_file_perms;
+allow qcks tombstones_data_file:dir create_dir_perms;
+allow qcks tombstones_data_file:file create_file_perms;
+allow qcks tombstone_data_file:dir r_dir_perms;
+allow qcks tombstone_data_file:dir add_name;
+allow qcks radio_device:chr_file rw_file_perms;
+allow qcks usb_device:chr_file rw_file_perms;
+allow qcks modemstblk_device:blk_file rw_file_perms;
+
+
+# for B2C users
+typeattribute qcks trusteddomain;
+typeattribute qcks device_domain;
+
+## from J GED
+allow qcks sysfs_wake_lock:file ra_file_perms;
+
+# audit(46770.560:31): avc:  denied  { getattr } for  pid=196 comm="qcks" path="/dev/block/mmcblk0p13" dev="tmpfs" ino=6155 scontext=u:r:qcks:s0 tcontext=u:object_r:block_device:s0 tclass=blk_file
+# audit(46770.560:31): arch=40000028 syscall=327 per=800000 success=yes exit=0 a0=ffffff9c a1=b6f754a8 a2=bed7e7d8 a3=0 items=1 ppid=1 pid=196 auid=4294967295 uid=1000 gid=1001 euid=1000 suid=1000 fsuid=1000 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=429audit(46770.560:31):  cwd="/"
+# audit(46770.560:31): item=0 name="/dev/block/platform/msm_sdcc.1/by-name/m9kefs1" inode=6155 dev=00:0b mode=060660 ouid=1000 ogid=1001 rdev=b3:0d obj=u:object_r:block_device:s0
+# audit(46770.560:32): avc:  denied  { read } for  pid=196 comm="qcks" name="mmcblk0p13" dev="tmpfs" ino=6155 scontext=u:r:qcks:s0 tcontext=u:object_r:block_device:s0 tclass=blk_file
+# audit(46770.560:32): avc:  denied  { open } for  pid=196 comm="qcks" name="mmcblk0p13" dev="tmpfs" ino=6155 scontext=u:r:qcks:s0 tcontext=u:object_r:block_device:s0 tclass=blk_file
+# audit(46770.560:32): arch=40000028 syscall=322 per=800000 success=yes exit=5 a0=ffffff9c a1=b6f754a8 a2=20000 a3=0 items=1 ppid=1 pid=196 auid=4294967295 uid=1000 gid=1001 euid=1000 suid=1000 fsuid=1000 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=429496audit(46770.560:32):  cwd="/"
+# audit(46770.560:32): item=0 name="/dev/block/platform/msm_sdcc.1/by-name/m9kefs1" inode=6155 dev=00:0b mode=060660 ouid=1000 ogid=1001 rdev=b3:0d obj=u:object_r:block_device:s0
+
+
+############ qcmdm #############
+allow qcks radio_device:chr_file r_file_perms;
+allow qcks property_socket:sock_file w_file_perms;
+allow qcks usbfs:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow qcks usbfs:filesystem mount;
+
+

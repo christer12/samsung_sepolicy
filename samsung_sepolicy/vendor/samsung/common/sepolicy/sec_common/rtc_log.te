@@ -1,0 +1,45 @@
+#
+# rtc_log
+#
+# logging daemon to analyze "spec out" problem when the system time is more faster or slower
+# - existing dump log cannot be used to analyze "system time spec out" problem
+# - rtc_log service periodically record kernel time, system time, PMIC RTC time in rtc_log file
+# ms925.kim / System S/W R&D Group 1
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type rtc_log, domain;
+type rtc_log_sh_file, exec_type, file_type;
+domain_auto_trans(init, rtc_log_sh_file, rtc_log)
+
+# temporary permissive to gather the log.
+#permissive rtc_log;
+ 
+########## self and domain_type
+allow rtc_log appdomain:fd use;
+
+########## fs_type
+########## dev_type
+########## file_type
+
+allow rtc_log shell_exec:file { read entrypoint };
+allow rtc_log dumplog_data_file:dir rw_dir_perms;
+allow rtc_log dumplog_data_file:file create_file_perms;
+allow rtc_log system_file:file execute_no_trans;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { entrypoint } for  pid=3056 comm="init" path="/system/bin/sh" dev="sda13" ino=763 scontext=u:r:rtc_log:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { read } for  pid=3056 comm="sh" path="/system/bin/sh" dev="sda13" ino=763 scontext=u:r:rtc_log:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { write } for  pid=3056 comm="sh" name="log" dev="dm-0" ino=130054 scontext=u:r:rtc_log:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { add_name } for  pid=3056 comm="sh" name="rtc.log" scontext=u:r:rtc_log:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { create } for  pid=3056 comm="sh" name="rtc.log" scontext=u:r:rtc_log:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { append open } for  pid=3056 comm="sh" path="/data/log/rtc.log" dev="dm-0" ino=130466 scontext=u:r:rtc_log:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { setattr } for  pid=3072 comm="chmod" name="rtc.log" dev="dm-0" ino=130466 scontext=u:r:rtc_log:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { execute_no_trans } for  pid=3072 comm="sh" path="/system/bin/toolbox" dev="sda13" ino=782 scontext=u:r:rtc_log:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { use } for  pid=3017 comm="rtc_log.sh" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=1913817 scontext=u:r:rtc_log:s0 tcontext=u:r:untrusted_app:s0 tclass=fd permissive=0
+

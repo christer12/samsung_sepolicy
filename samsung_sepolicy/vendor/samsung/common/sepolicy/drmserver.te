@@ -1,0 +1,191 @@
+#
+# drmserver
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute drmserver_socket socket_file_type;
+# for B2C users
+typeattribute drmserver trusteddomain;
+#typeattribute drmserver system_domain;
+# temporary permissive to gather the log.
+# permissive drmserver;
+
+apk_data_create(drmserver)
+dumplog_create(drmserver)
+mobicore_use(drmserver)
+
+########## self and domain_type
+allow drmserver bintvoutservice:binder call;
+allow drmserver init:unix_stream_socket { connectto read write };
+#allow drmserver init_shell:unix_stream_socket connectto;
+allow drmserver kernel:system module_request;
+allow drmserver netd:unix_stream_socket connectto;
+
+########## fs_type
+allow drmserver sdcard_type:dir create_dir_perms;
+allow drmserver sdcard_type:file create_file_perms;
+
+########## dev_type
+allow drmserver tty_device:chr_file rw_file_perms;
+
+########## file_type
+allow drmserver app_data_file:dir create_dir_perms;
+allow drmserver app_data_file:file create_file_perms;
+allow drmserver asec_apk_file:file { read write getattr };
+allow drmserver dnsproxyd_socket:sock_file w_file_perms;
+allow drmserver drm_playready_file:dir create_dir_perms;
+allow drmserver drm_playready_file:file create_file_perms;
+allow drmserver efs_file:dir create_dir_perms;
+allow drmserver efs_file:file create_file_perms;
+allow drmserver media_rw_data_file:dir create_dir_perms;
+allow drmserver media_rw_data_file:file create_file_perms;
+allow drmserver media_rw_data_file:file w_file_perms;
+allow drmserver personal_page_file:dir create_dir_perms;
+allow drmserver personal_page_file:file create_file_perms;
+allow drmserver platform_app_data_file:file create_file_perms;
+allow drmserver radio_data_file:dir create_dir_perms;
+allow drmserver radio_data_file:file create_file_perms;
+allow drmserver shell_data_file:file r_file_perms;
+allow drmserver shell_exec:file x_file_perms;
+allow drmserver system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow drmserver system_data_file:file create_file_perms;
+allow drmserver system_data_file:file r_file_perms;
+allow drmserver system_data_file:sock_file create_file_perms;
+# Remove drmserver write permission to system_file
+allow drmserver system_file:file r_file_perms;
+allow drmserver system_file:file { x_file_perms execmod };
+
+
+########## etc_type
+allow drmserver port:udp_socket name_bind;
+allow drmserver node:udp_socket node_bind;
+allow drmserver port:tcp_socket name_connect;
+allow drmserver bintvoutservice_service:service_manager find;
+
+########## known issue.
+#r_dir_file(drmserver, file_type)
+# replacing r_dir_file macro and removing container related access
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow drmserver { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA : allow drmserver { file_type -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow drmserver { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#changeBySEA : allow drmserver { file_type -trstdomain_no_read_file -vold_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+#changeBySEA : allow drmserver { shell_data_file app_data_file }:file r_file_perms;
+
+#from NSA
+allow drmserver self:{ tcp_socket udp_socket } *;
+
+# /dev/socket/tz
+allow drmserver tz_socket:sock_file w_file_perms;
+# avc:  denied  { write } for  pid=3147 comm="drmserver" name="tz" dev="tmpfs" ino=4488 scontext=u:r:drmserver:s0 tcontext=u:object_r:tz_socket:s0 tclass=sock_file permissive=1
+
+# check_access and denial logging
+allow drmserver audit_log:dir rw_dir_perms;
+allow drmserver audit_log:file create_file_perms;
+allow drmserver proc_avc_msg:file rw_file_perms;
+
+# omr_file access / VE=SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { read } for  pid=3735 comm="generic" path="/omr/res/media/audio/ui/PowerOn.ogg" dev="sda19" ino=19 scontext=u:r:drmserver:s0 tcontext=u:object_r:omr_file:s0 tclass=file permissive=0
+allow drmserver omr_file:dir r_dir_perms;
+allow drmserver omr_file:file r_file_perms;
+
+
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+allow drmserver container_app:binder call;
+allow drmserver container_app:fd use;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow drmserver container_app_data_backend:file rw_file_perms;
+allow drmserver container_app_data_backend:file setattr;
+allow drmserver container_app_data_backend:dir rw_dir_perms;
+allow drmserver container_app_sdcard_file:dir rw_dir_perms;
+allow drmserver container_app_sdcard_file:file { setattr rw_file_perms };
+
+########## androd-m-preview: denials ########
+allow drmserver log_device:chr_file rw_file_perms;
+
+########## etc_type
+########## known issue.
+
+# drmserver use /data/system/kb.bin to support widevine classic(liboemcrypto library)
+# transition of /data/system/kb.bin under system_data_file
+allow drmserver system_data_file:dir ra_dir_perms;
+type_transition drmserver system_data_file:file drm_data_file "kb.bin";
+allow drmserver drm_data_file:file create_file_perms;
+
+
+
+############ qcom_common #############
+########## type and macro.
+binder_use(drmserver)
+
+#neverallow by Google:(domain init:binder call;) 
+#binder_call(drmserver, init)
+
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#r_dir_file(drmserver, app_data_file)
+allow drmserver app_data_file:dir r_dir_perms;
+allow drmserver app_data_file:file r_file_perms;
+
+r_dir_file(drmserver, efs_file)
+r_dir_file(drmserver, firmware)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow drmserver audio_data_file:file r_file_perms;
+allow drmserver drm_efs_file:dir create_dir_perms;
+allow drmserver drm_efs_file:file create_file_perms;
+#allow drmserver init_shell:unix_stream_socket connectto;
+allow drmserver qseecom_device:chr_file rw_file_perms;
+allow drmserver shell_exec:file x_file_perms;
+allow drmserver system_file:file x_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+binder_call(drmserver, servicemanager)
+
+########## self and domain_type
+allow drmserver at_distributor:fd use;
+allow drmserver system_app:fifo_file w_file_perms;
+
+########## fs_type
+########## dev_type
+allow drmserver s5p_smem_device:chr_file rw_file_perms;
+
+########## file_type
+allow drmserver drm_lib_system_file:dir r_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow drmserver drm_lib_system_file:file x_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402384437.330:264): avc:  denied  { write } for  pid=283 comm="drmserver"# #name="bbb_short.ffmpeg.1920x1080.mp4.libx264_5000kbps_30fps.libfaac_stereo_192kbps_48000Hz.mp4" dev="mmcblk0p25" ino=522340 scontext=u:r:drmserver:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { call } for  pid=9396 comm="Binder_3" scontext=u:r:drmserver:s0 tcontext=u:r:container_app:s0:c2 tclass=binder
+# avc:  denied  { setattr } for  pid=9114 comm="Binder_2" name="20140717_162259.mp4" dev="ecryptfs" ino=132624 scontext=u:r:drmserver:s0 tcontext=u:object_r:container_app_data_backend:s0:c2 tclass=file SEPF_SM-N910F_4.4.4_A018
+# avc:  denied  { execmod } for  pid=526 comm="drmserver" path="/system/lib/libsthmb.so" dev="sda20" ino=2423 scontext=u:r:drmserver:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { find } for service=TvoutService_C scontext=u:r:drmserver:s0 tcontext=u:object_r:bintvoutservice_service:s0 tclass=service_manager
+# avc:  denied  { write } for  pid=11749 comm="Binder_2" name="avc_msg" dev="proc" ino=4026535565 scontext=u:r:drmserver:s0 tcontext=u:object_r:proc_avc_msg:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=32087 comm="generic" path="/data/data/com.samsung.android.voc/files/recordTest.mp4" dev="dm-1" ino=329474 scontext=u:r:drmserver:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=0
+
+

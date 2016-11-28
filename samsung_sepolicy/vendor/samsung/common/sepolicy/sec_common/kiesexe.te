@@ -1,0 +1,81 @@
+#
+# kiesexe
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type kiesexe, domain;
+type kiesexe_exec, exec_type, file_type;
+# for B2C users
+typeattribute kiesexe trusteddomain;
+typeattribute kiesexe system_domain;
+
+binder_call(kiesexe, system)
+binder_call(kiesexe, servicemanager)
+binder_use(kiesexe)
+init_daemon_domain(kiesexe)
+
+########## self and domain_type
+allow kiesexe init:unix_stream_socket connectto;
+allow kiesexe ddexe:unix_stream_socket connectto;
+allow kiesexe mobexdaemon:process signal;
+allow kiesexe self:capability { dac_override setuid sys_boot };
+
+########## fs_type
+allow kiesexe sdcard_internal:dir r_dir_perms;
+allow kiesexe sdcard_internal:file r_file_perms;
+allow kiesexe sysfs:file w_file_perms;
+allow kiesexe sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow kiesexe device:file r_file_perms;
+allow kiesexe tty_device:chr_file rw_file_perms;
+
+########## file_type
+allow kiesexe anr_data_file:file w_file_perms;
+
+#neverallow { domain -init -installd -dex2oat -zygote } dalvikcache_data_file:dir { add_name create link relabelfrom remove_name rename reparent rmdir setattr write }
+#allow kiesexe dalvikcache_data_file:dir w_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+allow kiesexe dalvikcache_data_file:file r_file_perms;
+
+allow kiesexe { shell_exec zygote_exec }:file rx_file_perms;
+allow kiesexe system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow kiesexe system_data_file:file create_file_perms;
+allow kiesexe system_data_file:file r_file_perms;
+
+allow kiesexe system_data_file:sock_file create_file_perms;
+allow kiesexe system_file:file execute_no_trans;
+allow kiesexe system_file:file x_file_perms;
+
+
+########## etc_type
+allow kiesexe property_socket:sock_file write;
+allow kiesexe system_prop:property_service set;
+allow kiesexe kies_prop:property_service set;
+
+########## known issue.
+#r_dir_file(kiesexe, file_type)
+# replacing r_dir_file macro and removing container related access
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow kiesexe { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow kiesexe { file_type -trstdomain_no_read_file -vold_data_file}:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow kiesexe { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#changeBySEA allow kiesexe { file_type -trstdomain_no_read_file -vold_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+allow kiesexe { shell_data_file app_data_file }:file r_file_perms;
+
+#r_dir_file(kiesexe, domain)
+# replacing r_dir_file macro and removing container related access
+allow kiesexe { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+allow kiesexe { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } r_file_perms;
+
+
+############ avc_log #############
+
+

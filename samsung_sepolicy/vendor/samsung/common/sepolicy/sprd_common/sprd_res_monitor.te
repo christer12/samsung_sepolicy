@@ -1,0 +1,69 @@
+#
+# sprd_res_monitor
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type sprd_res_monitor, domain;
+type sprd_res_monitor_exec, exec_type, file_type;
+
+init_daemon_domain(sprd_res_monitor)
+
+#permissive sprd_res_monitor;
+
+unix_socket_connect(sprd_res_monitor, property, init)
+
+
+########## self and domain_type
+allow sprd_res_monitor self:capability { chown dac_override };
+
+########## fs_type
+allow sprd_res_monitor sysfs:file rw_file_perms;
+#allow sprd_res_monitor usermodehelper:file rw_file_perms;
+#neverallow { domain -init } usermodehelper:file { append write };
+
+
+########## dev_type
+########## file_type
+allow sprd_res_monitor prod_file:dir r_dir_perms;
+allow sprd_res_monitor prod_file:file rw_file_perms;
+allow sprd_res_monitor shell_data_file:dir create_dir_perms;
+allow sprd_res_monitor shell_data_file:file create_file_perms;
+allow sprd_res_monitor shell_data_file:sock_file create_file_perms;
+allow sprd_res_monitor shell_exec:file rx_file_perms;
+allow sprd_res_monitor system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow sprd_res_monitor system_data_file:file create_file_perms;
+allow sprd_res_monitor system_data_file:file r_file_perms;
+
+allow sprd_res_monitor system_file:file rx_file_perms;
+
+
+
+########## etc_type
+allow sprd_res_monitor debug_prop:property_service set;
+allow sprd_res_monitor monitor_prop:property_service set;
+
+########## known issue.
+# P150512-00834  P150512-05198 
+type_transition sprd_res_monitor system_data_file:dir dumplog_data_file "hprofs";
+allow sprd_res_monitor dumplog_data_file:dir create_dir_perms;
+allow sprd_res_monitor dumplog_data_file:file create_file_perms;
+
+############ avc_log #############
+# avc:  denied  { dac_override } for  pid=8557 comm="res_monitor" capability=1  scontext=u:r:sprd_res_monitor:s0 tcontext=u:r:sprd_res_monitor:s0 tclass=capability permissive=1
+# avc:  denied  { dac_override } for  pid=8530 comm="sprd_res_monito" capability=1  scontext=u:r:sprd_res_monitor:s0 tcontext=u:r:sprd_res_monitor:s0 tclass=capability permissive=1
+# avc:  denied  { create } for  pid=8530 comm="sprd_res_monito" name="sprd_monitor.conf" scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file permissive=1
+# avc:  denied  { execute } for  pid=8532 comm="sprd_res_monito" name="sh" dev="mmcblk0p23" ino=462 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=8532 comm="sprd_res_monito" path="/system/bin/sh" dev="mmcblk0p23" ino=462 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=8532 comm="sh" name="sysdump_flag" dev="mmcblk0p18" ino=15 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:prod_file:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=8535 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p23" ino=481 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { setattr } for  pid=8536 comm="chown" name="hprofs" dev="mmcblk0p26" ino=34 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { chown } for  pid=8536 comm="chown" capability=0  scontext=u:r:sprd_res_monitor:s0 tcontext=u:r:sprd_res_monitor:s0 tclass=capability permissive=1
+# avc:  denied  { write } for  pid=8548 comm="sh" name="enabled" dev="sysfs" ino=1563 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1
+# avc:  denied  { create } for  pid=8557 comm="res_monitor" name="sprd_res_monitor" scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { write } for  pid=8533 comm="sh" name="core_pattern" dev="proc" ino=47226 scontext=u:r:sprd_res_monitor:s0 tcontext=u:object_r:usermodehelper:s0 tclass=file permissive=1
+
+

@@ -1,0 +1,3 @@
+
+allow nfc devpts:chr_file rw_file_perms;
+

@@ -1,0 +1,22 @@
+# create new domain root_detect
+
+type root_detect, domain;
+type root_detect_exec, exec_type, file_type;
+
+init_daemon_domain(root_detect)
+
+#SEC changed : allow root_detect init:dir create_dir_perms;
+allow root_detect init:dir r_dir_perms;
+allow root_detect system_data_file:dir create_dir_perms;
+allow root_detect su_exec:file getattr;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow root_detect system_data_file:file create_file_perms;
+allow root_detect system_data_file:file r_file_perms;
+
+#SEC changed : allow root_detect init:file create_file_perms;
+allow root_detect init:file r_file_perms;
+#SEC changed : allow root_detect kernel:file create_file_perms;
+allow root_detect kernel:file r_file_perms;
+

@@ -1,0 +1,25 @@
+# grant additional permission to dumpstate
+
+allow dumpstate FMRadiod:binder call;
+allow dumpstate debug_prop:property_service set;
+allow dumpstate init:unix_stream_socket unix_stream_socket_perms;
+allow dumpstate phservice:binder call;
+allow dumpstate property_socket:sock_file create_file_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow dumpstate system_data_file:file create_file_perms;
+allow dumpstate system_data_file:file r_file_perms;
+
+allow dumpstate codecIPC_server:binder call;
+allow dumpstate dump_log_data_file:dir { create_dir_perms relabelfrom };
+allow dumpstate dump_log_data_file:file create_file_perms;
+allow dumpstate init:unix_stream_socket unix_stream_socket_perms;
+allow dumpstate vdc:process signal;
+
+# the label of those files cannot be rewritern automatically.
+# dumpstate will dump /data/log/ntv-*.text.tmp, check patch 
+#   dumpstate: Do dumpdate when ANR/Crash/Watchdog timeout
+# under /framework/native/cmds/dumpstate
+#SEC removed: file_type_auto_trans(dumpstate, system_data_file, dump_log_data_file)
+

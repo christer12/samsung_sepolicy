@@ -1,0 +1,12 @@
+allow { appdomain -untrusted_app -shell -good_app } carrier_file:dir create_dir_perms;
+allow { appdomain -untrusted_app -shell -good_app } carrier_file:file create_file_perms;
+#allow containerdomain carrier_file:dir create_dir_perms;
+#allow containerdomain carrier_file:file create_file_perms;
+
+
+#============= untrusted_app(com.tmobile.simlock) for tsdaemon ==============
+allow filtered_untrusted_app tsdaemon:unix_stream_socket connectto;
+userdebug_or_eng(`
+  allow untrusted_app tsdaemon:unix_stream_socket connectto;	
+')
+

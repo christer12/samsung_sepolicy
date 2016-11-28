@@ -1,0 +1,7 @@
+typealias mdm_helper alias mdm_helper_proxy;
+typealias mdm_helper_exec alias mdm_helper_proxy_exec;
+
+# for B2C users
+typeattribute mdm_helper_proxy trusteddomain;
+typeattribute mdm_helper_proxy device_domain;
+

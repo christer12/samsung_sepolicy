@@ -1,0 +1,42 @@
+#!/bin/bash
+
+TYPE=0
+while getopts "t" opt; do
+  case $opt in
+    t)
+      TYPE=1
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+if [[ $# -ne 2 ]] || [[ ! -f "$1" ]];then
+	echo "Usage: attributeInfo (-t) POLICY_FILE ATTRIBUTE_NAME"
+	echo "       -t: if the input value is a type and not an attribute, output the type name"
+	exit 0
+fi
+
+
+
+if [[ TYPE -eq 1 ]]; then
+	ERR=$(seinfo.sh -a$2 -x "$1" 2>&1 | grep -o "ERROR" )
+	if [[ $ERR != "" ]];then
+		echo $2
+	else
+		seinfo.sh -a$2 -x "$1" | awk '{print $1}' 
+	fi
+
+else
+	seinfo.sh -a$2 -x "$1" | awk '{print $1}' 
+fi
+

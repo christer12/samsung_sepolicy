@@ -1,0 +1,4 @@
+
+#SEC added
+allow setup_fs emmcblk_device:blk_file r_file_perms;
+

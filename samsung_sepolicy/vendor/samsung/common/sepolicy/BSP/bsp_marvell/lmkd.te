@@ -1,0 +1,4 @@
+# grant the additional permission for lmkd
+
+#SEC removed: allow lmkd sysfs:file create_file_perms;
+

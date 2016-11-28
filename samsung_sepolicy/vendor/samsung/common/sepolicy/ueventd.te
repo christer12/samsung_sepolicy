@@ -1,0 +1,125 @@
+#
+# ueventd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute ueventd trusteddomain;
+#typeattribute ueventd system_domain;
+# temporary permissive to gather the log.
+# permissive ueventd;
+
+#neverallow by Google: set_prop(ueventd)
+#neverallow Google CTS-android-m-preview: neverallow ueventd init:unix_stream_socket connectto; neverallow ueventd property_socket:sock_file write;
+#unix_socket_connect(ueventd, property, init)
+
+########## self and domain_type
+########## fs_type
+allow ueventd sdcard_external:dir create_dir_perms;
+allow ueventd sdcard_external:file create_file_perms;
+allow ueventd selinuxfs:dir r_dir_perms;
+allow ueventd selinuxfs:file r_file_perms;
+allow ueventd sysfs:dir { relabelfrom relabelto setattr };
+allow ueventd sysfs:file { relabelfrom relabelto };
+allow ueventd sysfs_lcd_writable:file rw_file_perms;
+allow ueventd sysfs_sec:dir rw_dir_perms;
+allow ueventd sysfs_sec:{ file lnk_file } rw_file_perms;
+allow ueventd sysfs_ss_writable:file rw_file_perms;
+allow ueventd sysfs_type:file { relabelfrom relabelto };
+allow ueventd { sysfs_type -usermodehelper }:file w_file_perms;
+allow ueventd tmpfs:file r_file_perms;
+
+########## dev_type
+allow ueventd block_device:lnk_file { r_file_perms link unlink rename };
+allow ueventd device:lnk_file r_file_perms;
+allow ueventd dw_mmc_device:lnk_file r_file_perms;
+allow ueventd emmcblk_device:blk_file { read open };
+allow ueventd kmsg_device:chr_file rw_file_perms;
+
+########## file_type
+allow ueventd app_data_type:dir r_dir_perms;
+allow ueventd app_data_type:file r_file_perms;
+allow ueventd isolated_app_tmpfs:file rw_file_perms;
+allow ueventd persist_data_file:dir r_dir_perms;
+allow ueventd persist_data_file:file r_file_perms;
+allow ueventd security_file:file r_file_perms;
+allow ueventd system_data_file:dir r_dir_perms;
+allow ueventd system_data_file:file r_file_perms;
+allow ueventd untrusted_app_tmpfs:file write;
+
+########## etc_type
+########## known issue.
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+allow ueventd proc_avc_msg:file rw_file_perms;
+
+########## dev_type
+allow ueventd knox_kap_device : chr_file { create setattr unlink } ;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+#neverallow Google CTS-android-5.0.2_r1 : allow ueventd firmware:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow ueventd firmware:file create_file_perms;
+allow ueventd firmware:dir r_dir_perms;
+allow ueventd firmware:file r_file_perms;
+allow ueventd sysfs_thermal:file rw_file_perms;
+
+########## dev_type
+allow ueventd device:lnk_file { getattr link unlink rename };
+
+########## file_type
+allow ueventd persist_data_file:dir r_dir_perms;
+allow ueventd persist_data_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow ueventd self:capability fowner;
+
+########## fs_type
+########## dev_type
+allow ueventd dw_mmc_device:lnk_file r_file_perms;
+allow ueventd usb_device:lnk_file r_file_perms;
+
+########## androd-m-preview: denials ########
+allow ueventd rootfs:file entrypoint;
+
+########## file_type
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=2858 comm="ueventd" name="/" dev="mmcblk0p22" ino=2 scontext=u:r:ueventd:s0 tcontext=u:object_r:persist_data_file:s0 tclass=dir
+# avc:  denied  { write } for  pid=1563 comm="ueventd" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=649233 scontext=u:r:ueventd:s0 tcontext=u:object_r:untrusted_app_tmpfs:s0 tclass=file
+# avc:  denied  { getattr } for  pid=13740 comm="ueventd" path="/data/data/com.vlingo.midas/UDT_Always_Deep_recog.bin" dev="mmcblk0p27" ino=525892 scontext=u:r:ueventd:s0 tcontext=u:object_r:app_data_file:s0 tclass=file SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { open } for  pid=13740 comm="ueventd" path="/data/data/com.vlingo.midas/UDT_Always_Deep_recog.bin" dev="mmcblk0p27" ino=525892 scontext=u:r:ueventd:s0 tcontext=u:object_r:app_data_file:s0 tclass=file SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { read } for  pid=13740 comm="ueventd" name="UDT_Always_Deep_recog.bin" dev="mmcblk0p27" ino=525892 scontext=u:r:ueventd:s0 tcontext=u:object_r:app_data_file:s0 tclass=file SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { open } for  pid=8556 comm="ueventd" path="/data/firmware/florida-dsp3-ez2-control.bin" dev="mmcblk0p21" ino=524305 scontext=u:r:ueventd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file SEPF_SM-N910C_4.4.4_0018
+# audit(72726.269:3): avc:  denied  { write } for  pid=160 comm="ueventd" name="uevent" dev="sysfs" ino=16238 scontext=u:r:ueventd:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file
+# audit(72726.269:3): avc:  denied  { open } for  pid=160 comm="ueventd" name="uevent" dev="sysfs" ino=16238 scontext=u:r:ueventd:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file
+# audit(72726.269:3): arch=40000028 syscall=322 per=800000 success=yes exit=11 a0=a a1=40497 a2=20001 a3=0 items=1 ppid=1 pid=160 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="ueventd" exe="/init" suaudit(72726.269:3):  cwd="/"
+# audit(72726.269:3): item=0 name="uevent" inode=16238 dev=00:0c mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs_sec:s0
+# avc:  denied  { search } for  pid=2858 comm="ueventd" name="/" dev="mmcblk0p22" ino=2 scontext=u:r:ueventd:s0 tcontext=u:object_r:persist_data_file:s0 tclass=dir
+#audit(46764.060:3): avc:  denied  { write } for  pid=160 comm="ueventd" name="uevent" dev="sysfs" ino=15843 scontext=u:r:ueventd:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=file
+#audit(46764.060:3): avc:  denied  { open } for  pid=160 comm="ueventd" name="uevent" dev="sysfs" ino=15843 scontext=u:r:ueventd:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=file
+#audit(46764.060:3): arch=40000028 syscall=322 per=800000 success=yes exit=11 a0=a a1=40497 a2=20001 a3=0 items=1 ppid=1 pid=160 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="ueventd" exe="/init" suaudit(46764.060:3):  cwd="/"
+#audit(46764.060:3): item=0 name="uevent" inode=15843 dev=00:0c mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs_thermal:s0
+# avc:  denied  { read } for  pid=821 comm="ueventd" name="sdd18" dev="tmpfs" ino=15775 scontext=u:r:ueventd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { open } for  pid=821 comm="ueventd" path="/dev/block/sdd18" dev="tmpfs" ino=15775 scontext=u:r:ueventd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+
+

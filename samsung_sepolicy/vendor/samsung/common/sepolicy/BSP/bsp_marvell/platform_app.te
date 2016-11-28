@@ -1,0 +1,14 @@
+# grant addtional permission to platform_app
+#SEC removed: allow platform_app mrvlgpu_device:chr_file create_file_perms;
+#SEC removed: allow platform_app graphics_device:dir create_dir_perms;
+allow platform_app app_data_file:file { execute execute_no_trans };
+# The getattr permission is required but it's not defined in access_vector
+allow platform_app FMRadiod:binder { transfer call };
+allow platform_app phservice:binder call;
+allow platform_app diag:unix_stream_socket unix_stream_socket_perms;
+#SEC removed: allow platform_app tmpfs:sock_file create_file_perms;
+allow platform_app dump_log_data_file:file create_file_perms;
+allow platform_app dump_log_data_file:dir create_dir_perms;
+allow platform_app tel_data_file:file create_file_perms;
+allow platform_app tel_data_file:dir create_dir_perms;
+

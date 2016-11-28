@@ -1,0 +1,18 @@
+#
+# diagandroid_app for CIQ
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#neverallow Google CTS-android-5.0.2_r1 :typeof diagandroid_app, system_app;
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+
+

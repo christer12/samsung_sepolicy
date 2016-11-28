@@ -1,0 +1,13 @@
+# grant additonal permission for drmserver
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow drmserver system_data_file:file create_file_perms;
+allow drmserver system_data_file:file r_file_perms;
+
+allow drmserver self:process execmem;
+allow drmserver geu_device:chr_file create_file_perms;
+allow drmserver dump_log_data_file:file create_file_perms;
+allow drmserver dump_log_data_file:dir create_dir_perms;
+# SEC removed to use tz_device: allow drmserver teecsstdca_device:chr_file create_file_perms;
+

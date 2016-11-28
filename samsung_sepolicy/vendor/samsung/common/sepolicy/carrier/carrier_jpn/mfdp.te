@@ -1,0 +1,34 @@
+# mfdp subsystem
+type mfdp, domain;
+type mfdp_exec, exec_type, file_type;
+
+init_daemon_domain(mfdp)
+
+# mfdp device access.
+allow mfdp mfdp:capability { dac_override fowner };
+
+allow mfdp system_prop:property_service { set };
+
+# Data file accesses.
+allow mfdp shell_exec:file { execute read open execute_no_trans };
+allow mfdp system_file:file { execute_no_trans };
+allow mfdp zygote_exec:file { getattr execute read open execute_no_trans };
+allow mfdp property_socket:sock_file { write };
+allow mfdp init:unix_stream_socket { connectto };
+allow mfdp csc_prop:property_service { set };
+allow mfdp setupwizard_prop:property_service { set };
+#allow mfdp dalvikcache_data_file:dir w_dir_perms;
+#allow mfdp dalvikcache_data_file:file create_file_perms;
+allow mfdp dalvikcache_data_file:file r_file_perms;
+
+allow mfdp ashmem_device:chr_file { execute };
+allow mfdp servicemanager:binder { call };
+allow mfdp system:binder { call };
+
+allow mfdp felicashell_device:chr_file { read write open };
+
+#neverallow Google-android-5.0.2_r1 : allow mfdp system_library_file:dir create_dir_perms;
+
+# for B2C users
+typeattribute mfdp trusteddomain;
+typeattribute mfdp device_domain;

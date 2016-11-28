@@ -1,0 +1,97 @@
+#
+# TZDaemon (Trustzone Daemon of Blowfish)
+#
+#TZDaemon is normal world daemon binary of Blowfish(Samsung Secure OS) TrustZone. 
+#The purpose of TZDaemon is to receive requests from TEE Client Application and direct them to TZDev device driver in linux-kernel and forward request results in opposite direction. In android system, #init.rc run tzdaemon automatically and then system can use trusted application through tzdaemon. It works client applictation between trusted application. 
+#TAADaemon is trusted component in the normal world that acts as a proxy to the remote server.
+#- hyungsic.noh,Security R&D Group
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type tzdaemon, domain;
+type tzdaemon_exec, exec_type, file_type;
+
+recovery_only(`
+#for tzdaemon_recovery
+domain_trans(init, rootfs, tzdaemon)
+')
+
+init_daemon_domain(tzdaemon)
+
+net_domain(tzdaemon)
+
+# setprop
+#unix_socket_connect(tzdaemon, property, init)
+set_prop(tzdaemon, system_prop)
+set_prop(tzdaemon, tzdaemon_prop)
+
+#to collect denials
+#permissive tzdaemon;
+
+
+########## self and domain_type
+#allow tzdaemon self:capability sys_ptrace;
+allow tzdaemon self:capability { ipc_lock dac_override };
+
+########## fs_type
+########## dev_type
+# access /dev/tzdev
+allow tzdaemon tz_device:chr_file rw_file_perms;
+allow tzdaemon tz_socket:sock_file rw_file_perms;
+
+########## file_type
+allow tzdaemon shell_exec:file rx_file_perms;
+allow tzdaemon socket_device:dir rw_dir_perms;
+allow tzdaemon socket_device:sock_file create_file_perms;
+allow tzdaemon system_data_file:dir { write add_name };
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow tzdaemon system_data_file:file { write lock create open };
+allow tzdaemon system_data_file:file r_file_perms;
+
+allow tzdaemon system_file:file rx_file_perms;
+allow tzdaemon tee_data_file:dir create_dir_perms;
+allow tzdaemon tee_data_file:file create_file_perms;
+allow tzdaemon tee_data_file:file link;
+
+
+########## etc_type
+allow tzdaemon system_prop:property_service set;
+# [sys.tzdaemon] : [Ready] 
+allow tzdaemon tzdaemon_prop:property_service set;
+
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { sys_ptrace } for  pid=15202 comm="tzdaemon" capability=19  scontext=u:r:tzdaemon:s0 tcontext=u:r:tzdaemon:s0 tclass=capability permissive=1 Enterprise Policy
+# avc:  denied  { write } for  pid=15203 comm="tzdaemon" name="tzdaemon.pid" dev="mmcblk0p21" ino=391705 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { open } for  pid=15203 comm="tzdaemon" path="/data/tee/run/tzdaemon.pid" dev="mmcblk0p21" ino=391705 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { lock } for  pid=15203 comm="tzdaemon" path="/data/tee/run/tzdaemon.pid" dev="mmcblk0p21" ino=391705 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { dac_override } for  pid=15203 comm="tzdaemon" capability=1  scontext=u:r:tzdaemon:s0 tcontext=u:r:tzdaemon:s0 tclass=capability permissive=1 Enterprise Policy
+# avc:  denied  { read write } for  pid=15203 comm="tzdaemon" name="tzdev" dev="tmpfs" ino=1325 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 Enterprise Policy
+# avc:  denied  { open } for  pid=15203 comm="tzdaemon" path="/dev/tzdev" dev="tmpfs" ino=1325 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 Enterprise Policy
+# avc:  denied  { ipc_lock } for  pid=15203 comm="tzdaemon" capability=14  scontext=u:r:tzdaemon:s0 tcontext=u:r:tzdaemon:s0 tclass=capability permissive=1 Enterprise Policy
+# avc:  denied  { ioctl } for  pid=15203 comm="tzdaemon" path="/dev/tzdev" dev="tmpfs" ino=1325 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 Enterprise Policy
+# avc:  denied  { execute } for  pid=15212 comm="tzdaemon" name="sh" dev="mmcblk0p18" ino=448 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { read open } for  pid=15212 comm="tzdaemon" path="/system/bin/sh" dev="mmcblk0p18" ino=448 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { execute_no_trans } for  pid=15212 comm="tzdaemon" path="/system/bin/sh" dev="mmcblk0p18" ino=448 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { execute_no_trans } for  pid=15212 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p18" ino=462 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 Enterprise Policy
+# avc:  denied  { write } for  pid=15212 comm="setprop" name="property_service" dev="tmpfs" ino=4291 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=1 Enterprise Policy
+# avc:  denied  { connectto } for  pid=15212 comm="setprop" path="/dev/socket/property_service" scontext=u:r:tzdaemon:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket permissive=1 Enterprise Policy
+# avc:  denied  { ioctl } for  pid=15210 comm="tzdaemon" path="/dev/tzdev" dev="tmpfs" ino=1325 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 Enterprise Policy
+# avc:  denied  { write } for  pid=2207 comm="tzdaemon" name="tz" dev="tmpfs" ino=9243 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:tz_socket:s0 tclass=sock_file permissive=1 SEPF_CARMEN2-EUR-OPEN_5.0.2_0009
+# avc:  denied  { set } for property=sys.secureos.nwd_libs.version scontext=u:r:tzdaemon:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { name_bind } for  pid=521 comm="taadaemon" src=5550 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket permissive=1 SEPF_SM-A8000_5.1.1_0017
+# avc:  denied  { node_bind } for  pid=521 comm="taadaemon" saddr=127.0.0.1 src=5550 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:node:s0 tclass=tcp_socket permissive=1 SEPF_SM-A8000_5.1.1_0017
+# avc:  denied  { write } for  pid=538 comm="taadaemon" name="fwmarkd" dev="tmpfs" ino=9257 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:fwmarkd_socket:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1.1_0017
+# avc:  denied  { name_connect } for  pid=538 comm="taadaemon" dest=28880 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket permissive=1 SEPF_SM-A8000_5.1.1_0017
+# avc:  denied  { write } for  pid=559 comm="taadaemon" name="socket" dev="tmpfs" ino=8338 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:socket_device:s0 tclass=dir permissive=1 SEPF_SM-A8000_5.1.1_0019
+# avc:  denied  { add_name } for  pid=559 comm="taadaemon" name="taa" scontext=u:r:tzdaemon:s0 tcontext=u:object_r:socket_device:s0 tclass=dir permissive=1 SEPF_SM-A8000_5.1.1_0019
+# avc:  denied  { create } for  pid=559 comm="taadaemon" name="taa" scontext=u:r:tzdaemon:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1.1_0019
+# avc:  denied  { setattr } for  pid=559 comm="taadaemon" name="taa" dev="tmpfs" ino=10587 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1.1_0019
+# avc:  denied  { entrypoint } for  pid=3100 comm="init" path="/sbin/tzdaemon_recovery" dev="rootfs" ino=4426 scontext=u:r:tzdaemon:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=221 success=yes exit=0 a0=7f97875eb1 a1=7f9788b958 a2=538450 a3=0 items=0 ppid=1 ppcomm=init pid=3100 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="tzdaemon_recove" exe="/sbin/tzdaemon_recovery"
+# date=2015/12/31;scontext=tzdaemon;tcontext=tee_data_file:tclass=file permission=link;mls="MATCH";category="/";model="SM-G925F";os="6.0";build="OL5";comm="tzdaemon";exe="/system/bin/tzdaemon";path="-";dev="sda18";name=".ffffffff-ffff-ffff-0000-000000000029-01";proctitle="-";syscall="37";ioctlcmd(hex)="0";uid="1000";permissive="0";
+
+

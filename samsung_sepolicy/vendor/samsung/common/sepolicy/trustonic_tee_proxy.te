@@ -1,0 +1,25 @@
+# trustonic_tee_proxy and Authentication Services
+
+# For systems where downloaded applications do not have permission to open the Linux driver device, 
+# there is a separate proxy service that it accessible via a socket. 
+# The selection is done automatically in the TEE system client library (ClientLib), so no application change is required.
+# What is more, it is possible to use the proxy service as a filter to select which Service Providers applications have access to the TEE when used together with the Authentication Service. 
+# The Authentication Service (known as TeeAuthServer in the Android Kinibi NWd source code) is triggered on application installation, uninstallation or upgrade, and at boot, and verifies a specific Trustonic license inside the application APK to decide whether it will be allowed access or not.
+# To enforce the authentication, the proxy service daemon must be started with a special –a option, and the Authentication Service must be installed on the system.
+# The Authentication Service is a system APK which contains a public encryption key to validates the APK that can connect though it. 
+# If the OEM want to perform their own authentication, they must replace the default Trustonic key by their own public key.
+# Contact: swin.kim, Mobile Security Technologies Group
+
+type trustonic_tee_proxy, domain, mlstrustedsubject;
+type trustonic_tee_proxy_exec, exec_type, file_type;
+
+init_daemon_domain(trustonic_tee_proxy)
+
+allow trustonic_tee_proxy mobicore-user_device:chr_file rw_file_perms;
+allow trustonic_tee_proxy mobicoredaemon:unix_stream_socket connectto;
+allow trustonic_tee_proxy trustonicpartner_app:unix_stream_socket connectto;
+allow trustonicpartner_app trustonic_tee_proxy:unix_stream_socket connectto;
+# SEPolicy reduction between untrusted app and trustonic_tee_proxy because of scenario changed.
+#allow untrusted_app trustonic_tee_proxy:unix_stream_socket connectto;
+#allow trustonic_tee_proxy untrusted_app:unix_stream_socket connectto;
+

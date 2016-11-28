@@ -1,0 +1,13 @@
+# brcm_patchram_plus
+type brcm_patchram_plus, domain;
+type brcm_patchram_plus_exec, exec_type, file_type;
+init_daemon_domain(brcm_patchram_plus)
+
+allow brcm_patchram_plus bluetooth_efs_file:dir r_dir_perms;
+allow brcm_patchram_plus bluetooth_efs_file:file r_file_perms;
+allow brcm_patchram_plus kernel:system module_request;
+allow brcm_patchram_plus uart_device:chr_file rw_file_perms;
+
+# for B2C users
+typeattribute brcm_patchram_plus trusteddomain;
+typeattribute brcm_patchram_plus device_domain;

@@ -1,0 +1,74 @@
+#
+# factory_adsp
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type factory_adsp, domain;
+type factory_adsp_exec, exec_type, file_type;
+
+dumplog_create(factory_adsp)
+init_daemon_domain(factory_adsp)
+
+########## self and domain_type
+allow factory_adsp sensors:unix_stream_socket connectto;
+allow factory_adsp self:netlink_socket { read bind create write };
+allow factory_adsp untrusted_app:dir search;
+allow factory_adsp untrusted_app:file read;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow factory_adsp media_rw_data_file:dir create_dir_perms;
+allow factory_adsp media_rw_data_file:file create_file_perms;
+allow factory_adsp { storage_file mnt_user_file }:lnk_file { getattr read };
+allow factory_adsp sensors_socket:sock_file rw_file_perms;
+allow factory_adsp sysfs_sensor_writable:file rw_file_perms;
+allow factory_adsp radio_data_file:file r_file_perms; 
+allow factory_adsp radio_data_file:dir r_dir_perms; 
+
+########## etc_type
+allow factory_adsp node:tcp_socket node_bind;
+
+########## known issue.
+
+# execute system/bin/sh
+# sh -c diag_mdlog -f /data/Diag.cfg -p 16 -o /data/log -c &
+# /system/bin/diag_mdlog -f /data/Diag.cfg -p 16 -o /data/log -c &
+allow factory_adsp shell_exec:file rx_file_perms;
+allow factory_adsp qlogd_exec:file rx_file_perms;
+
+# read /data/Diag.cfg
+allow factory_adsp system_data_file:file r_file_perms;
+
+
+# efs and sysfs access to support light sensor coef value
+#  1. r/w/c /efs/FactoryApp/predefine* and /efs/FactoryApp/hh_version
+#  2. read /sys/class/lcd/panel/window_type
+#  http://mobilerndhub.sec.samsung.net/hub/site/seandroid/board/Request/view/14518348/?page=1
+allow factory_adsp sysfs_lcd_writable:file r_file_perms;
+allow factory_adsp efs_file:dir search;
+allow factory_adsp app_efs_file:dir create_dir_perms;
+allow factory_adsp app_efs_file:file create_file_perms;
+
+
+
+############ avc_log #############
+# avc:  denied  { create } for  pid=6804 comm="diag_mdlog" name="diag_log_slpi_20150920_1448481445366928251.qmdl" scontext=u:r:empty_service:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { read write open } for  pid=6804 comm="diag_mdlog" path="/data/log/diag_log_slpi_20150920_1448481445366928251.qmdl" dev="sda23" ino=131074 scontext=u:r:empty_service:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { create } for  pid=766 comm="factory.adsp" scontext=u:r:empty_service:s0 tcontext=u:r:empty_service:s0 tclass=netlink_socket permissive=1
+# avc:  denied  { bind } for  pid=766 comm="factory.adsp" scontext=u:r:empty_service:s0 tcontext=u:r:empty_service:s0 tclass=netlink_socket permissive=1
+# avc:  denied  { read } for  pid=766 comm="factory.adsp" scontext=u:r:empty_service:s0 tcontext=u:r:empty_service:s0 tclass=netlink_socket permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+# avc:  denied  { execute } for  pid=6772 comm="factory.adsp" name="sh" dev="sda20" ino=728 scontext=u:r:empty_service:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=6772 comm="factory.adsp" path="/system/bin/sh" dev="sda20" ino=728 scontext=u:r:empty_service:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=6772 comm="factory.adsp" path="/system/bin/sh" dev="sda20" ino=728 scontext=u:r:empty_service:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=6802 comm="sh" path="/system/bin/diag_mdlog" dev="sda20" ino=461 scontext=u:r:empty_service:s0 tcontext=u:object_r:qlogd_exec:s0 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { open } for  pid=6802 comm="diag_mdlog" path="/data/Diag.cfg" dev="sda23" ino=22 scontext=u:r:empty_service:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { node_bind } for  pid=766 comm="factory.adsp" src=59234 scontext=u:r:empty_service:s0 tcontext=u:object_r:node:s0 tclass=tcp_socket permissive=1
+# avc:  denied  { search } for  pid=4775 comm="diag_mdlog" name="4614" dev="proc" ino=31445 scontext=u:r:factory_adsp:s0 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=dir permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { read } for  pid=4775 comm="diag_mdlog" name="cmdline" dev="proc" ino=31446 scontext=u:r:factory_adsp:s0 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc: denied { write } for pid=951 comm="factory.adsp" name="sensor_ctl_socket" dev="tmpfs" ino=17182 scontext=u:r:factory_adsp:s0 tcontext=u:object_r:sensors_socket:s0 tclass=sock_file permissive=0
+# avc:  denied  { read } for  pid=3583 comm="diag_mdlog" name="ssc_pid" dev="sysfs" ino=40877 scontext=u:r:factory_adsp:s0 tcontext=u:object_r:sysfs_sensor_writable:s0 tclass=file permissive=1 SEPF_SM-G930V_6.0_0002
+# avc:  denied  { write } for  pid=1349 comm="diag_mdlog" name="ssc_pid" dev="sysfs" ino=40877 scontext=u:r:factory_adsp:s0 tcontext=u:object_r:sysfs_sensor_writable:s0 tclass=file permissive=1 SEPF_SM-G930V_6.0_0002
+# avc:  denied  { search } for  pid=625 comm="factory.adsp" name="radio" dev="dm-0" ino=458762 scontext=u:r:factory_adsp:s0 tcontext=u:object_r:radio_data_file:s0 tclass=dir permissive=0 SEPF_SECMOBILE_6.0.1_0002

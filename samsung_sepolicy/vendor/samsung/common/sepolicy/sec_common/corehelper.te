@@ -1,0 +1,34 @@
+############ aosp and sec_common #############
+########## type and macro.
+type corehelper, domain;
+type corehelper_sh_file, exec_type, file_type;
+
+#to collect denials
+#permissive corehelper;
+
+########## self and domain_type
+allow corehelper kernel:fifo_file r_file_perms;
+
+########## file_type
+allow corehelper dumplog_data_file:dir create_dir_perms;
+allow corehelper dumplog_data_file:file create_file_perms;
+allow corehelper shell_exec:file read;
+allow corehelper system_file:file execute_no_trans;
+
+############ avc_log #############
+# avc:  denied  { execute_no_trans } for  pid=17130 comm="corehelper.sh" path="/system/bin/gzip" dev="mmcblk0p18" ino=878 scontext=u:r:corehelper:s0 tcontext=u:object_r:system_file:s0 tclass=file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { read } for  pid=14388 comm="corehelper.sh" path="pipe:[67516]" dev="pipefs" ino=67516 scontext=u:r:corehelper:s0 tcontext=u:r:kernel:s0 tclass=fifo_file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { ioctl } for  pid=14388 comm="corehelper.sh" path="pipe:[67516]" dev="pipefs" ino=67516 scontext=u:r:corehelper:s0 tcontext=u:r:kernel:s0 tclass=fifo_file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { getattr } for  pid=14388 comm="corehelper.sh" path="pipe:[67516]" dev="pipefs" ino=67516 scontext=u:r:corehelper:s0 tcontext=u:r:kernel:s0 tclass=fifo_file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { read } for  pid=14388 comm="corehelper.sh" path="/system/bin/sh" dev="mmcblk0p18" ino=988 scontext=u:r:corehelper:s0 tcontext=u:object_r:shell_exec:s0 tclass=file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { write } for  pid=14388 comm="corehelper.sh" name="core" dev="mmcblk0p21" ino=130064 scontext=u:r:corehelper:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { add_name } for  pid=14388 comm="corehelper.sh" name="core-AsyncTask.gz" scontext=u:r:corehelper:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { create } for  pid=14388 comm="corehelper.sh" name="core-AsyncTask.gz" scontext=u:r:corehelper:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { write open } for  pid=14388 comm="corehelper.sh" name="core-AsyncTask.gz" dev="mmcblk0p21" ino=131650 scontext=u:r:corehelper:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-T805_5.0.2_0009
+# avc:  denied  { setattr } for  pid=13998 comm="chown" name="core" dev="dm-1" ino=196624 scontext=u:r:corehelper:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=0
+# arch=c00000b7 syscall=54 success=no exit=-13 a0=ffffff9c a1=7f9a0280ad a2=0 a3=0 items=0 ppid=13996 pid=13998 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="chown" exe="/system/bin/toybox" subj=u:r:corehelper:s0 key=(null)
+# proctitle=chown root.root /data/log/core
+# avc:  denied  { setattr } for  pid=13999 comm="chmod" name="core" dev="dm-1" ino=196624 scontext=u:r:corehelper:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=0
+# arch=c00000b7 syscall=53 success=no exit=-13 a0=ffffff9c a1=7f9505e0ad a2=41fd a3=0 items=0 ppid=13996 pid=13999 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="chmod" exe="/system/bin/toybox" subj=u:r:corehelper:s0 key=(null)
+# proctitle=chmod 775 /data/log/core
+

@@ -1,0 +1,814 @@
+### adbd.te
+#violated by allow adbd shell_data_file:lnk_file { read };
+#allow adbd app_data_file:lnk_file r_file_perms;
+allow adbd app_data_file:lnk_file r_link_perms;
+
+#violated by allow adbd shell_data_file:lnk_file { read };
+#allow adbd shell_data_file:lnk_file r_file_perms;
+allow adbd shell_data_file:lnk_file r_link_perms;
+
+#violated by allow adbd system_data_file:file { write create setattr append unlink rename };
+#allow adbd system_data_file:file w_file_perms;
+#allow adbd system_data_file:file create_file_perms;
+#changeBySEA : allow adbd system_data_file:file r_file_perms;
+
+#changeBySEA : allow adbd { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA : allow adbd { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir_file_class_set getattr;
+
+### bluetooth.te
+#violated by allow bluetooth dalvikcache_data_file:dir { write add_name remove_name };
+#allow bluetooth dalvikcache_data_file:dir rw_dir_perms;
+#changeBySEA dup with aosp : allow bluetooth dalvikcache_data_file:dir r_dir_perms;
+
+#violated by allow bluetooth dalvikcache_data_file:file { write create setattr append unlink rename };
+#allow bluetooth dalvikcache_data_file:file create_file_perms;
+#changeBySEA dup with aosp : allow bluetooth dalvikcache_data_file:file r_file_perms;
+
+### debuggerd.te
+#violated by allow debuggerd system_data_file:file { write create setattr append unlink rename };
+#allow debuggerd system_data_file:file create_file_perms;
+allow debuggerd system_data_file:file r_file_perms;
+
+#changeBySEA : allow debuggerd { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow debuggerd shell_data_file:lnk_file { read };
+#violated by allow debuggerd app_data_file:lnk_file { read };
+#allow debuggerd { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA need to know about debuggerd :allow debuggerd { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA need to know about debuggerd :allow debuggerd { file_type -trstdomain_no_read_file -shell_data_file -app_data_file}:lnk_file r_file_perms;
+#changeBySEA need to know about debuggerd :allow debuggerd { shell_data_file app_data_file }:lnk_file r_link_perms;
+
+### domain.te
+#violated by allow isolated_app gpu_device:chr_file { ioctl read write getattr lock append open };
+#allow domain powervr_device:chr_file rw_file_perms;
+#changeBySEA dup with aosp gpu_device , not use this type :  allow { domain -isolated_app } powervr_device:chr_file rw_file_perms;
+#changeBySEA not allowed to check the issue : allow { domain -isolated_app } gpu_device:chr_file rw_file_perms;
+
+### drmserver.te
+#allow drmserver init_shell:unix_stream_socket connectto;
+
+#violated by allow drmserver system_data_file:file { write create setattr append unlink rename };
+#allow drmserver system_data_file:file create_file_perms;
+allow drmserver system_data_file:file r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow drmserver { file_type -trstdomain_no_read_file -app_data_type }:dir r_dir_perms;
+
+#violated by allow drmserver shell_data_file:lnk_file { read };
+#allow drmserver { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow drmserver { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow drmserver { file_type -trstdomain_no_read_file -shell_data_file -app_data_file }:lnk_file r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow drmserver { shell_data_file app_data_file }:lnk_file r_link_perms;
+#changeBySEA : allow drmserver { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -log_file_type -app_data_type -efs_type }:{ file lnk_file } r_file_perms;
+
+#violated by allow drmserver app_data_file:lnk_file { read };
+#r_dir_file(drmserver, app_data_file)
+#changeBySEA check the app : allow drmserver app_data_file:dir r_dir_perms;
+#changeBySEA check the app : allow drmserver app_data_file:file r_file_perms;
+#changeBySEA check the app : allow drmserver app_data_file:lnk_file r_link_perms;
+
+#allow drmserver init_shell:unix_stream_socket connectto;
+
+### gpsd.te
+#violated by allow gpsd gpsd:capability { net_admin net_raw };
+#allow gpsd self:capability { net_admin net_raw };
+
+#violated by allow gpsd system_data_file:file { write create setattr append unlink rename };
+#allow gpsd system_data_file:file create_file_perms;
+#allow gpsd system_data_file:file rw_file_perms;
+allow gpsd system_data_file:file r_file_perms;
+
+### healthd.te
+#violated by allow hostapd system_data_file:file { write append };
+#allow hostapd system_data_file:file rw_file_perms;
+allow hostapd system_data_file:file r_file_perms;
+
+### init.te
+#allow init vold_data_file:dir { write rename add_name remove_name reparent rmdir };
+#allow init { data_file_type -keystore_data_file }:dir create_dir_perms;
+#changeBySEA cover by aosp/init.te : allow init { data_file_type -keystore_data_file -vold_data_file }:dir create_dir_perms;
+
+#violated by allow init energyawareness_exec:file { execute_no_trans };
+#allow init energy-awareness_exec:file execute_no_trans;
+
+#violated by allow init system_file:dir { mounton };
+#allow init system_file:dir mounton;
+
+### install_recovery.te
+#violated by allow install_recovery block_device:blk_file { read write open };
+#allow flash_recovery block_device:blk_file rw_file_perms;
+
+#violated by allow install_recovery system_data_file:file { unlink };
+#allow flash_recovery system_data_file:file unlink;
+
+### isolated_app.te
+#violated by allow isolated_app app_data_file:file { open };
+#allow isolated_app platform_app_data_file:file r_file_perms;
+allow isolated_app app_data_file:file { getattr getattr read ioctl lock read ioctl lock };
+
+### kernel.te
+#violated by allow kernel shell:process { transition };
+#domain_auto_trans(kernel, shell_exec, shell)
+
+### mediaserver.te
+#violated by allow mediaserver system_data_file:file { write create setattr append unlink rename };
+#allow mediaserver system_data_file:file create_file_perms;
+allow mediaserver system_data_file:file r_file_perms;
+
+### nfc.te
+#allow nfc sdcard_type:file link_file_perms;
+
+### ppp.te
+#violated by allow ppp dalvikcache_data_file:file { setattr };
+#allow ppp dalvikcache_data_file:file setattr;
+
+### rild.te
+#violated by allow rild system_data_file:file { write create setattr append unlink rename };
+#allow rild system_data_file:file create_file_perms;
+allow rild system_data_file:file r_file_perms;
+
+#changeBySEA cover by domain/trusteddomain rule: allow rild { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow rild shell_data_file:lnk_file { read };
+#violated by allow rild app_data_file:lnk_file { read };
+#allow rild { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow rild { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow rild { file_type -trstdomain_no_read_file -shell_data_file -app_data_file }:lnk_file r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow rild { shell_data_file app_data_file }:lnk_file r_link_perms;
+
+### runas.te
+#violated by allow runas runas:capability { dac_read_search };
+#allow runas self:capability dac_read_search;
+
+### sdcardd.te
+#violated by allow rild system_data_file:file { write create setattr append unlink rename };
+#allow sdcardd system_data_file:file create_file_perms;
+allow sdcardd system_data_file:file r_file_perms;
+
+### radio.te
+#allow radio ims_service:service_manager add;
+#allow radio init_shell:unix_stream_socket connectto;
+
+### installd.te
+#allow installd app_library_file:dir { r_dir_perms link_file_perms };
+allow installd app_library_file:dir r_dir_perms;
+#allow installd app_library_file:file { r_file_perms link_file_perms };
+allow installd app_library_file:file r_file_perms;
+#allow installd system_data_file:sock_file { r_file_perms link_file_perms };
+allow installd system_data_file:sock_file r_file_perms;
+
+#violated by allow installd system_data_file:file { write create setattr relabelto append rename };
+#allow installd system_data_file:file create_file_perms;
+#changeBySEA not allowed to access generic type: allow installd system_data_file:file r_file_perms;
+
+#changeBySEA cover by domain/trusteddomain rule: allow installd { data_file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow installd { data_file_type -trstdomain_no_read_file }:{file lnk_file } r_file_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow installd { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+#changeBySEA cover by domain/trusteddomain rule: allow installd { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir { relabelfrom relabelto };
+#changeBySEA cover by domain/trusteddomain rule: allow installd { data_file_type -trstdomain_no_write_file }:{ file_class_set } { getattr unlink };
+
+#violated by allow installd system_data_file:file { write create setattr relabelto append rename };
+#allow installd { app_data_type system_data_file }:{ file sock_file fifo_file } { getattr unlink rename relabelfrom relabelto setattr };
+#changeBySEA allow installd app_data_type:{ file sock_file fifo_file } { getattr unlink rename relabelfrom relabelto setattr };
+#changeBySEA allow installd system_data_file:{ sock_file fifo_file } { getattr unlink rename relabelfrom relabelto setattr };
+#changeBySEA allow installd system_data_file:file { getattr unlink relabelfrom };
+allow installd app_data_type:dir { create_dir_perms relabelfrom relabelto };
+allow installd app_data_type:notdevfile_class_set { create_file_perms relabelfrom relabelto };
+
+### recovery.te
+recovery_only(`
+#allow recovery rootfs:file create_file_perms;
+#allow recovery system_data_file:dir { write relabelfrom setattr read create open add_name };
+#allow recovery system_data_file:file { write relabelfrom create open setattr };
+
+#violated by allow recovery system_file:dir { mounton };
+#allow recovery system_file:dir mounton;
+
+#violated by allow recovery vold_data_file:file { ioctl read getattr lock relabelto open };
+#allow recovery { data_file_type library_file_type -keystore_data_file }:{ file lnk_file } { r_file_perms relabelto };
+#changeBySEA allow recovery { data_file_type library_file_type -keystore_data_file -vold_data_file -app_data_file -shell_data_file }:{ file lnk_file } { r_file_perms relabelto };
+#changeBySEA allow recovery { app_data_file shell_data_file }:file { r_file_perms relabelto };
+#changeBySEA allow recovery { app_data_file shell_data_file }:lnk_file { r_link_perms relabelto };
+allow recovery { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -log_file_type -app_data_type -efs_type }:{ file lnk_file } r_file_perms;
+
+#violated by allow recovery vold_data_file:dir { ioctl read getattr relabelto search open };
+#allow recovery { data_file_type library_file_type -keystore_data_file }:dir { r_dir_perms relabelto };
+#changeBySEA allow recovery { data_file_type library_file_type -keystore_data_file -vold_data_file }:dir { r_dir_perms relabelto };
+
+#allow recovery { data_file_type library_file_type -keystore_data_file -property_data_file  }:dir { create_dir_perms relabelfrom relabelto };
+#allow recovery { data_file_type library_file_type -keystore_data_file -property_data_file  }:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+#changeBySEA need to check : allow recovery { dev_type -hw_random_device -kmem_device }:dir { relabelfrom relabelto  };
+#changeBySEA need to check : allow recovery { dev_type -hw_random_device -kmem_device }:{ file blk_file chr_file lnk_file } { relabelfrom relabelto };
+
+#violated by allow recovery recovery:capability { mknod };
+#allow recovery self:capability { sys_rawio mknod kill };
+allow recovery self:capability { sys_rawio kill };
+')
+
+### platform_app.te
+#violated by allow store_app shell_data_file:lnk_file { read };
+#allow platformappdomain shell_data_file:lnk_file read;
+
+#violated by allow irm_platform_app su_exec:file { execute };
+#allow platformappdomain { system_file exec_type library_file_type }:file execute;
+#changeBySEA dup with aosp : allow platformappdomain { system_file exec_type library_file_type -su_exec }:file execute;
+
+#changeBySEA allow platformappdomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:file r_file_perms;
+
+### surfaceflinger.te
+#changeBySEA allow surfaceflinger { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow surfaceflinger app_data_file:lnk_file { read };
+#allow surfaceflinger { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA allow surfaceflinger { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA allow surfaceflinger { file_type -trstdomain_no_read_file -app_data_file -shell_data_file }:lnk_file r_file_perms;
+#changeBySEA allow surfaceflinger { app_data_file shell_data_file }:lnk_file r_link_perms;
+
+#violated by allow surfaceflinger system_data_file:file { write append };
+#allow surfaceflinger system_data_file:file w_file_perms;
+
+### system_app.te
+#allow system_app untrusteddomain:lnk_file {link_file_perms r_file_perms};
+allow system_app untrusteddomain:lnk_file r_file_perms;
+#allow system_app socket_device:sock_file { create setattr r_file_perms append link_file_perms };
+#changeBySEA allow system_app socket_device:sock_file { create setattr r_file_perms append };
+#allow system_app anr_data_file:file link_file_perms;
+allow system_app app_data_file:file { execute execmod }; #ignoretypeofrule
+#allow system_app cache_backup_file:file link_file_perms;
+#allow system_app ims_service:service_manager add;
+#changeBySEA allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow system_app shell_data_file:lnk_file { read };
+#allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -shell_data_file }:lnk_file r_file_perms;
+#changeBySEA allow system_app shell_data_file:lnk_file r_link_perms;
+
+### ueventd.te
+#allow ueventd block_device:lnk_file { r_file_perms link_file_perms };
+allow ueventd block_device:lnk_file r_file_perms;
+#allow ueventd device:lnk_file link_file_perms;
+
+### vold.te
+#allow vold device:chr_file  {create setattr ioctl lock append execute link_file_perms };
+#changeBySEA not allowed to check the issue :  allow vold device:chr_file  {create setattr ioctl lock append execute };
+allow vold drm_data_file:dir relabelto;
+
+#violated by allow vold system_data_file:file { write create setattr relabelfrom append unlink rename };
+#allow vold system_data_file:file create_file_perms;
+allow vold system_data_file:file r_file_perms;
+
+#allow vold system_data_file:lnk_file link_file_perms;
+
+#violated by allow vold system_data_file:file { relabelfrom unlink };
+#allow vold { container_app_data_backend media_rw_data_file system_data_file app_data_type } :{ file lnk_file } { relabelfrom relabelto };
+#allow vold { container_app_data_backend media_rw_data_file system_data_file app_data_type } :{ file lnk_file } { getattr unlink };
+allow vold { container_app_data_backend media_rw_data_file app_data_type } :{ file lnk_file } { relabelfrom relabelto getattr unlink };
+allow vold system_data_file:file { getattr relabelto };
+allow vold system_data_file:lnk_file { relabelfrom relabelto getattr unlink };
+
+#allow vold app_data_file:lnk_file { read };
+#allow vold app_data_type:{ file lnk_file } create_file_perms;
+allow vold app_data_type:file create_file_perms;
+allow vold app_data_type:lnk_file { create rename setattr unlink getattr open ioctl lock w_file_perms };
+
+### wpa.te
+#allow wpa init_shell:unix_dgram_socket sendto;
+#violated by allow wpa system_data_file:file { write append };
+#allow wpa system_data_file:file w_file_perms;
+
+#changeBySEA : allow wpa { file_type -trstdomain_no_read_file  }:dir r_dir_perms;
+
+#violated by allow wpa app_data_file:lnk_file { read };
+#allow wpa { file_type -trstdomain_no_read_file  }:{ file lnk_file } r_file_perms;
+#changeBySEA allow wpa { file_type -trstdomain_no_read_file  }:file r_file_perms;
+#changeBySEA allow wpa { file_type -trstdomain_no_read_file -app_data_file -shell_data_file }:lnk_file r_file_perms;
+#changeBySEA : allow wpa { app_data_file shell_data_file }:lnk_file r_link_perms;
+
+### knox_common/auditd.te
+#violated by allow auditd system_data_file:file { unlink };
+#allow auditd system_data_file:file { r_file_perms unlink };
+allow auditd system_data_file:file { r_file_perms };
+
+
+
+### system_server.te
+#binder_call(system_server, init_shell)
+#violated by allow system_server vold_data_file:dir { ioctl read getattr search open };
+#allow system_server { file_type -keystore_data_file }:dir r_dir_perms;
+#changeBySEA : allow system_server { file_type -keystore_data_file -vold_data_file }:dir r_dir_perms;
+allow system_server { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+
+#violated by allow system_server vold_data_file:file { ioctl read getattr lock open };
+#violated by allow system_server vold_data_file:lnk_file { ioctl read getattr lock open };
+#violated by allow system_server app_data_file:file { open };
+#violated by allow system_server shell_data_file:file { open };
+#violated by allow system_server bluetooth_data_file:file { open };
+#violated by allow system_server gad_untrusted_app_data_file:file { open };
+#violated by allow system_server nfc_data_file:file { open };
+#violated by allow system_server shell_data_file:lnk_file { read };
+#violated by allow system_server gad_untrusted_app_data_file:lnk_file { read };
+#violated by allow system_server app_data_file:lnk_file { read };
+#allow system_server { file_type -keystore_data_file }:{ file lnk_file } r_file_perms;
+#changeBySEA : allow system_server { file_type -keystore_data_file -vold_data_file -app_data_file -shell_data_file -bluetooth_data_file -gad_untrusted_app_data_file -nfc_data_file}:file r_file_perms;
+#changeBySEA : allow system_server { app_data_file shell_data_file bluetooth_data_file gad_untrusted_app_data_file nfc_data_file }:file { getattr read ioctl lock };
+#changeBySEA : allow system_server { file_type -keystore_data_file -vold_data_file -shell_data_file -gad_untrusted_app_data_file -app_data_file}:lnk_file r_file_perms;
+#changeBySEA : allow system_server { shell_data_file gad_untrusted_app_data_file app_data_file}:lnk_file r_link_perms;
+allow system_server { file_type -trstdomain_no_read_file }:{ lnk_file file } r_file_perms;
+
+#allow system_server keystore:keystore_key { insert_as_user get_by_uid delete_as_user set_max_retry_count };
+
+#violated by allow system_server fuse:dir { read write open };
+#violated by allow system_server vfat:dir { read write open };
+#violated by allow system_server xsdcardfs:dir { read write open };
+#allow system_server sdcard_type:dir create_dir_perms;
+#changeBySEA : allow system_server { sdcard_type -fuse -vfat -xsdcardfs }:dir create_dir_perms;
+allow system_server sdcard_type:dir { getattr ioctl lock append create rename setattr unlink };
+
+#violated by allow system_server emmcblk_device:blk_file { ioctl read write lock append open }; 
+#allow system_server emmcblk_device:blk_file rw_file_perms;
+allow system_server emmcblk_device:blk_file getattr;
+
+#violated by allow system_server paramblk_device:blk_file { ioctl read write lock append open };
+#allow system_server paramblk_device:blk_file rw_file_perms;
+allow system_server paramblk_device:blk_file getattr;
+
+#violated by allow system_server secure_storage_device:blk_file { ioctl read lock open };
+#allow system_server secure_storage_device:file_class_set r_file_perms;
+allow system_server secure_storage_device:{ notdevfile_class_set chr_file } r_file_perms;
+allow system_server secure_storage_device:blk_file getattr;
+
+#violated by allow system_server dex2oat_exec:file { execute };
+#violated by allow system_server su_exec:file { execute };
+#allow system_server exec_type:file execute;
+#changeBySEA unify domain : allow system_server { exec_type -dex2oat_exec -su_exec }:file execute;
+
+#changeBySEA : allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:dir { relabelto relabelfrom };
+#changeBySEA : allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:file { relabelto relabelfrom };
+#changeBySEA : allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:dir create_dir_perms;
+#changeBySEA : allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:file create_file_perms;
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file -exec_type }:dir { relabelto relabelfrom };
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file -exec_type }:file { relabelto relabelfrom };
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file -exec_type }:dir create_dir_perms;
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file -exec_type }:file create_file_perms;
+
+#violated by allow system_server vold_data_file:notdevfile_class_set { ioctl read getattr lock open };
+#allow system_server { file_type -keystore_data_file -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:notdevfile_class_set r_file_perms;
+#changeBySEA : allow system_server { file_type -keystore_data_file -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file -vold_data_file}:notdevfile_class_set r_file_perms;
+
+#violated by allow system_server su_exec:file { execute execute_no_trans };
+#allow system_server su_exec:file rx_file_perms;
+#changeBySEA unify domain : allow system_server su_exec:file r_file_perms;
+
+#allow system_server wpa_socket:sock_file link_file_perms;
+
+#violated by allow system_server app_data_file:file { open };
+#allow system_server app_data_file:file create_file_perms;
+allow system_server app_data_file:file { getattr read ioctl lock append write create rename setattr unlink };
+
+#allow system_server unlabeled:dir { rmdir setattr rw_dir_perms link_file_perms };
+allow system_server unlabeled:dir { rmdir setattr rw_dir_perms };
+
+#allow system_server unlabeled:file { setattr rw_file_perms link_file_perms };
+allow system_server unlabeled:file { setattr rw_file_perms };
+
+#violated by allow system_server emmcblk_device:blk_file { ioctl read write create setattr lock append unlink rename open };
+#allow system_server emmcblk_device:blk_file create_file_perms;
+#changeBySEA unify domain :allow system_server emmcblk_device:blk_file getattr;
+
+#violated by allow system_server padblk_device:blk_file { ioctl read write create setattr lock append unlink rename open };
+#allow system_server padblk_device:blk_file create_file_perms;
+#changeBySEA unify domain :allow system_server padblk_device:blk_file getattr;
+
+
+
+### app.te
+#neverallow neverallow domain domain:{ shm sem msg msgq } *
+#allow domain self:ipc_class_set *;
+allow domain self:ipc *;
+
+#allow domain self:msg *;
+
+#violated by allow zygote zygote:process { dyntransition };
+#violated by allow toolbox toolbox:process { dyntransition };
+#violated by allow toolbox toolbox:process { transition };
+#violated by allow sgdisk sgdisk:process { dyntransition };
+#violated by allow sgdisk sgdisk:process { transition };
+#violated by allow fsck_untrusted fsck_untrusted:process { dyntransition };
+#violated by allow fsck_untrusted fsck_untrusted:process { transition };
+#violated by allow fsck fsck:process { dyntransition };
+#violated by allow fsck fsck:process { transition };
+#violated by allow shell shell:process { transition dyntransition };
+#violated by allow blkid_untrusted blkid_untrusted:process { dyntransition };
+#violated by allow blkid_untrusted blkid_untrusted:process { transition };
+#violated by allow blkid blkid:process { dyntransition };
+#violated by allow blkid blkid:process { transition };
+
+#neverallow { domain -init -keystore -netd -logd -lmkd -kernel } self:process *;
+allow { domain -init -keystore -netd -logd -lmkd -kernel -zygote -toolbox -sgdisk -fsck_untrusted -fsck -shell - blkid_untrusted -blkid userdebug_or_eng(`-perfprofd')} self:process *;
+
+allow { zygote toolbox sgdisk fsck_untrusted fsck shell blkid_untrusted blkid } self:process ~{ dyntransition transition };
+
+userdebug_or_eng(`
+allow perfprofd self:process ~{ dyntransition transition ptrace };
+')
+
+allow zygote self:process transition;
+
+#allow appdomain app_library_file:file { rx_file_perms execmod setattr};
+#changeBySEA : allow appdomain app_library_file:file { rx_file_perms setattr};
+
+#violated by allow isolated_app gad_untrusted_app_data_file:file { open };
+#allow { appdomain -good_app } app_public_data_type:notdevfile_class_set create_file_perms;
+#changeBySEA: this is only app_data_file and not used : allow { appdomain -good_app -isolated_app } app_public_data_type:notdevfile_class_set create_file_perms;
+#changeBySEA: this is only app_data_file and not used : allow isolated_app app_public_data_type:notdevfile_class_set { getattr read ioctl lock append write create rename setattr unlink };
+
+#allow { appdomain -good_app } asec_apk_file:file { execmod create_file_perms x_file_perms };
+allow { appdomain -good_app } asec_apk_file:file { create_file_perms x_file_perms };
+#allow { appdomain -good_app } shell_data_file:lnk_file { r_file_perms write };
+allow { appdomain -good_app } shell_data_file:lnk_file { r_link_perms write };
+
+#changeBySEA allow { appdomain -good_app -untrusted_app } { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow { appdomain -good_app } { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir_file_class_set getattr;
+
+#violated by allow isolated_app gpu_device:chr_file { ioctl read write getattr lock append open };
+#allow appdomain powervr_device:chr_file rw_file_perms;
+#changeBySEA dup with aosp gpu_device , not use this type : allow { appdomain -isolated_app } powervr_device:chr_file rw_file_perms;
+
+#violated by allow isolated_app app_data_file:file { open };
+#allow { appdomain -good_app } app_data_file:notdevfile_class_set create_file_perms;
+#changeBySEA for isolation  : allow { appdomain -good_app -isolated_app } app_data_file:notdevfile_class_set create_file_perms;
+#changeBySEA for isolation  : allow isolated_app app_data_file:{ lnk_file sock_file fifo_file } create_file_perms;
+#changeBySEA for isolation  : allow isolated_app app_data_file:file { getattr read ioctl lock append write create rename setattr unlink };
+
+#violated by allow isolated_app gpu_device:chr_file { getattr };
+#allow appdomain { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device  }:dir_file_class_set getattr;
+#changeBySEA : allow { appdomain -isolated_app } { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device  }:dir_file_class_set getattr;
+#changeBySEA : allow isolated_app { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device -gpu_device }:dir_file_class_set getattr;
+
+#violated by allow isolated_app gpu_device:chr_file { ioctl read write getattr lock append execute open };
+#allow appdomain kgsl_device:chr_file { rw_file_perms execute };
+allow { appdomain -isolated_app } kgsl_device:chr_file { rw_file_perms execute };
+#changeBySEA kgsl_device==gpu_device : allow isolated_app { kgsl_device -gpu_device }:chr_file { rw_file_perms execute };
+
+
+### untrusted_app.te
+#changeBySEA allow untrusteddomain { file_type -trstappdomain_no_read_file -trstappdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file -exec_type }:sock_file rw_file_perms;
+
+##### pass rule:allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:ipc_class_set ~{ create destroy setattr };
+#allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:msg *;
+
+#changeBySEA allow untrusteddomain { fs_type -proc -sysfs -selinuxfs -rootfs -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_service_secure_type -container_file_type -fixmo_app_data_file -good_app_data_file }:dir r_dir_perms;
+#changeBySEA allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -log_file_type }:dir r_dir_perms;
+
+#violated by allow itsonclient_app shell_data_file:lnk_file { read };
+#allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  -log_file_type }:notdevfile_class_set r_file_perms;
+#changeBySEA allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  -log_file_type -shell_data_file }:notdevfile_class_set r_file_perms;
+allow untrusteddomain shell_data_file:{ file sock_file fifo_file } r_file_perms;
+allow untrusteddomain shell_data_file:{ lnk_file } r_link_perms;
+
+#violated by allow dmdocomo_app su_exec:file { execute execute_no_trans };
+#allow untrusteddomain { exec_type library_file_type }:file x_file_perms;
+#changeBySEA allow untrusteddomain { exec_type library_file_type -su_exec}:file x_file_perms;
+#changeBySEA allow untrusteddomain su_exec:file getattr;
+#allow untrusted_app untrusted_app_tmpfs:file execmod;
+
+
+##### filtered_google_app is not using in Android M ? : allow filtered_google_app system_app_data_file:file link_file_perms;
+
+
+
+### knox_common/createsystemfile.te
+allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+#violated by allow createsystemfile system_data_file:file { write create setattr append unlink rename };
+#allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:file  create_file_perms;
+#changeBySEA allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file -system_data_file }:file  create_file_perms;
+#changeBySEA allow createsystemfile system_data_file:file r_file_perms;
+allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:file  create_file_perms;
+
+
+### knox_common/epmd.te
+#violated by allow vold system_data_file:file { write create setattr relabelfrom append unlink rename };
+#allow epmd system_data_file:file create_file_perms;
+allow epmd system_data_file:file r_file_perms;
+#allow epmd { app_data_type system_data_file }:file { getattr unlink };
+#changeBySEA : allow epmd app_data_type:file getattr;
+
+#violated by allow vold system_data_file:file { relabelfrom unlink };
+#allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :{ file lnk_file } { relabelfrom relabelto };
+allow epmd { container_app_data_backend media_rw_data_file app_data_file } :{ file lnk_file } { relabelfrom relabelto };
+allow epmd system_data_file:file  { relabelto };
+allow epmd system_data_file:lnk_file  { relabelfrom relabelto };
+
+#violated by allow vold system_data_file:file { unlink };
+#allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :{ file lnk_file } { getattr unlink };
+allow epmd { container_app_data_backend media_rw_data_file app_data_type } :{ file lnk_file } { getattr unlink };
+allow epmd system_data_file :{ file lnk_file } getattr;
+allow epmd system_data_file :lnk_file unlink;
+
+#violated by allow vold app_data_file:lnk_file { read };
+#allow epmd app_data_type:{ file lnk_file } create_file_perms;
+allow epmd app_data_type:file create_file_perms;
+allow epmd app_data_type:lnk_file { create rename setattr unlink r_link_perms w_file_perms };
+
+### knox_common/fixmo.te
+#violated by allow fixmo_app app_library_file:file { execmod };
+#allow fixmo_app app_library_file:file { rx_file_perms execmod setattr };
+#changeBySEA : allow fixmo_app app_library_file:file { rx_file_perms setattr };
+#allow init_shell fixmo_app_data_file:dir r_dir_perms;
+
+### knox_common/good.te
+#violated by allow good_app app_library_file:file { execmod };
+#allow good_app app_library_file:file { rx_file_perms execmod setattr };
+#changeBySEA : allow good_app app_library_file:file { rx_file_perms setattr };
+#allow init_shell good_app_data_file:dir r_dir_perms;
+
+### knox_common/irm_app.te
+allow irm_platform_app app_data_file:file execmod; #ignoretypeofrule
+
+### knox_common/knox_system_app.te
+#violated by allow knox_system_app dalvikcache_data_file:dir { write create setattr rename add_name remove_name reparent rmdir };
+#allow knox_system_app dalvikcache_data_file:dir create_dir_perms;
+#changeBySEA dup with aosp : allow knox_system_app dalvikcache_data_file:dir r_dir_perms;
+
+#violated by allow knox_system_app dalvikcache_data_file:file { write create setattr append unlink rename };
+#allow knox_system_app dalvikcache_data_file:file create_file_perms;
+#changeBySEA dup with aosp : allow knox_system_app dalvikcache_data_file:file r_file_perms;
+
+### knox_common/knox_untrusted_app.te
+#violated by allow knox_untrusted_app vmware_app:binder { set_context_mgr };
+#allow knox_untrusted_app vmware_app:binder *;
+allow knox_untrusted_app vmware_app:binder ~set_context_mgr;
+
+allow knox_untrusted_app app_data_file:file execmod; #ignoretypeofrule
+
+### knox_common/policyloader_app.te
+#allow policyloader_app dalvikcache_data_file:dir rw_dir_perms;
+#allow policyloader_app dalvikcache_data_file:file create_file_perms;
+
+### qcom_common/cnd.te
+#violated by allow cnd system_data_file:file { write create setattr append unlink rename };
+#allow cnd system_data_file:file create_file_perms;
+allow cnd system_data_file:file r_file_perms;
+
+### qcom_common/energy-awareness.te
+#domain_auto_trans(init_shell, energy-awareness_exec, energy-awareness)
+domain_auto_trans(init, energy-awareness_exec, energy-awareness)
+#allow energy-awareness init_shell:fd use;
+allow energy-awareness self:netlink_kobject_uevent_socket create_socket_perms;
+allow energy-awareness self:capability net_admin;
+allow energy-awareness pta_device:chr_file rw_file_perms;
+allow energy-awareness uio_device:chr_file rw_file_perms;
+
+### qcom_common/geomagneticd.te
+#violated by allow geomagneticd system_data_file:file { write create setattr append unlink rename };
+#allow geomagneticd system_data_file:file create_file_perms;
+allow geomagneticd system_data_file:file r_file_perms;
+
+### qcom_common/ks.te
+#violated by allow mdm_helper system_data_file:file { write append };
+#allow ks system_data_file:file rw_file_perms;
+allow ks system_data_file:file r_file_perms;
+
+### qcom_common/mfgloader.te
+#violated by allow mfgloader system_data_file:file { write append };
+#allow mfgloader system_data_file:{ file lnk_file } rw_file_perms;
+allow mfgloader system_data_file:{ file lnk_file } r_file_perms;
+
+### qcom_common/mm-qcamera-daemon.te
+#violated by allow mm-qcamerad system_data_file:file { write create setattr append unlink rename };
+#allow mm-qcamera-daemon system_data_file:file create_file_perms;
+allow mm-qcamera-daemon system_data_file:file r_file_perms;
+
+### qcom_common/mpdecision.te
+#violated by allow mpdecision system_data_file:file { write create setattr append unlink rename };
+#allow mpdecision system_data_file:file create_file_perms;
+allow mpdecision system_data_file:file r_file_perms;
+
+### qcom_common/netmgrd.te
+#violated by allow netmgrd system_data_file:file { write create setattr append unlink rename };
+#allow netmgrd system_data_file:file create_file_perms;
+allow netmgrd system_data_file:file r_file_perms;
+
+### qcom_common/qcks.te
+#violated by allow qcks system_data_file:file { write create setattr append unlink rename };
+#allow qcks system_data_file:file create_file_perms;
+allow qcks system_data_file:file r_file_perms;
+
+### qcom_common/qseecomd.te
+#violated by allow tee system_data_file:file { write create setattr append unlink rename };
+#allow qseecomd system_data_file:file create_file_perms;
+allow qseecomd system_data_file:file r_file_perms;
+
+### qcom_common/quipc_main.te
+#violated by allow location system_data_file:file { write create setattr append unlink rename };
+#allow quipc_main system_data_file:file create_file_perms;
+allow quipc_main system_data_file:file r_file_perms;
+
+### qcom_common/secstarter.te
+#violated by allow secstarter system_data_file:file { write create setattr append unlink rename };
+#allow secstarter system_data_file:file create_file_perms;
+allow secstarter system_data_file:file r_file_perms;
+
+### qcom_common/thermald.te
+#violated by allow thermal-engine system_data_file:file { write append };
+#allow thermald system_data_file:file rw_file_perms;
+allow thermald system_data_file:file r_file_perms;
+
+### qcom_common/wcnss_service.te
+allow wcnss_service kernel:system module_request;
+
+### qcom_common/wlandutservice.te
+#violated by allow wlandutservice system_data_file:file { write create setattr append unlink rename };
+#allow wlandutservice system_data_file:file create_file_perms;
+allow wlandutservice system_data_file:file r_file_perms;
+
+### sec_common/actlmand.te
+#violated by allow actlmand system_data_file:file { write create setattr append unlink rename };
+#allow actlmand system_data_file:file create_file_perms;
+allow actlmand system_data_file:file r_file_perms;
+
+### sec_common/apaservice.te
+#violated by allow apaservice app_data_file:lnk_file { read };
+#allow apaservice app_data_file:{ file lnk_file } rw_file_perms;
+allow apaservice app_data_file:file rw_file_perms;
+allow apaservice app_data_file:lnk_file { r_link_perms w_file_perms };
+
+#violated by allow apaservice system_data_file:file { write create setattr append unlink rename };
+#allow apaservice system_data_file:file create_file_perms;
+allow apaservice system_data_file:file r_file_perms;
+
+### sec_common/at_distributor.te
+#violated by allow at_distributor system_data_file:file { write create setattr append unlink rename };
+#allow at_distributor system_data_file:file create_file_perms;
+allow at_distributor system_data_file:file r_file_perms;
+
+#changeBySEA : allow at_distributor { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow at_distributor shell_data_file:lnk_file { read };
+#allow at_distributor { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA :allow at_distributor { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA :allow at_distributor { file_type -trstdomain_no_read_file -app_data_file }:lnk_file r_link_perms;
+#changeBySEA :allow at_distributor app_data_file:lnk_file r_link_perms;
+
+### sec_common/bauthserver.te
+#violated by allow bauthserver system_data_file:file { write create setattr append unlink rename };
+#allow bauthserver system_data_file:file create_file_perms;
+allow bauthserver system_data_file:file r_file_perms;
+
+binder_call(bauthserver, system_server)
+
+### sec_common/connfwexe.te
+#violated by allow connfwexe dalvikcache_data_file:file { write create setattr append unlink rename };
+#allow connfwexe dalvikcache_data_file:file create_file_perms;
+#changeBySEA dup with aosp : allow connfwexe dalvikcache_data_file:file r_file_perms;
+
+### sec_common/cs.te
+#violated by allow cs system_data_file:file { write create setattr append unlink rename };
+#allow cs system_data_file:file create_file_perms;
+allow cs system_data_file:file r_file_perms;
+
+### sec_common/daemon_app_process.te
+#violated by allow daemon_app_process dalvikcache_data_file:file { write };
+#allow daemon_app_process dalvikcache_data_file:file write;
+
+### sec_common/dumpstate.te
+#violated by allow dumpstate dalvikcache_data_file:dir { write add_name remove_name };
+#allow dumpstate dalvikcache_data_file:dir rw_dir_perms;
+allow dumpstate dalvikcache_data_file:dir r_dir_perms;
+
+#violated by allow dumpstate dalvikcache_data_file:file { write create setattr append unlink rename };
+#allow dumpstate dalvikcache_data_file:file { create_file_perms execute };
+allow dumpstate dalvikcache_data_file:file { r_file_perms execute };
+
+#violated by allow dumpstate system_data_file:file { write create setattr append unlink rename };
+#allow dumpstate system_data_file:file create_file_perms;
+allow dumpstate system_data_file:file r_file_perms;
+
+### sec_common/DMM-daemon.te
+#violated by allow DMM-daemon app_data_file:lnk_file { read };
+#allow DMM-daemon app_data_file:{ file lnk_file } r_file_perms;
+allow DMM-daemon app_data_file:file r_file_perms;
+allow DMM-daemon app_data_file:lnk_file r_link_perms;
+
+### sec_common/daemon_app_process.te
+allow icd charon_exec:file r_file_perms;
+allow icd cs_exec:file r_file_perms;
+allow icd drmserver_exec:file r_file_perms;
+allow icd keystore_exec:file r_file_perms;
+allow icd mediaserver_exec:file r_file_perms;
+allow icd playready_exec:file r_file_perms;
+allow icd qseecomd_exec:file r_file_perms;
+
+### sec_common/kiesexe.te
+#violated by allow kiesexe dalvikcache_data_file:dir { write add_name remove_name };
+#allow kiesexe dalvikcache_data_file:dir w_dir_perms;
+
+#violated by allow kiesexe dalvikcache_data_file:file { write create setattr append unlink rename };
+#allow kiesexe dalvikcache_data_file:file create_file_perms;
+#changeBySEA dup with aosp : allow kiesexe dalvikcache_data_file:file r_file_perms;
+
+#violated by allow kiesexe system_data_file:file { write create setattr append unlink rename };
+#allow kiesexe system_data_file:file create_file_perms;
+allow kiesexe system_data_file:file r_file_perms;
+
+#changeBySEA : allow kiesexe { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow kiesexe app_data_file:lnk_file { read };
+#allow kiesexe { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA : allow kiesexe { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA : allow kiesexe { file_type -trstdomain_no_read_file -app_data_file -shell_data_file }:lnk_file r_file_perms;
+#changeBySEA : allow kiesexe { app_data_file shell_data_file }:lnk_file r_link_perms;
+
+### sec_common/logwrapper.te
+#allow logwrapper { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#violated by allow logwrapper app_data_file:lnk_file { read };
+#allow logwrapper { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#changeBySEA : allow logwrapper { file_type -trstdomain_no_read_file }:file r_file_perms;
+#changeBySEA : allow logwrapper { file_type -trstdomain_no_read_file -app_data_file -shell_data_file }:lnk_file r_file_perms;
+#changeBySEA : allow logwrapper { app_data_file shell_data_file }:lnk_file r_link_perms;
+
+### sec_common/lptcpgc.te
+
+allow lptcpgc system_data_file:dir rw_dir_perms;
+
+#violated by allow lptcpgc system_data_file:file { write create setattr append unlink rename };
+#allow lptcpgc system_data_file:file create_file_perms;
+allow lptcpgc system_data_file:file r_file_perms;
+
+### sec_common/mobexdaemon.te
+#violated by allow mobexdaemon system_data_file:file { write create setattr append unlink rename };
+#allow mobexdaemon system_data_file:file create_file_perms;
+allow mobexdaemon system_data_file:file r_file_perms;
+
+### sec_common/mobicoredaemon.te
+#domain_auto_trans(init_shell, mobicoredaemon_exec, mobicoredaemon)
+domain_auto_trans(init, mobicoredaemon_exec, mobicoredaemon)
+#allow mobicoredaemon init_shell:fd use;
+
+### sec_common/olsrd.te
+#violated by allow olsrd system_data_file:file { write create setattr append unlink rename };
+#allow olsrd system_data_file:file create_file_perms;
+allow olsrd system_data_file:file r_file_perms;
+
+### sec_common/oneseg.te
+#allow oneseg_mw media_rw_data_file:file link_file_perms;
+
+#violated by allow oneseg_mw system_data_file:file { write create setattr append unlink rename };
+#allow oneseg_mw system_data_file:file create_file_perms;
+allow oneseg_mw system_data_file:file r_file_perms;
+
+### sec_common/pppoewrapper.te
+#violated by allow pppoewrapper dalvikcache_data_file:file { setattr };
+#allow pppoewrapper dalvikcache_data_file:file setattr;
+
+### sec_common/sec-ril.te
+#violated by allow sec-ril system_data_file:file { write create setattr append unlink rename };
+#allow sec-ril system_data_file:file create_file_perms;
+allow sec-ril system_data_file:file r_file_perms;
+
+### sec_common/secure_storage.te
+#allow secure_storage init_shell:unix_stream_socket connectto;
+
+#violated by allow secure_storage system_data_file:file { write create setattr append unlink rename };
+#allow secure_storage system_data_file:file create_file_perms;
+allow secure_storage system_data_file:file r_file_perms;
+
+### sec_common/sem.te
+#violated by allow sem system_data_file:file { write create setattr append unlink rename };
+#allow sem system_data_file:file create_file_perms;
+allow sem system_data_file:file r_file_perms;
+
+### sec_common/sensorhubservice.te
+
+allow sensorhubservice app_data_file:file w_file_perms;
+
+### sec_common/shell.te
+allow shell serial_device:chr_file rw_file_perms;
+#changeBySEA allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow shell { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:file_class_set r_file_perms;
+
+### sec_common/ss_conn_daemon.te
+#violated by allow ss_conn_daemon system_data_file:file { write create setattr append unlink rename };
+#allow ss_conn_daemon system_data_file:file create_file_perms;
+allow ss_conn_daemon system_data_file:file r_file_perms;
+
+### sec_common/syscope_app.te
+#changeBySEA allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  }:dir r_dir_perms;
+#allow system_app shell_data_file:lnk_file { read };
+#allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  }:{ file lnk_file } r_file_perms;
+#changeBySEA allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  }:file r_file_perms;
+#changeBySEA allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -shell_data_file }:lnk_file r_file_perms;
+allow syscope_app shell_data_file:lnk_file r_link_perms;
+
+### sec_common/tzdaemon.te
+#violated by allow tzdaemon system_data_file:file { write create };
+#allow tzdaemon system_data_file:file { write lock create open };
+allow tzdaemon system_data_file:file r_file_perms;
+
+### sec_common/vcsFPService.te
+#violated by allow vcsFPService system_data_file:file { write create setattr append unlink rename };
+#allow vcsFPService system_data_file:file create_file_perms;
+allow vcsFPService system_data_file:file r_file_perms;
+

@@ -1,0 +1,6 @@
+allow surfaceflinger system_data_file:dir { write add_name };
+allow surfaceflinger slogd:binder {call transfer};
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow surfaceflinger system_data_file:file { write create open };

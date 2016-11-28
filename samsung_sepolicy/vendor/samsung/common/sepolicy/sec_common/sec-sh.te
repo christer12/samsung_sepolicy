@@ -1,0 +1,34 @@
+#
+# sec-sh
+#
+
+userdebug_or_eng(`
+  # support Auto testing
+  # init.sec.boot.sh of Reliability Group Request.
+  # Power on/off and Reliability test
+  domain_auto_trans(sec-sh, su_exec, su)
+')
+
+############ aosp and sec_common #############
+########## type and macro.
+type sec-sh, domain;
+type sec-sh_exec, exec_type, file_type;
+
+init_daemon_domain(sec-sh)
+
+allow sec-sh kernel:system module_request;
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow sec-sh kmsg_device:chr_file rw_file_perms;
+
+########## file_type
+allow sec-sh shell_exec:file rx_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+
+

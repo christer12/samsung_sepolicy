@@ -1,0 +1,62 @@
+#
+# RTCC (Runtime Compcache)
+#
+# RTCC can frees up more memory when CPU is idle, 
+# by compressing anonymous pages and flushing away page cache.
+# rtccd is daemon for initializing swap, zram disk and rtcc params.
+#
+# Contact: taejin5.park, huazai.liu
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type rtcc, domain;
+type rtcc_exec, exec_type, file_type;
+
+init_daemon_domain(rtcc)
+#permissive rtcc;
+
+########## self and domain_type
+allow rtcc self:capability { chown sys_admin dac_override };
+
+#google neverallow : allow rtcc self:capability mknod;
+
+########## fs_type
+allow rtcc sysfs:dir setattr;
+allow rtcc sysfs:file { setattr write };
+allow rtcc proc:file write;
+
+########## dev_type
+allow rtcc block_device:dir r_dir_perms;
+allow rtcc device:dir rw_dir_perms;
+allow rtcc ram_device:blk_file rw_file_perms;
+
+#allow rtcc device:chr_file { create open unlink };
+#google neverallow : allow rtcc block_device:blk_file r_file_perms;
+
+########## file_type
+allow rtcc shell_exec:file rx_file_perms;
+allow rtcc system_file:file rx_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=237 comm="rtccd3" name="/" dev="tmpfs" ino=8193 scontext=u:r:rtcc:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+# avc:  denied  { mknod } for  pid=237 comm="rtccd3" capability=27  scontext=u:r:rtcc:s0 tcontext=u:r:rtcc:s0 tclass=capability permissive=1
+# avc:  denied  { add_name } for  pid=237 comm="rtccd3" name="__kmsg__" scontext=u:r:rtcc:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=237 comm="rtccd3" name="__kmsg__" scontext=u:r:rtcc:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=237 comm="rtccd3" path="/dev/__kmsg__" dev="tmpfs" ino=6748 scontext=u:r:rtcc:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { unlink } for  pid=237 comm="rtccd3" name="__kmsg__" dev="tmpfs" ino=6748 scontext=u:r:rtcc:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read open } for  pid=242 comm="rtccd3" path="/system/bin/sh" dev="mmcblk0p25" ino=611 scontext=u:r:rtcc:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=242 comm="rtccd3" path="/system/bin/sh" dev="mmcblk0p25" ino=611 scontext=u:r:rtcc:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=237 comm="rtccd3" path="/dev/block/zram0" dev="tmpfs" ino=10076 scontext=u:r:rtcc:s0 tcontext=u:object_r:block_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { chown } for  pid=310 comm="chown" capability=0  scontext=u:r:rtcc:s0 tcontext=u:r:rtcc:s0 tclass=capability permissive=1
+# avc:  denied  { execute_no_trans } for  pid=241 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p25" ino=649 scontext=u:r:rtcc:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { setattr } for  pid=241 comm="chmod" name="disksize" dev="sysfs" ino=25705 scontext=u:r:rtcc:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { setattr } for  pid=262 comm="chmod" name="zram0" dev="sysfs" ino=25650 scontext=u:r:rtcc:s0 tcontext=u:object_r:sysfs:s0 tclass=dir permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { write } for  pid=299 comm="sh" name="disksize" dev="sysfs" ino=25705 scontext=u:r:rtcc:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { write } for  pid=238 comm="rtccd3" name="zram0" dev="tmpfs" ino=8312 scontext=u:r:rtcc:s0 tcontext=u:object_r:ram_device:s0 tclass=blk_file permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { write } for  pid=318 comm="sh" name="page-cluster" dev="proc" ino=8434 scontext=u:r:rtcc:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { execute_no_trans } for  pid=340 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p25" ino=649 scontext=u:r:rtcc:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 SEPF_SM-G360T_5.1_0011
+# avc:  denied  { write } for  pid=275 comm="rtccd3" name="zram0" dev="tmpfs" ino=9958 scontext=u:r:rtcc:s0 tcontext=u:object_r:zram_block_device:s0 tclass=blk_file permissive=0

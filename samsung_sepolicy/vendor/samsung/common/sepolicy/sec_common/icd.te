@@ -1,0 +1,54 @@
+#
+# icd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type icd, domain;
+type icd_exec, exec_type, file_type;
+# for B2C users
+typeattribute icd trusteddomain;
+typeattribute icd system_domain;
+
+init_daemon_domain(icd)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow icd device:file w_file_perms;
+allow icd tzic_device:chr_file rw_file_perms;
+allow icd block_device:dir r_dir_perms;
+allow icd emmcblk_device:blk_file w_file_perms;
+
+########## file_type
+#allow icd charon_exec:file r_file_perms;
+#allow icd cs_exec:file r_file_perms;
+#allow icd drmserver_exec:file r_file_perms;
+#allow icd keystore_exec:file r_file_perms;
+#allow icd mediaserver_exec:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+#allow icd playready_exec:file r_file_perms;
+#allow icd qseecomd_exec:file r_file_perms;
+
+########## androd-m-preview: denials ########
+allow icd exec_type:file r_file_perms;
+allow icd drm_lib_system_file:dir r_dir_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=3043 comm="icd" name="block" dev="tmpfs" ino=2597 scontext=u:r:icd:s0 tcontext=u:object_r:block_device:s0 tclass=dir permissive=0
+#avc:  denied  { write } for  pid=3071 comm="icd" name="sda4" dev="tmpfs" ino=16382 scontext=u:r:icd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file
+#avc:  denied  { open } for  pid=3071 comm="icd" path="/dev/block/sda4" dev="tmpfs" ino=16382 scontext=u:r:icd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file
+

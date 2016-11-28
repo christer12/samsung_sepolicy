@@ -1,0 +1,69 @@
+#
+# policyloader_app
+#
+
+############ knox_common #############
+########## type and macro.
+type policyloader_app, domain;
+type policyloader_app_data_file, file_type, data_file_type;
+
+app_domain(policyloader_app)
+# Access the network.
+net_domain(policyloader_app)
+# Access bluetooth.
+bluetooth_domain(policyloader_app)
+platform_app_domain(policyloader_app)
+# SEC policy client can manage se policy
+#neverallow Google CTS-android-5.0.2_r1 : mmac_manage_policy(policyloader_app)
+security_access_policy(policyloader_app)
+
+########## self and domain_type
+allow policyloader_app secure_storage:unix_stream_socket connectto;
+allow policyloader_app trusteddomain:fd use;
+
+########## fs_type
+########## dev_type
+allow policyloader_app secure_storage_device:sock_file write;
+
+########## file_type
+allow policyloader_app app_data_file:file r_file_perms;
+allow policyloader_app app_data_file:dir r_dir_perms;
+
+#neverallow { domain -init -installd -dex2oat -zygote } dalvikcache_data_file:dir { add_name create link relabelfrom remove_name rename reparent rmdir setattr write }
+#allow policyloader_app dalvikcache_data_file:dir rw_dir_perms;
+allow policyloader_app dalvikcache_data_file:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+allow policyloader_app dalvikcache_data_file:file r_file_perms;
+
+allow policyloader_app shell_data_file:file r_file_perms;
+allow policyloader_app shell_data_file:dir r_dir_perms;
+
+########## etc_type
+
+########## known issue.
+# Read and write data files and load library for new label.
+allow policyloader_app policyloader_app_data_file:dir create_dir_perms;
+allow policyloader_app policyloader_app_data_file:notdevfile_class_set create_file_perms;
+allow policyloader_app policyloader_app_data_file:file x_file_perms;
+
+# Read and write data files and load library for old label.
+#neverallow Google CTS-android-5.0.2_r1 : allow policyloader_app system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow policyloader_app system_data_file:notdevfile_class_set create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow policyloader_app system_data_file:file x_file_perms;
+
+# to support security_spota_file
+allow policyloader_app security_spota_file:dir create_dir_perms;
+allow policyloader_app security_spota_file:file create_file_perms;
+allow policyloader_app security_spota_file:lnk_file { create rename unlink };
+
+########## androd-m-preview: denials ########
+allow policyloader_app service_manager_type:service_manager find;
+allow policyloader_app system_app_data_file:dir r_dir_perms;
+allow policyloader_app system_app_data_file:file r_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=28989 comm="Thread-303" name="property_service" dev="tmpfs" ino=3433 scontext=u:r:policyloader_app:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=0
+# avc:  denied  { search } for  pid=5225 comm="com.policydm" name="com.android.settings" dev="sda18" ino=458998 scontext=u:r:policyloader_app:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=dir permissive=0
+

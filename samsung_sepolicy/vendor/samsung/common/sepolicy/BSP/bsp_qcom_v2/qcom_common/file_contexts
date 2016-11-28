@@ -1,0 +1,14 @@
+
+############################# 
+# addional label of bsp_qcom_v1
+#
+/system/bin/cnss_diag          u:object_r:wcnss_service_exec:s0
+
+/dev/block/platform/msm_sdcc\.1/by-name/modemst[1-2]*	u:object_r:modemstblk_device:s0
+/dev/block/platform/msm_sdcc\.1/by-name/ssd	u:object_r:ssdblk_device:s0
+
+/dev/efs_bridge	u:object_r:efsbridgehsic_device:s0
+/dev/ks_bridge	u:object_r:ksbridgehsic_device:s0
+/dev/rmnet_mux_ctrl	u:object_r:rmnet_device:s0
+
+/dev/ttyHSL[0-9]*	u:object_r:serial_device:s0

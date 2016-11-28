@@ -1,0 +1,10 @@
+allow smdexe ddexe:unix_stream_socket connectto;
+allow smdexe dun_device:chr_file rw_file_perms;
+allow smdexe self:capability dac_override;
+allow smdexe smd_device:chr_file rw_file_perms;
+allow smdexe system_data_file:sock_file w_file_perms;
+
+############ slsi_common #############
+allow smdexe mif_device:chr_file { read write ioctl open };
+allow smdexe rild:unix_stream_socket connectto;
+allow smdexe sysfs:file write;

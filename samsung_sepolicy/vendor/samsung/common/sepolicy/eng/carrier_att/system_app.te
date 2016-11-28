@@ -1,0 +1,7 @@
+# disabled due to build_error
+# allow system_app audio_device:chr_file rw_file_perms;
+
+# cskpi.hasati.ui, com.hasati.tinycommandtest
+# avc:  denied  { read write } for  pid=19882 comm="tinymix" name="controlC0" dev="tmpfs" ino=3362 scontext=u:r:system_app:s0 tcontext=u:object_r:audio_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=19926 comm="tinycap" path="/dev/snd/pcmC0D0c" dev="tmpfs" ino=3363 scontext=u:r:system_app:s0 tcontext=u:object_r:audio_device:s0 tclass=chr_file permissive=1
+

@@ -1,0 +1,58 @@
+#
+# smdexe
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type smdexe, domain;
+type smdexe_exec, exec_type, file_type;
+# for B2C users
+typeattribute smdexe trusteddomain;
+typeattribute smdexe device_domain;
+
+init_daemon_domain(smdexe)
+
+########## self and domain_type
+########## fs_type
+allow smdexe sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow smdexe ddexe:unix_stream_socket connectto;
+allow smdexe rild:unix_stream_socket connectto;
+allow smdexe self:capability { setuid dac_override };
+
+########## fs_type
+allow smdexe sysfs:file rw_file_perms;
+
+########## dev_type
+allow smdexe dun_device:chr_file rw_file_perms;
+allow smdexe smd_device:chr_file rw_file_perms;
+
+########## file_type
+allow smdexe system_data_file:sock_file rw_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow smdexe mif_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

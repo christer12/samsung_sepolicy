@@ -1,0 +1,52 @@
+#
+# batterysrv
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type batterysrv, domain;
+type batterysrv_exec, exec_type, file_type;
+
+init_daemon_domain(batterysrv)
+
+########## self and domain_type
+allow batterysrv self:netlink_kobject_uevent_socket { read bind create setopt };
+type_transition batterysrv system_data_file:file self_system_data_file ".battery_nv";
+
+########## fs_type
+########## dev_type
+########## file_type
+allow batterysrv prod_file:dir create_dir_perms;
+allow batterysrv prod_file:file create_file_perms;
+allow batterysrv system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow batterysrv system_data_file:file create_file_perms;
+allow batterysrv system_data_file:file r_file_perms;
+
+allow batterysrv self:capability { net_admin dac_override };
+allow batterysrv sysfs:file write; 
+allow batterysrv sysfs_battery_supply:file r_file_perms; 
+allow batterysrv sysfs_usb_supply:file r_file_perms; 
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { create } for  pid=155 comm="batterysrv" scontext=u:r:batterysrv:s0 tcontext=u:r:batterysrv:s0 tclass=netlink_kobject_uevent_socket permissive=1
+# avc:  denied  { setopt } for  pid=155 comm="batterysrv" scontext=u:r:batterysrv:s0 tcontext=u:r:batterysrv:s0 tclass=netlink_kobject_uevent_socket permissive=1
+# avc:  denied  { bind } for  pid=155 comm="batterysrv" scontext=u:r:batterysrv:s0 tcontext=u:r:batterysrv:s0 tclass=netlink_kobject_uevent_socket permissive=1
+# avc:  denied  { open } for  pid=155 comm="batterysrv" path="/data/.battery_nv" dev="mmcblk0p26" ino=40 scontext=u:r:batterysrv:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=166 comm="batterysrv" name="/" dev="mmcblk0p26" ino=2 scontext=u:r:batterysrv:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=166 comm="batterysrv" name=".battery_nv" scontext=u:r:batterysrv:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=166 comm="batterysrv" name=".battery_nv" scontext=u:r:batterysrv:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=7446 comm="batterysrv" name="/" dev="mmcblk0p18" ino=2 scontext=u:r:batterysrv:s0 tcontext=u:object_r:prod_file:s0 tclass=dir permissive=1
+# avc:  denied  { write } for  pid=7446 comm="batterysrv" name="/" dev="mmcblk0p18" ino=2 scontext=u:r:batterysrv:s0 tcontext=u:object_r:prod_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=7446 comm="batterysrv" name=".save_capacity" scontext=u:r:batterysrv:s0 tcontext=u:object_r:prod_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=7446 comm="batterysrv" name=".save_capacity" scontext=u:r:batterysrv:s0 tcontext=u:object_r:prod_file:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=7446 comm="batterysrv" path="/productinfo/.save_capacity" dev="mmcblk0p18" ino=12 scontext=u:r:batterysrv:s0 tcontext=u:object_r:prod_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=216 comm="batterysrv" name="capacity" dev="sysfs" ino=10633 scontext=u:r:batterysrv:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=0
+# avc:  denied  { read } for  pid=216 comm="batterysrv" name="online" dev="sysfs" ino=10577 scontext=u:r:batterysrv:s0 tcontext=u:object_r:sysfs_usb_supply:s0 tclass=file permissive=0
+# avc:  denied  { create } for  pid=215 comm="batterysrv" name=".battery_nv" scontext=u:r:batterysrv:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+

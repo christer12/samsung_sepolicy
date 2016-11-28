@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ ! -f "$@" ]]; then
+	echo Usage: negationPatterns POLICY_FILE
+	exit 1
+fi
+
+cat "$@" |grep "^ *allow .* -" | grep -o "{[^{}]* -[^{}]*}"

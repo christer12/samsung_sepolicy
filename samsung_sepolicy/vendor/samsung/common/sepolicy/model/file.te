@@ -1,0 +1,33 @@
+
+############ aosp and sec_common #############
+type xsdcardfs, sdcard_type, fs_type;
+
+typealias system_file alias dhcp_system_file;
+typealias system_file alias system_library_file;
+typealias system_file alias event_log_tags_file;
+
+############ trstdomain_no_write_file #############
+typeattribute app_data_file trstdomain_no_write_file;
+typeattribute shell_data_file trstdomain_no_write_file;
+
+############ knox_common #############
+allow media_rw_data_file xsdcardfs:filesystem associate;
+allow container_app_data_backend xsdcardfs:filesystem associate;
+allow fuse xsdcardfs:filesystem associate;
+allow personal_page_file xsdcardfs:filesystem associate;
+allow vfat xsdcardfs:filesystem associate;
+allow file_type xsdcardfs:filesystem associate; 
+
+# from aosp/file.te
+#typealias app_data_file alias download_file;
+
+# avc:  denied  { associate } for  pid=22916 comm="MediaScannerRec" name="Android" scontext=u:object_r:media_rw_data_file:s0 tcontext=u:object_r:xsdcardfs:s0 tclass=filesystem permissive=0 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { associate } for  pid=4148 comm="epmd" name="101" scontext=u:object_r:container_app_data_backend:s0 tcontext=u:object_r:xsdcardfs:s0 tclass=filesystem permissive=1
+# avc:  denied  { associate } for  pid=3149 comm="vold" name="files" scontext=u:object_r:vfat:s0 tcontext=u:object_r:xsdcardfs:s0 tclass=filesystem
+# arch=40000028 syscall=323 per=800000 success=no exit=-13 a0=14 a1=b46160ec a2=1c0 a3=100 items=1 ppid=1 ppcomm=init pid=3149 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="vold" exe="/system/bin/vold" subj=u:r:vold:s0 key=(null)
+# item=0 name="/" inode=107 dev=00:1b mode=040770 ouid=10038 ogid=1028 rdev=00:00 obj=u:object_r:vfat:s0
+#avc:  denied  { associate } for  pid=7087 comm="BGAsyncWorker" name="EN.FWaUUQ3twFW0TUaEdZPvJ5OhmgKj-bu7nT85Ln1kKrLq3CLe5HuDjOVWgk--" scontext=u:object_r:personal_page_file:s0 tcontext=u:object_r:xsdcardfs:s0 tclass=filesystem permissive=0
+#item=0 name="/storage/Private/" inode=392452 dev=00:1b mode=040775 ouid=0 ogid=1015 rdev=00:00 obj=u:object_r:personal_page_file:s0 nametype=PARENT
+#item=1 name="/storage/Private/Android" nametype=CREATE
+#item=2 name=(null) inode=392452 dev=00:19 mode=040775 ouid=0 ogid=1015 rdev=00:00 obj=u:object_r:personal_page_file:s0 nametype=PARENT
+

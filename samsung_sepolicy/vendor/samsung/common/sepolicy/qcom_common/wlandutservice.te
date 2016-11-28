@@ -1,0 +1,73 @@
+#
+# wlandutservice
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type wlandutservice, domain;
+type wlandutservice_exec, exec_type, file_type;
+typeattribute wlandutservice trusteddomain;
+typeattribute wlandutservice device_domain;
+
+binder_use(wlandutservice);
+init_daemon_domain(wlandutservice)
+net_domain(wlandutservice)
+
+########## self and domain_type
+allow wlandutservice init:unix_stream_socket connectto;
+allow wlandutservice self:capability net_admin;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow wlandutservice shell_exec:file rx_file_perms;
+allow wlandutservice system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow wlandutservice system_data_file:file create_file_perms;
+allow wlandutservice system_data_file:file r_file_perms;
+allow wlandutservice system_file:file rx_file_perms;
+
+########## etc_type
+allow wlandutservice wlandutservice_service:service_manager add;
+
+########## known issue.
+
+
+############ avc_log #############
+#audit(1388536637.019:197): avc:  denied  { call } for  pid=7515 comm="wlandutservice" scontext=u:r:wlandutservice:s0 tcontext=u:r:servicemanager:s0 tclass=binder
+#audit(1388536637.019:198): avc:  denied  { transfer } for  pid=7515 comm="wlandutservice" scontext=u:r:wlandutservice:s0 tcontext=u:r:servicemanager:s0 tclass=binder
+#avc:  denied  { add } for service=WlanDutService scontext=u:r:wlandutservice:s0 tcontext=u:object_r:system_app_service:s0 tclass=service_manager
+#audit(1388541996.419:192): avc:  denied  { net_admin } for  pid=12480 comm="wlandutservice" capability=12  scontext=u:r:wlandutservice:s0 tcontext=u:r:wlandutservice:s0 tclass=capability
+#audit(1388541996.419:192): arch=40000028 syscall=54 per=800000 success=yes exit=0 a0=c a1=89f0 a2=b6b50080 a3=bedd0030 items=0 ppid=1 pid=12480 auid=4294967295 uid=1000 gid=1010 euid=1000 suid=1000 fsuid=1000 egid=1010 sgid=1010 fsgid=1010 tty=(none) ses=4294967295 comm="wlandutservice" exe="/system/bin/wlandutservice" subj=u:r:wlandutservice:s0 key=(null)
+#audit(1388542040.429:193): avc:  denied  { execute } for  pid=13056 comm="wlandutservice" name="sh" dev="mmcblk0p23" ino=737 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#audit(1388542040.429:193): avc:  denied  { read open } for  pid=13056 comm="wlandutservice" name="sh" dev="mmcblk0p23" ino=737 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#audit(1388542040.429:193): avc:  denied  { execute_no_trans } for  pid=13056 comm="wlandutservice" path="/system/bin/sh" dev="mmcblk0p23" ino=737 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#audit(1388542040.429:193): arch=40000028 syscall=11 per=800000 success=yes exit=0 a0=b6f4bdbf a1=bed90378 a2=bedd07dc a3=fffffe94 items=2 ppid=12480 pid=13056 auid=4294967295 uid=1000 gid=1010 euid=1000 suid=1000 fsuid=1000 egid=1010 sgid=1010 fsgid=1010 tty=(none) ses=4294967295 comm="sh" exe="/system/bin/sh" subj=u:r:wlandutservice:s0 key=(null)
+#audit(1388542040.429:193): argc=3 a0="sh" a1="-c" a2=63686D6F6420373737202F646174612F6977
+#audit(1388542040.429:193):  cwd="/"
+#audit(1388542040.429:193): item=0 name="/system/bin/sh" inode=737 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:shell_exec:s0
+#audit(1388542040.429:193): item=1 name=(null) inode=590 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:system_file:s0
+#audit(1388542040.439:194): avc:  denied  { execute_no_trans } for  pid=13056 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p23" ino=776 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:system_file:s0 tclass=file
+#audit(1388542040.439:194): arch=40000028 syscall=11 per=800000 success=yes exit=0 a0=b6b1717c a1=b6b17150 a2=b6b4f104 a3=b6f2713c items=2 ppid=12480 pid=13056 auid=4294967295 uid=1000 gid=1010 euid=1000 suid=1000 fsuid=1000 egid=1010 sgid=1010 fsgid=1010 tty=(none) ses=4294967295 comm="chmod" exe="/system/bin/toolbox" subj=u:r:wlandutservice:s0 key=(null)
+#audit(1388542040.439:194): argc=3 a0="chmod" a1="777" a2="/data/iw"
+#audit(1388542040.439:194):  cwd="/"
+#audit(1388542040.439:194): item=0 name="/system/bin/chmod" inode=776 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:system_file:s0
+#audit(1388542040.439:194): item=1 name=(null) inode=590 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:system_file:s0
+#audit(1388542040.469:195): avc:  denied  { open } for  pid=13056 comm="chmod" name="iw" dev="mmcblk0p26" ino=28 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#audit(1388542040.469:195): arch=40000028 syscall=322 per=800000 success=yes exit=3 a0=ffffff9c a1=be9738cc a2=20000 a3=0 items=1 ppid=12480 pid=13056 auid=4294967295 uid=1000 gid=1010 euid=1000 suid=1000 fsuid=1000 egid=1010 sgid=1010 fsgid=1010 tty=(none) ses=4294967295 comm="chmod" exe="/system/bin/toolbox" subj=u:r:wlandutservice:s0 key=(null)
+#audit(1388542040.469:195):  cwd="/"
+#audit(1388542040.469:195): item=0 name="/data/iw" inode=28 dev=b3:1a mode=0100600 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:system_data_file:s0
+#audit(1388542040.469:196): avc:  denied  { setattr } for  pid=13056 comm="chmod" name="iw" dev="mmcblk0p26" ino=28 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+#audit(1388542040.469:196): arch=40000028 syscall=94 per=800000 success=yes exit=0 a0=3 a1=1ff a2=20000 a3=0 items=1 ppid=12480 pid=13056 auid=4294967295 uid=1000 gid=1010 euid=1000 suid=1000 fsuid=1000 egid=1010 sgid=1010 fsgid=1010 tty=(none) ses=4294967295 comm="chmod" exe="/system/bin/toolbox" subj=u:r:wlandutservice:s0 key=(null)
+#audit(1388542040.469:196): item=0 name=(null) inode=28 dev=b3:1a mode=0100600 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:system_data_file:s0
+#audit(1388542046.199:197): avc:  denied  { execute } for  pid=13174 comm="Binder_3" name="sh" dev="mmcblk0p23" ino=737 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#audit(1388542046.199:197): avc:  denied  { read open } for  pid=13174 comm="Binder_3" name="sh" dev="mmcblk0p23" ino=737 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#audit(1388542046.199:197): avc:  denied  { execute_no_trans } for  pid=13174 comm="Binder_3" path="/system/bin/sh" dev="mmcblk0p23" ino=737 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:shell_exec:s0 tclass=file
+#audit(1388542046.199:197): arch=40000028 syscall=11 per=800000 success=yes exit=0 a0=b6f4bdbf a1=b65bf950 a2=bedd07dc a3=fffffe94 items=2 ppid=12480 pid=13174 auid=4294967295 uid=1000 gid=1010 euid=1000 suid=1000 fsuid=1000 egid=1010 sgid=1010 fsgid=1010 tty=(none) ses=4294967295 comm="sh" exe="/system/bin/sh" subj=u:r:wlandutservice:s0 key=(null)
+#audit(1388542046.199:197): argc=3 a0="sh" a1="-c" a2="netcfg"
+#audit(1388542046.199:197):  cwd="/"
+#audit(1388542046.199:197): item=0 name="/system/bin/sh" inode=737 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:shell_exec:s0
+#audit(1388542046.199:197): item=1 name=(null) inode=590 dev=b3:17 mode=0100755 ouid=0 ogid=2000 rdev=00:00 obj=u:object_r:system_file:s0
+# avc:  denied  { write } for  pid=4942 comm="wlandutservice" name="fwmarkd" dev="tmpfs" ino=9065 scontext=u:r:wlandutservice:s0 tcontext=u:object_r:fwmarkd_socket:s0 tclass=sock_file
+# avc:  denied  { connectto } for  pid=5127 comm="wlandutservice" path="/dev/socket/property_service" scontext=u:r:wlandutservice:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket permissive=1
+

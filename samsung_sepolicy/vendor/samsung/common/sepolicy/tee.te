@@ -1,0 +1,43 @@
+#
+# tee
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute tee trusteddomain;
+#typeattribute tee system_domain;
+# temporary permissive to gather the log.
+# permissive tee;
+
+########## self and domain_type
+########## fs_type
+allow tee rootfs:file entrypoint;
+allow tee sysfs_ss_writable:dir r_dir_perms;
+allow tee sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+########## androd-m-preview: denials ########
+allow tee prov_efs_file:dir r_dir_perms;
+allow tee prov_efs_file:file r_file_perms;
+
+#### M denial - Tima_Keystore
+type_transition tee system_data_file:dir tima_keystore_file "tima_keystore";
+type_transition tee system_data_file:dir tima_keystore_file "KEqvTaYEYkuJr1Mn+t-SwFvbgYo_";
+type_transition tee system_data_file:dir tima_keystore_file "n4sX6gC2s-0e+m0QqiHP7ckbpxo_";
+type_transition tee system_data_file:dir tima_keystore_file "tz_esecomm";
+
+allow tee tima_keystore_file:dir create_dir_perms;
+allow tee tima_keystore_file:file create_file_perms;
+type_transition tee system_data_file:dir otp_data_file "knox_otp";
+allow tee otp_data_file:dir create_dir_perms;
+allow tee otp_data_file:file create_file_perms;
+
+############ avc_log #############
+# avc: denied { create } for pid=309 comm="qseecomd" name="VhGSCx8crxSdnVJAqZBtN5H4Wd8_" scontext=u:r:tee0 tcontext=ubject_rystem_data_file0 tclass=file permissive=0
+# avc:  denied  { entrypoint } for  pid=287 comm="init" path="/sbin/qseecomfsd" dev="rootfs" ino=8220 scontext=u:r:tee:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=0
+

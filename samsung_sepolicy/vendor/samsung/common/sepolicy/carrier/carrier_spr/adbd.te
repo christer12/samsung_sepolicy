@@ -1,0 +1,10 @@
+allow adbd sprintitson_file:file r_file_perms;
+
+# P160108-00348 permission denied on pull chameleon.xml command 
+allow adbd carrier_file:dir r_dir_perms;
+allow adbd carrier_file:file r_file_perms;
+
+# avc:  denied  { read } for  pid=14334 comm="adbd" name="chameleon.xml" dev="sda22" ino=12 scontext=u:r:adbd:s0 tcontext=u:object_r:carrier_file:s0 tclass=file permissive=0
+
+
+

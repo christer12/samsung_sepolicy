@@ -1,0 +1,16 @@
+allow debuggerd usermodehelper:file { read open getattr };
+allow debuggerd tmpfs:dir { write add_name create };
+allow debuggerd shell_exec:file { execute execute_no_trans };
+
+#SEC remove: userdebug_or_eng(`
+#SEC remove:     allow debuggerd usermodehelper:file write;
+#SEC remove: ')
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow debuggerd system_data_file:file { create write setattr };
+
+allow debuggerd debuggerd_tmpfs:file { create open setattr};
+allow debuggerd fuse:dir { search write add_name create read open };
+allow debuggerd fuse:file { create write open setattr };
+allow debuggerd log_device:chr_file read;

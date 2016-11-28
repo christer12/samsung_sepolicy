@@ -1,0 +1,29 @@
+# ipacm-diag
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow ipacm-diag diag_device:chr_file { read write open };
+
+########## file_type
+allow ipacm-diag system_data_file:dir rw_dir_perms;
+allow ipacm-diag system_data_file:sock_file unlink;
+
+########## etc_type
+########## known issue.
+# create socket IPACMDIAG_FILE "/data/ipacm_log_file
+type_transition ipacm-diag system_data_file:sock_file ipacm_socket;
+allow ipacm-diag system_data_file:dir ra_dir_perms;
+allow ipacm-diag ipacm_socket:sock_file create_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=684 comm="ipacm-diag" name="diag" dev="tmpfs" ino=6712 scontext=u:r:ipacm-diag:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=684 comm="ipacm-diag" name="/" dev="sda16" ino=2 scontext=u:r:ipacm-diag:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=684 comm="ipacm-diag" name="ipacm_log_file" scontext=u:r:ipacm-diag:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=684 comm="ipacm-diag" name="ipacm_log_file" scontext=u:r:ipacm-diag:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { remove_name } for  pid=668 comm="ipacm-diag" name="ipacm_log_file" dev="sda16" ino=40 scontext=u:r:ipacm-diag:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { unlink } for  pid=668 comm="ipacm-diag" name="ipacm_log_file" dev="sda16" ino=40 scontext=u:r:ipacm-diag:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+

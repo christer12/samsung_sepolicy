@@ -1,0 +1,35 @@
+# thermald
+
+typealias thermal-engine alias thermald;
+typealias thermal-engine_exec alias thermald_exec;
+#type thermald, domain;
+#type thermald_exec, exec_type, file_type;
+
+#init_daemon_domain(thermald)
+unix_socket_connect(thermald, property, init)
+
+# rules
+allow thermald qmuxd:unix_stream_socket connectto;
+
+allow thermald device:sock_file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow thermald device:chr_file rw_file_perms;
+allow thermald init:unix_stream_socket connectto;
+allow thermald log_device:chr_file r_file_perms;
+allow thermald mpdecision:unix_stream_socket connectto;
+allow thermald qmux_radio_socket:dir w_dir_perms;
+allow thermald qmux_radio_socket:sock_file create_file_perms;
+allow thermald socket_device:dir w_dir_perms;
+allow thermald socket_device:sock_file create_file_perms;
+allow thermald self:capability { net_admin fsetid dac_override chown };
+allow thermald self:netlink_kobject_uevent_socket *;
+allow thermald self:socket *;
+allow thermald self:capability sys_boot;
+allow thermald sysfs:file write;
+allow thermald system_data_file:dir rw_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow thermald system_data_file:file rw_file_perms;
+allow thermald system_data_file:file r_file_perms;
+
+# for B2C users
+typeattribute thermald trusteddomain;
+typeattribute thermald device_domain;

@@ -1,0 +1,3 @@
+typealias location alias lowi-server;
+typealias location_exec alias lowi-server_exec;
+

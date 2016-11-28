@@ -1,0 +1,49 @@
+
+# domain for vmware_app
+type vmware_app, domain;
+
+# domain for vmware_app
+app_domain(vmware_app)
+allow vmware_app kernel:unix_dgram_socket sendto;
+allow vmware_app self:netlink_route_socket *;
+allow vmware_app self:socket *;
+allow vmware_app self:tcp_socket *;
+allow vmware_app self:udp_socket *;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmware_app self:binder *;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmware_app sysfs:file rw_file_perms;
+allow vmware_app vmwared:unix_stream_socket connectto;
+
+allow vmware_app app_data_file:dir create_dir_perms;
+allow vmware_app app_data_file:file create_file_perms;
+# typealias system_data_file / P160412-00320 / only FOTA problem to M OS: Neverallow permission after FOTA
+#allow vmware_app app_library_file:dir create_dir_perms;
+allow vmware_app app_library_file:dir { r_dir_perms search add_name remove_name rmdir };
+allow vmware_app ashmem_device:chr_file rx_file_perms;
+allow vmware_app devpts:chr_file r_file_perms;
+allow vmware_app dnsproxyd_socket:sock_file write;
+allow vmware_app init:unix_stream_socket connectto;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmware_app kernel:system syslog_read;
+allow vmware_app kgsl_device:chr_file { rw_file_perms execute };
+allow vmware_app knox_untrusted_app:binder call;
+allow vmware_app netd:unix_stream_socket connectto;
+allow vmware_app node:tcp_socket node_bind;
+allow vmware_app node:udp_socket node_bind;
+allow vmware_app port:tcp_socket *;
+allow vmware_app port:udp_socket *;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmware_app property_socket:sock_file write;
+allow vmware_app sdcard_internal:dir create_dir_perms;
+allow vmware_app sdcard_internal:file create_file_perms;
+allow vmware_app secure_storage:dir r_dir_perms;
+allow vmware_app secure_storage:file r_file_perms;
+allow vmware_app surfaceflinger:unix_stream_socket *;
+allow vmware_app system:unix_stream_socket *;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmware_app system_domain: binder *;
+allow vmware_app system_file:file x_file_perms;
+allow vmware_app zygote:fd use;
+allow vmware_app zygote:process sigchld;
+allow vmware_app zygote_exec:file execute;
+allow vmware_app zygote_tmpfs:file read;
+
+# for B2C users
+typeattribute vmware_app trusteddomain;
+typeattribute vmware_app trusted_app_domain;

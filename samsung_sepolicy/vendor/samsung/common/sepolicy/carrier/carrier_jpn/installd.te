@@ -1,0 +1,4 @@
+#============= installd ==============
+allow installd mmb_data_file:lnk_file create_file_perms;
+allow installd oneseg_mw_exec:lnk_file getattr;
+#neverallow Google-android-5.0.2_r1 : allow installd oneseg_mw_exec:dir w_dir_perms;

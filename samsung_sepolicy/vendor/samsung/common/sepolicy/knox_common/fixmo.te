@@ -1,0 +1,177 @@
+#
+# fixmo_app
+# Most FIXMO related policies should be here.
+#
+
+############ knox_common #############
+########## type and macro.
+
+### Use Binder
+binder_use(fixmo_app)
+binder_call(fixmo_app, fixmo_app)
+binder_call(fixmo_app, mediaserver)
+binder_call(fixmo_app, nfc)
+binder_call(fixmo_app, bluetooth)
+binder_call(fixmo_app, platform_app)
+binder_call(fixmo_app, radio)
+binder_call(fixmo_app, surfaceflinger)
+binder_call(fixmo_app, system_app)
+binder_call(fixmo_app, system)
+binder_call(fixmo_app, zygote)
+binder_call(mediaserver, fixmo_app)
+binder_call(nfc, fixmo_app)
+binder_call(platform_app, fixmo_app)
+binder_call(radio, fixmo_app)
+binder_call(surfaceflinger, fixmo_app)
+binder_call(system, fixmo_app)
+binder_call(system_app, fixmo_app)
+binder_call(fixmo_app, knox_untrusted_app)
+binder_call(knox_untrusted_app, fixmo_app)
+binder_call(zygote, fixmo_app)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow fixmo_app kgsl_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+## Zygote <--> FIXMO
+allow zygote fixmo_app:process *;
+allow fixmo_app zygote:process sigchld;
+allow zygote fixmo_app_data_file:dir { create_dir_perms mounton };
+allow zygote fixmo_app_data_file:file create_file_perms;
+allow fixmo_app zygote:unix_stream_socket { getopt getattr };
+allow fixmo_app zygote_tmpfs:file r_file_perms;
+
+### System <--> FIXMO
+allow system fixmo_app:process *;
+allow { system system_app } fixmo_app:dir r_dir_perms;
+allow { system system_app } fixmo_app:{ file lnk_file fifo_file } rw_file_perms;
+allow { system system_app } fixmo_app:{ tcp_socket udp_socket unix_stream_socket } { setopt read write getopt };
+allow { system system_app } fixmo_app_data_file:dir { create_dir_perms relabelfrom relabelto };
+allow { system system_app } fixmo_app_data_file:file { create_file_perms relabelfrom relabelto };
+allow fixmo_app { system system_app }:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow fixmo_app { system system_app }:{ file lnk_file fifo_file } rw_file_perms;
+allow fixmo_app { system_app }:{ file lnk_file fifo_file } rw_file_perms;
+allow fixmo_app { system system_app }:{ tcp_socket udp_socket unix_stream_socket } { setopt read write getopt };
+allow fixmo_app system_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow fixmo_app system_file:{ file lnk_file } rw_file_perms;
+allow fixmo_app system_file:{ file lnk_file } r_file_perms;
+
+allow fixmo_app system_file:file execute_no_trans;
+allow fixmo_app system_data_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow fixmo_app system_data_file:{ file lnk_file } rw_file_perms;
+allow fixmo_app system_data_file:{ file lnk_file } r_file_perms;
+
+### Installd <--> FIXMO
+allow installd fixmo_app:fd use;
+allow installd fixmo_app_data_file:dir { create_dir_perms relabelfrom relabelto };
+allow installd fixmo_app_data_file:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+
+### FIXMO <--> FIXMO
+#neverallow Google CTS-android-5.0.2_r1 :allow fixmo_app self:{ tcp_socket udp_socket netlink_kobject_uevent_socket netlink_route_socket } create_socket_perms;
+allow fixmo_app self:{ tcp_socket udp_socket netlink_route_socket } create_socket_perms;
+
+allow fixmo_app fixmo_app_data_file:dir create_dir_perms;
+allow fixmo_app fixmo_app_data_file:{ file lnk_file sock_file } create_file_perms;
+allow fixmo_app fixmo_app_data_file:file x_file_perms;
+
+### Platform Apps <--> FIXMO
+allow fixmo_app platform_app_data_file:dir rw_dir_perms;
+allow fixmo_app platform_app_data_file:file rw_file_perms;
+
+### allow fixmo communicate with limited set of domains
+allow fixmo_app { init surfaceflinger netd isolated_app }:unix_stream_socket { read write connectto getattr shutdown setopt getopt };
+### When launched, the lib will be created
+#changeBySEA : allow fixmo_app app_library_file:dir { r_dir_perms execmod setattr };
+
+#neverallow Google CTS-android-m-preview:neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow fixmo_app app_library_file:file { rx_file_perms execmod setattr };
+#changeBySEA : allow fixmo_app app_library_file:file { rx_file_perms setattr };
+
+### Vold <--> FIXMO
+allow vold fixmo_app:fd use;
+allow vold fixmo_app_data_file:filesystem { relabelfrom relabelto mount unmount remount };
+allow vold fixmo_app_data_file:dir { create_dir_perms mounton };
+allow vold fixmo_app_data_file:{ file lnk_file } create_file_perms;
+
+### Access internal storage
+allow fixmo_app media_rw_data_file:dir create_dir_perms;
+allow fixmo_app media_rw_data_file:file create_file_perms;
+allow fixmo_app sdcard_internal:dir create_dir_perms;
+allow fixmo_app sdcard_internal:file create_file_perms;
+
+### Labeled file system association
+#neverallow Google CTS-android-5.0.2_r1 :allow fixmo_app labeledfs:filesystem { associate getattr };
+allow fixmo_app labeledfs:filesystem getattr;
+allow fixmo_app_data_file labeledfs:filesystem { associate getattr };
+
+### allow fixmo react with some sid (TODO should be very specific)
+allow fixmo_app kernel:system module_request;
+allow fixmo_app node:{ tcp_socket udp_socket } { node_bind };
+allow fixmo_app port:tcp_socket { name_bind name_connect };
+allow fixmo_app port:udp_socket name_bind;
+
+### Potential allow rules (TODO You MUST be very careful!!!)
+allow bluetooth fixmo_app:file r_file_perms;
+#allow init_shell fixmo_app_data_file:dir r_dir_perms;
+allow fixmo_app dnsproxyd_socket:sock_file rw_file_perms;
+allow fixmo_app cache_file:dir create_dir_perms;
+allow fixmo_app cache_file:file create_file_perms;
+allow fixmo_app selinuxfs:filesystem getattr;
+allow fixmo_app shell_data_file:dir search;
+allow fixmo_app shell_data_file:file getattr;
+allow fixmo_app qtaguid_proc:file rw_file_perms;
+allow fixmo_app qtaguid_device:chr_file r_file_perms;
+allow fixmo_app ashmem_device:chr_file execute;
+allow debuggerd fixmo_app:lnk_file read;
+
+# required for the "application not responding"
+allow fixmo_app anr_data_file:dir search;
+allow fixmo_app anr_data_file:file { open append getattr };
+allow fixmo_app tombstone_data_file:dir search;
+allow fixmo_app tombstone_data_file:file { open append getattr };
+
+# Shell Exec
+allow fixmo_app shell_exec:file { ioctl read getattr lock execute execute_no_trans open };
+
+# PLM issue - P140611-00697
+allow fixmo_app video_device:chr_file rw_file_perms;
+
+# AWS
+allow fixmo_app app_data_file:dir search;
+
+# Support ART mode
+allow fixmo_app dalvikcache_data_file:file execute;
+allow fixmo_app dex2oat_exec:file rx_file_perms;
+allow fixmo_app apk_data_file:dir r_dir_perms;
+allow fixmo_app apk_data_file:file { rx_file_perms execmod };
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow fixmo_app graphics_device:chr_file rw_file_perms;
+allow fixmo_app ump_device:chr_file rw_file_perms;
+allow fixmo_app ump_device:sock_file r_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

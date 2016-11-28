@@ -1,0 +1,12 @@
+# gpu_snapshotd
+type gpu_snapshotd, domain;
+type gpu_snapshotd_exec, exec_type, file_type;
+init_daemon_domain(gpu_snapshotd)
+
+# for B2C users
+typeattribute gpu_snapshotd trusteddomain;
+typeattribute gpu_snapshotd system_domain;
+
+# temporary permissive to gather the log.
+# permissive gpu_snapshotd;
+

@@ -1,0 +1,19 @@
+#
+# perfprofd
+#
+
+userdebug_or_eng(`
+
+  set_prop(perfprofd, mpdecision_prop)
+
+')
+
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=684 comm="perfprofd" name="property_service" dev="tmpfs" ino=9507 scontext=u:r:perfprofd:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { connectto } for  pid=684 comm="perfprofd" path="/dev/socket/property_service" scontext=u:r:perfprofd:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { set } for property=ctl.mpdecision scontext=u:r:perfprofd:s0 tcontext=u:object_r:mpdecision_prop:s0 tclass=property_service
+
+
+

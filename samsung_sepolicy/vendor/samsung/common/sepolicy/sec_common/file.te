@@ -1,0 +1,2 @@
+# IPM data files
+type ipm_data_file, file_type, data_file_type;

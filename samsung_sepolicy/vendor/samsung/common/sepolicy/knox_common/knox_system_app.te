@@ -1,0 +1,89 @@
+#
+# knox_system app
+#
+
+############ knox_common #############
+########## type and macro.
+#changeBySEA : type knox_system_app, commonplatformappdomain, domain;
+type knox_system_app, domain;
+# for B2C users
+typeattribute knox_system_app trusteddomain;
+typeattribute knox_system_app trusted_app_domain;
+# temporary permissive to gather the log.
+# permissive knox_system_app;
+
+app_domain(knox_system_app)
+net_domain(knox_system_app)
+platform_app_domain(knox_system_app)
+
+########## self and domain_type
+allow knox_system_app at_distributor:unix_stream_socket connectto;
+allow knox_system_app netd:unix_stream_socket connectto;
+
+########## fs_type
+allow knox_system_app debugfs:dir r_dir_perms;
+allow knox_system_app debugfs:file r_file_perms;
+
+########## dev_type
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app efsblk_device:blk_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app emmcblk_device:blk_file rw_file_perms;
+
+########## file_type
+allow knox_system_app anr_data_file:dir create_dir_perms;
+allow knox_system_app anr_data_file:file create_file_perms;
+allow knox_system_app app_efs_file:dir create_dir_perms;
+allow knox_system_app app_efs_file:file create_file_perms;
+allow knox_system_app backup_data_file:dir create_dir_perms;
+allow knox_system_app backup_data_file:file create_file_perms;
+allow knox_system_app container_app_data_backend:dir create_dir_perms;
+allow knox_system_app container_app_data_backend:file create_file_perms;
+allow knox_system_app container_app_data_file:dir create_dir_perms;
+allow knox_system_app container_app_data_file:file { create_file_perms execute };
+allow knox_system_app container_app_data_file:lnk_file r_file_perms;
+allow knox_system_app container_app_sdcard_file:dir create_dir_perms;
+allow knox_system_app container_app_sdcard_file:file create_file_perms;
+allow knox_system_app container_system_file:dir create_dir_perms;
+allow knox_system_app container_system_file:file create_file_perms;
+
+#neverallow { domain -init -installd -dex2oat -zygote } dalvikcache_data_file:dir { add_name create link relabelfrom remove_name rename reparent rmdir setattr write }
+#allow knox_system_app dalvikcache_data_file:dir create_dir_perms;
+allow knox_system_app dalvikcache_data_file:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+allow knox_system_app dalvikcache_data_file:file r_file_perms;
+
+allow knox_system_app dnsproxyd_socket:sock_file create_file_perms;
+allow knox_system_app dumplog_data_file:dir create_dir_perms;
+allow knox_system_app dumplog_data_file:file create_file_perms;
+allow knox_system_app sec_efs_file:dir create_dir_perms;
+allow knox_system_app sec_efs_file:file create_file_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app efs_file:file { w_file_perms setattr };
+
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app shell_data_file:dir create_dir_perms;
+allow knox_system_app shell_data_file:dir { r_dir_perms write };
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app shell_data_file:file create_file_perms;
+allow knox_system_app shell_data_file:file { r_file_perms write };
+allow knox_system_app users_system_data_file:dir create_dir_perms;
+allow knox_system_app users_system_data_file:file create_file_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app wifi_data_file:dir rw_dir_perms;
+allow knox_system_app wifi_data_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app wifi_data_file:file create_file_perms;
+allow knox_system_app wifi_data_file:file r_file_perms;
+
+########## etc_type
+allow knox_system_app port:tcp_socket name_connect;
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_system_app system_prop:property_service set;
+
+########## known issue.
+# Read and write /data/data subdirectory.
+allow knox_system_app system_app_data_file:dir create_dir_perms;
+allow knox_system_app system_app_data_file:{ file fifo_file lnk_file sock_file }  create_file_perms;
+allow knox_system_app system_app_data_file:file x_file_perms;
+
+
+############ avc_log #############
+#  avc:  denied  { write } for  pid=11710 comm="pool-5-thread-1" name="accounts.db" dev="mmcblk0p26" ino=916038 scontext=u:r:knox_system_app:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file
+# item=0 name="/data/system/users/100/accounts.db" inode=916038 dev=b3:1a mode=0100660 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:users_system_data_file:s0
+

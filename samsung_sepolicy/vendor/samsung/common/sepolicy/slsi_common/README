@@ -1,0 +1,112 @@
+== Get SEAndroid working git source from bitbucket ==
+
+SEAndroid project source는 Bitbucket source constrol service를 이용하여 관리되고 있습니다.
+첨부된 getRepos.sh 스크립트를 실행하면 Bitbucket의 각 저장소에서 SEAndroid 소스를 받아오게됩니다.
+해당 소스를 받기 위해서는
+1) password를 입력하여 인증을 받는 방법
+2) Bitbucket id를 생성하고 ssh인증키를 등록하는 방법
+이 있는데 저희는 임시로 Bill의 계정정보를 이용하는 1)번 방법을 사용하였습니다. (pw: Williams)
+
+== Get patches from git ==
+
+SEAndroid 소스를 받아온 후에 
+
+여기서 아래와 같은 명령으로 patch를 추출합니다.
+git checkout origin/seandroid-4.1.2
+git format-patch origin/jb-mr0-release
+
+== Exchange some diectories from SEAndroid Git ==
+
+SEAndroid 소스에서 patch가 생성되지 않는 directory 가운데 몇 가지는 SEAndroid의 폴더로 바꿔치기를몇 가지는 SEAndroid의 폴더로 바꿔치기를 해줍니다.
+* SEAndroid/external-checkpolicy -> android/external/checkpolicy
+* SEAndroid/external-libsepol -> android/external/libsepol
+* SEAndroid/external-mac-policy -> android/external/mac-policy
+* SEAndroid/external-sepolicy -> android/external/sepolicy
+* SEAndroid/packages-apps-seandroidadmin -> android/packages/apps/seandroidaddmin (for testing)
+* SEAndroid/packages-apps-aeandroidmanager -> android/packages/apps/seandroidmanager (for testing)
+
+device-로 시작되는 디렉토리는 각 model별로 상이한 feature만 반영되어 있습니다.
+해당 수정내역은 반영하지 않으셔도 됩니다.
+
+== Enable HAS_SELINUX config at Boardconfig file ==
+
+각 device에 사용되는 BoardConfig 파일에
+HAS_SELINUX := true
+를 선언해줍니다.
+
+== Change make_ext4 option in build_api.sh script ==
+
+build_api.sh에서 ext4 image를 만드는 곳을 찾아
+make_ext4 뒤에 아래와 같은 옵션을 추가해줍니다.
+
+== device label하기 ==
+
+/dev에 대해서는 접근권한을 제한하기위해서 각각 label을 붙여주어야합니다.
+예를 들어 /dev/ttySAC0에 대한 label을 붙이는 방법은 다음과 같습니다.
+1) file_context 에 해당 패스에 대한 label을 선언합니다.
+/dev/ttySAC0 u:object_r::s0
+2) 위에서 선언한 임의의 label < uart_device >에 대한 선언을 device.te에 추가합니다.
+type , dev_type;
+3) 이제 해당 파일을 사용하는 각 app, deamon, processor의 te파일에 allow rule을 추가해줄 때 위에서 선언한 이름을 사용합니다.
+
+== efs파일 label하기 ==
+
+efs하위에 있는 파일에 대해서는 접근권한을 제한하기위해서 각각 label을 붙여주어야합니다.
+예를 들어 /efs/wifi에 대한 label을 붙이는 방법은 다음과 같습니다.
+1) file_context 에 해당 패스에 대한 label을 선언합니다.
+/efs/wifi u:object_r::s0
+2) 위에서 선언한 임의의 label 에 대한 선언을 file.te에 추가합니다.
+type , file_type;
+3) 이제 해당 파일을 사용하는 각 app, deamon, processor의 te파일에 allow rule을 추가해줄 때 위에서 선언한 이름을 사용합니다.
+
+== init domain에 위치한 process를 own domain으로 변경하는 방법 ==
+
+1) ps -Z 명령을 이용하면 각 process에 대한 domain을 확인할 수 있습니다.
+2) init domain에 속한 process가운데 init process를 제외한 process는 보안 문제로 자신의 domain으로 변경되어야 합니다. init domain은 basic policy에 의해 많은 권한을 가지고 있기때문입니다.
+3) sepolicy 디렉토리에보면 make_own_domain.sh스크립트가 있습니다.
+위 스크립트의 인자로 process들의 이름을 주면 자동으로 <이름>.te 파일이 생성되게 됩니다.
+4) makefile에서 기본으로 parsing하는 srpolicy.te파일에 각 파일을 include합니다.
+
+
+== denail메시지 처리하기 ==
+
+1) dmesg 혹은 kmsg를 텍스트 파일로 추출합니다.
+2) 해당 텍스트 파일을 pipe로 audit2allow로 보냅니다.
+$ cat | audit2allow
+혹은 fixup.py도 같이 이용합니다.
+$ cat | audit2allow | fixup.py
+3) 나온 결과 중에서 efs_file, device, block_device가 있는지 살펴보고 있다면 위에서 설명한 방법과같이 새로운 label을 정해줍니다.
+4) 그 외의 allow rule은 각 .te파일에 복사해줍니다.
+
+= 예외 처리 하기 =
+
+== demon에서 만드는 파일에 대한 권한을 자동으로 변경하기 ==
+
+cbd demon에서 /dev/__cbd_msg_ node를 생성하고 작업한 후에 삭제하는 루틴이 있습니다.
+이 경우에 새로 생성되는 /dev/__cbd_msg_는 parent directory인 /dev의 속성을 받기 때문에
+device로 label이 되게 됩니다.
+위에서 이야기했듯 device label은 범위가 넓기때문에 cbd demon에게 device domain에 대한 권한을 줄 수 없습니다.
+이 경우 cbd.te에 아래와 같이 추가하면 
+type_transition cbd	device:chr_file	radio_device;
+cbd에서 생성하는 device domain의 char type file은 radio_device domain로 전환되게 됩니다.
+
+== How to use mkpolicy.py ==
+아래 환경 변수를 export로 선언해줍니다.
+
+# 빌드소스의 android 소스
+export SEPOLICY_ROOT="/home/alex.jang/BUILD/J_DEV/android"
+# build해야할 sepolicy가 있는 디렉토리 리스트
+export BOARD_SEPOLICY_DIRS="$SEPOLICY_ROOT""/vendor/samsung/common/sepolicy"" $SEPOLICY_ROOT""/device/         samsung/adonis3g_common/sepolicy"
+# basic policy 중에서 교체되어서 동작할 파일
+export BOARD_SEPOLICY_REPLACE="shell.te"
+# BOARD_SEPOLICY_DIRS에 있는 파일 중에서 compile될 파일 리스트
+export BOARD_SEPOLICY_UNION="file_contexts seapp_contexts sepolicy.te"
+
+BOARD_SEPOLICY_DIRS에 들어가는 디렉토리 순서는 공통 > specific 순으로 적어주어야 합니다.(order 주의)
+
+# For checkpolicy
+export PATH=${PATH}:~/BUILD/J_DEV/android/out/host/linux-x86/bin
+
+위 환경 설정 후에
+mkpolicy.py를 android 폴더에 복사한 후 실행하면 됩니다.
+

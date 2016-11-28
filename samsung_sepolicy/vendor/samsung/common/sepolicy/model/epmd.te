@@ -1,0 +1,13 @@
+#
+# epmd 
+#
+
+typealias vold alias epmd;
+domain_auto_trans(init, epmd_exec, epmd)
+#type epmd, domain, mlstrustedsubject;
+#init_daemon_domain(epmd)
+allow epmd self:capability sys_ptrace;
+allow epmd labeledfs:filesystem { mount unmount };
+allow epmd labeledfs:filesystem mount;
+allow epmd labeledfs:filesystem relabelfrom;
+

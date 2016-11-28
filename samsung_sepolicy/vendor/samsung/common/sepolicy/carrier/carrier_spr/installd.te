@@ -1,0 +1,4 @@
+allow installd sprintitson_file:dir { relabelto create_dir_perms };
+allow installd sprintitson_file:file create_file_perms;
+allow installd sprintitson_file:lnk_file create_file_perms;
+allow installd carrier_file:dir create_dir_perms;

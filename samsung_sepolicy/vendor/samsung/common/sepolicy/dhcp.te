@@ -1,0 +1,54 @@
+#
+# dhcp
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#neverallow Google CTS : type dhcp_system_file, file_type, data_file_type;
+#type dhcp_system_file, file_type;
+
+# for B2C users
+typeattribute dhcp trusteddomain;
+#typeattribute dhcp system_domain;
+# temporary permissive to gather the log.
+# permissive dhcp;
+
+########## self and domain_type
+########## fs_type
+allow dhcp proc:file write;
+
+########## dev_type
+allow dhcp device:file r_file_perms;
+allow dhcp tty_device:chr_file rw_file_perms;
+
+########## file_type
+allow dhcp dhcp_system_file:file rx_file_perms;
+allow dhcp dhcp_system_file:dir r_dir_perms;
+
+########## etc_type
+allow dhcp port:udp_socket name_bind;
+
+########## known issue.
+# netdev-bt-pan driver loading
+allow dhcp kernel:system module_request;
+
+# DHCP server should have full control of the udp sockets
+allow dhcp { self port node }:udp_socket *;
+allow dhcp { self port node }:tcp_socket *;
+
+# Some versions may need to be able to insmod
+allow dhcp kernel:system module_request;
+allow dhcp sysrq_proc:file write;
+
+# CTS
+allow dhcp self:rawip_socket { write create setopt read };
+
+#from NSA
+allow dhcp self:netlink_route_socket create_socket_perms;
+
+########## androd-m-preview: denials ########
+allow dhcp log_device:chr_file w_file_perms;
+
+############ avc_log #############
+
+

@@ -1,0 +1,62 @@
+#
+# sem
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type sem, domain;
+type sem_exec, exec_type, file_type;
+
+init_daemon_domain(sem)
+
+########## self and domain_type
+
+allow sem init:unix_stream_socket connectto;
+allow sem mobicoredaemon:unix_stream_socket connectto;
+allow sem system_server:unix_stream_socket connectto;
+allow sem mobicore-user_device:chr_file { read write open ioctl };
+allow sem self:capability dac_override;
+
+########## fs_type
+########## dev_type
+allow sem qseecom_device:chr_file rw_file_perms;
+allow sem sem_device:chr_file rw_file_perms;
+allow sem nfc_device:chr_file rw_file_perms;
+allow sem property_socket:sock_file write;
+
+########## file_type
+allow sem app_efs_file:dir create_dir_perms;
+allow sem app_efs_file:file create_file_perms;
+allow sem efs_file:dir r_dir_perms;
+allow sem efs_file:file r_file_perms;
+allow sem prov_efs_file:dir create_dir_perms;
+allow sem prov_efs_file:file create_file_perms;
+allow sem sec_efs_file:dir rw_dir_perms;
+allow sem sec_efs_file:file create_file_perms;
+allow sem system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow sem system_data_file:file create_file_perms;
+allow sem system_data_file:file r_file_perms;
+
+########## etc_type
+allow sem system_prop:property_service set;
+
+########## known issue.
+
+
+############ avc_log #############
+# audit(1422522027.080:202): avc:  denied  { read write } for  pid=16577 comm="sem_daemon" name="p3" dev="tmpfs" ino=16404 scontext=u:r:sem:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# audit(1422522027.080:202): avc:  denied  { open } for  pid=16577 comm="sem_daemon" path="/dev/p3" dev="tmpfs" ino=16404 scontext=u:r:sem:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# audit(1422522027.090:203): avc:  denied  { ioctl } for  pid=16577 comm="sem_daemon" path="/dev/p3" dev="tmpfs" ino=16404 scontext=u:r:sem:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# audit(1422522027.190:205): avc:  denied  { write } for  pid=16577 comm="sem_daemon" name="property_service" dev="tmpfs" ino=5569 scontext=u:r:sem:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file permissive=1
+# audit(1422522027.190:205): avc:  denied  { connectto } for  pid=16577 comm="sem_daemon" path="/dev/socket/property_service" scontext=u:r:sem:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket permissive=1
+# audit(1422522029.320:210): avc:  denied  { search } for  pid=16577 comm="sem_daemon" name="sec_efs" dev="sda3" ino=45 scontext=u:r:sem:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=dir permissive=1
+# audit(1422522029.320:210): avc:  denied  { write } for  pid=16577 comm="sem_daemon" name="sec_efs" dev="sda3" ino=45 scontext=u:r:sem:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=dir permissive=1
+# audit(1422522029.320:210): avc:  denied  { add_name } for  pid=16577 comm="sem_daemon" name="ssp_data" scontext=u:r:sem:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=dir permissive=1
+# audit(1422522029.320:210): avc:  denied  { create } for  pid=16577 comm="sem_daemon" name="ssp_data" scontext=u:r:sem:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=1
+# audit(1422522029.320:210): avc:  denied  { write open } for  pid=16577 comm="sem_daemon" path="/efs/sec_efs/ssp_data" dev="sda3" ino=61 scontext=u:r:sem:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=1
+# audit(1422522029.320:211): avc:  denied  { read } for  pid=16577 comm="sem_daemon" name="ssp_data" dev="sda3" ino=61 scontext=u:r:sem:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { read write } for  pid=5534 comm="sem_daemon" name="qseecom" dev="tmpfs" ino=9455 scontext=u:r:sem:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=0 SEPF_SM-A8000_5.1_0011
+# avc:  denied  { search } for  pid=5225 comm="sem_daemon" name="FactoryApp" dev="sda3" ino=20 scontext=u:r:sem:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=0# 
+# avc:  denied  { search } for  pid=5225 comm="sem_daemon" name="prov_data" dev="sda3" ino=18 scontext=u:r:sem:s0 tcontext=u:object_r:prov_efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { connectto } for  pid=15042 comm="sem_daemon" path=00446576696365526F6F744B657953657276696365 scontext=u:r:sem:s0 tcontext=u:r:system_server:s0 tclass=unix_stream_socket permissive=1

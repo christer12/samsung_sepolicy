@@ -1,0 +1,83 @@
+#
+# bauthserver
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type bauthserver, domain;
+type bauthserver_exec, exec_type, file_type;
+#typeattribute bauthserver trusteddomain;
+
+# temporary permissive to gather the log.
+#permissive bauthserver;
+
+binder_call(bauthserver, system_app)
+binder_use(bauthserver)
+init_daemon_domain(bauthserver)
+
+########## self and domain_type
+allow bauthserver mobicoredaemon:unix_stream_socket connectto;
+allow bauthserver appdomain:fd use;
+
+########## fs_type
+allow bauthserver sysfs:file rw_file_perms;
+########## dev_type
+allow bauthserver mobicore-user_device:chr_file rw_file_perms;
+allow bauthserver s5p_smem_device:chr_file rw_file_perms;
+allow bauthserver vfsspi_device:chr_file rw_file_perms;
+allow bauthserver qseecom_device:chr_file rw_file_perms;
+
+########## file_type
+allow bauthserver biometrics_data_file:dir create_dir_perms;
+allow bauthserver biometrics_data_file:file create_file_perms;
+allow bauthserver system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow bauthserver system_data_file:file create_file_perms;
+allow bauthserver system_data_file:file r_file_perms;
+
+allow bauthserver sbfs_file:dir create_dir_perms;
+allow bauthserver sbfs_file:file create_file_perms;
+allow bauthserver media_rw_data_file:file append;
+
+
+########## etc_type
+allow bauthserver bauthserver_service:service_manager add;
+allow bauthserver permission_service:service_manager find;
+
+########## known issue.
+
+# transition for /data/biometrics
+type_transition bauthserver system_data_file:dir biometrics_data_file "biometrics";
+allow bauthserver system_data_file:dir ra_dir_perms;
+allow bauthserver biometrics_data_file:dir create_dir_perms;
+allow bauthserver biometrics_data_file:file create_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { call } for  pid=3962 comm="bauthserver" scontext=u:r:bauthserver:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { transfer } for  pid=3962 comm="bauthserver" scontext=u:r:bauthserver:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { read write } for  pid=3962 comm="bauthserver" name="vfsspi" dev="tmpfs" ino=8891 scontext=u:r:bauthserver:s0 tcontext=u:object_r:vfsspi_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { open } for  pid=3962 comm="bauthserver" path="/dev/vfsspi" dev="tmpfs" ino=8891 scontext=u:r:bauthserver:s0 tcontext=u:object_r:vfsspi_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { ioctl } for  pid=3962 comm="bauthserver" path="/dev/vfsspi" dev="tmpfs" ino=8891 scontext=u:r:bauthserver:s0 tcontext=u:object_r:vfsspi_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { connectto } for  pid=3962 comm="bauthserver" path=006D636461656D6F6E scontext=u:r:bauthserver:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { read write } for  pid=3962 comm="bauthserver" name="mobicore-user" dev="tmpfs" ino=9115 scontext=u:r:bauthserver:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { open } for  pid=3962 comm="bauthserver" path="/dev/mobicore-user" dev="tmpfs" ino=9115 scontext=u:r:bauthserver:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { ioctl } for  pid=3962 comm="bauthserver" path="/dev/mobicore-user" dev="tmpfs" ino=9115 scontext=u:r:bauthserver:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_
+# avc:  denied  { read write } for  pid=3962 comm="bauthserver" name="s5p-smem" dev="tmpfs" ino=9058 scontext=u:r:bauthserver:s0 tcontext=u:object_r:s5p_smem_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { open } for  pid=3962 comm="bauthserver" path="/dev/s5p-smem" dev="tmpfs" ino=9058 scontext=u:r:bauthserver:s0 tcontext=u:object_r:s5p_smem_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { ioctl } for  pid=3962 comm="bauthserver" path="/dev/s5p-smem" dev="tmpfs" ino=9058 scontext=u:r:bauthserver:s0 tcontext=u:object_r:s5p_smem_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { write } for  pid=4172 comm="bauthserver" name="/" dev="dm-0" ino=2 scontext=u:r:bauthserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=4172 comm="bauthserver" name="biometrics" scontext=u:r:bauthserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=4172 comm="bauthserver" name="biometrics" scontext=u:r:bauthserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=4172 comm="bauthserver" name="calib.dat" scontext=u:r:bauthserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=4172 comm="bauthserver" path="/data/biometrics/meta/calib.dat" dev="dm-0" ino=521277 scontext=u:r:bauthserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { call } for  pid=6210 comm="bauthserver" scontext=u:r:bauthserver:s0 tcontext=u:r:system_app:s0 tclass=binder permissive=1
+# avc:  denied  { read } for  pid=10560 comm="Binder_2" name="calib.dat" dev="sda13" ino=13 scontext=u:r:bauthserver:s0 tcontext=u:object_r:sbfs_file:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { open } for  pid=10560 comm="Binder_2" path="/sbfs/meta/calib.dat" dev="sda13" ino=13 scontext=u:r:bauthserver:s0 tcontext=u:object_r:sbfs_file:s0 tclass=file permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { use } for  pid=13450 comm="dumpsys" path="/storage/emulated/legacy/ACT_LOGS/2015-01-27-22-24-03/act_bugreport_.txt" dev="sdcardfs" ino=524780 scontext=u:r:bauthserver:s0 tcontext=u:r:radio:s0 tclass=fd permissive=1
+# avc:  denied  { append } for  pid=13450 comm="dumpsys" path="/storage/emulated/legacy/ACT_LOGS/2015-01-27-22-24-03/act_bugreport_.txt" dev="sdcardfs" ino=524780 scontext=u:r:bauthserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1
+# avc:  denied  { use } for  pid=3122 comm="bauthserver" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=381307 scontext=u:r:bauthserver:s0 tcontext=u:r:isolated_app:s0 tclass=fd usefd permissive=0
+# avc:  denied  { ioctl } for  pid=2273 comm="Binder_1" path="/dev/qseecom" dev="tmpfs" ino=8706 scontext=u:r:bauthserver:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=304 comm="bauthserver" name="qseecom" dev="tmpfs" ino=8553 scontext=u:r:bauthserver:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=428 comm="bauthserver" path="/sys/power/cpufreq_max_limit" name="cpufreq_max_limit" dev="sysfs" ino=80 scontext=u:r:bauthserver:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=1 SEPF_SM-A8000_5.1.1_0017

@@ -1,0 +1,10 @@
+#ipm service
+/system/bin/ipm   	u:object_r:ipm_exec:s0                      
+/data/system/ipm(/.*)?  u:object_r:ipm_data_file:s0
+/system/bin/ftt_ctrld   u:object_r:ftt_ctrld_exec:s0
+
+#############################
+# Device node
+#
+/dev/ftt_ctrl                                         u:object_r:ftt_ctrl_device:s0
+

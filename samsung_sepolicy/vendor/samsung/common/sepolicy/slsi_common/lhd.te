@@ -1,0 +1,78 @@
+#
+# lhd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+type lhd, domain;
+type lhd_exec, exec_type, file_type;
+init_daemon_domain(lhd)
+net_domain(lhd)
+
+# for B2C users
+typeattribute lhd trusteddomain;
+# temporary permissive to gather the log.
+# permissive lhd;
+
+########## self and domain_type
+allow lhd self:capability2 block_suspend;
+
+########## fs_type
+allow lhd sysfs:file rw_file_perms;
+allow lhd sysfs_sec:dir rw_dir_perms;
+allow lhd sysfs_sec:{ file lnk_file } rw_file_perms;
+allow lhd sysfs_ss_writable:file rw_file_perms;
+allow lhd sysfs_wake_lock:file rw_file_perms;
+
+########## dev_type
+allow lhd bbd_device:chr_file rw_file_perms;
+
+########## file_type
+allow lhd efs_file:dir r_dir_perms;
+allow lhd efs_file:file r_file_perms;
+allow lhd system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow lhd system_data_file:file create_file_perms;
+allow lhd system_data_file:file r_file_perms;
+allow lhd system_data_file:fifo_file create_file_perms;
+
+# /data/system/gps label changed from system_data_file to gps_data_file
+# avc:  denied  { write } for  pid=3317 comm="lhd" name=".pipe.gpsd_to_lhd.to_client" dev="sda18" ino=327693 scontext=u:r:lhd:s0 tcontext=u:object_r:gps_data_file:s0 tclass=fifo_file permissive=1
+# avc:  denied  { create } for  pid=3032 comm="lhd" name=".lhd.lock" scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3032 comm="lhd" path="/data/system/gps/.lhd.lock" dev="sda18" ino=327686 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+allow lhd gps_data_file:dir create_dir_perms;
+allow lhd gps_data_file:file create_file_perms;
+allow lhd gps_data_file:fifo_file create_file_perms;
+
+########## etc_type
+allow lhd port:tcp_socket name_bind;
+allow lhd node:tcp_socket node_bind;
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=2947 comm="lhd" name="ttyBCM0" dev="tmpfs" ino=4042 scontext=u:r:lhd:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { open } for  pid=2947 comm="lhd" path="/dev/ttyBCM0" dev="tmpfs" ino=4042 scontext=u:r:lhd:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { read write } for  pid=2947 comm="lhd" name="bbd_control" dev="tmpfs" ino=4069 scontext=u:r:lhd:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { open } for  pid=2947 comm="lhd" path="/dev/bbd_control" dev="tmpfs" ino=4069 scontext=u:r:lhd:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { write } for  pid=2947 comm="lhd" name="gps" dev="mmcblk0p21" ino=654082 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { add_name } for  pid=2947 comm="lhd" name=".lhd.lock" scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { create } for  pid=2947 comm="lhd" name=".lhd.lock" scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { write open } for  pid=2947 comm="lhd" path="/data/system/gps/.lhd.lock" dev="mmcblk0p21" ino=654086 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { lock } for  pid=2947 comm="lhd" path="/data/system/gps/.lhd.lock" dev="mmcblk0p21" ino=654086 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { create } for  pid=2947 comm="lhd" name="LheConsole.toAsic" scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=fifo_file
+# avc:  denied  { read } for  pid=2947 comm="lhd" name="LheConsole.toAsic" dev="mmcblk0p21" ino=654091 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=fifo_file
+# avc:  denied  { open } for  pid=2947 comm="lhd" path="/data/system/gps/LheConsole.toAsic" dev="mmcblk0p21" ino=654091 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=fifo_file
+# avc:  denied  { write } for  pid=2947 comm="lhd" name="LheConsole.fromAsic" dev="mmcblk0p21" ino=654092 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=fifo_file
+# avc:  denied  { setattr } for  pid=3265 comm="lhd" name=".pipe.gpsd_to_lhd.to_client" dev="mmcblk0p21" ino=654093 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=fifo_file
+# avc:  denied  { getattr } for  pid=2947 comm="lhd" path="/data/system/gps/LheConsole.fromAsic" dev="mmcblk0p21" ino=654092 scontext=u:r:lhd:s0 tcontext=u:object_r:system_data_file:s0 tclass=fifo_file
+# avc:  denied  { name_bind } for  pid=2947 comm="lhd" src=6477 scontext=u:r:lhd:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket
+# avc:  denied  { node_bind } for  pid=2947 comm="lhd" src=6477 scontext=u:r:lhd:s0 tcontext=u:object_r:node:s0 tclass=tcp_socket
+# avc:  denied  { name_connect } for  pid=2934 comm="lhd" dest=6477 scontext=u:r:lhd:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket permissive=1
+# avc:  denied  { connectto } for  pid=2934 comm="lhd" path="/dev/socket/fwmarkd" scontext=u:r:lhd:s0 tcontext=u:r:netd:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { write } for  pid=2934 comm="lhd" name="fwmarkd" dev="tmpfs" ino=5539 scontext=u:r:lhd:s0 tcontext=u:object_r:fwmarkd_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { search } for  pid=3221 comm="lhd" name="/" dev="sda3" ino=2 scontext=u:r:lhd:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0 SEPF_SM-G930F_6.0_0002
+# date=2015/12/31;scontext=lhd;tcontext=lhd:tclass=capability2 permission=block_suspend;mls="MATCH";category="/";model="SM-G930F";os="6.0";build="OL6";comm="lhd";exe="/system/bin/lhd";path="-";dev="-";name="-";proctitle="-";syscall="64";ioctlcmd(hex)="0";uid="0";permissive="0";
+
+

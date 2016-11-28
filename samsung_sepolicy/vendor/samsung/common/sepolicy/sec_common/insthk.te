@@ -1,0 +1,42 @@
+#
+# insthk
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type insthk, domain;
+type insthk_exec, exec_type, file_type;
+# for B2C users
+typeattribute insthk trusteddomain;
+typeattribute insthk system_domain;
+
+init_daemon_domain(insthk)
+
+########## self and domain_type
+allow insthk self:capability { dac_override chown ipc_lock };
+
+########## fs_type
+allow insthk firmware:file r_file_perms;
+
+########## dev_type
+allow insthk qseecom_device:chr_file rw_file_perms;
+
+########## file_type
+allow insthk drm_efs_file:dir create_dir_perms;
+allow insthk drm_efs_file:{ file lnk_file } create_file_perms;
+allow insthk efs_file:file create_file_perms;
+allow insthk efs_file:dir rw_dir_perms;
+
+########## etc_type
+########## known issue.
+
+########## androd-m-preview: denials ########
+allow insthk cpk_efs_file:dir r_dir_perms;
+
+
+############ avc_log #############
+# avc:  denied  { ipc_lock } for  pid=4989 comm="insthk" capability=14  scontext=u:r:insthk:s0 tcontext=u:r:insthk:s0 tclass=capability permissive=0 SEPF_SM-J700F_5.0.2_0011
+# avc:  denied  { setattr } for  pid=599 comm="insthk" name="NvTOyDhVaUWb76JSt7-iae2S5ZY_" dev="mmcblk0p13" ino=32 scontext=u:r:insthk:s0 tcontext=u:object_r:efs_file:s0 tclass=file permissive=0
+# item=0 name="/efs/sfs/NvTOyDhVaUWb76JSt7-iae2S5ZY_" inode=32 dev=b3:0d mode=0100700 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:efs_file:s0 nametype=NORMAL
+
+

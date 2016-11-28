@@ -1,0 +1,15 @@
+#
+# good_app
+#
+
+type good_app, domain;
+type good_app_data_file, file_type;
+typeof gad_untrusted_app, untrusted_app;
+typealias app_data_file alias gad_untrusted_app_data_file;
+
+#neverallow Google CTS-android-5.0.2_r1 : temporary add into appdomain
+app_domain(good_app)
+net_domain(good_app)
+bluetooth_domain(good_app)
+
+

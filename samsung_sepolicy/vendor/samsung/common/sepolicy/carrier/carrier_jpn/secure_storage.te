@@ -1,0 +1,1 @@
+allow secure_storage firmware:dir r_dir_perms;

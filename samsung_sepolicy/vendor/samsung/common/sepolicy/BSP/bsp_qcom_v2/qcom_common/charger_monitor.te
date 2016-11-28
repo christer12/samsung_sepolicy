@@ -1,0 +1,6 @@
+
+# for B2C users
+typeattribute charger_monitor trusteddomain;
+typeattribute charger_monitor device_domain;
+
+

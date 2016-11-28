@@ -1,0 +1,7 @@
+# grant addtional permission to adbd
+#SEC removed : allow adbd mrvlgpu_device:chr_file create_file_perms;
+#SEC removed : allow adbd graphics_device:dir create_dir_perms;
+#SEC removed : allow adbd system_data_file:file create_file_perms;
+#SEC removed : allow adbd nvm_block_device:dir create_dir_perms;
+#SEC removed : allow adbd nvm_block_device:blk_file create_file_perms;
+

@@ -1,0 +1,114 @@
+# Oneseg apk/native type declaration
+
+############ aosp and sec_common #############
+########## type and macro.
+type oneseg_mw, domain, mlstrustedsubject;
+type oneseg_mw_exec, exec_type, file_type;
+
+#permissive oneseg_mw;
+
+init_daemon_domain(oneseg_mw)
+
+typeattribute oneseg_mw trusteddomain;
+typeattribute oneseg_mw device_domain;
+
+#binder add
+binder_call(oneseg_mw, mediaserver)
+binder_call(oneseg_mw, oneseg_apk)
+binder_call(oneseg_mw, oneseg_mw)
+binder_call(oneseg_mw, surfaceflinger)
+binder_call(oneseg_mw, system_app)
+binder_call(oneseg_mw, system_server)
+binder_service(oneseg_mw)
+binder_use(oneseg_mw)
+
+########## self and domain_type
+allow oneseg_mw init:unix_stream_socket { read write };
+allow oneseg_mw mpdecision:unix_stream_socket connectto;
+allow oneseg_mw oneseg_apk:dir r_file_perms;
+allow oneseg_mw platform_app:binder call;
+allow oneseg_mw rild:unix_stream_socket connectto;
+allow oneseg_mw self:capability { dac_override net_raw net_admin };
+allow oneseg_mw system_app:fd use;
+
+########## fs_type
+allow oneseg_mw sdcard_type:dir create_dir_perms;
+allow oneseg_mw sdcard_type:file create_file_perms;
+allow oneseg_mw sysfs:file w_file_perms;
+
+########## dev_type
+allow oneseg_mw audio_device:chr_file rw_file_perms;
+allow oneseg_mw audio_device:lnk_file r_file_perms;
+allow oneseg_mw audio_device:dir r_dir_perms;
+allow oneseg_mw block_device:dir search;
+allow oneseg_mw device:sock_file write;
+# Add write permission. check the detail - http://mobilerndhub.sec.samsung.net/hub/site/seandroid/board/Request/view/14413886/?page=1
+allow oneseg_mw dvb_device:chr_file rw_file_perms;
+allow oneseg_mw emmcblk_device:blk_file rw_file_perms;
+allow oneseg_mw emmcblk_device:dir search;
+allow oneseg_mw kgsl_device:chr_file rw_file_perms;
+allow oneseg_mw mmb_device:sock_file create_file_perms;
+allow oneseg_mw mmb_device:chr_file rw_file_perms;
+allow oneseg_mw m2m1shot_device:chr_file rw_file_perms;
+allow oneseg_mw qseecom_device:chr_file rw_file_perms;
+allow oneseg_mw random_device:chr_file r_file_perms;
+allow oneseg_mw socket_device:sock_file w_file_perms;
+allow oneseg_mw video_device:dir r_dir_perms;
+allow oneseg_mw video_device:lnk_file r_file_perms;
+allow oneseg_mw video_device:chr_file rw_file_perms;
+
+########## file_type
+allow oneseg_mw dumplog_data_file:dir create_dir_perms;
+allow oneseg_mw dumplog_data_file:file create_file_perms;
+allow oneseg_mw efs_file:dir search;
+allow oneseg_mw imei_efs_file:dir r_dir_perms;
+allow oneseg_mw imei_efs_file:file r_file_perms;
+allow oneseg_mw media_rw_data_file:dir create_dir_perms;
+allow oneseg_mw media_rw_data_file:file create_file_perms;
+allow oneseg_mw media_rw_data_file:file { getattr link unlink rename };
+allow oneseg_mw oneseg_data_file:dir create_dir_perms;
+allow oneseg_mw oneseg_data_file:file create_file_perms;
+allow oneseg_mw oneseg_data_file:lnk_file create_file_perms;
+allow oneseg_mw oneseg_mw_exec:file rx_file_perms;
+allow oneseg_mw radio_data_file:file r_file_perms;
+allow oneseg_mw radio_data_file:dir search;
+allow oneseg_mw shell_exec:file rx_file_perms;
+allow oneseg_mw system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow oneseg_mw system_data_file:file create_file_perms;
+allow oneseg_mw system_data_file:file r_file_perms;
+
+allow oneseg_mw system_data_file:sock_file create_file_perms;
+allow oneseg_mw system_file:file x_file_perms;
+
+########## etc_type
+allow oneseg_mw activity_service:service_manager find;
+allow oneseg_mw self:udp_socket { create setopt bind write read shutdown name_bind node_bind };
+allow oneseg_mw port:udp_socket { name_bind };
+allow oneseg_mw node:udp_socket { node_bind };
+allow oneseg_mw port:tcp_socket name_connect;
+allow oneseg_mw self:tcp_socket { write read create setopt connect };
+allow oneseg_mw oneseg_mw_service:service_manager { add find };
+
+########## known issue.
+# FOR CTS TESTING
+allow oneseg_mw app_data_file:file w_file_perms;
+allow oneseg_mw platform_app_data_file:file w_file_perms;
+
+allow oneseg_mw untrusteddomain:fd use;
+
+# M version Mobile TV porting
+allow oneseg_mw mediaserver_service:service_manager find;
+allow oneseg_mw surfaceflinger_service:service_manager find;
+allow oneseg_mw system_file:file execmod;
+
+# setprop extpath for oneseg.extSdCard.path
+set_prop(oneseg_mw, oneseg_prop)
+
+
+# avc:  denied  { add } for service=broadcast.ATSCMHProcessObserver scontext=u:r:oneseg_mw:s0 tcontext=u:object_r:system_app_service:s0 tclass=service_manage
+# avc:  denied  { write } for  pid=13883 comm="h264OutProc" name="m2m1shot_scaler0" dev="tmpfs" ino=11581 scontext=u:r:oneseg_mw:s0 tcontext=u:object_r:m2m1shot_device:s0 tclass=chr_file permissive=1 SEPF_SC-05G_6.0_0002r
+# avc:  denied  { write } for  pid=11973 comm="SDtvStackCtrlr" name="qseecom" dev="tmpfs" ino=15552 scontext=u:r:oneseg_mw:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { find } for service=activity scontext=u:r:oneseg_mw:s0 tcontext=u:object_r:activity_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=broadcast.ATSCMHProcessObserver scontext=u:r:oneseg_mw:s0 tcontext=u:object_r:oneseg_mw_service:s0 tclass=service_manager
+

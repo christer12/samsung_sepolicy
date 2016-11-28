@@ -1,0 +1,55 @@
+#felica start
+# JPN Felica Temporary Workaround
+/dev/ttyHSL2				u:object_r:nfcfelica_device:s0
+#/dev/ttyHSL1				u:object_r:nfcfelica_device:s0
+/dev/snfc_uart				u:object_r:nfc_device:s0
+/dev/snfc_pon				u:object_r:nfc_device:s0
+/dev/snfc_hsel				u:object_r:nfc_device:s0
+/dev/snfc_intu_poll			u:object_r:nfc_device:s0
+/dev/snfc_available_poll	u:object_r:nfc_device:s0
+/dev/snfc_rfs				u:object_r:nfc_device:s0
+/dev/snfc_rfs_poll			u:object_r:nfc_device:s0
+/dev/uartcc					u:object_r:nfc_device:s0
+/dev/felica_cen				u:object_r:nfcfelica_device:s0
+/dev/snfc_cen				u:object_r:nfcfelica_device:s0
+
+/dev/felica					u:object_r:felica_device:s0
+/dev/felica_pon				u:object_r:felica_device:s0
+/dev/felica_rfs				u:object_r:felica_device:s0
+/dev/felica_rws				u:object_r:felica_device:s0
+/dev/felica_ant				u:object_r:felica_device:s0
+/dev/felica_int_poll		u:object_r:felicashell_device:s0
+/dev/felica_uid				u:object_r:felica_device:s0
+/dev/felica_uicc			u:object_r:felica_device:s0
+#felica end
+
+#felica start
+/system/bin/fsslcmnd		u:object_r:fsslcmnd_exec:s0
+/system/bin/mfdp			u:object_r:mfdp_exec:s0
+/system/bin/mfsc			u:object_r:mfsc_exec:s0
+#felica end
+
+#secprov_nexti
+/system/bin/secprov_nexti		u:object_r:secprov_nexti_exec:s0
+/data/dxprdy(/.*)?                      u:object_r:drm_playready_file:s0
+
+#TMM
+/system/bin/MmbCaCasDrmMw	u:object_r:mmb_mw_exec:s0
+/system/bin/MmbFcCtlMw	u:object_r:mmb_mw_exec:s0
+/system/bin/MmbStCtlMwService	u:object_r:mmb_mw_exec:s0
+/system/bin/MmbFcMp4MwServer	u:object_r:mmb_mw_exec:s0
+/system/bin/MmbFcLiceMwServer	u:object_r:mmb_mw_exec:s0
+/system/bin/MmbStRecCmMwService	u:object_r:mmb_mw_exec:s0
+
+/data/mmb(/.*)?		u:object_r:mmb_data_file:s0
+
+# for fullseg
+/system/bin/dtvserver	u:object_r:dtvserver_exec:s0
+
+# for oneseg and mmcblk0p16
+/system/bin/nexprocess            u:object_r:oneseg_mw_exec:s0
+/system/bin/broadcastProcessObserver            u:object_r:oneseg_mw_exec:s0
+/system/bin/BMLEngineServer            u:object_r:oneseg_mw_exec:s0
+/system/bin/OneSegDsmcc            u:object_r:oneseg_mw_exec:s0
+/system/bin/OneSegTsDemux            u:object_r:oneseg_mw_exec:s0
+/system/bin/SDtvService            u:object_r:oneseg_mw_exec:s0

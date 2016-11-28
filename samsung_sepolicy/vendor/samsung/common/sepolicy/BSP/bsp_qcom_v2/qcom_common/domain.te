@@ -1,0 +1,24 @@
+
+#
+#SEC added, /dev/qseecom contexts changed from tee_device to qseecom_device because of neverallow Rule CTS-android-5.0.2_r1
+#
+#bsp_qcom_v1/mediaserver.te
+allow mediaserver qseecom_device:chr_file rw_file_perms;
+
+#bsp_qcom_v1/qseecomd.te
+allow tee qseecom_device:chr_file rw_file_perms;
+
+#bsp_qcom_v1/drmserver.te
+allow drmserver qseecom_device:chr_file rw_file_perms;
+
+#bsp_qcom_v1/vold.te
+allow vold qseecom_device:chr_file rw_file_perms;
+
+#bsp_qcom_v1/keystore.te
+allow keystore qseecom_device:chr_file rw_file_perms;
+
+#bsp_qcom_v1/mcStarter.te
+#MSM8996 patch ES2: allow mcStarter qseecom_device:chr_file rw_file_perms;
+
+#bsp_qcom_v1/wfd_app.te:
+allow wfd_app qseecom_device:chr_file rw_file_perms;

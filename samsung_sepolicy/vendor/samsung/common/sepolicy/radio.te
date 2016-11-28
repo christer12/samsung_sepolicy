@@ -1,0 +1,197 @@
+#
+# radio
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute radio mlstrustedsubject;
+# for B2C users
+typeattribute radio trusteddomain;
+#typeattribute radio trusted_app_domain;
+# temporary permissive to gather the log.
+# permissive radio;
+
+binder_call(radio, apaservice)
+binder_call(radio, bintvoutservice)
+binder_call(radio, jackservice)
+binder_call(radio, sensorhubservice)
+binder_call(radio, servicemanager)
+binder_call(radio, healthd)
+mobicore_use(radio)
+dumplog_create(radio)
+
+########## self and domain_type
+allow radio init:unix_stream_socket { read write setopt };
+#allow radio init:binder { transfer call };
+#violate neverallow rule. change to:
+#neverallow Google CTS :allow radio init:binder transfer;
+
+#allow radio self:capability net_raw;
+#violate neverallow rule.
+
+allow radio self:rawip_socket { create read };
+allow radio system:tcp_socket { read write };
+allow radio system:unix_stream_socket { setopt connectto };
+allow radio untrusteddomain:process sigchld;
+
+########## fs_type
+allow radio sdcard_type:dir create_dir_perms;
+allow radio sdcard_type:file create_file_perms;
+
+#allow radio sysfs:file w_file_perms;
+#violate neverallow rule. change to:
+allow radio sysfs:file { open append };
+allow radio sysfs_sec:file rw_file_perms;
+allow radio sysfs_sensor_writable:file rw_file_perms;
+allow radio sysfs_battery_supply:file rw_file_perms;
+allow radio sysfs_ss_writable:file rw_file_perms;
+allow radio tmpfs:file r_file_perms;
+
+########## dev_type
+allow radio device:sock_file write;
+allow radio devpts:chr_file { read write };
+allow radio graphics_device:chr_file rw_file_perms;
+allow radio log_device:chr_file r_file_perms;
+allow radio tz_socket:sock_file write;
+
+#allow radio socket_device:sock_file write;
+# violate neverallow rule.
+
+allow radio usb_device:chr_file rw_file_perms;
+
+########## file_type
+allow radio app_data_file:dir r_dir_perms;
+allow radio app_data_file:file rw_file_perms;
+allow radio app_efs_file:dir create_dir_perms;
+allow radio app_efs_file:file create_file_perms;
+#changeBySEA : allow radio app_library_file:dir r_dir_perms;
+allow radio bluetooth_efs_file:dir create_dir_perms;
+allow radio bluetooth_efs_file:file create_file_perms;
+allow radio system_app_data_file:file setattr;
+
+#allow radio drm_data_file:dir create_dir_perms;
+#violate neverallow rule. change to:
+allow radio drm_data_file:dir { reparent rmdir r_file_perms add_name remove_name getattr };
+
+#allow radio drm_data_file:file create_file_perms;
+#violate neverallow rule. change to:
+allow radio drm_data_file:file r_file_perms;
+
+#allow radio efs_file:dir create_dir_perms;
+#violate neverallow rule. change to:
+#changeBySEA : allow radio efs_file:dir { create reparent rmdir setattr open getattr search ioctl add_name remove_name link unlink rename } ;
+	
+#allow radio efs_file:file create_file_perms;
+#violate neverallow rule. change to:
+#changeBySEA : allow radio efs_file:file { create setattr getattr open ioctl lock link unlink rename };
+
+allow radio imei_efs_file:dir create_dir_perms;
+allow radio imei_efs_file:file create_file_perms;
+allow radio init_tmpfs:file read;
+allow radio insthk_exec:file x_file_perms;
+allow radio sec_efs_file:dir create_dir_perms;
+allow radio sec_efs_file:file create_file_perms;
+allow radio shell_data_file:dir r_dir_perms;
+allow radio shell_data_file:file r_file_perms;
+allow radio shell_exec:file rx_file_perms;
+
+#allow radio system_data_file:dir create_dir_perms;
+#violate neverallow rule. change to:
+allow radio system_data_file:dir r_dir_perms;
+#allow radio system_data_file:file create_file_perms;
+#violate neverallow rule. change to:
+
+allow radio system_data_file:file r_file_perms;
+allow radio system_file:file { execute_no_trans execmod };
+allow radio system_file:lnk_file getattr;
+allow radio wifi_efs_file:dir create_dir_perms;
+allow radio wifi_efs_file:file create_file_perms;
+
+########## etc_type
+#neverallow Google CTS-android-5.0.2_r1 : allow radio default_prop:property_service set;
+#allow radio ims_service:service_manager add;
+allow radio rild_prop:property_service set;
+allow radio system_prop:property_service set;
+allow radio telecom_service:service_manager add;
+allow radio rild_socket:sock_file w_file_perms;
+
+########## known issue.
+## com.android.phone send a signal to rild
+#allow radio rild:process signal;
+#violate neverallow rule
+
+# KNOX 2.0 CscUtil MUM issue
+allow radio container_app_data_file:dir search;
+allow radio container_app_data_backend:dir search;
+
+# com.samsung.ssd.wolfserver issue
+allow radio at_distributor:unix_stream_socket connectto;
+
+# trigger bugreport, may need domain transition for it
+allow radio dumpstate_socket:sock_file write;
+
+# efs relabeling for Contents Protection Key
+allow radio cpk_efs_file:dir create_dir_perms;
+allow radio cpk_efs_file:file create_file_perms;
+
+
+############ qcom_common #############
+########## type and macro.
+binder_use(radio)
+binder_call(radio, zygote)
+
+########## self and domain_type
+#allow radio init_shell:unix_stream_socket connectto;
+
+########## fs_type
+########## dev_type
+allow radio genlock_device:chr_file rw_file_perms;
+allow radio kgsl_device:chr_file { rw_file_perms execute };
+
+allow radio smd_device:chr_file rw_file_perms;
+
+########## file_type
+allow radio carrier_file:file r_file_perms;
+allow radio platform_app_data_file:file w_file_perms;
+allow radio qmux_radio_socket:sock_file create_file_perms;
+
+########## etc_type
+#neverallow Google CTS-android-5.0.2_r1 : allow radio default_prop:property_service set;
+allow radio radio_prop:property_service set;
+
+########## known issue.
+## com.android.phone send a signal to qmuxd
+#neverallow Google CTS-android-5.0.2_r1 :allow radio qmuxd:process signal;
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow radio system:tcp_socket { read write };
+
+########## fs_type
+########## dev_type
+allow radio mif_device:chr_file rwx_file_perms;
+allow radio ump_device:chr_file rw_file_perms;
+
+########## file_type
+allow radio app_efs_file:file r_file_perms;
+allow radio system_app:fifo_file w_file_perms;
+
+########## androd-m-preview: denials ########
+allow radio efs_file:dir search;
+allow radio log_device:chr_file w_file_perms;
+allow radio service_manager_type:service_manager find;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { signal } for  pid=7088 comm="kill" scontext=u:r:radio:s0 tcontext=u:r:rild:s0 tclass=process SEPF_SM-N910V_4.4.4_0018
+# avc:  denied  { write } for  pid=13328 comm="bugreport" name="dumpstate" dev="tmpfs" ino=77266 scontext=u:r:radio:s0 tcontext=u:object_r:dumpstate_socket:s0 tclass=sock_file
+# avc:  denied  { signal } for  pid=7095 comm="kill" scontext=u:r:radio:s0 tcontext=u:r:qmuxd:s0 tclass=process SEPF_SM-N910V_4.4.4_0018
+# avc:  denied  { write } for  pid=11735 comm="Thread-123" name="data_call" dev="sysfs" ino=23136 scontext=u:r:radio:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file
+# item=0 name="/sys/class/power_supply/battery/" inode=23029 dev=00:0e mode=040755 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs:s0
+# avc:  denied  { setattr } for  pid=13441 comm="Thread-264" name="com.sec.android.inputmethod_preferences.xml" dev="sda17" ino=591935 scontext=u:r:radio:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file permissive=0
+# avc:  denied  { search } for  pid=8812 comm="m.android.phone" name="/" dev="sda3" ino=2 scontext=u:r:radio:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+

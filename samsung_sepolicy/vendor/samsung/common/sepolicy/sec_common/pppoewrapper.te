@@ -1,0 +1,99 @@
+#
+# pppoewrapper
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type pppoewrapper, domain;
+type pppoewrapper_exec, exec_type, file_type;
+
+# for B2C users
+typeattribute pppoewrapper trusteddomain;
+#typeattribute pppoewrapper system_domain;
+# temporary permissive to gather the log.
+#permissive pppoewrapper;
+
+init_daemon_domain(pppoewrapper)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+# ppp_system_file
+allow pppoewrapper ppp_system_file:dir r_dir_perms;
+allow pppoewrapper ppp_system_file:file rx_file_perms;
+
+# # set_property
+allow pppoewrapper init:unix_stream_socket connectto;
+allow pppoewrapper property_socket:sock_file write;
+
+# VPN
+allow pppoewrapper dnsproxyd_socket:sock_file write;
+allow pppoewrapper netd:unix_stream_socket connectto;
+
+#from NSA
+allow pppoewrapper self:udp_socket { create ioctl };
+
+# PPPoE connection for CHINA CTC
+allow pppoewrapper ashmem_device:chr_file execute;
+allow pppoewrapper csc_prop:property_service set;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow pppoewrapper dalvikcache_data_file:file setattr;
+
+allow pppoewrapper devpts:chr_file { ioctl open setattr };
+allow pppoewrapper net_radio_prop:property_service set;
+allow pppoewrapper self:capability { setuid net_raw fsetid kill setgid fowner dac_override };
+allow pppoewrapper setupwizard_prop:property_service set;
+allow pppoewrapper system_prop:property_service set;
+
+# from aosp/pppd
+net_domain(pppoewrapper)
+
+allow pppoewrapper mtp:socket rw_socket_perms;
+allow pppoewrapper mtp:unix_dgram_socket rw_socket_perms;
+allow pppoewrapper ppp_device:chr_file rw_file_perms;
+allow pppoewrapper self:capability net_admin;
+allow pppoewrapper system_file:file rx_file_perms;
+allow pppoewrapper vpn_data_file:dir w_dir_perms;
+allow pppoewrapper vpn_data_file:file create_file_perms;
+allow pppoewrapper mtp:fd use;
+
+# For running am and similar framework commands.
+# Run /system/bin/app_process.
+allow pppoewrapper zygote_exec:file rx_file_perms;
+# Dalvik Compiler JIT.
+allow pppoewrapper ashmem_device:chr_file execute;
+#neverallow Google CTS-android-5.0.2_r1 : allow pppoewrapper pppoewrapper_tmpfs:file execute;
+allow pppoewrapper self:process execmem;
+# For art.
+#neverallow Google CTS-android-5.0.2_r1 : allow pppoewrapper dalvikcache_data_file:file execute;
+
+############ avc_log #############
+## from pppd and CHN pppd log
+#avc:  denied  { write } for  pid=12482 comm="pppd" name="property_service" dev="tmpfs" ino=9551 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+#avc:  denied  { connectto } for  pid=12482 comm="pppd" path="/dev/socket/property_service" scontext=u:r:pppoewrapper:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+#avc:  denied  { getattr } for  pid=12482 comm="pppd" path="/system/etc/ppp/ip-up-vpn" dev="mmcblk0p24" ino=943 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:ppp_system_file:s0 tclass=file
+#avc:  denied  { execute } for  pid=12570 comm="pppd" name="ip-up-vpn" dev="mmcblk0p24" ino=943 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:ppp_system_file:s0 tclass=file
+#avc:  denied  { read open } for  pid=12570 comm="pppd" path="/system/etc/ppp/ip-up-vpn" dev="mmcblk0p24" ino=943 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:ppp_system_file:s0 tclass=file
+#avc:  denied  { execute_no_trans } for  pid=12570 comm="pppd" path="/system/etc/ppp/ip-up-vpn" dev="mmcblk0p24" ino=943 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:ppp_system_file:s0 tclass=file
+#avc:  denied  { dac_override } for  pid=11109 comm="pppd" capability=1  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { net_raw } for  pid=11109 comm="pppd" capability=13  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { setattr } for  pid=11109 comm="pppd" name="0" dev="devpts" ino=3 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file
+#avc:  denied  { open } for  pid=11109 comm="pppd" path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file
+#avc:  denied  { ioctl } for  pid=11109 comm="pppd" path="/dev/pts/0" dev="devpts" ino=3 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file
+#avc:  denied  { setgid } for  pid=11114 comm="pppd" capability=6  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { setuid } for  pid=11114 comm="pppd" capability=7  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { set } for property=net.ppp3.dns1 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:net_radio_prop:s0 tclass=property_service
+#avc:  denied  { fowner } for  pid=11182 comm="app_process" capability=3  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { fsetid } for  pid=11182 comm="app_process" capability=4  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { execute } for  pid=11261 comm="Compiler" path="/dev/ashmem" dev="tmpfs" ino=9491 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:ashmem_device:s0 tclass=chr_file
+#avc:  denied  { kill } for  pid=11109 comm="pppd" capability=5  scontext=u:r:pppoewrapper:s0 tcontext=u:r:pppoewrapper:s0 tclass=capability
+#avc:  denied  { setattr } for  pid=15197 comm="app_process" name="system@framework@am.jar@classes.dex" dev="mmcblk0p27" ino=131140 scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file
+#avc:  denied  { set } for property=csc.country_code scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+#avc:  denied  { set } for property=setupwizard.mode scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:setupwizard_prop:s0 tclass=property_service
+#avc:  denied  { set } for property=net.cw.ppp.interface scontext=u:r:pppoewrapper:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+
+

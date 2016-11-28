@@ -1,0 +1,2 @@
+
+allow surfaceflinger dmb:binder transfer;

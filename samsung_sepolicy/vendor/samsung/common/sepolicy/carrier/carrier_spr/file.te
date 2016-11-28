@@ -1,0 +1,8 @@
+type cfiat_socket, file_type, socket_file_type;
+type kipc_socket, file_type, socket_file_type;
+type itson_socket, file_type, socket_file_type;
+
+# mlsselectedobject for dom relation
+typeattribute cfiat_socket              mlsselectedobject;
+typeattribute kipc_socket               mlsselectedobject;
+typeattribute itson_socket              mlsselectedobject;

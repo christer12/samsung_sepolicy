@@ -1,0 +1,140 @@
+#
+# installd
+#
+# permissive installd;
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute installd trusteddomain;
+typeattribute installd system_domain;
+
+#unix_socket_connect(installd, property, init)
+set_prop(installd, sdcard_prop)
+
+########## self and domain_type
+allow installd kernel:system module_request;
+allow installd self:capability sys_admin;
+
+########## fs_type
+allow installd sdcard_external:dir create_dir_perms;
+allow installd sdcard_external:file create_file_perms;
+
+########## dev_type
+
+########## file_type
+allow installd apk_data_file:lnk_file create;
+allow installd app_data_file:dir relabelto;
+allow installd app_data_file:file write;
+# typealias system_data_file / P160412-00320 / only FOTA problem to M OS: Neverallow permission after FOTA
+# allow installd app_library_file:dir { r_dir_perms link unlink rename };
+allow installd app_library_file:dir { r_dir_perms unlink };
+#neverallow Google CTS-android-5.0.2_r1 : allow installd app_library_file:file { rx_file_perms link unlink rename };
+# typealias system_data_file / P160412-00320 / only FOTA problem to M OS: Neverallow permission after FOTA
+# allow installd app_library_file:file { r_file_perms link unlink rename };
+allow installd app_library_file:file { r_file_perms unlink };
+allow installd dalvikcache_data_file:dir relabelfrom;
+allow installd dalvikcache_profiles_data_file:dir relabelto;
+allow installd media_rw_data_file:dir create_dir_perms;
+allow installd media_rw_data_file:file create_file_perms;
+allow installd obb_apk_file:dir { create_dir_perms relabelto };
+allow installd obb_apk_file:file create_file_perms;
+allow installd platform_app_data_file:dir create_dir_perms;
+allow installd platform_app_data_file:file create_file_perms;
+allow installd store_app_data_file:dir { create_dir_perms relabelto };
+allow installd store_app_data_file:lnk_file create_file_perms;
+allow installd store_app_data_file:file create_file_perms;
+allow installd system_data_file:fifo_file r_file_perms;
+allow installd system_data_file:sock_file { r_file_perms link unlink rename };
+
+########## etc_type
+allow installd property_socket:sock_file w_file_perms;
+allow installd sdcard_prop:property_service set;
+
+########## known issue.
+# paid app problem.
+allow installd unlabeled:file r_file_perms;
+
+#from NSA
+#neverallow Google CTS-android-m-preview: neverallow installd system_data_file:file ~{ { getattr open read ioctl lock } relabelfrom unlink }
+#allow installd system_data_file:file create_file_perms;
+allow installd system_data_file:file { r_file_perms unlink };
+#neverallow by Google: 
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow installd { data_file_type -trstdomain_no_read_file }:dir r_dir_perms;
+allow installd { data_file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow installd { data_file_type -trstdomain_no_read_file }:{file lnk_file } r_file_perms;
+allow installd { data_file_type -trstdomain_no_read_file}:{file lnk_file } r_file_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow installd { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+allow installd { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow installd { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir { relabelfrom relabelto };
+allow installd { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir { relabelfrom relabelto };
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow installd { data_file_type -trstdomain_no_write_file }:{ file_class_set } { getattr unlink };
+allow installd { data_file_type -trstdomain_no_write_file -vold_data_file }:{ file_class_set } { getattr unlink };
+allow installd vold_data_file:{ chr_file blk_file } { getattr unlink };
+
+allow installd unlabeled:{ file_class_set } { getattr read open unlink };
+allow installd platform_app_data_file:lnk_file { create setattr };
+allow installd app_data_file:lnk_file { create setattr };
+
+#from AOSP
+allow installd { app_data_type system_data_file }:dir { create_dir_perms relabelfrom relabelto };
+allow installd { app_data_type system_data_file }:lnk_file { create setattr getattr unlink rename relabelfrom relabelto };
+#neverallow Google CTS-android-m-preview: neverallow installd system_data_file:file ~{ { getattr open read ioctl lock } relabelfrom unlink }
+#allow installd { app_data_type system_data_file }:{ file sock_file fifo_file } { getattr unlink rename relabelfrom relabelto setattr };
+allow installd app_data_type:{ file sock_file fifo_file } { getattr unlink rename relabelfrom relabelto setattr };
+allow installd system_data_file:{ sock_file fifo_file } { getattr unlink rename relabelfrom relabelto setattr };
+allow installd system_data_file:file { getattr unlink relabelfrom };
+
+# Create symlinks in /data/dalvik-cache
+allow installd dalvikcache_data_file:lnk_file create_file_perms;
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+allow installd container_app:fd use;
+allow installd appdomain:fd use;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow installd container_app_data_backend:dir { relabelto relabelfrom create_dir_perms };
+allow installd container_app_data_backend:file { relabelto relabelfrom create_file_perms};
+allow installd container_app_data_backend:lnk_file { relabelto relabelfrom create_file_perms};
+allow installd container_app_data_file:dir { relabelto create_dir_perms };
+allow installd container_app_data_file:file create_file_perms;
+allow installd container_app_data_file:lnk_file create_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow installd self:capability sys_admin;
+
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402398506.115:358): avc:  denied  { relabelto } for  pid=293 comm="installd" name="com.android.cts.monkey2" dev="mmcblk0p25" ino=915146 #scontext=u:r:installd:s0 tcontext=u:object_r:platform_app_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398892509.830:23): avc:  denied  { relabelto } for  pid=290 comm="installd" name="obb" dev="mmcblk0p25" ino=913925 scontext=u:r:installd:s0 #tcontext=u:object_r:obb_apk_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { relabelfrom } for  pid=360 comm="installd" name="lib" dev="ecryptfs" ino=1175531 scontext=u:r:installd:s0 tcontext=u:object_r:container_app_data_backend:s0 tclass=lnk_file SEPF_SAMSUNG-SM-N910A_4.4.4_A019
+# avc:  denied  { relabelto } for  pid=360 comm="installd" name="lib" dev="ecryptfs" ino=1176073 scontext=u:r:installd:s0 tcontext=u:object_r:policyloader_app_data_file:s0:c4 tclass=lnk_file SEPF_SAMSUNG-SM-N910A_4.4.4_A019
+# avc:  denied  { write } for  pid=277 comm="installd" path="/data/knox/data/101/EN.FXYzqDUDHDgsW-ZuPTue4-qBeT3Ii9T6ljrXdmKIBSgdWTw6drbwht6l7hA0AEIzQt6nEiuITUDljnY-/EN.FWYzqDUDHDgsW-ZuPTue4-qBeT3Ii9T6ljrXpdBjgxHQW3MzI5gA.Bwb----/EN.FYYzqDUDHDgsW-ZuPTue4-qBeT3Ii9T6ljrXIEewbsdglXutHMqjBf5mEK35g6jsgEGijgyB.WkgUefyEH9jjAB1dA9P3Fn7KrPW" dev="mmcblk0p27" ino=1802 scontext=u:r:installd:s0 tcontext=u:object_r:app_data_file:s0:c3 tclass=file permissive=0 SEPF_SM-G530T_5.1_0011
+# avc:  denied  { use } for  pid=3225 comm="installd" path="/data/knox/data/100/EN.FXZld4ijo1jB6Ebo35P7dEo2wRb5IRuPj072yTJH2ky.astXOeNRj0SjiXbpzMlCB3O6RTATyUTYOTQ-/EN.FWZld4ijo1jB6Ebo35P7dEo2wRb5IRuPj072ej5XLAp2uMDkZR44akdPVk--/EN.FXZld4ijo1jB6Ebo35P7dEo2wRb5IRuPj072fQiEvynynGk2KcMQq3E.KHvnnkC27t8Ce9l7H9lV9-c-" dev="sda21" ino=262313 scontext=u:r:installd:s0 tcontext=u:r:untrusted_app:s0:c612,c768 tclass=fd permissive=0 SEPF_SECMOBILE_6.0.1_0002
+
+
+

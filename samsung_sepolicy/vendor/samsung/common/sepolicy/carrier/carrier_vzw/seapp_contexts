@@ -1,0 +1,3 @@
+#support vzw llk
+user=_app seinfo=llk_untrusted name=com.customermobile.preload.main2 domain=llk_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=llk_untrusted name=com.customermobile.preload domain=llk_untrusted_app type=app_data_file levelFrom=user

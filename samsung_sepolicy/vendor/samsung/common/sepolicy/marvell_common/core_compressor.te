@@ -1,0 +1,12 @@
+
+allow core_compressor kernel:fifo_file r_file_perms;
+allow core_compressor dumplog_data_file:dir rw_dir_perms;
+allow core_compressor dumplog_data_file:file create_file_perms;
+
+############ avc_log #############
+# avc:  denied  { read } for  pid=3352 comm="core-compressor" path="pipe:[2736]" dev="pipefs" ino=2736 scontext=u:r:core_compressor:s0 tcontext=u:r:kernel:s0 tclass=fifo_file permissive=1
+# avc:  denied  { write } for  pid=3352 comm="core-compressor" name="coredump" dev="mmcblk0p18" ino=38 scontext=u:r:core_compressor:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=3352 comm="core-compressor" name="at_router-1428581065-pid3035.core.gz" scontext=u:r:core_compressor:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3352 comm="core-compressor" name="at_router-1428581065-pid3035.core.gz" scontext=u:r:core_compressor:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=3352 comm="core-compressor" path="/data/log/coredump/at_router-1428581065-pid3035.core.gz" dev="mmcblk0p18" ino=100 scontext=u:r:core_compressor:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { getattr } for  pid=3352 comm="core-compressor" path="pipe:[2736]" dev="pipefs" ino=2736 scontext=u:r:core_compressor:s0 tcontext=u:r:kernel:s0 tclass=fifo_file permissive=1

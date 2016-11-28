@@ -1,0 +1,54 @@
+# qmuxd
+#type qmuxd, domain;
+#type qmuxd_exec, exec_type, file_type;
+
+dumplog_create(qmuxd)
+#init_daemon_domain(qmuxd)
+
+# allow rules
+allow qmuxd cgroup:dir create_dir_perms;
+allow qmuxd qmux_audio_socket:dir w_dir_perms;
+allow qmuxd qmux_audio_socket:sock_file create_file_perms;
+allow qmuxd qmux_bluetooth_socket:dir w_dir_perms;
+allow qmuxd qmux_bluetooth_socket:sock_file create_file_perms;
+allow qmuxd qmux_gps_socket:dir w_dir_perms;
+allow qmuxd qmux_gps_socket:sock_file create_file_perms;
+allow qmuxd qmux_radio_socket:dir w_dir_perms;
+allow qmuxd qmux_radio_socket:sock_file create_file_perms;
+allow qmuxd init:unix_stream_socket connectto;
+allow qmuxd property_socket:sock_file write;
+allow qmuxd qmuxd_device:chr_file rw_file_perms;
+allow qmuxd radio_prop:property_service set;
+allow qmuxd rild_prop:property_service set;
+allow qmuxd self:capability { setuid dac_override setpcap };
+allow qmuxd self:capability2 block_suspend;
+allow qmuxd shell_exec:file rx_file_perms;
+allow qmuxd smd_cntl_device:chr_file rw_file_perms;
+allow qmuxd sysfs:file w_file_perms;
+allow qmuxd system_file:file x_file_perms;
+allow qmuxd tty_device:chr_file rw_file_perms;
+
+# Allow /sys/power/wake_lock from nsa 4.4 policy update
+allow qmuxd sysfs_wake_lock:file rw_file_perms;
+
+#audit(1388534485.419:15): avc:  denied  { setpcap } for  pid=566 comm="qmuxd" capability=8  scontext=u:r:qmuxd:s0 tcontext=u:r:qmuxd:s0 tclass=capability
+#audit(1388534485.419:15): arch=40000028 syscall=172 per=800000 success=yes exit=0 a0=18 a1=0 a2=0 a3=0 items=0 ppid=1 pid=566 auid=4294967295 uid=0 gid=1001 euid=0 suid=0 #fsuid=0 egid=1001 sgid=1001 fsgid=1001 ses=4294967295 tty=(none) comm="qmuxd" exe="/audit(1388534485.439:16): table=filter family=2 entries=4
+allow qmuxd self:capability setpcap;
+
+# for B2C users
+typeattribute qmuxd trusteddomain;
+typeattribute qmuxd device_domain;
+typeattribute qmuxd mlstrustedsubject;
+
+## from J GED
+allow qmuxd sysfs_hsic_modem_wait:file w_file_perms;
+
+
+# audit(46771.121:34): avc:  denied  { write } for  pid=194 comm="qmuxd" name="modem_wait" dev="sysfs" ino=21201 scontext=u:r:qmuxd:s0 tcontext=u:object_r:sysfs_hsic_modem_wait:s0 tclass=file
+# audit(46771.121:34): avc:  denied  { open } for  pid=194 comm="qmuxd" name="modem_wait" dev="sysfs" ino=21201 scontext=u:r:qmuxd:s0 tcontext=u:object_r:sysfs_hsic_modem_wait:s0 tclass=file
+# audit(46771.121:34): arch=40000028 syscall=322 per=800000 success=yes exit=6 a0=ffffff9c a1=b6f1b6df a2=20001 a3=0 items=1 ppid=1 pid=194 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=429496audit(46771.121:34):  cwd="/"
+# audit(46771.121:34): item=0 name="/sys/devices/virtual/hsicctl/hsicctl0/modem_wait" inode=21201 dev=00:0c mode=0100664 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:sysfs_hsic_modem_wait:s0
+
+############ qcmdm_common #############
+allow qmuxd hsic_device:chr_file rw_file_perms;
+

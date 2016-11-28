@@ -1,0 +1,49 @@
+#
+# WLDU (Wireless Debug UART)
+#
+# PCIe interface I/O is connected between Application Process(AP) and Broadcom Wireless chip.
+# Sometimes this I/O might be broken and there are no way to gather a ram dump to debug further from Broadcom Wireless chip.
+# With an addional UART I/O, it's possible to receive a ram dump from the chip.
+# WLDU app is executed only when Wireless device driver reports PCIe disconnection,
+# then this app starts gather a ram dump from the Wireless chip via UART I/O and drop a ram dump file.
+# Contact: sb876.min
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type wldu, domain;
+type wldu_exec, exec_type, file_type;
+
+# dhd_debug_uart_exec
+domain_auto_trans(kernel, wldu_exec, wldu)
+
+########## self and domain_type
+allow wldu self:capability dac_override;
+
+########## fs_type
+########## dev_type
+allow wldu uart_device:chr_file rw_file_perms;
+
+########## file_type
+allow wldu dumplog_data_file:dir create_dir_perms;
+allow wldu dumplog_data_file:file create_file_perms;
+
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=15620 comm="wldu" name="ttySAC3" dev="tmpfs" ino=4561 scontext=u:r:wldu:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=15620 comm="wldu" path="/dev/ttySAC3" dev="tmpfs" ino=4561 scontext=u:r:wldu:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=7 a0=ffffff9c a1=473428 a2=2 a3=0 items=0 ppid=15619 pid=15620 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="wldu" exe="/system/bin/wldu" subj=u:r:wldu:s0 key=(null)
+# proctitle=2F73797374656D2F62696E2F776C6475007264
+# avc:  denied  { ioctl } for  pid=15620 comm="wldu" path="/dev/ttySAC3" dev="tmpfs" ino=4561 ioctlcmd=540b scontext=u:r:wldu:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file permissive=1
+# arch=c00000b7 syscall=29 success=yes exit=0 a0=7 a1=540b a2=2 a3=7fd960c320 items=0 ppid=15619 pid=15620 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="wldu" exe="/system/bin/wldu" subj=u:r:wldu:s0 key=(null)
+# proctitle=2F73797374656D2F62696E2F776C6475007264
+# access to /data/log
+# avc:  denied  { dac_override } for  pid=7526 comm="wldu" capability=1  scontext=u:r:wldu:s0 tcontext=u:r:wldu:s0 tclass=capability permissive=1
+# avc:  denied  { write } for  pid=7526 comm="wldu" name="log" dev="dm-0" ino=458754 scontext=u:r:wldu:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=7526 comm="wldu" name="wl_pcie_link_down_rd_20160107-113444" scontext=u:r:wldu:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=7526 comm="wldu" name="wl_pcie_link_down_rd_20160107-113444" scontext=u:r:wldu:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { append open } for  pid=7526 comm="wldu" path="/data/log/wl_pcie_link_down_rd_20160107-113444" dev="dm-0" ino=459195 scontext=u:r:wldu:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+

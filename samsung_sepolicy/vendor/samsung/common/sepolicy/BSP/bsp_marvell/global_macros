@@ -1,0 +1,12 @@
+# Common socket permission sets.
+# send and receive permissions
+define(`sr_socket_perms', `{ recvfrom sendto recv_msg send_msg name_bind }')
+define(`unix_stream_socket_perms', `{ connectto newconn acceptfrom sr_socket_perms create_stream_socket_perms }')
+define(`unix_dgram_socket_perms', `{ sr_socket_perms create_stream_socket_perms }')
+define(`tcp_socket_perms', `{ connectto newconn acceptfrom node_bind name_connect sr_socket_perms create_stream_socket_perms }')
+define(`udp_socket_perms', `{ node_bind sr_socket_perms create_stream_socket_perms }')
+define(`netlink_kobject_uevent_socket_perms', `{ sr_socket_perms create_stream_socket_perms }')
+define(`key_socket_perms', `{ sr_socket_perms create_stream_socket_perms }')
+define(`rawip_socket_perms', `{ sr_socket_perms create_stream_socket_perms }')
+define(`netlink_route_socket_perms', `{ nlmsg_read nlmsg_write sr_socket_perms create_stream_socket_perms }')
+

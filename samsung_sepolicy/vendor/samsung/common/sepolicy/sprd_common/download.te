@@ -1,0 +1,31 @@
+#
+# download
+#
+############ aosp and sec_common #############
+type download, domain;
+type download_exec, exec_type, file_type;
+
+init_daemon_domain(download)
+unix_socket_connect(download, property, init)
+
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow download emmcblk_device:blk_file { read open };
+allow download power_ctl_device:chr_file rw_file_perms;
+########## file_type
+allow download serial_device:chr_file rw_file_perms;
+
+########## etc_type
+allow download bluetooth_prop:property_service set;
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=156 comm="download" name="ttyS0" dev="tmpfs" ino=2251 scontext=u:r:download:s0 tcontext=u:object_r:serial_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=1773 comm="download" name="mmcblk0p17" dev="tmpfs" ino=11270 scontext=u:r:download:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { open } for  pid=1773 comm="download" path="/dev/block/mmcblk0p17" dev="tmpfs" ino=11270 scontext=u:r:download:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { open } for  pid=1773 comm="download" path="/dev/power_ctl" dev="tmpfs" ino=2369 scontext=u:r:download:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { set } for property=marlin.hardware.version scontext=u:r:download:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# add the context for marlin.hardware.    u:object_r:bluetooth_prop:s0

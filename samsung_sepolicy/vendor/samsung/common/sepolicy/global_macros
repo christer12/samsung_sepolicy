@@ -1,0 +1,3 @@
+
+define(`r_link_perms', `{ getattr open ioctl lock }')
+

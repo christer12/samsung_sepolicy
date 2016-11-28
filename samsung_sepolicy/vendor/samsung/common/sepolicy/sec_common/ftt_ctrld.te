@@ -1,0 +1,28 @@
+#
+# ftt_ctrld
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type ftt_ctrld, domain;
+type ftt_ctrld_exec, exec_type, file_type;
+
+init_daemon_domain(ftt_ctrld)
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow ftt_ctrld devpts:chr_file { read write ioctl };
+########## file_type
+allow ftt_ctrld ftt_ctrl_device:chr_file rw_file_perms;
+allow ftt_ctrld sysfs_battery_supply:file r_file_perms;
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { ioctl } for  pid=9363 comm="ftt_ctrld" path="/dev/pts/0" dev="devpts" ino=3 ioctlcmd=5401 scontext=u:r:undefined_service:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=9363 comm="ftt_ctrld" path="/dev/ftt_ctrl" dev="tmpfs" ino=15498 scontext=u:r:undefined_service:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=9363 comm="ftt_ctrld" name="ftt_ctrl" dev="tmpfs" ino=15498 scontext=u:r:undefined_service:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=9014 comm="ftt_ctrld" path="/dev/pts/1" dev="devpts" ino=4 scontext=u:r:ftt_ctrld:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=9016 comm="ftt_ctrld" path="/sys/devices/battery/power_supply/battery/type" dev="sysfs" ino=33013 scontext=u:r:ftt_ctrld:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=9016 comm="ftt_ctrld" name="type" dev="sysfs" ino=33013 scontext=u:r:ftt_ctrld:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=1

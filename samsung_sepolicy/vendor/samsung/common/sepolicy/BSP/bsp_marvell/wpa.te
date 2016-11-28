@@ -1,0 +1,6 @@
+# grant additional permission for wpa
+
+# /dev/rfkill
+#SEC removed: allow wpa wpa_device:chr_file create_file_perms;
+allow wpa wpa_device:chr_file rw_file_perms;
+

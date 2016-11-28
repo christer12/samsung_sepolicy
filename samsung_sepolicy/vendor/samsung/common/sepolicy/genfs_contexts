@@ -1,0 +1,30 @@
+
+############ aosp and sec_common #############
+genfscon anon_inodefs / u:object_r:anon_inodefs:s0
+genfscon configfs / u:object_r:configfs:s0
+
+genfscon vfat /firmware/ u:object_r:firmware:s0
+
+genfscon sdcardfs /	u:object_r:sdcard_internal:s0
+genfscon iso9660 /	u:object_r:sdcard_external:s0
+genfscon udf /		u:object_r:sdcard_external:s0
+genfscon udfs /		u:object_r:sdcard_external:s0
+genfscon exfat /	u:object_r:sdcard_external:s0
+genfscon sdfat /	u:object_r:sdcard_external:s0
+genfscon ecryptfs /	u:object_r:sdcard_external:s0
+
+genfscon proc /bluetooth/sleep u:object_r:proc_bluetooth_writable:s0
+genfscon proc /spd u:object_r:proc_spd:s0
+
+
+############ knox_common #############
+genfscon proc /avc_msg u:object_r:proc_avc_msg:s0
+
+
+############ qcom_common #############
+
+
+############ slsi_common #############
+
+
+

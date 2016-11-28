@@ -1,0 +1,159 @@
+#
+# adbd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#neverallow by Google: binder_call(adbd, init)
+#changeBySEA need to check :  binder_call(adbd, system)
+#changeBySEA need to check :  dumplog_create(adbd)
+
+
+########## self and domain_type
+#changeBySEA need to check :  allow adbd init:process sigchld;
+#changeBySEA need to check :  allow adbd kernel:process setsched;
+#changeBySEA need to check :  allow adbd self:capability { net_raw fowner dac_override sys_boot sys_admin };
+#changeBySEA need to check :  allow adbd self:tcp_socket *;
+#changeBySEA need to check :  allow adbd self:unix_stream_socket *;
+
+# request from SE Team
+allow adbd system_server:binder call;
+
+########## fs_type
+allow adbd cgroup:dir { write add_name create };
+allow adbd functionfs:file { read write ioctl open };
+allow adbd rootfs:file r_file_perms;
+#changeBySEA need to check :  allow adbd sysrq_proc:file w_file_perms;
+#neverallow by Google: allow adbd tmpfs:file execute;
+
+########## dev_type
+allow adbd graphics_device:dir search;
+allow adbd graphics_device:chr_file r_file_perms;
+
+########## file_type
+allow adbd adb_keys_file:dir r_dir_perms;
+allow adbd app_data_file:file r_file_perms;
+
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#allow adbd app_data_file:lnk_file r_file_perms;
+
+allow adbd app_library_file:file r_file_perms;
+allow adbd at_distributor_exec:file getattr;
+allow adbd bintvoutservice_exec:file getattr;
+#changeBySEA need to check :  allow adbd cache_file:dir w_dir_perms;
+#changeBySEA need to check :  allow adbd cache_file:file create_file_perms;
+#changeBySEA need to check :  allow adbd carrier_file:file create_file_perms;
+#changeBySEA need to check :  allow adbd carrier_file:dir create_dir_perms;
+
+# requested from s_h.song(System S/W 1 group) for boot-chart 
+allow adbd dumplog_data_file:dir create_dir_perms;
+allow adbd dumplog_data_file:file create_file_perms;
+
+allow adbd media_rw_data_file:dir create_dir_perms;
+allow adbd media_rw_data_file:file create_file_perms;
+allow adbd platform_app_data_file:dir r_dir_perms;
+allow adbd platform_app_data_file:file r_file_perms;
+allow adbd radio_data_file:dir r_dir_perms;
+allow adbd radio_data_file:file r_file_perms;
+allow adbd runas_exec:file r_file_perms;
+#changeBySEA need to check : allow adbd shell_data_file:dir create_dir_perms;
+
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#allow adbd shell_data_file:lnk_file r_file_perms;
+
+allow adbd system_data_file:dir r_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow adbd system_data_file:file w_file_perms;
+#allow adbd system_data_file:file create_file_perms;
+#changeBySEA need to check : allow adbd system_data_file:file r_file_perms;
+#changeBySEA need to check : allow adbd system_data_file:dir create_dir_perms;
+allow adbd zygote_exec:file x_file_perms;
+
+
+########## etc_type
+allow adbd node:tcp_socket node_bind;
+allow adbd port:tcp_socket name_bind;
+allow adbd port:tcp_socket name_connect;
+
+########## known issue.
+#ddms
+#changeBySEA need to check : allow adbd self:capability2 syslog;
+
+# Remove adbd write permission to system_file; NSA version already has read permission for file.
+allow adbd system_file:lnk_file getattr;
+
+#property service
+#changeBySEA need to check : allow adbd system_prop:property_service set;
+
+# for secure_adb
+#changeBySEA need to check : allow adbd init:unix_stream_socket { accept listen read write };
+
+# for CTS
+#changeBySEA dup with aosp gpu_device , not use this type : allow adbd powervr_device:chr_file rw_file_perms;
+allow adbd ump_device:chr_file rw_file_perms;
+
+# MobileCare Log
+#changeBySEA need to check : allow adbd obb_apk_file:dir create_dir_perms;
+#changeBySEA need to check : allow adbd obb_apk_file:file create_file_perms;
+
+# Reads /proc/pid entries to check that no unexpected root
+# processes are running.
+#changeBySEA allow adbd { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#changeBySEA allow adbd { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } r_file_perms;
+
+# Walk the file tree, stat any file.
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow adbd { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow adbd { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+
+#changeBySEA allow adbd { fs_type -proc -sysfs -selinuxfs -rootfs }:dir r_dir_perms;
+#changeBySEA allow adbd dev_type:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow adbd { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir_file_class_set getattr;
+#changeBySEA allow adbd { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file }:dir_file_class_set getattr;
+#changeBySEA allow adbd vold_data_file:{ chr_file blk_file } getattr;
+
+#changeBySEA allow adbd { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device  }:dir_file_class_set getattr;
+#changeBySEA allow adbd { fs_type -proc -sysfs -selinuxfs -rootfs }:dir_file_class_set getattr;
+#changeBySEA allow adbd dev_type:lnk_file read;
+
+# S Pen issue from MSC
+allow adbd input_device:chr_file { read write open };
+
+
+############ qcom_common #############
+########## type and macro.
+
+########## self and domain_type
+
+########## fs_type
+
+########## dev_type
+
+########## file_type
+#changeBySEA allow adbd ATFWD-daemon_exec:file getattr;
+
+
+########## etc_type
+
+
+
+###### edmnativehelper using when check the MDM API - P151219-00826
+allow adbd system_service:service_manager find;
+
+########## known issue.
+
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402361615.501:234): avc:  denied  { write open } for  pid=7367 comm="adbd" name="tmp2765018157626002689.txt" dev="mmcblk0p25" ino=522447 #scontext=u:r:adbd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402361615.541:235): avc:  denied  { setattr } for  pid=7367 comm="adbd" name="tmp2765018157626002689.txt" dev="mmcblk0p25" ino=522447 #scontext=u:r:adbd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402361615.811:236): avc:  denied  { read } for  pid=7383 comm="adbd" name="tmp_testPushPull.txt" dev="mmcblk0p25" ino=522448 scontext=u:r:adbd:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402361617.421:238): avc:  denied  { remove_name } for  pid=7455 comm="adbd" name="tmp4473150672272320086.txt" dev="mmcblk0p25" ino=522449 #scontext=u:r:adbd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402361617.421:238): avc:  denied  { unlink } for  pid=7455 comm="adbd" name="tmp4473150672272320086.txt" dev="mmcblk0p25" ino=522449 #scontext=u:r:adbd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402361618.621:241): avc:  denied  { create } for  pid=7503 comm="adbd" name="testDir" scontext=u:r:adbd:s0 tcontext=u:object_r:media_rw_data_file:s0 #tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { find } for service=edmnativehelper scontext=u:r:adbd:s0 tcontext=u:object_r:system_service:s0 tclass=service_manager
+# avc:  denied  { call } for  pid=25994 comm="screencap" scontext=u:r:adbd:s0 tcontext=u:r:system_server:s0 tclass=binder permissive=1
+

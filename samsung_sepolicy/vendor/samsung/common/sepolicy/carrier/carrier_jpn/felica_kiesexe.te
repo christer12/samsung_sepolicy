@@ -1,0 +1,2 @@
+# For Felica Factory Tool
+allow kiesexe kies_prop:property_service { set };

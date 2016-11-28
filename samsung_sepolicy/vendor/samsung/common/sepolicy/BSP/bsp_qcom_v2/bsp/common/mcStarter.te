@@ -1,0 +1,13 @@
+# mobicore daemon
+##SEC removed: type mcStarter, domain;
+typealias mobicoredaemon alias mcStarter;
+type mcStarter_exec, exec_type, file_type;
+##SEC removed:init_daemon_domain(mcStarter)
+domain_auto_trans(init, mcStarter_exec, mcStarter)
+
+# Allow Mobicore to use qseecom services for loading the app
+allow mcStarter tee_device:chr_file rw_file_perms;
+
+# Allow Mobicore to access the firmware files
+r_dir_file(mcStarter, firmware_file)
+allow mcStarter firmware_file:file r_file_perms;

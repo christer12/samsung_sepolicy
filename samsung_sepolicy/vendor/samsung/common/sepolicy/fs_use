@@ -1,0 +1,8 @@
+
+############ aosp and sec_common #############
+# Label for SCFS
+fs_use_xattr scfs u:object_r:labeledfs:s0;
+
+
+############ knox_common #############
+

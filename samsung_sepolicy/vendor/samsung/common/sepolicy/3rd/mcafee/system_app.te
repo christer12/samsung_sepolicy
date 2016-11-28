@@ -1,0 +1,12 @@
+#
+# Copyright 2015 McAfee, Inc. All rights reserved.
+#
+
+# scanner service specific policies
+allow system_app mcafee_data_file:dir r_dir_perms;
+allow system_app mcafee_mcs_file:dir r_dir_perms;
+allow system_app mcafee_mcs_file:file r_file_perms;
+allow system_app mcafee_mcsfs_xm_file:dir r_dir_perms;
+allow system_app mcafee_mcsfs_xm_file:file r_file_perms;
+
+unix_socket_connect(system_app, mfescand, mfescand)

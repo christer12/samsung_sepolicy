@@ -1,0 +1,46 @@
+#
+# tsdaemon
+#
+# Communicates with Device Unlock app, t-base trusted application, and CP, for TMUS Remote SIM Unlock (RSU) project
+# Provides following functions in RSU feature:
+#   - Handle actions initiated by user from Unlock app, com.tmobile.simlock (Permanent Unlock/ Temporary Unlock / Key registration / etc)
+#   - Communicate to t-base trusted application for unlock request generation and unlock response verification
+#   - Communicate to CP for unlock request generation and unlock setting applying
+# Client-server solution, but tsdaemon itself does not communicate with TMUS unlock server. (Unlock app, com.tmobile.simlock, communicates with the TMUS unlock server.)
+# Only com.tmobile.simlock apk needs to communicate with tsdaemon. No other apps.
+# Contact: s2.patil, jiaming.liu, a.verma. MNO Team 2
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type tsdaemon, domain;
+typeattribute tsdaemon mlstrustedsubject;
+type tsdaemon_exec, exec_type, file_type;
+
+init_daemon_domain(tsdaemon)
+mobicore_use(tsdaemon)
+unix_socket_connect(tsdaemon, rild, rild)
+
+#to collect denials
+#permissive tsdaemon;
+
+########## self and domain_type
+########## fs_type
+allow tsdaemon sysfs_wake_lock:file rw_file_perms;
+
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { connectto } for  pid=3129 comm="tsdaemon" path=006D636461656D6F6E scontext=u:r:tsdaemon:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { read write } for  pid=3129 comm="tsdaemon" name="mobicore-user" dev="tmpfs" ino=15595 scontext=u:r:tsdaemon:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=3129 comm="tsdaemon" path="/dev/mobicore-user" dev="tmpfs" ino=15595 scontext=u:r:tsdaemon:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=3129 comm="tsdaemon" path="/dev/mobicore-user" dev="tmpfs" ino=15595 scontext=u:r:tsdaemon:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { connectto } for  pid=3129 comm="tsdaemon" path=004D756C7469636C69656E74 scontext=u:r:tsdaemon:s0 tcontext=u:r:rild:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { connectto } for  pid=11083 comm="SimLockService]" path=tsd.socket scontext=u:r:untrusted_app:s0 tcontext=u:r:tsdaemon:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { read } for  pid=21171 comm="tsdaemon" name="wake_lock" dev="sysfs" ino=103 scontext=u:r:tsdaemon:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=21171 comm="tsdaemon" path="/sys/power/wake_lock" dev="sysfs" ino=103 scontext=u:r:tsdaemon:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file permissive=1
+

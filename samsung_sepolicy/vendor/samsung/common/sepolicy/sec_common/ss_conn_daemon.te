@@ -1,0 +1,49 @@
+#
+# ss_conn_daemon
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type ss_conn_daemon, domain, mlstrustedsubject;
+type ss_conn_daemon_exec, exec_type, file_type;
+typeattribute ss_conn_daemon trusteddomain;
+typeattribute ss_conn_daemon system_domain;
+
+init_daemon_domain(ss_conn_daemon)
+net_domain(ss_conn_daemon)
+
+########## self and domain_type
+allow ss_conn_daemon kernel:system module_request;
+
+########## fs_type
+########## dev_type
+allow ss_conn_daemon usb_device:chr_file create_file_perms;
+
+########## file_type
+allow ss_conn_daemon system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow ss_conn_daemon system_data_file:file create_file_perms;
+allow ss_conn_daemon system_data_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+#SideSync issue
+allow ss_conn_daemon node:tcp_socket node_bind;
+allow ss_conn_daemon node:udp_socket node_bind;
+allow ss_conn_daemon port:tcp_socket { name_bind name_connect };
+allow ss_conn_daemon port:udp_socket name_bind;
+
+#support SideSync socket
+#allow ss_conn_daemon socket_device:dir rw_dir_perms;
+allow ss_conn_daemon ss_conn_daemon_socket:sock_file create_file_perms;
+
+########## androd-m-preview: denials ########
+allow ss_kbservice_daemon log_device:chr_file w_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=379 comm="ss_conn_daemon" name="fwmarkd" dev="tmpfs" ino=7051 scontext=u:r:ss_conn_daemon:s0 tcontext=u:object_r:fwmarkd_socket:s0 tclass=sock_file SEPF_SM-G900F_5.0_0001
+# arch=40000028 syscall=283 per=800000 success=no exit=-13 a0=17 a1=b6da3fea a2=6e a3=b6e32be8 items=1 ppid=1 pid=379 auid=4294967295 uid=1000 gid=3003 euid=1000 suid=1000 fsuid=1000 egid=3003 sgid=3003 fsgid=3003 tty=(none) ses=4294967295 comm="ss_conn_daemon" exe="/system/bin/ss_conn_daemon" subj=u:r:ss_conn_daemon:s0 key=(null)
+#saddr=01002F6465762F736F636B65742F66776D61726B6400
+
+

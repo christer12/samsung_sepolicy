@@ -1,0 +1,11 @@
+#
+# z_aws.te
+#
+
+##### mfescand #####
+allow mfescand runas_exec:file r_file_perms;
+
+### Analysis AWS log from PROD Server(March-15) 
+# avc:  denied  { read } for  pid=26058 comm="mfescand" name="run-as" dev="sda18" ino=1461 scontext=u:r:mfescand:s0 tcontext=u:object_r:runas_exec:s0 tclass=file permissive=0 SEPF_SC-04G_5.0.2_0009
+
+

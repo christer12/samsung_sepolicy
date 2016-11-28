@@ -1,0 +1,75 @@
+# grant additonal permission for shell
+nouse_userdebug_or_eng(`
+allow shell device:dir { read open };
+allow shell mediaserver_device:chr_file getattr;
+allow shell serial_device:chr_file { read write getattr ioctl };
+allow shell nvm_data_file:dir getattr;
+allow shell teesst_data_file:dir getattr;
+allow shell graphics_device:dir search;
+allow shell rild_exec:file getattr;
+allow shell FMRadiod:binder call;
+allow shell adb_device:chr_file getattr;
+allow shell atcmdsrv_device:chr_file getattr;
+allow shell audio_device:chr_file getattr;
+allow shell audio_device:dir getattr;
+allow shell block_device:blk_file getattr;
+allow shell block_device:dir { read getattr open search };
+allow shell bluetooth_device:chr_file getattr;
+allow shell boot_block_device:blk_file getattr;
+allow shell device:chr_file getattr;
+allow shell diag_device:chr_file getattr;
+allow shell dm_device:chr_file getattr;
+allow shell eeh_device:chr_file getattr;
+allow shell fscklogs:dir getattr;
+allow shell full_device:chr_file getattr;
+allow shell fuse_device:chr_file getattr;
+allow shell graphics_device:dir getattr;
+allow shell i2c_device:chr_file getattr;
+allow shell iio_device:chr_file getattr;
+# It should be blocked. 
+# domain.te, line 240, 
+# # Ensure that nothing in userspace can access /dev/mem or /dev/kmem
+#   neverallow domain kmem_device:chr_file ~{ create relabelto unlink setattr };
+# allow shell kmem_device:chr_file getattr;
+allow shell kmsg_device:chr_file getattr;
+allow shell log_device:dir getattr;
+allow shell loop_device:blk_file getattr;
+allow shell marvelltel_device:chr_file getattr;
+allow shell mrd1_block_device:blk_file getattr;
+allow shell mrd_block_device:blk_file getattr;
+allow shell mtp_device:chr_file getattr;
+allow shell nfc_device:chr_file getattr;
+allow shell nvm_device:chr_file getattr;
+allow shell phservice:binder call;
+allow shell ppp_device:chr_file getattr;
+allow shell pppmodem_device:chr_file getattr;
+allow shell radio_block_device:blk_file getattr;
+allow shell system_app_device:chr_file getattr;
+allow shell teecsstdca_device:chr_file getattr;
+allow shell tun_device:chr_file getattr;
+allow shell uhid_device:chr_file getattr;
+allow shell uio_device:chr_file getattr;
+allow shell vcs_device:chr_file getattr;
+allow shell video_device:chr_file getattr;
+allow shell watchdog_device:chr_file getattr;
+allow shell wpa_device:chr_file getattr;
+allow shell bootloader_block_device:blk_file getattr;
+allow shell cache_block_device:blk_file getattr;
+allow shell cploader_block_device:blk_file getattr;
+allow shell cpuctl_device:chr_file getattr;
+allow shell dtim_block_device:blk_file getattr;
+allow shell gps_device:chr_file getattr;
+allow shell infor_device:chr_file getattr;
+allow shell ipc_device:chr_file getattr;
+allow shell memsic_device:chr_file getattr;
+allow shell mep2_block_device:blk_file getattr;
+allow shell misc_block_device:blk_file getattr;
+allow shell mrvlgpu_device:chr_file getattr;
+allow shell nvm_block_device:blk_file getattr;
+allow shell recovery_block_device:blk_file getattr;
+allow shell security_block_device:blk_file getattr;
+allow shell system_block_device:blk_file getattr;
+allow shell userdata_block_device:blk_file getattr;
+allow shell vpu_device:chr_file getattr;
+allow shell codecIPC_server:binder call;
+')

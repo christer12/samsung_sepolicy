@@ -1,0 +1,20 @@
+# for init
+#SEC removed: permissive init;
+allow init self:capability sys_module;
+allow init self:process execmem;
+allow init self:tcp_socket create_socket_perms;
+allow init self:packet_socket create_socket_perms;
+allow init hawk:file x_file_perms;
+allow init run_hawk_on_boot:file x_file_perms;
+allow init touch_updater:file x_file_perms;
+allow init recovery:process { siginh transition rlimitinh };
+allow init fuse:dir create_dir_perms;
+allow init fuse:file create_file_perms;
+
+#neverallow init { file_type fs_type }:file execute_no_trans
+#allow init hostapd_exec:file x_file_perms;
+allow init hostapd_exec:file { getattr execute };
+
+allow init self:packet_socket create_socket_perms;
+allow init kernel:system syslog_read;
+

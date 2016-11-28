@@ -1,0 +1,20 @@
+# grant additional permissions to radio 
+#SEC removed: allow radio rild_socket:sock_file create_file_perms;
+allow radio system_prop:property_service set;
+#SEC removed: allow radio mrvlgpu_device:chr_file create_file_perms;
+#SEC removed: allow radio graphics_device:dir create_dir_perms;
+allow radio nvm_data_file:dir create_dir_perms;
+allow radio nvm_data_file:file create_file_perms;
+#SEC removed: allow radio default_prop:property_service set;
+allow radio dump_log_data_file:file create_file_perms;
+allow radio dump_log_data_file:dir create_dir_perms;
+allow radio infor_device:dir create_dir_perms;
+allow radio iml:unix_stream_socket unix_stream_socket_perms;
+allow radio tmpfs:sock_file create_file_perms;
+allow radio at_router:unix_stream_socket unix_stream_socket_perms;
+allow radio tel_data_file:file create_file_perms;
+allow radio tel_data_file:dir create_dir_perms;
+allow radio anr_data_file:dir create_dir_perms;
+allow radio anr_data_file:file create_file_perms;
+allow radio eeh_device:chr_file { open read write ioctl };
+

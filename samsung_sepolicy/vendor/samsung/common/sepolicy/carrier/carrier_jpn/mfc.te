@@ -1,0 +1,54 @@
+
+
+allow mfc felica_device:chr_file rw_file_perms;
+allow mfc nfcfelica_device:chr_file r_file_perms;
+allow mfc felica_data_file:dir create_dir_perms;
+
+
+allow mfc mfc:tcp_socket { create bind getattr connect getopt setopt write read };
+
+#neverallow Google-android-5.0.2_r1 : allow mfc system_data_file:file { open create write ioctl };
+#neverallow Google-android-5.0.2_r1 : allow mfc system_data_file:dir { write add_name create setattr };
+#allow mfc pvrsync_device:chr_file rw_file_perms;
+#allow mfc fimg2d_video_device:chr_file rw_file_perms;
+allow mfc dnsproxyd_socket:sock_file { write };
+allow mfc zygote:binder { call transfer };
+allow mfc netd:unix_stream_socket { connectto };
+allow mfc node:tcp_socket { node_bind };
+allow mfc port:tcp_socket { name_connect };
+
+#neverallow Google-android-5.0.2_r1 : allow mfc system_prop:property_service { set };
+allow mfc felicashell_device:chr_file { read write open };
+
+
+#Add Felica 20130221
+allow mfc felica_data_file:file create_file_perms;
+allow mfc felica_data_file:notdevfile_class_set create_file_perms;
+
+#Add Felica 20130225
+allow mfc felica_data_file:file rw_file_perms;
+allow mfc mfc:udp_socket { create bind getattr connect getopt setopt write read };
+
+allow vold asec_apk_file:dir create_dir_perms;
+allow vold asec_apk_file:dir { mounton };
+
+allow mfc dumplog_data_file:file w_file_perms;
+
+# for B2C users
+#changeBySEA : typeattribute mfc trusteddomain;
+#changeBySEA : typeattribute mfc trusted_app_domain;
+
+allow mfc system_service:service_manager find;
+allow mfc activity_service:service_manager find;
+allow mfc display_service:service_manager find;
+allow mfc network_management_service:service_manager find;
+allow mfc connectivity_service:service_manager find;
+allow mfc nfc_service:service_manager find;
+
+############ avc_log #############
+#avc:  denied  { find } for service=knox_timakeystore_policy scontext=u:r:mfc:s0:c512,c768 tcontext=u:object_r:system_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=activity scontext=u:r:mfc:s0:c512,c768 tcontext=u:object_r:activity_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=display scontext=u:r:mfc:s0:c512,c768 tcontext=u:object_r:display_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=network_management scontext=u:r:mfc:s0:c512,c768 tcontext=u:object_r:network_management_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=connectivity scontext=u:r:mfc:s0:c512,c768 tcontext=u:object_r:connectivity_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=felica scontext=u:r:mfc:s0:c512,c768 tcontext=u:object_r:nfc_service:s0 tclass=service_manager

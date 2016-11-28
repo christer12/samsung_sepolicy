@@ -1,0 +1,24 @@
+# diag_uart_log
+
+typealias diag alias diag_uart_log;
+typealias diag_exec alias diag_uart_log_exec;
+
+init_daemon_domain(diag_uart_log)
+
+allow diag_uart_log at_distributor:unix_stream_socket connectto;
+allow diag_uart_log cgroup:dir create_dir_perms;
+allow diag_uart_log console_device:chr_file rw_file_perms;
+allow diag_uart_log diag_device:chr_file rw_file_perms;
+allow diag_uart_log init:unix_stream_socket connectto;
+allow diag_uart_log radio_device:chr_file rw_file_perms;
+allow diag_uart_log self:capability { setuid dac_override };
+allow diag_uart_log sysfs:file w_file_perms;
+allow diag_uart_log sysfs_ss_writable:file rw_file_perms;
+
+
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=7811 comm="diag_uart_log" name="ttyHSL0" dev="tmpfs" ino=15833 scontext=u:r:diag:s0 tcontext=u:object_r:console_device:s0 tclass=chr_file permissive=0
+
+

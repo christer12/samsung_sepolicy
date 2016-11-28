@@ -1,0 +1,13 @@
+# create new domain teecsstdca
+
+type teecsstdca, domain;
+type teecsstdca_exec, exec_type, file_type;
+
+init_daemon_domain(teecsstdca)
+
+#SEC removed : allow teecsstdca teecsstdca_device:chr_file create_file_perms;
+allow teecsstdca teesst_data_file:dir create_dir_perms;
+allow teecsstdca teesst_data_file:file create_file_perms;
+allow teecsstdca shell_exec:file { read execute open execute_no_trans };
+allow teecsstdca self:capability { dac_override setuid ipc_lock setgid };
+

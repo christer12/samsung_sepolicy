@@ -1,0 +1,53 @@
+
+dumplog_create(carrier_app)
+binder_call(carrier_app, zygote)
+unix_socket_rw(carrier_app, bluetooth)
+
+#neverallow Google-android-5.0.2_r1 : allow carrier_app self:netlink_kobject_uevent_socket { read write bind setopt };
+
+allow carrier_app self:netlink_route_socket { read bind create };
+allow carrier_app node:{ tcp_socket udp_socket } node_bind;
+allow carrier_app port:{ tcp_socket udp_socket } name_bind;
+allow carrier_app port:tcp_socket name_connect;
+allow carrier_app self:{ tcp_socket udp_socket } *;
+
+allow carrier_app app_data_file:file x_file_perms;
+#changeBySEA : allow carrier_app app_library_file:dir r_dir_perms;
+allow carrier_app appdomain:fifo_file r_file_perms;
+allow carrier_app audit_log:file create_file_perms;
+allow carrier_app bluetooth:unix_stream_socket shutdown;
+allow carrier_app cache_file:dir create_dir_perms;
+allow carrier_app devpts:chr_file rw_file_perms;
+allow carrier_app dnsproxyd_socket:sock_file w_file_perms;
+allow carrier_app drm_efs_file:file rw_file_perms;
+allow carrier_app drm_efs_file:dir rw_dir_perms;
+allow carrier_app hidden_file:file rw_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow carrier_app init:unix_stream_socket { connectto setopt };
+#neverallow Google CTS :allow carrier_app init:binder { transfer call };
+allow carrier_app init_tmpfs:file read;
+allow carrier_app netd:unix_stream_socket connectto;
+allow carrier_app platform_app_data_file:dir create_dir_perms;
+allow carrier_app platform_app_data_file:file create_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow carrier_app property_socket:sock_file w_file_perms;
+allow carrier_app port:tcp_socket name_connect;
+allow carrier_app qtaguid_device:chr_file r_file_perms;
+allow carrier_app radio_data_file:file create_file_perms;
+allow carrier_app rild:unix_stream_socket connectto;
+allow carrier_app sdcard_type:dir create_dir_perms;
+allow carrier_app sdcard_type:file create_file_perms;
+allow carrier_app sec-ril:unix_stream_socket connectto;
+allow carrier_app system:tcp_socket { read write };
+allow carrier_app system_data_file:file execute;
+allow carrier_app usb_device:chr_file rw_file_perms;
+allow carrier_app wifi_efs_file:dir r_dir_perms;
+allow carrier_app wifi_efs_file:file r_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow carrier_app system_data_file:lnk_file unlink;
+allow carrier_app system_file:file execute_no_trans;
+allow carrier_app zero_device:chr_file x_file_perms;
+
+allow carrier_app keystore:unix_stream_socket connectto;
+
+
+# for B2C users
+#typeattribute carrier_app trusteddomain;
+#typeattribute carrier_app trusted_app_domain;

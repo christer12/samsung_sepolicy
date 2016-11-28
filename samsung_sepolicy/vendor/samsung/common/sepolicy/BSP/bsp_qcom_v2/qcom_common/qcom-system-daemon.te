@@ -1,0 +1,8 @@
+typealias qcomsysd alias qcom-system-daemon;
+typealias qcomsysd_exec alias qcom-system-daemon_exec;
+
+# for B2C users
+typeattribute qcom-system-daemon trusteddomain;
+typeattribute qcom-system-daemon device_domain;
+
+

@@ -1,0 +1,72 @@
+#
+# z_aws.te
+#
+
+##### appdomain #####
+allow appdomain anr_data_file:file rw_file_perms;
+
+##### bauthserver #####
+allow bauthserver { isolated_app_tmpfs untrusted_app_tmpfs }:file write;
+allow bauthserver media_rw_data_file:dir create_dir_perms;
+allow bauthserver media_rw_data_file:file create_file_perms;
+
+##### daemon_app_process #####
+allow daemon_app_process console_device:chr_file rw_file_perms;
+
+##### diagexe #####
+allow diagexe isolated_app:fd use;
+
+##### epmd ####
+allow epmd kernel:dir r_dir_perms;
+allow epmd kernel:file r_file_perms;
+
+##### filtered_google_app #####
+#changeBySEA : allow filtered_google_app untrusted_app_tmpfs:file write;
+
+##### rild #####
+allow rild socket_device:dir write;
+
+##### rtc_log #####
+allow rtc_log { isolated_app_tmpfs untrusted_app_tmpfs }:file write;
+
+##### ss_kbservice_daemon #####
+allow ss_kbservice_daemon ss_kbservice_daemon_socket:dir create_dir_perms;
+allow ss_kbservice_daemon ss_kbservice_daemon_socket:{ file fifo_file lnk_file sock_file } create_file_perms;
+allow ss_kbservice_daemon system_data_file:fifo_file unlink;
+
+##### surfaceflinger #####
+allow surfaceflinger m2m1shot_device:chr_file write;
+
+##### system_app #####
+allow system_app proc_net:file write;
+
+##### system_server #####
+allow system_server domain:file write;
+
+##### untrusted_app #####
+allow untrusted_app block_device:blk_file getattr;
+allow untrusted_app download_file:dir rw_dir_perms;
+allow untrusted_app download_file:fd use;
+allow untrusted_app download_file:file { unlink rw_file_perms };
+allow untrusted_app knox_kap_device:chr_file getattr;
+allow untrusted_app knox_untrusted_app:process sigkill;
+allow untrusted_app platform_app_data_file:file { rename unlink };
+
+##### zygote #####
+allow zygote zygote:capability2 syslog;
+
+
+### Analysis AWS log from PROD Server(March-15) 
+# avc:  denied  { write } for  pid=5232 comm="Binder_2" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=2009647 scontext=u:r:bauthserver:s0 tcontext=u:object_r:isolated_app_tmpfs:s0 tclass=file permissive=0 SEPF_SM-G925F_5.0.2_0009
+# avc:  denied  { write } for  pid=5540 comm="Binder_2" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=1712808 scontext=u:r:bauthserver:s0 tcontext=u:object_r:untrusted_app_tmpfs:s0 tclass=file permissive=0 SEPF_SM-G920F_5.0.2_0008
+# avc:  denied  { read write } for  pid=4482 comm="app_process" path="/dev/ttyHSL0" dev="tmpfs" ino=9478 scontext=u:r:daemon_app_process:s0 tcontext=u:object_r:console_device:s0 tclass=chr_file permissive=0 SEPF_SM-N915G_5.0.1_0009
+# avc:  denied  { use } for  pid=2985 comm="diagexe" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=2055985 scontext=u:r:diagexe:s0 tcontext=u:r:isolated_app:s0 tclass=fd permissive=0 SEPF_SM-G920F_5.0.2_0008
+# avc:  denied  { write } for  pid=22865 comm=4173796E635461736B202331 path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F72794173686D656D416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=15845139 scontext=u:r:filtered_google_app:s0:c2 tcontext=u:object_r:untrusted_app_tmpfs:s0 tclass=fil
+# avc:  denied  { write } for  pid=2978 comm="rtc_log.sh" path=2F6465762F6173686D656D2F536B69615F4173686D656D5F4469736361726461626C655F4D656D6F7279202864656C6574656429 dev="tmpfs" ino=3335076 scontext=u:r:rtc_log:s0 tcontext=u:object_r:untrusted_app_tmpfs:s0 tclass=file permissive=0 SEPF_SM-G920F_5.0.2_0008
+# avc:  denied  { getattr } for  pid=514 comm="epmd" path="/proc/1370/fd/0" dev="proc" ino=158263 scontext=u:r:epmd:s0 tcontext=u:r:kernel:s0 tclass=dir SEPF_SM-P905_5.0.2_0010
+# avc:  denied  { unlink } for  pid=23744 comm="ss_kbservice_da" name="ss_kbservice_daemon" dev="mmcblk0p21" ino=3579 scontext=u:r:ss_kbservice_daemon:s0 tcontext=u:object_r:ss_kbservice_daemon_socket:s0 tclass=fifo_file SEPF_SM-G900H_5.0_0009
+# avc:  denied  { getattr } for  pid=4786 comm=4173796E635461736B202334 path="/dev/block/dm-11" dev="tmpfs" ino=76128 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:block_device:s0 tclass=blk_file SEPF_SM-T800_5.0.2_0009
+# avc:  denied  { use } for  pid=18475 comm="Blue_AnalyticsQ" path="pipe:[139472]" dev="pipefs" ino=139472 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:download_file:s0 tclass=fd SEPF_GT-I9505_4.4.2_0032
+# avc:  denied  { getattr } for  pid=16976 comm="ls" path="/dev/knox_kap" dev="tmpfs" ino=3440 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:knox_kap_device:s0 tclass=chr_file permissive=0 SEPF_SM-G920F_5.0.2_0008
+# avc:  denied  { sigkill } for  pid=8181 comm="box:managespace" scontext=u:r:untrusted_app:s0 tcontext=u:r:knox_untrusted_app:s0 tclass=process SEPF_SM-T800_5.0.2_0009
+# 2709569 cnt, avc:  denied  { rename } for  pid=4837 comm="pool-1-thread-1" name="DownloadService.xml" dev="mmcblk0p21" ino=265260 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:platform_app_data_file:s0 tclass=file

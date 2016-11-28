@@ -1,0 +1,35 @@
+#
+# gpslpm_srv
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#type gpslpm_srv, domain;
+typealias gpsd alias gpslpm_srv;
+type gpslpm_srv_exec, exec_type, file_type;
+
+domain_auto_trans(init, gpslpm_srv_exec, gpslpm_srv)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow gpslpm_srv gps_device:chr_file rw_file_perms;
+
+########## file_type
+allow gpslpm_srv gps_data_file:dir { write remove_name add_name setattr };
+allow gpslpm_srv gps_data_file:sock_file { create unlink setattr };
+allow gpslpm_srv shell_exec:file { read execute open execute_no_trans };
+allow gpslpm_srv system_file:file execute_no_trans;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=16409 comm="gpslpm_srv" name="crmdev0" dev="tmpfs" ino=10267 scontext=u:r:gpslpm_srv:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=0
+# avc:  denied  { open } for  pid=16409 comm="gpslpm_srv" path="/dev/crmdev0" dev="tmpfs" ino=10267 scontext=u:r:gpslpm_srv:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=16409 comm="gpslpm_srv" path="/dev/crmdev0" dev="tmpfs" ino=10267 scontext=u:r:gpslpm_srv:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { execute } for  pid=16467 comm="gpslpm_srv" name="sh" dev="mmcblk0p15" ino=535 scontext=u:r:gpslpm_srv:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=16467 comm="gpslpm_srv" path="/system/bin/sh" dev="mmcblk0p15" ino=535 scontext=u:r:gpslpm_srv:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=16467 comm="gpslpm_srv" path="/system/bin/sh" dev="mmcblk0p15" ino=535 scontext=u:r:gpslpm_srv:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+

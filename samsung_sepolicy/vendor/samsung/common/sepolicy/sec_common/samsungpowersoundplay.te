@@ -1,0 +1,55 @@
+#
+# samsungpowersoundplay
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type samsungpowersoundplay, domain;
+type samsungpowersoundplay_exec, exec_type, file_type;
+# for B2C users
+typeattribute samsungpowersoundplay trusteddomain;
+typeattribute samsungpowersoundplay system_domain;
+
+binder_call(samsungpowersoundplay, servicemanager)
+binder_use(samsungpowersoundplay)
+binder_call(samsungpowersoundplay, mediaserver)
+init_daemon_domain(samsungpowersoundplay)
+#unix_socket_connect(samsungpowersoundplay, property, init)
+set_prop(samsungpowersoundplay, audio_prop)
+
+########## self and domain_type
+allow samsungpowersoundplay kernel:system module_request;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow samsungpowersoundplay app_efs_file:dir r_dir_perms;
+allow samsungpowersoundplay app_efs_file:file r_file_perms;
+allow samsungpowersoundplay efs_file:dir r_dir_perms;
+allow samsungpowersoundplay sec_efs_file:dir r_dir_perms;
+allow samsungpowersoundplay system_data_file:dir r_dir_perms;
+allow samsungpowersoundplay system_data_file:file r_file_perms;
+allow samsungpowersoundplay system_file:file execmod;
+
+########## etc_type
+allow samsungpowersoundplay { mediaserver_service surfaceflinger_service }:service_manager find;
+allow samsungpowersoundplay audio_prop:property_service set;
+
+########## known issue.
+# from carrier_spr
+allow samsungpowersoundplay carrier_file:dir r_dir_perms;
+allow samsungpowersoundplay carrier_file:file r_file_perms;
+
+# OMC_v3 samsungpowersoundplay reads PowerOn.ogg in /omr resources.
+allow samsungpowersoundplay omr_file:dir r_dir_perms;
+allow samsungpowersoundplay omr_file:file r_file_perms;
+# avc:  denied  { read } for  pid=753 comm="samsungpowersou" name="PowerOn.ogg" dev="sda23" ino=105 scontext=u:r:samsungpowersoundplay:s0 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=753 comm="samsungpowersou" path="/omr/VZW/res/media/audio/ui/PowerOn.ogg" dev="sda23" ino=105 scontext=u:r:samsungpowersoundplay:s0 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1
+
+
+
+
+
+############ avc_log #############
+# avc:  denied  { set } for property=audioflinger.bootsnd scontext=u:r:samsungpowersoundplay:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+

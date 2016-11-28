@@ -1,0 +1,67 @@
+#!/bin/bash
+
+
+err() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+
+THREADS=1
+XARGS=0
+while getopts "xt:" opt; do
+  case $opt in
+    x)
+      XARGS=1
+      ;;
+    t)
+      #echo "Will use $OPTARG threads." >&2
+      THREADS=$OPTARG
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+
+if [[ ! -f "$1" ]]; then
+	err "Usage: patternToAttr (-x) POLICY_FILE \"{ pattern }\" newAttrName"
+fi
+
+if [[ $# -eq 3 ]]; then
+	POLICY="$1"
+	PATTERN="$2"
+	ATTR="$3"
+elif [[ $# -eq 2 ]]; then
+	POLICY="$1"
+	PATTERN=$(echo "$2" |sed -r 's/^[0-9]+ //')
+	ATTR=newAttr$(echo "$2" | cut -d" " -f1)
+else
+	err "Usage: patternToAttr POLICY_FILE \"{ pattern }\" newAttrName"
+fi
+
+
+# calculate the types list from the negation pattern
+if [[ $XARGS -eq 1 ]]; then
+	domainsFromPattern "$POLICY" "$PATTERN" | xargs -n1 -I{} addAttrToTypeFile "$POLICY" {} $ATTR
+else
+	domainsFromPattern "$POLICY" "$PATTERN" | parallel --gnu -j$THREADS addAttrToTypeFile "$POLICY" {} $ATTR
+fi
+
+
+## LOCK ##
+exec 201>/$INSTANCE/dtLock
+flock 201
+
+# replace old patterns with new attribute
+sed -i 's/'"$PATTERN"'/'$ATTR'/g' "$POLICY"
+

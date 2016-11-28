@@ -1,0 +1,2 @@
+typealias mdm_helper alias ks;
+typealias mdm_helper_exec alias ks_exec;

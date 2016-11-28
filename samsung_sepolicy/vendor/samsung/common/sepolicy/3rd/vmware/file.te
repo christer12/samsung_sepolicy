@@ -1,0 +1,3 @@
+# VMWare
+type sysfs_vmware_writable, fs_type, sysfs_type, mlstrustedobject;
+

@@ -1,0 +1,8 @@
+# create new domain core_compressor
+type core_compressor, domain;
+type core_compressor_exec, exec_type, file_type;
+
+#SEC removed: allow core_compressor dump_log_data_file:dir create_dir_perms;
+#SEC removed: allow core_compressor dump_log_data_file:file create_file_perms;
+#SEC removed: allow core_compressor kernel:fifo_file create_file_perms;
+

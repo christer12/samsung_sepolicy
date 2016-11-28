@@ -1,0 +1,67 @@
+
+# dmb
+type dmb, domain, mlstrustedsubject;
+type dmb_exec, exec_type, file_type;
+init_daemon_domain(dmb)
+
+allow dmb dumplog_data_file:file w_file_perms;
+allow dmb app_efs_file:dir search;
+allow dmb app_efs_file:file { read open };
+allow dmb init:unix_stream_socket { connectto read write };
+allow dmb property_socket:sock_file write;
+allow dmb servicemanager:binder { transfer call };
+allow dmb system_prop:property_service set;
+allow dmb media_rw_data_file:dir create_dir_perms;
+allow dmb media_rw_data_file:file create_file_perms;
+allow dmb radio:fd use;
+allow dmb radio_data_file:dir search;
+allow dmb radio_data_file:file { read open };
+allow dmb mediaserver:binder { transfer call };
+allow dmb mediaserver:fd use;
+allow dmb platform_app:binder call;
+allow dmb sdcard_internal:dir create_dir_perms;
+allow dmb sdcard_internal:file create_file_perms;
+allow dmb tdmb_device:chr_file { read write ioctl open };
+allow dmb shell_exec:file { read execute open execute_no_trans };
+allow dmb surfaceflinger:binder { transfer call };
+allow dmb surfaceflinger:fd use;
+allow dmb system_app:fd use;
+allow dmb system_file:file { execmod execute_no_trans };
+allow dmb system_app:fd use;allow dmb system_file:file execute_no_trans;
+allow dmb tdmb_device:chr_file { read write ioctl open };
+allow dmb untrusteddomain:binder call;
+allow dmb efs_file:dir r_dir_perms;
+
+binder_call(dumpstate, dmb)
+
+allow dmb dmb_service:service_manager add;
+
+# for B2C users
+typeattribute dmb trusteddomain;
+typeattribute dmb device_domain;
+
+# P160126-02808 TDMB writes captured and recorded data into /storage/emulated/<user num>/dmb
+# binder transaction issue between u:r:platform_app:s0:c522,c768(com.sec.android.app.dmb) and u:r:dmb:s0(/system/bin/dmbserver) 
+allow dmb container_app_data_backend:file rw_file_perms;
+# avc:  denied  { read write } for  pid=26465 comm="android.app.dmb" path="/storage/emulated/10/dmb/T160126_002.dmb" dev="sdcardfs" ino=786819 scontext=u:r:dmb:s0 tcontext=u:object_r:container_app_data_backend:s0:c522,c768 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0003
+# arch=c00000b7 syscall=29 success=yes exit=0 a0=a a1=c0306201 a2=7fd124e830 a3=7fd124e7f0 items=0 ppid=3097 ppcomm=main pid=26465 auid=4294967295 uid=1010160 gid=1010160 euid=1010160 suid=1010160 fsuid=1010160 egid=1010160 sgid=1010160 fsgid=1010160 ses=4294967295 tty=(none) comm="android.app.dmb" exe="/system/bin/app_process64" subj=u:r:platform_app:s0:c522,c768 key=(null)
+
+
+
+############ slsi_common #############
+binder_call(dmb, radio)
+binder_call(dumpstate , dmb)
+allow dmb efs_file:dir search;
+allow dmb dumplog_data_file:file write;
+allow dmb filtered_untrusted_app:fd use;
+allow dmb kernel:system module_request;
+allow dmb mediaserver:binder { transfer call };
+allow dmb mediaserver:fd use;
+allow dmb mediaserver_service:service_manager find;
+allow dmb shell:fd use;
+
+# avc:  denied  { module_request } for  pid=3147 comm="dmbserver" kmod="personality-8" scontext=u:r:dmb:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0 SEPF_SM-G925S_6.0_0001
+# avc:  denied  { find } for service=media.audio_policy scontext=u:r:dmb:s0 tcontext=u:object_r:mediaserver_service:s0 tclass=service_manager
+# avc:  denied  { use } for  pid=20469 comm="tel.android.dmb" path="/storage/emulated/0/dmb/temp1.dpb" dev="sdcardfs" ino=131470 scontext=u:r:dmb:s0 tcontext=u:r:filtered_untrusted_app:s0:c512,c768 tclass=fd permissive=0 SEPF_SM-G925S_6.0_0001
+# avc:  denied  { connectto } for  pid=20786 comm="dmbTSClientThre" path=00646D62487962726964 scontext=u:r:filtered_untrusted_app:s0:c512,c768 tcontext=u:r:dmb:s0 tclass=unix_stream_socket permissive=0 SEPF_SM-G925S_6.0_0001
+# avc:  denied  { execmod } for  pid=3906 comm="dmbserver" path="/system/lib/lib_SoundAlive_ver118t.so" dev="mmcblk0p23" ino=2151 scontext=u:r:dmb:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=0

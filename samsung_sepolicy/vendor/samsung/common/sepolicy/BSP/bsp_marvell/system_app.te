@@ -1,0 +1,22 @@
+# grant the additional permission for system_app
+
+#SEC removed : allow system_app system_app_device:chr_file create_file_perms;
+allow system_app phservice:binder call;
+#SEC removed :allow system_app tmpfs:dir create_dir_perms;
+#SEC removed :allow system_app tmpfs:sock_file create_file_perms;
+#SEC changed :allow system_app mrvlgpu_device:chr_file create_file_perms;
+allow system_app mrvlgpu_device:chr_file rw_file_perms;
+#SEC changed :allow system_app graphics_device:dir create_dir_perms;
+allow system_app graphics_device:dir r_dir_perms;
+allow system_app system_app_data_file:lnk_file create_file_perms;
+allow system_app imsc:unix_stream_socket unix_stream_socket_perms;
+allow system_app self:netlink_kobject_uevent_socket { read bind create setopt };
+allow system_app nvm_data_file:dir create_dir_perms;
+#SEC removed :allow system_app radio_service:service_manager { add find list };
+allow system_app shell_data_file:dir search;
+allow system_app cache_file:dir create_dir_perms;
+allow system_app imsd_socket:sock_file create_file_perms;
+allow system_app nvm_data_file:file create_file_perms;
+allow system_app dump_log_data_file:dir create_dir_perms;
+allow system_app dump_log_data_file:file create_file_perms;
+

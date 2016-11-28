@@ -1,0 +1,39 @@
+#
+# recovery
+#
+recovery_only(`
+    typeattribute recovery mlstrustedsubject;
+
+# rm /data due to LDU feature
+    allow recovery file_type:dir { rmdir rw_dir_perms link unlink rename reparent };
+    allow recovery file_type:file_class_set { rw_file_perms link unlink rename };
+    allow recovery system_data_file:dir { write relabelfrom setattr read create open add_name };
+    allow recovery system_data_file:file { write relabelfrom create open setattr };
+    allow recovery media_rw_data_file:dir { create_dir_perms relabelfrom relabelto };
+    allow recovery media_rw_data_file:file { create_file_perms relabelfrom relabelto };
+
+')
+
+############ avc_log #############
+#rm -r -f --with-except-files=/preload/recovery_contents.list /data 
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/system/gps/.pipe.gpsd_to_lhd.to_server' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/system' (Directory not empty)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/media/0' (Directory not empty)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/media' (Directory not empty)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/misc/keystore' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/misc/wifi/sockets' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/misc/wifi' (Directory not empty)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/misc' (Directory not empty)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/data/lptcpSocket' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/data' (Directory not empty)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/property' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/security' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/knox' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/.socket_stream' (Permission denied)
+#trace: __vout_return: __scan_rm_dir :: remove failed file '/data/TMAudioSocketServer' (Permission denied)
+#trace: __vout_return: rm_main :: remove failed dir '/data' (Device or resource busy)
+#avc:  denied  { reparent } for  pid=2811 comm="recovery" name="media_tmp" dev="sda18" ino=12 scontext=u:r:recovery:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { setattr } for  pid=2845 comm="recovery" name=535052494E472043414D505F3032332E4A5047 dev="sda18" ino=162 scontext=u:r:recovery:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=0
+# avc:  denied  { open } for  pid=2873 comm="recovery" path="/data/data/com.samsung.android.voicewakeup" dev="sda18" ino=393395 scontext=u:r:recovery:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=dir permissive=0
+# avc:  denied  { rmdir } for  pid=2873 comm="recovery" name="com.android.vpndialogs" dev="sda18" ino=393397 scontext=u:r:recovery:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=dir permissive=0
+

@@ -1,0 +1,8 @@
+# qcom-system-daemon
+
+
+# rules
+allow qcom-system-daemon diag_device:chr_file rw_file_perms;
+allow qcom-system-daemon self:capability dac_override;
+
+

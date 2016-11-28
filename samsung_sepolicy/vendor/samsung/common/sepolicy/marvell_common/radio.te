@@ -1,0 +1,8 @@
+
+## SEC added
+allow radio atcmdsrv_device:chr_file { read write ioctl open };
+allow radio graphics_device:dir r_dir_perms;
+allow radio infor_device:chr_file rw_file_perms;
+allow radio mrvlgpu_device:chr_file rw_file_perms;
+allow radio rild_socket:sock_file rw_file_perms;
+

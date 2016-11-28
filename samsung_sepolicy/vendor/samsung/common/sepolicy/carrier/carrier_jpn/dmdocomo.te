@@ -1,0 +1,13 @@
+
+#allow dmdocomo_app keystore:unix_stream_socket connectto;
+#allow dmdocomo_app dnsproxyd_socket:sock_file write;
+#allow dmdocomo_app dumplog_data_file:file write;
+#allow dmdocomo_app netd:unix_stream_socket connectto;
+#allow dmdocomo_app node:tcp_socket node_bind;
+#allow dmdocomo_app port:tcp_socket name_connect;
+#allow dmdocomo_app self:tcp_socket { setopt read bind create write getattr connect getopt };
+#allow dmdocomo_app self:udp_socket { create connect };
+
+# for B2C users
+#typeattribute dmdocomo_app trusteddomain;
+#typeattribute dmdocomo_app trusted_app_domain;

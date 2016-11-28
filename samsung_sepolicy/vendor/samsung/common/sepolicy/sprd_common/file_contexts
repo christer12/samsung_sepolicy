@@ -1,0 +1,16 @@
+#############################
+# System files
+#
+
+/system/bin/batterysrv                 u:object_r:batterysrv_exec:s0
+/system/bin/download                   u:object_r:download_exec:s0
+/system/bin/ext_symlink.sh             u:object_r:ext_symlink_exec:s0
+/system/bin/sprd_res_monitor	u:object_r:sprd_res_monitor_exec:s0
+
+
+/dev/pipe(/.*)?                u:object_r:audio_device:s0
+/dev/rpipe(/.*)?                u:object_r:audio_device:s0
+/dev/power_ctl                 u:object_r:power_ctl_device:s0
+
+/data/misc/hprofs(/.*)?	u:object_r:dumplog_data_file:s0
+

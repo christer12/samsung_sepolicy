@@ -1,0 +1,19 @@
+
+## SEC added:
+allow platform_app phone_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow platform_app phone_data_file:file create_file_perms;
+allow platform_app phone_data_file:file r_file_perms;
+
+allow platform_app tmpfs:sock_file rw_file_perms;
+
+userdebug_or_eng(`
+# temporary to  
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow platform_app system_data_file:file write;
+')
+############ avc_log #############
+# avc:  denied  { write } for  pid=8147 comm="ell.diagsetting" name="DIAG_CMD_SOCKET" dev="tmpfs" ino=11487 scontext=u:r:platform_app:s0 tcontext=u:object_r:tmpfs:s0 tclass=sock_file permissive=0
+

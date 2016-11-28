@@ -1,0 +1,214 @@
+#
+# device
+#
+
+############ aosp and sec_common #############
+type carrierblk_device, dev_type;
+type dun_device, dev_type;
+type dw_mmc_device, dev_type;
+type efsblk_device, dev_type;
+type emmcblk_device, dev_type;
+type ftt_ctrl_device, dev_type;
+type genlock_device, dev_type, mlstrustedobject;
+type hiddenblk_device, dev_type;
+type hpd_device, dev_type;
+type hrm_device, dev_type;
+type i2c_device, dev_type;
+type icd_device, dev_type;
+type io_device, dev_type;
+type ir_device, dev_type;
+# conflict with Qcom BSP, type kgsl_device, dev_type, mlstrustedobject;
+type m9kefsblk_device, dev_type;
+type mmb_device, dev_type;
+type mobicore_device, dev_type, mlstrustedobject;
+type mobicore-user_device, dev_type, mlstrustedobject;
+type modem_device, dev_type;
+type ovr_device, dev_type;
+type paramblk_device, dev_type;
+type persdatablk_device, dev_type;
+#changeBySEA type prop_device, dev_type;
+type recoveryblk_device, dev_type;
+type secure_storage_device, dev_type, mlstrustedobject;
+type sem_device, dev_type;
+type sensor_device, dev_type;
+type swap_device, dev_type;
+# system_fifo is under /dev/pipes/, and it is not a device type
+# currently we don't have upper type to include system_fifo. only dev_type can include it.
+type system_fifo, dev_type, mlstrustedobject;
+#type systemblk_device, dev_type;
+typealias system_block_device alias systemblk_device;
+type timerirq_device, dev_type;
+type tz_device, dev_type, mlstrustedobject;
+type ump_device, dev_type, mlstrustedobject;
+type url_device, dev_type, mlstrustedobject;
+type usb_bus_device, dev_type, mlstrustedobject;
+# conflict with Qcom BSP, type usb_serial_device, dev_type;
+#type userdatablk_device, dev_type;
+typealias userdata_block_device alias userdatablk_device;
+type validity_device, dev_type;
+type vibrator_device, dev_type;
+typeof video_scaler_device, video_device;
+
+## for fingerprint(dev/esfp0, dev/vfsspi)
+type vfsspi_device, dev_type;
+typealias vfsspi_device alias fp_sensor_device;
+
+#changeBySEA dup with aosp gpu_device , not use this type :  typealias gpu_device alias powervr_device;
+typealias tz_device alias tzic_device;
+
+typeattribute device rw_fs_type;
+typeattribute graphics_device mlstrustedobject;
+typeattribute ovr_device mlstrustedobject;
+typeattribute qtaguid_device mlstrustedobject;
+typeattribute tty_device mlstrustedobject;
+typeattribute urandom_device mlstrustedobject;
+typeattribute uhid_device mlstrustedobject;
+typeattribute video_device mlstrustedobject;
+typeattribute video_scaler_device mlstrustedobject;
+typeattribute zero_device mlstrustedobject;
+
+
+
+############ knox_common #############
+## Knox Sensitive data protection, DEK engine driver access
+type knox_dar_device, dev_type, mlstrustedobject;
+type knox_dar_shared_device, dev_type, mlstrustedobject;
+type knox_kap_device, dev_type;
+
+############ Mobile Payments #############
+type mst_ctrl_device, dev_type, mlstrustedobject;
+
+############ qcom_common #############
+type adnc_device, dev_type;
+type apnhlosblk_device, dev_type;
+type backupblk_device, dev_type;
+type clock_device, dev_type;
+type ciqbridge_device, dev_type;
+type dvb_device, dev_type;
+##conflict with Qcom BSP, type coresight_device, dev_type;
+typealias qdss_device alias coresight_device;
+type fscblk_device, dev_type;
+# conflict with Qcom BSP, type fsg_device, dev_type;
+# conflict with Qcom BSP, type fsgblk_device, dev_type;
+type mdmblk_device, dev_type;
+# conflict with Qcom BSP, type mmcblk0_device, dev_type;
+# conflict with Qcom BSP, type mmcblk0rpmb_device, dev_type;
+# conflict with Qcom BSP, type modemstblk_device, dev_type;
+type padblk_device, dev_type;
+type persistblk_device, dev_type;
+type pta_device, dev_type;
+# conflict with Qcom BSP, type qmuxd_device, dev_type;
+type sg_device, dev_type;
+type smd_cntl_device, dev_type;
+type smd_cxm_qmi_device, dev_type;
+# conflict with Qcom BSP, type ssdblk_device, dev_type;
+type usf_device, dev_type;
+type vpn_device, dev_type;
+# conflict with Qcom BSP, type wifi_device, dev_type;
+
+typealias device_latency alias cpu_dma_latency_device;
+typealias qdsp_device alias adsprpc_device;
+typealias serial_device alias bluetooth_serial_device;
+# conflict with Qcom BSP, typealias subsys_esoc0_device alias esoc_device;
+
+typeattribute smd_device mlstrustedobject;
+#changeBySEA : typeattribute bluetooth_serial_device mlstrustedobject;
+
+
+############ slsi_common #############
+
+type akm8963_device, dev_type;
+type ap_device, dev_type;
+type bbd_device, dev_type;
+type bluetooth_device, dev_type;
+type bootblk_device, dev_type;
+type botablk_device, dev_type;
+type ecryptfs_device, dev_type;
+type fimg2d_video_device, dev_type, mlstrustedobject;
+type keychord_device, dev_type;
+# exynos5433 libhw1shotjpeg  and libscaler
+type m2m1shot_device, dev_type, mlstrustedobject;
+type mbin_device, dev_type;
+type mdns_device, dev_type;
+type multipdp_device, dev_type;
+type otablk_device, dev_type;
+type psaux_device, dev_type;
+type pts_device, dev_type;
+type pvrsync_device, dev_type, mlstrustedobject;
+type radioblk_device, dev_type;
+type report_device, dev_type;
+type s5p_smem_device, dev_type;
+type seiren_device, dev_type;
+type seonsorhub_device, dev_type;
+type spi_boot_device, dev_type;
+type srp_device, dev_type;
+type sync_device, dev_type;
+type tdatablk_device, dev_type;
+type tombstoneblk_device, dev_type;
+type tui_device, dev_type;
+type uart_device, dev_type, mlstrustedobject;
+
+typealias radio_device alias mdm_device;
+type ssipc_device, dev_type;
+typealias ssipc_device alias mif_device;
+
+############ trstappdomain_no_rw_device #############
+typeattribute audio_device trstappdomain_no_rw_device;
+typeattribute camera_device trstappdomain_no_rw_device;
+typeattribute dm_device trstappdomain_no_rw_device;
+typeattribute gps_device trstappdomain_no_rw_device;
+typeattribute hci_attach_dev trstappdomain_no_rw_device;
+typeattribute nfc_device trstappdomain_no_rw_device;
+typeattribute radio_device trstappdomain_no_rw_device;
+typeattribute rpmsg_device trstappdomain_no_rw_device;
+typeattribute tee_device trstappdomain_no_rw_device;
+############ trstappdomain_no_rw_device #############
+typeattribute audio_device trstappdomain_no_rw_device;
+typeattribute camera_device trstappdomain_no_rw_device;
+typeattribute dm_device trstappdomain_no_rw_device;
+typeattribute gps_device trstappdomain_no_rw_device;
+typeattribute hci_attach_dev trstappdomain_no_rw_device;
+typeattribute nfc_device trstappdomain_no_rw_device;
+typeattribute radio_device trstappdomain_no_rw_device;
+typeattribute rpmsg_device trstappdomain_no_rw_device;
+typeattribute socket_device trstappdomain_no_rw_device;
+typeattribute tee_device trstappdomain_no_rw_device;
+
+
+############ trstdomain_no_rw_device #############
+typeattribute device trstdomain_no_rw_device;
+typeattribute hw_random_device trstdomain_no_rw_device;
+typeattribute kmem_device trstdomain_no_rw_device;
+typeattribute knox_kap_device trstdomain_no_rw_device;
+typeattribute mobicore_device trstdomain_no_rw_device;
+typeattribute mobicore-user_device trstdomain_no_rw_device;
+
+
+############ trstdomain_no_rw_device #############
+typeattribute block_device trstdomain_no_rw_device;
+typeattribute frp_block_device trstdomain_no_rw_device;
+
+#### Android M
+typeattribute efsblk_device trstdomain_no_rw_device;
+typeattribute emmcblk_device trstdomain_no_rw_device;
+typeattribute hiddenblk_device trstdomain_no_rw_device;
+typeattribute modemstblk_device trstdomain_no_rw_device;
+typeattribute modem_device trstdomain_no_rw_device;
+typeattribute paramblk_device trstdomain_no_rw_device;
+typeattribute recoveryblk_device trstdomain_no_rw_device;
+typeattribute socket_device trstdomain_no_rw_device;
+typeattribute ssdblk_device trstdomain_no_rw_device;
+typeattribute systemblk_device trstdomain_no_rw_device;
+typeattribute userdatablk_device trstdomain_no_rw_device;
+typeattribute recovery_block_device trstdomain_no_rw_device;
+typeattribute system_block_device trstdomain_no_rw_device;
+
+############ trstdomain_no_rw_device from zzcts_v4.te #############
+typeattribute efsblk_device trstdomain_no_rw_device;
+typeattribute systemblk_device trstdomain_no_rw_device;
+typeattribute userdatablk_device trstdomain_no_rw_device;
+
+############ untrustedapp_no_rw_device #############
+typeattribute graphics_device untrustedapp_no_rw_device;
+typeattribute diag_device untrustedapp_no_rw_device;
+

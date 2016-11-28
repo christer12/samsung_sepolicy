@@ -1,0 +1,84 @@
+#
+# carrier_app
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typeof carrier_app, untrusted_app;
+#changeBySEA : typeattribute carrier_app mlstrustedsubject;
+#changeBySEA : typealias untrusted_app_devpts alias carrier_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias carrier_app_tmpfs;
+
+## start of JPN
+#type dmdocomo_app, untrusteddomain, domain;
+#app_domain(dmdocomo_app)
+#create_pty(dmdocomo_app)
+#net_domain(dmdocomo_app)
+#bluetooth_domain(dmdocomo_app)
+
+typeof felica_app, untrusted_app;
+typealias felica_app alias felica;
+typealias felica_app alias felicalock;
+typealias felica_app alias mfc;
+typealias felica_app alias mfm;
+typealias felica_app alias mfs;
+typealias felica_app alias mfw;
+
+typeof mmb_apk, untrusted_app;
+typeof oneseg_apk, untrusted_app;
+
+#changeBySEA : type felica, domain;
+#changeBySEA : app_domain(felica, felica_data_file)
+#changeBySEA : net_domain(felica)
+#changeBySEA : bluetooth_domain(felica)
+
+#changeBySEA : type felicalock, domain;
+#changeBySEA : app_domain(felicalock)
+#changeBySEA : net_domain(felicalock)
+#changeBySEA : bluetooth_domain(felicalock)
+
+#changeBySEA : type mfc, domain;
+#changeBySEA : app_domain(mfc, felica_data_file)
+#changeBySEA : net_domain(mfc)
+#changeBySEA : bluetooth_domain(mfc)
+
+#changeBySEA : type mfm,  domain;
+#changeBySEA : app_domain(mfm, felica_data_file)
+#changeBySEA : net_domain(mfm)
+#changeBySEA : bluetooth_domain(mfm)
+
+#changeBySEA : type mfs,  domain;
+#changeBySEA : app_domain(mfs, felica_data_file)
+#changeBySEA : net_domain(mfs)
+#changeBySEA : bluetooth_domain(mfs)
+
+#changeBySEA : type mfw,  domain;
+#changeBySEA : app_domain(mfw, felica_data_file)
+#changeBySEA : net_domain(mfw)
+#changeBySEA : bluetooth_domain(mfw)
+
+#changeBySEA : type mmb_apk,  domain;
+#changeBySEA : app_domain(mmb_apk, mmb_data_file)
+#changeBySEA : net_domain(mmb_apk)
+#changeBySEA : bluetooth_domain(mmb_apk)
+
+#changeBySEA : type oneseg_apk,  domain;
+#changeBySEA : app_domain(oneseg_apk, oneseg_data_file)
+#changeBySEA : net_domain(oneseg_apk)
+#changeBySEA : bluetooth_domain(oneseg_apk)
+## end of JPN
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+#neverallow Google CTS-android-5.0.2_r1 : allow carrier_app apk_data_file:dir { write remove_name create add_name setattr };
+#neverallow Google CTS-android-5.0.2_r1 : allow carrier_app apk_data_file:file { write rename create unlink setattr };
+allow carrier_app asec_public_file:file execute;
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { execute } for  pid=18770 comm="com.aspire.mmui" path="/mnt/asec/com.aspire.mm-2/lib/arm/libxmltransform.so" dev="dm-0" ino=27 scontext=u:r:carrier_app:s0 tcontext=u:object_r:asec_public_file:s0 tclass=file
+

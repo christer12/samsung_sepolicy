@@ -1,0 +1,221 @@
+#
+# recovery
+#
+recovery_only(`
+############ aosp and sec_common #############
+########## type and macro.
+#permissive recovery;
+
+########## self and domain_type
+allow recovery kernel:system syslog_read;
+allow recovery { domain  -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+allow recovery { domain  -containerdomain -fixmo_app -good_app }:{ file lnk_file } r_file_perms;
+
+########## fs_type
+allow recovery rootfs:dir create_dir_perms;
+#allow recovery rootfs:file create_file_perms;
+allow recovery rootfs:file r_file_perms;
+
+allow recovery sdcard_internal:dir r_dir_perms;
+allow recovery sdcard_internal:file r_file_perms;
+allow recovery sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow recovery block_device:dir create_dir_perms;
+allow recovery block_device:{ file lnk_file } create_file_perms;
+
+########## file_type
+allow recovery hidden_file:dir create_dir_perms;
+allow recovery hidden_file:file create_file_perms;
+#allow recovery system_data_file:dir { write relabelfrom setattr read create open add_name };
+#allow recovery system_data_file:file { write relabelfrom create open setattr };
+########## etc_type
+#neverallow Google CTS-android-5.0.2_r1 : allow recovery default_prop:property_service set;
+allow recovery recovery_prop:property_service set;
+allow recovery system_prop:property_service set;
+#P151125-05160 
+allow recovery vold_prop:property_service set;
+
+########## known issue.
+# fota sideloading test
+#allow recovery system_file:dir mounton;
+
+# Create and relabel files and directories under /data and system/lib
+#allow recovery { data_file_type library_file_type -keystore_data_file }:{ file lnk_file } { r_file_perms relabelto };
+#allow recovery { data_file_type library_file_type -keystore_data_file }:dir { r_dir_perms relabelto };
+allow recovery { data_file_type library_file_type -keystore_data_file -property_data_file -vold_data_file }:dir { r_file_perms relabelto };
+#allow recovery { data_file_type library_file_type -keystore_data_file -property_data_file -vold_data_file }:{ file lnk_file } { r_file_perms relabelto };
+allow recovery { data_file_type library_file_type -keystore_data_file -property_data_file -vold_data_file }:file { r_file_perms relabelto };
+allow recovery { data_file_type library_file_type -keystore_data_file -property_data_file -vold_data_file }:lnk_file { getattr open ioctl lock relabelto };
+
+# setfilecon denial
+allow recovery { dev_type -hw_random_device -kmem_device }:dir { relabelto };
+allow recovery { dev_type -hw_random_device -kmem_device }:{ file blk_file chr_file lnk_file } { relabelto };
+
+# Cannot listup the files in extSdCard, "apply update from external storage"
+allow recovery sdcard_external:dir r_dir_perms;
+allow recovery sdcard_external:file r_file_perms;
+
+# DMVerity
+allow recovery device:blk_file create_file_perms;
+#allow recovery self:capability { sys_rawio mknod kill };
+allow recovery self:capability { sys_rawio kill sys_resource };
+allow recovery dm_device:chr_file rw_file_perms;
+allow recovery mobicore-user_device:chr_file rw_file_perms;
+allow recovery mobicore_device:chr_file rw_file_perms;
+allow recovery mobicore_prop:property_service set;
+allow recovery self:netlink_socket create_socket_perms;
+allow recovery mobicoredaemon:unix_stream_socket connectto;
+
+# allow ptrace for any process
+# allow recovery self:capability sys_ptrace;
+
+# have the permissions for all remain files in /system
+allow recovery { dhcp_system_file event_log_tags_file ppp_system_file }:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow recovery { dhcp_system_file event_log_tags_file ppp_system_file }:dir { create_dir_perms relabelfrom relabelto };
+
+# Create and relabel files and directories under efs and misc
+allow recovery { cache_file_type efs_type log_file_type misc_rw_file_type } :dir { create_dir_perms relabelfrom relabelto };
+allow recovery { cache_file_type efs_type log_file_type misc_rw_file_type }:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+
+# to support copy_tz_qsee_log_to_data
+allow recovery debugfs:file r_file_perms;
+
+# access to /tmp/emmc_checksum.log for emmc_quickverify in init.rc
+allow recovery init_tmpfs:file rw_file_perms;
+
+# Access /dev/usb-ffs/adb at sideloading via usb
+allow recovery usb_device:dir r_dir_perms;
+
+# mount /cache and /efs 
+allow recovery { cache_file carrier_file efs_file hidden_file persdata_data_file persist_data_file system_file }:dir mounton;
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+# read /proc/avc_msg
+allow recovery proc_avc_msg:file r_file_perms;
+
+########## dev_type
+########## file_type
+########## etc_type
+allow recovery knox_kap_prop:property_service set;
+
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow recovery time_daemon:process sigkill;
+
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+# DMVerity
+allow recovery qseecomd_exec:file execute_no_trans;
+allow recovery qseecom_device:chr_file rw_file_perms;
+
+# have the permissions for all remain files in /system
+allow recovery { rfs_system_file }:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow recovery { rfs_system_file }:dir { create_dir_perms relabelfrom relabelto };
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+# have the permissions for all remain files in /system
+allow recovery { drm_security_system_file setup_ymc_etc_system_file drm_lib_system_file }:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow recovery { drm_security_system_file setup_ymc_etc_system_file drm_lib_system_file }:dir { create_dir_perms relabelfrom relabelto };
+
+')
+
+########## androd-m-early access: denials ########
+allow recovery fsck_exec:file { execute execute_no_trans };
+allow recovery log_device:chr_file w_file_perms;
+
+##### M_denial
+allow recovery system_file:file link;
+
+############ avc_log #############
+# avc:  denied  { relabelto } for  pid=2627 comm="recovery" name="media" dev="mmcblk0p21" ino=523265 scontext=u:r:kernel:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+# avc:  denied  { relabelto } for  pid=2627 comm="recovery" name="Over_the_horizon.mp3" dev="mmcblk0p21" ino=523268 scontext=u:r:kernel:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file
+# avc:  denied  { execute } for  pid=2627 comm="recovery" path="/dev/ashmem" dev="tmpfs" ino=2446 scontext=u:r:kernel:s0 #tcontext=u:object_r:ashmem_device:s0 tclass=chr_file
+# avc:  denied  { mount } for  pid=2627 comm="recovery" name="/" dev="mmcblk0p19" ino=2 scontext=u:r:kernel:s0 #tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# avc:  denied  { unmount } for  pid=2627 comm="recovery" scontext=u:r:kernel:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# avc:  denied  { set } for property=security.recovery scontext=u:r:kernel:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=sys.qseecomd.enable scontext=u:r:kernel:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=2627 comm="recovery" path="/tmp/recovery_backup.txt" dev="rootfs" ino=3366 scontext=u:r:kernel:s0 tcontext=u:object_r:rootfs:s0 tclass=file
+# avc:  denied  { mounton } for  pid=404 comm="update_binary" path="/system" dev="mmcblk0p24" ino=2 scontext=u:r:recovery:s0 tcontext=u:object_r:system_file:s0 tclass=dir 
+# avc:  denied  { relabelto } for  pid=404 comm="update_binary" name="lib" dev="mmcblk0p24" ino=1507 scontext=u:r:recovery:s0 tcontext=u:object_r:system_library_file:s0  tclass=dir
+# avc:  denied  { relabelto } for  pid=404 comm="update_binary" name="ppp" dev="mmcblk0p24" ino=931 scontext=u:r:recovery:s0 tcontext=u:object_r:ppp_system_file:s0 tclass=dir
+# avc:  denied  { relabelto } for  pid=404 comm="update_binary" name="event-log-tags" dev="mmcblk0p24" ino=736 scontext=u:r:recovery:s0 tcontext=u:object_r:event_log_tags_file:s0 tclass=file
+# avc:  denied  { syslog_read } for  pid=265 comm="recovery" scontext=u:r:recovery:s0 tcontext=u:r:kernel:s0 tclass=system
+# avc:  denied  { relabelto } for  pid=318 comm="update_binary" name="boot" dev="tmpfs" ino=10808 scontext=u:r:recovery:s0 tcontext=u:object_r:block_device:s0 tclass=lnk_file
+#  item=0 name="/dev/block/platform/msm_sdcc.1/by-name/boot" inode=10808 dev=00:0c mode=0120777 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:block_device:s0
+# avc:  denied  { read } for  pid=285 comm="recovery" name="/" dev="mmcblk1p1" ino=1 scontext=u:r:recovery:s0 tcontext=u:object_r:sdcard_external:s0 tclass=dir
+# avc:  denied  { open } for  pid=285 comm="recovery" path="/sdcard" dev="mmcblk1p1" ino=1 scontext=u:r:recovery:s0 tcontext=u:object_r:sdcard_external:s0 tclass=dir
+# avc:  denied  { read } for  pid=285 comm="recovery" name="H-to-E0ANGHa.zip" dev="mmcblk1p1" ino=26 scontext=u:r:recovery:s0 tcontext=u:object_r:sdcard_external:s0 tclass=file
+# avc:  denied  { open } for  pid=285 comm="recovery" path="/sdcard/H-to-E0ANGHa.zip" dev="mmcblk1p1" ino=26 scontext=u:r:recovery:s0 tcontext=u:object_r:sdcard_external:s0 tclass=file
+# avc:  denied  { getattr } for  pid=285 comm="recovery" path="/sdcard/H-to-E0ANGHa.zip" dev="mmcblk1p1" ino=26 scontext=u:r:recovery:s0 tcontext=u:object_r:sdcard_external:s0 tclass=file
+# avc:  denied  { sys_rawio } for  pid=317 comm="qseecomd" capability=17  scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=capability
+# avc:  denied  { mknod } for  pid=311 comm="recovery" capability=27  scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=capability
+# avc:  denied  { create } for  pid=311 comm="recovery" name="loop0" scontext=u:r:recovery:s0 tcontext=u:object_r:device:s0 tclass=blk_file
+# avc:  denied  { unlink } for  pid=311 comm="recovery" name="loop0" dev="tmpfs" ino=10751 scontext=u:r:recovery:s0 tcontext=u:object_r:device:s0 tclass=blk_file
+# avc:  denied  { sys_ptrace } for  pid=2784 comm="recovery" capability=19  scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=capability
+# avc:  denied  { read } for  pid=228 comm="recovery" name="mps_code.dat" dev="mmcblk0p12" ino=28 scontext=u:r:recovery:s0 tcontext=u:object_r:imei_efs_file:s0 tclass=file
+# avc:  denied  { read } for  pid=228 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="mmcblk0p25" ino=22 scontext=u:r:recovery:s0 tcontext=u:object_r:hidden_file:s0 tclass=file
+# avc:  denied  { relabelto } for  pid=2818 comm="update_binary" name=".drm" dev="mmcblk0p18" ino=1032 scontext=u:r:recovery:s0 tcontext=u:object_r:drm_security_system_file:s0 tclass=dir
+# avc:  denied  { execute_no_trans } for  pid=321 comm="recovery" path="/system/bin/qseecomd" dev="dm-0" ino=505 scontext=u:r:recovery:s0 tcontext=u:object_r:qseecomd_exec:s0 tclass=file
+# avc:  denied  { read } for  pid=220 comm="recovery" name="INTERNAL_SDCARD" dev="mmcblk0p25" ino=19 scontext=u:r:recovery:s0 tcontext=u:object_r:hidden_file:s0 tclass=dir
+# avc:  denied  { read } for  pid=220 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="mmcblk0p25" ino=22 scontext=u:r:recovery:s0 tcontext=u:object_r:hidden_file:s0 tclass=file
+# avc:  denied  { create } for  pid=220 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { write open } for  pid=220 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="mmcblk0p26" ino=130820 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { setattr } for  pid=220 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="mmcblk0p26" ino=130820 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { relabelfrom } for  pid=220 comm="recovery" name="media" dev="mmcblk0p26" ino=130817 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+## DMV
+# avc:  denied  { read write } for  pid=2871 comm="recovery" name="device-mapper" dev="tmpfs" ino=8381 scontext=u:r:recovery:s0 tcontext=u:object_r:dm_device:s0 tclass=chr_file
+# avc:  denied  { read write } for  pid=3662 comm="dm_verity_tz_cm" name="mobicore-user" dev="tmpfs" ino=7434 scontext=u:r:recovery:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# avc:  denied  { read write } for  pid=3651 comm="mcDriverDaemon_" name="mobicore" dev="tmpfs" ino=4438 scontext=u:r:recovery:s0 tcontext=u:object_r:mobicore_device:s0 tclass=chr_file
+# avc:  denied  { create } for  pid=3656 comm="NetlinkServer" scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=netlink_socket
+# avc:  denied  { bind } for  pid=3656 comm="NetlinkServer" scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=netlink_socket
+# avc:  denied  { read } for  pid=3656 comm="NetlinkServer" scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=netlink_socket
+# avc:  denied  { read write } for  pid=304 comm="qseecomfsd" name="qseecom" dev="tmpfs" ino=9836 scontext=u:r:recovery:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=304 comm="qseecomfsd" path="/dev/qseecom" dev="tmpfs" ino=9836 scontext=u:r:recovery:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# arch=40000028 syscall=5 per=800000 success=yes exit=31 a0=19604 a1=20002 a2=0 a3=0 items=1 ppid=303 pid=304 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="qseecomfsd" exe="/sbin/qseecomfsd" subj=u:r:recovery:s0 key=(null)
+# cwd="/"
+# item=0 name="/dev/qseecom" inode=9836 dev=00:0c mode=020660 ouid=1000 ogid=1026 rdev=f1:00 obj=u:object_r:qseecom_device:s0 nametype=NORMAL
+# avc:  denied  { ioctl } for  pid=304 comm="qseecomfsd" path="/dev/qseecom" dev="tmpfs" ino=9836 scontext=u:r:recovery:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# arch=40000028 syscall=54 per=800000 success=yes exit=0 a0=1f a1=c004970a a2=bea7dd70 a3=bea7dd60 items=0 ppid=303 pid=304 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="qseecomfsd" exe="/sbin/qseecomfsd" subj=u:r:recovery:s0 key=(null)
+# avc:  denied  { kill } for  pid=278 comm="recovery" capability=5  scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=capability permissive=1
+# arch=40000028 syscall=37 per=800000 success=yes exit=0 a0=fffffed1 a1=f a2=1 a3=0 items=0 ppid=1 pid=278 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="recovery" exe="/sbin/recovery" subj=u:r:recovery:s0 key=(null) 
+# avc:  denied  { set } for property=sys.mobicoredaemon.enable scontext=u:r:recovery:s0 tcontext=u:object_r:mobicore_prop:s0 tclass=property_service
+# audit(1388544205.339:12): avc:  denied  { getattr } for  pid=279 comm="recovery" path="/d/tzdbg/log" dev="debugfs" ino=8515 scontext=u:r:recovery:s0 tcontext=u:object_r:debugfs:s0 tclass=file 
+# audit(1388544205.339:12): item=0 name="/d/tzdbg/log" inode=8515 dev=00:05 mode=0100400 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:debugfs:s0 nametype=NORMAL
+# audit(1388544205.339:13): avc:  denied  { read } for  pid=279 comm="recovery" name="log" dev="debugfs" ino=8515 scontext=u:r:recovery:s0 tcontext=u:object_r:debugfs:s0 tclass=file permissive=1
+# audit(1388544205.339:13): item=0 name="/d/tzdbg/log" inode=8515 dev=00:05 mode=0100400 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:debugfs:s0 nametype=NORMAL
+# knox kapd avc:  denied  { set } for property=security.knox_kap_mode scontext=u:r:recovery:s0 tcontext=u:object_r:knox_kap_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=recovery.dev.state scontext=u:r:recovery:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { getattr } for  pid=3016 comm="recovery" path="/tmp/emmc_checksum.log" dev="tmpfs" ino=2709 scontext=u:r:recovery:s0 tcontext=u:object_r:init_tmpfs:s0 tclass=file permissive=0 
+# avc:  denied  { connectto } for  pid=2989 comm="dm_verity_tz_cm" path=006D636461656D6F6E scontext=u:r:recovery:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket permissive=1
+# arch=c00000b7 syscall=203 success=yes exit=0 a0=2f a1=7f87825028 a2=b a3=468000 items=0 ppid=2959 ppcomm=recovery pid=2989 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="dm_verity_tz_cm" exe="/sbin/dm_verity_tz_cmd" subj=u:r:recovery:s0 key=(null)
+# avc:  denied  { setattr } for  pid=230 comm="update_binary" name="rfs" dev="mmcblk0p25" ino=2507 scontext=u:r:recovery:s0 tcontext=u:object_r:rfs_system_file:s0 tclass=dir permissive=0
+# avc:  denied  { add_name } for  pid=209 comm="recovery" name="misc" scontext=u:r:recovery:s0 tcontext=u:object_r:block_device:s0 tclass=dir permissive=0avc:  denied  { add_name } for  pid=209 comm="recovery" name="misc" scontext=u:r:recovery:s0 tcontext=u:object_r:block_device:s0 tclass=dir permissive=0
+# avc:  denied  { search } for  pid=247 comm="recovery" name="usb-ffs" dev="tmpfs" ino=8664 scontext=u:r:recovery:s0 tcontext=u:object_r:usb_device:s0 tclass=dir permissive=0
+# arch=40000028 syscall=334 per=800000 success=no exit=-13 a0=ffffff9c a1=7ed38 a2=0 a3=0 items=0 ppid=205 ppcomm=recovery pid=247
+# Marvell  avc:  denied  { mounton } for  pid=2419 comm="recovery" path="/cache" dev="rootfs" ino=8203 scontext=u:r:recovery:s0 tcontext=u:object_r:cache_file:s0 tclass=dir permissive=1
+# Marvell  avc:  denied  { mounton } for  pid=2419 comm="recovery" path="/efs" dev="rootfs" ino=8208 scontext=u:r:recovery:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=1
+# Marvell  avc:  denied  { mounton } for  pid=2391 comm="recovery" path="/preload" dev="rootfs" ino=1503 scontext=u:r:recovery:s0 tcontext=u:object_r:hidden_file:s0 tclass=dir permissive=0
+# MR1 TRLTE avc:  denied  { sigkill } for  pid=280 comm="recovery" scontext=u:r:recovery:s0 tcontext=u:r:time_daemon:s0 tclass=process permissive=0
+# HEROLTE avc:  denied  { mounton } for  pid=2838 comm="update_binary" path="/system" dev="sda14" ino=2 scontext=u:r:recovery:s0 tcontext=u:object_r:system_file:s0 tclass=dir permissive=0i
+# avc:  denied  { set } for property=vold.forceencryption scontext=u:r:recovery:s0 tcontext=u:object_r:vold_prop:s0 tclass=property_service
+# avc:  denied  { link } for  pid=2892 comm="recovery" name="MyGalaxyStub.2.0.3.apk" dev="dm-0" ino=5087 scontext=u:r:recovery:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=0
+# avc:  denied  { create } for  pid=2825 comm="recovery" name="recovery_contents.list" scontext=u:r:recovery:s0 tcontext=u:object_r:hidden_file:s0 tclass=file permissive=0
+# avc:  denied  { sys_resource } for  pid=2967 comm="recovery" capability=24  scontext=u:r:recovery:s0 tcontext=u:r:recovery:s0 tclass=capability permissive=0
+

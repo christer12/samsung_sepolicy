@@ -1,0 +1,21 @@
+# geomagneticd
+
+type geomagneticd, domain;
+type geomagneticd_exec, exec_type, file_type;
+
+init_daemon_domain(geomagneticd)
+unix_socket_connect(geomagneticd, property, init)
+
+# rules
+allow geomagneticd input_device:chr_file r_file_perms;
+allow geomagneticd input_device:dir r_dir_perms;
+allow geomagneticd sysfs:file w_file_perms;
+allow geomagneticd sysfs_ss_writable:file rw_file_perms;
+allow geomagneticd system_data_file:dir w_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow geomagneticd system_data_file:file create_file_perms;
+allow geomagneticd system_data_file:file r_file_perms;
+
+# for B2C users
+typeattribute geomagneticd trusteddomain;
+typeattribute geomagneticd device_domain;

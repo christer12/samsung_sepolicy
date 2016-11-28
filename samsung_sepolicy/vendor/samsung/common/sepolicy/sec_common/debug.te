@@ -1,0 +1,275 @@
+#
+# debug
+#
+
+########## type and macro.
+type bugreport, domain, mlstrustedsubject;
+type bugreport_exec, exec_type, file_type;
+
+type dumpsys, domain, mlstrustedsubject;
+type dumpsys_exec, exec_type, file_type;
+
+typeattribute dumpstate mlstrustedsubject;
+
+type selinux_net, domain;
+type selinux_net_exec, exec_type, file_type;
+
+# for B2C users
+typeattribute bugreport trusteddomain;
+typeattribute bugreport system_domain;
+typeattribute dumpsys trusteddomain;
+typeattribute dumpsys system_domain;
+typeattribute dumpstate trusteddomain;
+typeattribute dumpstate system_domain;
+
+execute_dump(system)
+execute_dump(debuggerd)
+execute_dump(appdomain)
+
+############ bugreport, aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+allow bugreport adbd:process sigchld;
+allow bugreport init:unix_stream_socket { read write connectto };
+allow bugreport self:capability dac_override;
+allow bugreport shell:fd use;
+
+########## fs_type
+allow bugreport devpts:chr_file rw_file_perms;
+allow bugreport sdcard_type:file create_file_perms;
+
+########## dev_type
+allow bugreport device:sock_file write;
+allow bugreport tty_device:chr_file rw_file_perms;
+
+########## bugreport file_type
+allow bugreport dumpstate_socket:sock_file rw_file_perms;
+allow bugreport media_rw_data_file:file create_file_perms;
+allow bugreport property_socket:sock_file write;
+
+########## etc_type
+allow bugreport ctl_dumpstate_prop:property_service set;
+
+########## known issue.
+
+############ dumpsys, aosp and sec_common  #############
+########## type and macro.
+binder_call(dumpsys, apaservice)
+binder_call(dumpsys, bintvoutservice)
+binder_call(dumpsys, drmserver)
+binder_call(dumpsys, healthd)
+binder_call(dumpsys, jackservice)
+binder_call(dumpsys, keystore)
+binder_call(dumpsys, mediaserver)
+binder_call(dumpsys, nfc)
+binder_call(dumpsys, radio)
+binder_call(dumpsys, servicemanager)
+binder_call(dumpsys, sensorhubservice)
+binder_call(dumpsys, surfaceflinger)
+binder_call(dumpsys, system)
+binder_call(dumpsys, system_app)
+domain_auto_trans(dumpstate, dumpsys_exec, dumpsys)
+
+########## self and domain_type
+allow dumpsys adbd:fifo_file rw_file_perms;
+allow dumpsys adbd:process sigchld;
+allow dumpsys dumpstate:fifo_file write;
+allow dumpsys init:unix_stream_socket { read write };
+allow dumpsys shell:fd use;
+allow dumpsys shell:unix_stream_socket { read write };
+allow dumpsys vold:fd use;
+allow dumpsys vold:unix_stream_socket { read write };
+allow dumpsys vold:fifo_file rw_file_perms;
+allow dumpsys vold:netlink_kobject_uevent_socket { read write };
+
+########## fs_type
+allow dumpsys devpts:chr_file rw_file_perms;
+allow dumpsys sdcard_type:file create_file_perms;
+
+########## dev_type
+allow dumpsys tty_device:chr_file rw_file_perms;
+
+########## file_type
+allow dumpsys cache_file:file rw_file_perms;
+allow dumpsys media_rw_data_file:file create_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ dumpstate, aosp and sec_common  #############
+########## type and macro.
+binder_call(dumpstate, bintvoutservice)
+binder_call(dumpstate, drmserver)
+binder_call(dumpstate, mediaserver)
+binder_call(dumpstate, nfc)
+binder_call(dumpstate, radio)
+binder_call(dumpstate, sensorhubservice)
+binder_call(dumpstate, servicemanager)
+binder_call(dumpstate, surfaceflinger)
+binder_call(dumpstate, system)
+binder_call(dumpstate, system_app)
+r_dir_file(dumpstate, domain)
+
+########## self and domain_type
+allow dumpstate adbd:process sigchld;
+allow dumpstate domain:lnk_file r_file_perms;
+allow dumpstate domain:process { signal getattr };
+allow dumpstate init:unix_stream_socket { read write };
+allow dumpstate init:unix_stream_socket connectto;
+allow dumpstate kernel:system { syslog_read module_request };
+allow dumpstate knox_system_app:fd use;
+
+#allow dumpstate self:capability *;
+# violate never allow rule. change to:
+allow dumpstate self:capability ~{ mknod sys_rawio } ;
+
+#allow dumpstate self:capability2 *;
+# violate never allow rule. change to:
+allow dumpstate self:capability2 ~{ mac_admin mac_override };
+
+allow dumpstate self:netlink_route_socket { write getattr setopt read bind create nlmsg_read };
+allow dumpstate self:rawip_socket create_socket_perms;
+allow dumpstate self:udp_socket { ioctl getattr create connect };
+allow dumpstate shell:fd use;
+allow dumpstate shell:unix_stream_socket { read write };
+allow dumpstate vold:fd use;
+allow dumpstate vold:fifo_file rw_file_perms;
+allow dumpstate vold:netlink_kobject_uevent_socket { read write };
+allow dumpstate vold:unix_stream_socket { read write connectto };
+allow dumpstate wpa:unix_dgram_socket sendto;
+########## fs_type
+allow dumpstate cgroup:dir create_dir_perms;
+allow dumpstate debugfs:file rw_file_perms;
+allow dumpstate devpts:chr_file rw_file_perms;
+allow dumpstate firmware:dir r_dir_perms;
+allow dumpstate firmware:file r_file_perms;
+allow dumpstate functionfs:filesystem getattr;
+allow dumpstate qtaguid_proc:file r_file_perms;
+allow dumpstate sdcard_type:dir create_dir_perms;
+allow dumpstate sdcard_type:file create_file_perms;
+allow dumpstate selinuxfs:dir r_dir_perms;
+allow dumpstate sysfs:file w_file_perms;
+allow dumpstate sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow dumpstate ashmem_device:chr_file execute;
+allow dumpstate device:sock_file write;
+allow dumpstate tty_device:chr_file { read write };
+
+########## file_type
+allow dumpstate anr_data_file:dir create_dir_perms;
+allow dumpstate anr_data_file:file create_file_perms;
+allow dumpstate bugreport_exec:file { read execute open execute_no_trans };
+allow dumpstate cache_file:file rw_file_perms;
+
+#neverallow { domain -init -installd -dex2oat -zygote } dalvikcache_data_file:dir { add_name create link relabelfrom remove_name rename reparent rmdir setattr write }
+#allow dumpstate dalvikcache_data_file:dir rw_dir_perms;
+allow dumpstate dalvikcache_data_file:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+allow dumpstate dalvikcache_data_file:file { r_file_perms execute };
+
+allow dumpstate dumplog_data_file:dir create_dir_perms;
+allow dumpstate dumplog_data_file:file create_file_perms;
+allow dumpstate dumpstate_socket:sock_file rw_file_perms;
+allow dumpstate dumpsys_exec:file r_file_perms;
+allow dumpstate dumpsys_exec:file x_file_perms;
+allow dumpstate isolated_app_tmpfs:file write;
+allow dumpstate media_rw_data_file:file create_file_perms;
+allow dumpstate platform_app_data_file:dir create_dir_perms;
+allow dumpstate platform_app_data_file:file create_file_perms;
+allow dumpstate platform_app_tmpfs:file write;
+allow dumpstate property_socket:sock_file write;
+allow dumpstate shell_data_file:dir create_dir_perms;
+allow dumpstate shell_data_file:file create_file_perms;
+allow dumpstate shell_exec:file x_file_perms;
+allow dumpstate system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow dumpstate system_data_file:file create_file_perms;
+allow dumpstate system_data_file:file r_file_perms;
+
+
+allow dumpstate system_file:file x_file_perms;
+allow dumpstate untrusted_app_tmpfs:file rw_file_perms;
+allow dumpstate vold_socket:sock_file w_file_perms;
+allow dumpstate wifi_data_file:dir rw_dir_perms;
+allow dumpstate wifi_data_file:sock_file create_file_perms;
+allow dumpstate wpa_socket:sock_file create_file_perms;
+allow dumpstate zygote_exec:file x_file_perms;
+
+########## etc_type
+allow dumpstate csc_prop:property_service set;
+allow dumpstate ctl_dumpstate_prop:property_service set;
+allow dumpstate dumpstate_prop:property_service set;
+#neverallow Google CTS-android-5.0.2_r1 : allow dumpstate default_prop:property_service set;
+allow dumpstate node:rawip_socket node_bind;
+allow dumpstate setupwizard_prop:property_service set;
+
+########## known issue.
+# For dumpstate tima_dump_log
+allow dumpstate tima_dump_exec:file rx_file_perms;
+
+# MobileCare Log
+binder_call(dumpstate, apaservice)
+binder_call(dumpstate, jackservice)
+binder_call(dumpstate, keystore)
+
+############ (bugreport,dumpsys,dumpstate) knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow dumpstate container_app_data_backend:dir search;
+
+########## etc_type
+########## known issue.
+
+############ (bugreport,dumpsys,dumpstate) qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+# For dumpstate tima_dump_log
+allow dumpstate qseecom_device:chr_file rw_file_perms;
+allow dumpsys qseecom_device:chr_file rw_file_perms;
+
+
+############ selinux-network.sh #############
+########## type and macro.
+init_daemon_domain(selinux_net)
+
+########## self and domain_type
+allow selinux_net shell:fd use;
+
+########## fs_type
+allow selinux_net devpts:chr_file getattr;
+
+########## dev_type
+########## file_type
+allow selinux_net selinux_net_exec:file open;
+allow selinux_net shell_exec:file read;
+########## etc_type
+########## known issue.
+
+allow at_distributor ddexe:unix_stream_socket connectto;
+allow at_distributor system_data_file:sock_file write;
+allow dumpsys service_manager_type:service_manager find;
+allow dumpstate exec_type:file r_file_perms;
+allow dumpstate audit_log:dir r_dir_perms;
+allow dumpstate audit_log:file r_file_perms;
+allow dumpsys dumplog_data_file:file r_file_perms;
+allow dumpsys servicemanager:service_manager list;
+allow dumpstate users_system_data_file:dir r_dir_perms;
+# N.27 requested by sh1.back
+allow dumpstate users_system_data_file:file r_file_perms;
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=26702 comm="dumpstate" dev="tmpfs" ino=496279 scontext=u:r:dumpstate:s0 tcontext=u:object_r:platform_app_tmpfs:s0 tclass=file
+# avc:  denied  { write } for  pid=25070 comm="dumpstate" path=2F6465762F6173.. dev="tmpfs" ino=100112 scontext=u:r:dumpstate:s0 tcontext=u:object_r:isolated_app_tmpfs:s0 tclass=file SEPF_SAMSUNG-SM-N910A_4.4.4_0018
+# avc:  denied  { set } for property=sys.dumpstate.type scontext=u:r:dumpstate:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { read } for  pid=9653 comm="dumpstate" name="RR.p" dev="dm-0" ino=262366 scontext=u:r:dumpstate:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0011
+

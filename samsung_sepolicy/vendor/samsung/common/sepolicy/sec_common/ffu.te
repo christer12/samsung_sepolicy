@@ -1,0 +1,45 @@
+#
+# ffu
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type ffu, domain;
+domain_trans(init, rootfs, ffu)
+
+########## self and domain_type
+allow ffu self:capability { sys_boot dac_read_search dac_override fowner chown fsetid };
+
+
+########## fs_type
+allow ffu rootfs:file { x_file_perms entrypoint };
+
+########## dev_type
+allow ffu emmcblk_device:blk_file rw_file_perms;
+allow ffu kmsg_device:chr_file rw_file_perms;
+allow ffu device:dir rw_dir_perms;
+
+########## file_type
+allow ffu cache_file:dir create_dir_perms;
+allow ffu cache_file:file create_file_perms;
+allow ffu efs_file:dir r_dir_perms;
+allow ffu efs_file:file r_file_perms;
+allow ffu sec_efs_file:dir create_dir_perms;
+allow ffu sec_efs_file:file create_file_perms;
+allow ffu sysfs_sec:file rw_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=453 comm="ffu" name="/" dev="tmpfs" ino=14718 scontext=u:r:ffu:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=0 SEPF_SM-G935V_6.0_0001
+# avc:  denied  { dac_override } for  pid=3039 comm="sverifysignatur" capability=1  scontext=u:r:ffu:s0 tcontext=u:r:ffu:s0 tclass=capability permissive=0
+# avc:  denied  { dac_read_search } for  pid=3039 comm="sverifysignatur" capability=2  scontext=u:r:ffu:s0 tcontext=u:r:ffu:s0 tclass=capability permissive=0
+# avc:  denied  { open } for  pid=3038 comm="sverifysignatur" path="/cache/NFC_FW.bin" dev="sda15" ino=17 scontext=u:r:ffu:s0 tcontext=u:object_r:cache_file:s0 tclass=file permissive=0
+# avc:  denied  { setattr } for  pid=3072 comm="chown" name="NFC_FW.bin" dev="sda3" ino=78 scontext=u:r:ffu:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { chown } for  pid=3072 comm="chown" capability=0  scontext=u:r:ffu:s0 tcontext=u:r:ffu:s0 tclass=capability permissive=1
+# avc:  denied  { fowner } for  pid=3078 comm="chmod" capability=3  scontext=u:r:ffu:s0 tcontext=u:r:ffu:s0 tclass=capability permissive=1
+# avc:  denied  { fsetid } for  pid=3078 comm="chmod" capability=4  scontext=u:r:ffu:s0 tcontext=u:r:ffu:s0 tclass=capability permissive=1
+# avc:  denied  { search } for  pid=2977 comm="ffu" name="/" dev="sda3" ino=2 scontext=u:r:ffu:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { open } for  pid=2997 comm="ffu" path="/sys/devices/virtual/sec/tsp/cmd" dev="sysfs" ino=25582 scontext=u:r:ffu:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=1
+

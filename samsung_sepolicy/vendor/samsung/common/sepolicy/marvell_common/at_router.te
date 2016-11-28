@@ -1,0 +1,38 @@
+#
+# at_router
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute at_router trusteddomain;
+typeattribute at_router system_domain;
+
+########## self and domain_type
+allow at_router self:capability setgid;
+
+########## fs_type
+########## dev_type
+allow at_router infor_device:chr_file rw_file_perms;
+
+########## file_type
+allow at_router nvm_data_file:dir create_dir_perms;
+allow at_router nvm_data_file:file create_file_perms;
+allow at_router shell_exec:file rx_file_perms;
+allow at_router system_file:file rx_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { setgid } for  pid=16578 comm="at_router" capability=6  scontext=u:r:at_distributor:s0 tcontext=u:r:at_distributor:s0 tclass=capability permissive=1
+# avc:  denied  { execute } for  pid=2978 comm="at_router" name="sh" dev="mmcblk0p15" ino=563 scontext=u:r:at_router:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=2978 comm="at_router" path="/system/bin/sh" dev="mmcblk0p15" ino=563 scontext=u:r:at_router:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=2978 comm="at_router" path="/system/bin/sh" dev="mmcblk0p15" ino=563 scontext=u:r:at_router:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=2978 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p15" ino=589 scontext=u:r:at_router:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=2978 comm="cp" name="/" dev="mmcblk0p13" ino=2 scontext=u:r:at_router:s0 tcontext=u:object_r:nvm_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=2978 comm="cp" name="DipChannelChange.txt" scontext=u:r:at_router:s0 tcontext=u:object_r:nvm_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=2978 comm="cp" name="DipChannelChange.txt" scontext=u:r:at_router:s0 tcontext=u:object_r:nvm_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=2978 comm="cp" path="/NVM/DipChannelChange.txt" dev="mmcblk0p13" ino=23 scontext=u:r:at_router:s0 tcontext=u:object_r:nvm_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3033 comm="at_router" name="simple_dip" dev="tmpfs" ino=9283 scontext=u:r:at_router:s0 tcontext=u:object_r:infor_device:s0 tclass=chr_file permissive=0 SEPF_SM-G361F_5.1_0011
+

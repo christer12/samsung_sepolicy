@@ -1,0 +1,34 @@
+
+
+#neverallow Google-android-5.0.2_r1 : allow mfm system_data_file:dir{ write add_name create setattr };
+
+allow mfm felica_device:chr_file rw_file_perms;
+allow mfm nfcfelica_device:chr_file r_file_perms;
+
+#neverallow Google-android-5.0.2_r1 : allow mfm system_prop:property_service { set } ;
+allow mfm felicashell_device:chr_file { read write open };
+allow mfm felica_data_file:dir create_dir_perms;
+
+#Add Felica 20130221
+allow mfm felica_data_file:file create_file_perms;
+allow mfm felica_data_file:notdevfile_class_set create_file_perms;
+
+allow mfm dumplog_data_file:file w_file_perms;
+allow mfm zygote:unix_stream_socket {getattr};
+
+# for B2C users
+#changeBySEA : typeattribute mfm trusteddomain;
+#changeBySEA : typeattribute mfm trusted_app_domain;
+
+allow mfm system_service:service_manager find;
+allow mfm activity_service:service_manager find;
+allow mfm display_service:service_manager find;
+allow mfm network_management_service:service_manager find;
+allow mfm connectivity_service:service_manager find;
+
+############ avc_log #############
+#avc:  denied  { find } for service=knox_timakeystore_policy scontext=u:r:mfm:s0:c512,c768 tcontext=u:object_r:system_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=activity scontext=u:r:mfm:s0:c512,c768 tcontext=u:object_r:activity_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=display scontext=u:r:mfm:s0:c512,c768 tcontext=u:object_r:display_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=network_management scontext=u:r:mfm:s0:c512,c768 tcontext=u:object_r:network_management_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=connectivity scontext=u:r:mfm:s0:c512,c768 tcontext=u:object_r:connectivity_service:s0 tclass=service_manager

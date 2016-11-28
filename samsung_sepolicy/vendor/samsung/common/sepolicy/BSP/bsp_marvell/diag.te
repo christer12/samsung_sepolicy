@@ -1,0 +1,53 @@
+# create new domain diag
+#SEC removed: type diag, domain;
+#SEC removed: type diag_exec, exec_type, file_type;
+
+# process diag is for phone, diag-aponly is for tablet
+# both these two processes will be labeled to diag.
+#SEC removed: init_daemon_domain(diag)
+
+allow diag diag_device:chr_file create_file_perms;
+allow diag self:capability { setuid setgid dac_override };
+allow diag self:netlink_kobject_uevent_socket netlink_kobject_uevent_socket_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow diag system_data_file:file create_file_perms;
+allow diag system_data_file:file r_file_perms;
+
+allow diag system_data_file:dir create_dir_perms;
+allow diag tmpfs:dir create_dir_perms;
+allow diag tmpfs:sock_file create_file_perms;
+# only the read permission can be granted
+allow diag property_data_file:file read;
+allow diag nvm_data_file:dir create_dir_perms;
+# only the search permission can be granted
+allow diag property_data_file:dir search;
+allow diag self:process execmem;
+#SEC removed: allow diag boot_block_device:blk_file create_file_perms;
+#SEC removed: allow diag cploader_block_device:blk_file create_file_perms;
+allow diag fuse:dir create_dir_perms;
+allow diag fuse:file create_file_perms;
+allow diag nvm_data_file:file create_file_perms;
+allow diag nvm_data_file:dir create_dir_perms;
+allow diag vold:unix_stream_socket unix_stream_socket_perms;
+#SEC changed:allow diag vold_socket:sock_file create_file_perms;
+allow diag vold_socket:sock_file rw_file_perms;
+allow diag nvm:unix_dgram_socket unix_dgram_socket_perms;
+
+#SEC removed: allow diag radio_block_device:blk_file create_file_perms;
+#SEC removed: allow diag teecsstdca_device:chr_file create_file_perms;
+#SEC removed: allow diag boot_block_device:blk_file create_file_perms;
+#SEC removed: allow diag teecsstdca_device:chr_file create_file_perms;
+#SEC removed: allow diag nvm_block_device:blk_file create_file_perms;
+#SEC removed: allow diag block_device:dir create_dir_perms;
+allow diag dump_log_data_file:file create_file_perms;
+allow diag dump_log_data_file:dir create_dir_perms;
+allow diag tel_data_file:file create_file_perms;
+allow diag tel_data_file:dir create_dir_perms;
+allow diag self:tcp_socket tcp_socket_perms;
+
+file_type_trans(diag, system_data_file, tel_data_file)
+type_transition diag system_data_file:notdevfile_class_set tel_data_file;
+
+

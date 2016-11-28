@@ -1,0 +1,42 @@
+#
+# gatekeeperd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+mobicore_use(gatekeeperd)
+dumplog_create(gatekeeperd)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+# for Qcom model, tee access
+allow gatekeeperd qseecom_device:chr_file { read write ioctl open };
+
+########## file_type
+########## etc_type
+########## known issue.
+# phone unlock 실패시 retry time value을 저장하기 위해 /efs/TEE 경로에 파일을 생성
+# Requestor: harry.hwang
+allow gatekeeperd efs_file:dir search;
+allow gatekeeperd prov_efs_file:dir { write search add_name };
+allow gatekeeperd prov_efs_file:file { write read create open };
+
+
+############ avc_log #############
+# avc:  denied  { connectto } for  pid=3151 comm="gatekeeperd" path=006D636461656D6F6E scontext=u:r:gatekeeperd:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { read write } for  pid=3151 comm="gatekeeperd" name="mobicore-user" dev="tmpfs" ino=4780 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=3151 comm="gatekeeperd" path="/dev/mobicore-user" dev="tmpfs" ino=4780 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=630 comm="gatekeeperd" path="/dev/qseecom" dev="tmpfs" ino=15076 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=630 comm="gatekeeperd" name="qseecom" dev="tmpfs" ino=15076 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { ioctl } for  pid=630 comm="gatekeeperd" path="/dev/qseecom" dev="tmpfs" ino=15076 ioctlcmd=970a scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=14692 comm="dumpsys" path="/data/log/DumpsysAll_G930W8VLU0AOKC-2015-11-19_14:58:30.txt.tmp" dev="dm-0" ino=131104 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0
+# avc:  denied  { search } for  pid=3331 comm="gatekeeperd" name="/" dev="sda3" ino=2 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { search } for  pid=3331 comm="gatekeeperd" name="TEE" dev="sda3" ino=17 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:prov_efs_file:s0 tclass=dir permissive=1 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { write } for  pid=3331 comm="gatekeeperd" name="TEE" dev="sda3" ino=17 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:prov_efs_file:s0 tclass=dir permissive=1 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { add_name } for  pid=3331 comm="gatekeeperd" name="secure_object.txt" scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:prov_efs_file:s0 tclass=dir permissive=1 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { create } for  pid=3331 comm="gatekeeperd" name="secure_object.txt" scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:prov_efs_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { write open } for  pid=3331 comm="gatekeeperd" path="/efs/TEE/secure_object.txt" dev="sda3" ino=80 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:prov_efs_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0002
+# proc : /system/bin/gatekeeperd /data/misc/gatekeeper
+
+

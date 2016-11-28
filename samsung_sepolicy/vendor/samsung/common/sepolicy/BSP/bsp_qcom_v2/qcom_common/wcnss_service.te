@@ -1,0 +1,12 @@
+
+typeattribute wcnss_service trusteddomain;
+typeattribute wcnss_service device_domain;
+typeattribute wcnss_service mlstrustedsubject;
+
+allow wcnss_service proc_sysrq:file rw_file_perms;
+allow wcnss_service uart_device:chr_file rw_file_perms;
+
+
+# avc log
+# avc:  denied  { read write } for  pid=3923 comm="wcnss_filter" name="sysrq-trigger" dev="proc" ino=4026534990 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:proc_sysrq:s0 tclass=file permissive=0 SEPF_SM-J710F_6.0_0002
+# avc:  denied  { write } for  pid=4176 comm="wcnss_filter" name="ttySAC0" dev="tmpfs" ino=13024 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file permissive=0 SEPF_SM-J710F_6.0_0002

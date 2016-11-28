@@ -1,0 +1,6 @@
+
+# for B2C users
+typeattribute mdm_helper trusteddomain;
+typeattribute mdm_helper device_domain;
+
+

@@ -1,0 +1,97 @@
+# FeliCa lock add
+allow platform_app nfcfelica_device:chr_file r_file_perms;
+
+# FeliCa MFM_main
+#allow mfc pvrsync_device:chr_file rw_file_perms;
+#allow untrusteddomain fimg2d_video_device:chr_file { read write open ioctl } ;
+allow untrusteddomain dnsproxyd_socket:sock_file { write } ;
+allow untrusteddomain netd:unix_stream_socket { connectto } ;
+allow untrusteddomain untrusteddomain:udp_socket { create connect } ;
+
+# FeliCa MFW_main
+allow untrusteddomain platform_app_data_file:file { create rename unlink setattr } ;
+allow untrusteddomain platform_app_data_file:dir { write add_name remove_name } ;
+
+# 
+allow untrusteddomain zygote:binder { call transfer } ;
+allow untrusteddomain nfcfelica_device:chr_file r_file_perms;
+
+allow untrusteddomain felica_device:chr_file rw_file_perms;
+allow untrusteddomain felica_device:chr_file { read write open ioctl } ;
+
+allow untrusteddomain nfcfelica_device:chr_file rw_file_perms;
+allow untrusteddomain nfcfelica_device:chr_file { read write open ioctl } ;
+
+allow untrusteddomain device:dir { setattr read write open };
+#changeBySEA : allow untrusteddomain sec-ril:unix_stream_socket { connectto write };
+
+allow zygote mfc:binder { call transfer } ;
+allow zygote efs_file:file rw_file_perms;
+allow zygote efs_file:file { read write open ioctl create } ;
+
+allow zygote nfcfelica_device:chr_file rw_file_perms;
+allow zygote nfcfelica_device:chr_file { read write open ioctl } ;
+allow zygote nfcfelica_device:dir create_dir_perms ;
+
+allow zygote felica_device:chr_file rw_file_perms;
+allow zygote felica_device:chr_file { read write open ioctl } ;
+allow zygote felica_device:dir create_dir_perms ;
+
+allow zygote surfaceflinger:unix_stream_socket { connectto write read setopt } ;
+allow zygote system:unix_stream_socket { read write } ;
+allow zygote surfaceflinger:binder { call transfer } ;
+allow zygote efs_file:dir { write open create read add_name  } ;
+
+allow zygote felica_data_file:dir create_dir_perms;
+
+# Other boot domain
+
+allow drmserver shell_data_file:dir { search };
+
+
+
+allow cnd cnd:capability { fsetid };
+
+
+
+allow untrusteddomain felicashell_device:chr_file { read write open };
+allow untrusteddomain at_distributor_exec:file { read open };
+#changeBySEA need to check : allow untrusteddomain app_efs_file:file { read open };
+allow untrusteddomain selinuxfs:file { read open };
+allow untrusteddomain app_data_file:dir create_dir_perms;
+allow untrusteddomain app_data_file:file create_file_perms;
+
+allow debuggerd auditd:lnk_file { read };
+allow debuggerd mfsc:lnk_file { read };
+allow debuggerd mfdp:lnk_file { read };
+
+userdebug_or_eng(`
+allow debuggerd su:lnk_file { read };
+')
+
+allow system_app property_socket:sock_file { write };
+allow system auditd:lnk_file { read open };
+
+
+allow qcks app_efs_file:file { read };
+allow qcks at_distributor_exec:file { read };
+
+#allow init_shell device:dir { read write open add_name create setattr getattr };
+
+#allow init_shell sdcard_type:file { create write open read };
+#allow init_shell media_rw_data_file:file { create write open };
+#allow init_shell kmsg_device:chr_file rw_file_perms;
+
+userdebug_or_eng(`
+allow shell su:process { signal };
+')
+
+# allow rmt_storage block_device:blk_file { open read write };
+# allow untrusteddomain block_device:blk_file { getattr };
+# allow qcks block_device:blk_file { getattr read open write };
+# allow syscope_app block_device:blk_file { write open };
+# allow ks block_device:blk_file { write open read };
+
+#neverallow Google-android-5.0.2_r1 : allow efsks system_library_file:dir create_dir_perms;
+allow shell init:process { getattr };
+allow ueventd device:lnk_file r_file_perms ;

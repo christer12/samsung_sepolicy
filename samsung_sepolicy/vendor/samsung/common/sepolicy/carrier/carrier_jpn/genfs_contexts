@@ -1,0 +1,1 @@
+genfscon securityfs / u:object_r:securityfs:s0

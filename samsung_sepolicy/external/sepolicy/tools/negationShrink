@@ -1,0 +1,225 @@
+#!/bin/bash
+
+
+err() {
+	echo "$@" 1>&2
+	if [[ $(mount|grep negationShrink|grep tmpfs|wc -l) -ne 0 ]] && [[ $RAMDISK -eq 1 ]];then
+		echo Unmounting ramdisk working directory
+		sudo umount /$INSTANCE
+	fi 
+	exit 1
+}
+
+if [[ $# -eq 0 ]]; then
+	echo "Usage: negationShrink (-p -c -r -tN) POLICY_FILE"
+	echo "       -p  use GNU parallel instead of xargs"
+	echo "       -c  show binary size comparison when done."
+	echo "       -r  use ramdisk for intermediate files (requires sudo)."
+	echo "       -tN Use N threads for most parallelized steps (default is logical CPUs/2)."
+	exit 1
+fi
+
+echo-tag() {
+	if [[ $BUILD -eq 1 ]]; then
+		echo "negationShrink: $@"
+	else
+		echo "$@"
+	fi
+}
+
+THREADS=$(( $(grep -i "processor" /proc/cpuinfo | sort -u | wc -l) /2))
+COMPARE=0
+RAMDISK=0
+XARGS=1
+NOTYPEOF=0
+REDIRECT=0
+BUILD=0
+while getopts "Bprct:x:o:" opt; do
+  case $opt in
+    B)
+      BUILD=1
+      ;;
+    p)
+      echo-tag "Will use GNU parallel for parallelizing" >&2
+      XARGS=0
+      ;;
+    r)
+      RAMDISK=1
+      ;;
+    c)
+      COMPARE=1
+      ;;
+    t)
+      echo-tag "Will use $OPTARG threads." >&2
+      THREADS=$OPTARG
+      ;;
+    o)
+      REDIRECT=1
+      OUTPUT=$OPTARG
+      ;;
+    x)
+      echo-tag "Will comment out typeof lines." >&2
+      NOTYPEOF=1
+      ;;
+    \?)
+      echo-tag "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo-tag "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+shift $(($OPTIND - 1))
+
+
+ORIG="$@"
+if [[ ! -f "$ORIG" ]]; then
+	echo-tag "File $ORIG can't be found!"
+	exit 1
+fi
+
+# if the file already has had this script run on it, error out.
+if [[ $(cat "$ORIG" |grep newAttr) != "" ]]; then
+	err "File $ORIG already has been processed with this script, or contains attributes named \"newAttr\""
+fi
+
+# if they don't have gnu parallel installed, fall back to xargs
+if [[ $XARGS -eq 0 ]]; then 
+	GNU=$(parallel --gnu --version|grep "GNU parallel")
+	if [[ $GNU == "" ]]; then
+		echo-tag "You don't have GNU parallel installed (fix: sudo apt-get install parallel)"
+		echo-tag "falling back to xargs..."
+		XARGS=1
+	fi
+fi
+
+# update path to include current directory so build system can get all sub-scripts
+HERE="`dirname \"$0\"`/"
+export PATH=$PATH:$HERE
+#if [[ $LD_LIBRARY_PATH == "" ]]; then
+#	export LD_LIBRARY_PATH=$HERE
+#else
+#	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$HERE
+#fi
+#echo LD_LIBRARY_PATH=$LD_LIBRARY_PATH
+
+# if we don't have seinfo available, error out
+#HAVE_SEINFO=$(seinfo --version|grep "3.3.8"|wc -l)
+#if [[ $HAVE_SEINFO -eq 0 ]]; then
+#	err "seinfo version 3.3.8 is required to run $(basename $0)"
+#fi
+
+
+# raise max open file limit to the hard max value
+ulimit -Sn `ulimit -Hn`
+if [[ $(ulimit -Sn) -lt 4096 ]]; then
+	err "Max file limit set too low, can't run tool..."
+	# if this happens, you can raise this limit via /etc/security/limits.conf
+fi
+
+# create a new working directory inside /tmp for this instance
+export INSTANCE=$(mktemp -d --tmpdir=/tmp/ negationShrink.XXXX)
+
+#Setup ramdisk if requested
+if [[ $RAMDISK -eq 1 ]]; then
+	echo-tag "Mounting ramdisk as a working directory..."
+	chmod 777 /$INSTANCE
+	sudo mount -t tmpfs -o size=128M tmpfs /$INSTANCE || err "Error: unable to mount ramdisk"
+fi
+
+mkdir -p /$INSTANCE/types-dir
+mkdir -p /$INSTANCE/locks
+> /$INSTANCE/counter
+
+POLICY="/$INSTANCE/policy.conf"
+
+# make white space predictable
+policyFixWhitespace "$ORIG" > "$POLICY"
+
+# temporarily remove typeof lines
+echo-tag Commenting out typeof lines...
+sed -i -e 's/^ *typeof .*/& ##DT##&/' -e 's/^ *typeof /type /' -e 's/,.*##DT##/; ##DT##/' "$POLICY"
+NOTYPEOF_POLICY=$(tempfile)
+cp "$POLICY" "$NOTYPEOF_POLICY"
+
+# build domain indexes (~3 seconds)
+# TODO detect if domainsFromPattern fails
+echo-tag "Indexing domains affected by negation patterns..."
+if [[ $XARGS -eq 1 ]]; then
+	negationPatterns $POLICY |sort -u | xargs -P$THREADS -n1 -I{} domainsFromPattern $POLICY {} |sort -u | nl -s" " > /$INSTANCE/types
+else
+	negationPatterns $POLICY |sort -u | parallel --gnu -j$THREADS domainsFromPattern $POLICY {} |sort -u | nl -s" " > /$INSTANCE/types
+fi
+
+# count the number of negation patterns and add that many new attributes
+NUMATTRS=$(negationPatterns "$POLICY" | sort -u |wc -l)
+echo-tag "Declaring $NUMATTRS new attributes..."
+
+if [[ $XARGS -eq 1 ]]; then
+	addAttrsToPolicy "$POLICY" $NUMATTRS
+else
+	addAttrsToPolicy "$POLICY" $NUMATTRS
+	#negationPatterns "$POLICY" | sort -u | parallel --gnu -j$THREADS addAttrToPolicy "$POLICY" newAttr{#}
+fi
+
+# collect all unique patterns containing negations and replace pattern with new attribute.
+echo-tag "Calculating new attribute lists for each domain..."
+if [[ $XARGS -eq 1 ]]; then
+	negationPatterns "$POLICY" | sort -u | nl -s" " |xargs -P$THREADS -n2 -I{} patternToAttr -x -t$THREADS "$POLICY" "{}"
+else
+	negationPatterns "$POLICY" | sort -u | parallel --gnu -j$THREADS patternToAttr -t$THREADS "$POLICY" "{}" newAttr{#}
+fi
+
+# add all tallied attributes to type declarations in policy.conf
+# THIS IS THE SLOWEST PART OF THE WHOLE NEGATION REPLACEMENT CHAIN!
+echo-tag "Adding newly calculated attribute lists to each type declaration..."
+if [[ $XARGS -eq 1 ]]; then
+	ls -1 /$INSTANCE/types-dir/ | xargs -P2 -n1 -I{} attrListToTypeDef "$POLICY" {}
+else
+	ls -1 /$INSTANCE/types-dir/ | parallel --gnu -j2 attrListToTypeDef "$POLICY" {}
+fi
+rm /$INSTANCE/dtLock
+
+
+# unmount ramdisk
+if [[ $RAMDISK -eq 1 ]]; then
+	OUT=$(tempfile)
+	cp "$POLICY" "$OUT"
+	echo-tag "Unmounting ramdisk working directory..."
+	sudo umount /$INSTANCE
+	mv "$OUT" "$POLICY"
+fi
+
+
+# if requested, compare starting/ending policy sizes, otherwise just compile it to make sure it is valid
+if [[ $COMPARE -eq 1 ]]; then
+	echo Calculating binary policy size change...
+	compareBinPolicies "$NOTYPEOF_POLICY" "$POLICY" || err "Can not compile output file!"
+elif [[ $BUILD -eq 0 ]]; then
+	echo-tag "Testing new policy.conf file..."
+	checkpolicy -c26 -M "$POLICY" -o "/$INSTANCE/sepolicy" > /dev/null  || err "Can not compile output file!"
+	echo -e "File \e[1;33m/$INSTANCE/sepolicy\e[0m contains a successfully compiled copy of your shrunk sepolicy file"
+fi
+
+
+# replace typeof lines, if requested
+if [[ $NOTYPEOF -eq 0 ]]; then
+	sed -i 's/^.* ##DT##//' "$POLICY"
+fi
+
+if [[ $REDIRECT -eq 1 ]]; then
+	mv "$POLICY" "$OUTPUT" || err "Can not move output file to $OUTPUT !"
+	POLICY="$OUTPUT"
+fi
+
+echo
+if [[ $BUILD -eq 0 ]]; then
+	echo -e "File \e[1;33m$POLICY\e[0m contains a copy of your shrunk policy.conf"
+else
+	echo -e "File $POLICY contains a copy of your shrunk policy.conf"
+fi
+
+exit 0

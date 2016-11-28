@@ -1,0 +1,29 @@
+#
+# sysaccess_platform_app
+# GID List += system_access application
+#
+
+
+
+############ aosp and sec_common #############
+########## type and macro.
+typeof sysaccess_platform_app, platform_app;
+
+########## known issue.
+
+### AASA application ### 
+type aasa_app_data_file, app_data_type, data_file_type, file_type, trstdomain_no_read_file, trstdomain_no_write_file; 
+
+# read /data/security/aasa/
+allow sysaccess_platform_app security_spota_file:dir r_dir_perms;
+allow sysaccess_platform_app security_spota_file:file r_file_perms;
+
+# Read and write its own app data files and load library.
+allow sysaccess_platform_app aasa_app_data_file:dir create_dir_perms;
+allow sysaccess_platform_app aasa_app_data_file:notdevfile_class_set create_file_perms;
+allow sysaccess_platform_app aasa_app_data_file:file x_file_perms;
+### End of AASA application ### 
+
+
+############ avc_log #############
+

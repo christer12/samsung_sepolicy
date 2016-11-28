@@ -1,0 +1,70 @@
+#
+# sdcardd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute sdcardd trusteddomain;
+#typeattribute sdcardd system_domain;
+# temporary permissive to gather the log.
+# permissive sdcardd;
+
+modify_kmsg(sdcardd)
+#set_prop(sdcardd)
+#violate neverallow rule
+
+########## self and domain_type
+#allow sdcardd self:capability { mknod chown };
+#violate neverallow rule. change to:
+allow sdcardd self:capability { chown };
+
+########## fs_type
+allow sdcardd rootfs:file r_file_perms;
+allow sdcardd sdcard_external:dir create_dir_perms;
+allow sdcardd sdcard_external:file create_file_perms;
+allow sdcardd sdcard_type:dir mounton;
+allow sdcardd sdcard_type:filesystem unmount;
+
+########## dev_type
+allow sdcardd device:dir rw_dir_perms;
+allow sdcardd qseecom_device:chr_file { read write };
+
+########## file_type
+allow sdcardd media_rw_data_file:dir create_dir_perms;
+allow sdcardd media_rw_data_file:file create_file_perms;
+allow sdcardd obb_apk_file:dir create_dir_perms;
+allow sdcardd obb_apk_file:file create_file_perms;
+allow sdcardd security_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+#From NSA
+allow sdcardd system_data_file:dir  create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow sdcardd system_data_file:file create_file_perms;
+allow sdcardd system_data_file:file r_file_perms;
+
+# Multi Security Contexts
+allow sdcardd container_app_data_backend:dir { create_dir_perms mounton };
+allow sdcardd container_app_data_backend:file create_file_perms;
+
+# Multi Security Contexts
+#apply CTS test waive. It is extended feature
+#neverallow by Google allow sdcardd labeledfs:filesystem { mount unmount };
+allow sdcardd labeledfs:filesystem unmount;
+
+
+########## androd-m-preview: denials ########
+allow sdcardd log_device:chr_file w_file_perms;
+allow sdcardd vold:netlink_socket { read write };
+
+
+############ avc_log #############
+# avc:  denied  { unmount } for  pid=5832 comm="sdcard" scontext=u:r:sdcardd:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem SEPF_SM-N915T_4.4.4_A019
+# arch=40000028 syscall=52 per=800000 success=no exit=-13 a0=beb769a7 a1=2 a2=1c a3=234142d6 items=1 ppid=1 pid=5832 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="sdcard" exe="/system/bin/sdcard" subj=u:r:sdcardd:s0 key=(null)
+# cwd="/" item=0 name="/storage/extSdCard" inode=10379 dev=00:17 mode=040700 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:unlabeled:s0
+# avc:  denied  { read write } for  pid=7476 comm="sdcard" path="socket:[5871]" dev="sockfs" ino=5871 scontext=u:r:sdcardd:s0 tcontext=u:r:vold:s0 tclass=netlink_socket permissive=1
+# avc:  denied  { write } for  pid=30192 comm="sdcard" path="/dev/qseecom" dev="tmpfs" ino=16612 scontext=u:r:sdcardd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0002
+
+

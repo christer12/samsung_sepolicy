@@ -1,0 +1,5 @@
+
+typealias location alias gpsone_daemon;
+typealias location_exec alias gpsone_daemon_exec;
+
+

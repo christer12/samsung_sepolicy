@@ -1,0 +1,49 @@
+#
+# vdc
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute vdc trusteddomain;
+#typeattribute vdc system_domain;
+
+dumplog_read(vdc)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow vdc system_data_file:dir r_dir_perms;
+allow vdc system_data_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+#P151117-03109
+allow vdc devpts:chr_file rw_file_perms;
+
+# support cryptfs_do_dumpstate
+allow vdc cache_file:file write;
+allow vdc sysfs_wake_lock:file write;
+allow vdc vold:fifo_file write;
+allow vdc vold:netlink_kobject_uevent_socket { read write };
+
+# audit.log denial
+allow vdc audit_log:file w_file_perms;
+
+# scan /proc
+typeattribute vdc mlstrustedsubject;
+# avc:  denied  { search } for  pid=10865 comm="vdc" name="7621" dev="proc" ino=43206 scontext=u:r:vdc:s0 tcontext=u:r:platform_app:s0:c512,c768 tclass=dir permissive=0 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { search } for  pid=10865 comm="vdc" name="7748" dev="proc" ino=46202 scontext=u:r:vdc:s0 tcontext=u:r:knox_untrusted_app:s0:c512,c768 tclass=dir permissive=0 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { search } for  pid=10865 comm="vdc" name="7775" dev="proc" ino=45240 scontext=u:r:vdc:s0 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=dir permissive=0 SEPF_SM-G925F_6.0_0001
+# arch=c00000b7 syscall=56 success=no exit=-13 a0=ffffff9c a1=7fec908960 a2=0 a3=0 items=0 ppid=10763 ppcomm=dumpstate pid=10865 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="vdc" exe="/system/bin/vdc" subj=u:r:vdc:s0 key=(null)
+
+
+############ avc_log #############
+# avc:  denied  { append } for  pid=11516 comm="vdc" path="/data/misc/audit/audit.log" dev="mmcblk0p26" ino=1572926 scontext=u:r:vdc:s0 tcontext=u:object_r:audit_log:s0 tclass=file SEPF_SM-G900S_5.0_A001
+# avc:  denied  { open } for  pid=12945 comm="vdc" path="/data/misc/lpnet/lpnetConfig" dev="sda18" ino=261652 scontext=u:r:vdc:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=3 a0=ffffff9c a1=7f9b834e98 a2=0 a3=0 items=0 ppid=12273 ppcomm=dumpstate pid=12945 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="vdc" exe="/system/bin/vdc" subj=u:r:vdc:s0 key=(null)
+# avc:  denied  { write } for  pid=7887 comm="vdc" path="/cache/recovery/last_ode_dumpstate_error_unencrypted.log" dev="mmcblk0p24" ino=16002 scontext=u:r:vdc:s0 tcontext=u:object_r:cache_file:s0 tclass=file SEPF_SAMSUNG-SM-T537A_5.0.2_0009
+# avc:  denied  { read write } for  pid=7887 comm="vdc" path="socket:[7401]" dev="sockfs" ino=7401 scontext=u:r:vdc:s0 tcontext=u:r:vold:s0 tclass=netlink_kobject_uevent_socket SEPF_SAMSUNG-SM-T537A_5.0.2_0009
+# avc:  denied  { write } for  pid=7887 comm="vdc" path="pipe:[7402]" dev="pipefs" ino=7402 scontext=u:r:vdc:s0 tcontext=u:r:vold:s0 tclass=fifo_file SEPF_SAMSUNG-SM-T537A_5.0.2_0009
+# avc:  denied  { write } for  pid=7887 comm="vdc" path="/sys/power/wake_lock" dev="sysfs" ino=62 scontext=u:r:vdc:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file SEPF_SAMSUNG-SM-T537A_5.0.2_0009
+# avc:  denied  { read write } for  pid=19774 comm="vdc" path="/dev/pts/1" dev="devpts" ino=4 scontext=u:r:vdc:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001

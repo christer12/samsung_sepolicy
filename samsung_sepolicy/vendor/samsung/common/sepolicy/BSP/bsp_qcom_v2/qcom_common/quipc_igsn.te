@@ -1,0 +1,4 @@
+typealias location alias quipc_igsn;
+typealias location_exec alias quipc_igsn_exec;
+
+

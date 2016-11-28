@@ -1,0 +1,182 @@
+#
+# Zygote
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute zygote trusteddomain;
+#typeattribute zygote system_domain;
+# temporary permissive to gather the log.
+#permissive zygote;
+
+access_logcat(zygote)
+binder_use(zygote)
+binder_call(zygote, appdomain)
+binder_call(zygote, radio)
+binder_call(zygote, servicemanager)
+binder_call(zygote, surfaceflinger)
+binder_call(zygote, system)
+dumplog_create(zygote)
+
+r_dir_file(zygote, bluetooth_efs_file)
+#unix_socket_connect(zygote, property, init)
+set_prop(system_app, csc_prop)
+set_prop(system_app, setupwizard_prop)
+set_prop(system_app, system_prop)
+set_prop(system_app, denial_prop)
+#neverallow Google CTS-android-m-preview: neverallow { domain -init } default_prop:property_service set
+#set_prop(system_app, default_prop)
+
+unix_socket_connect(zygote, dnsproxyd, init)
+
+########## self and domain_type
+allow zygote at_distributor:fd use;
+allow zygote init:fifo_file rw_file_perms;
+allow zygote init:unix_stream_socket { read write };
+allow zygote kernel:system module_request;
+allow zygote netd:unix_stream_socket connectto;
+allow zygote platform_app:process ptrace;
+allow zygote samsung_app:process ptrace;
+#neverallow by Google: neverallow { domain -debuggerd -vold -dumpstate -system_server } self:capability sys_ptrace
+allow zygote self:capability { net_admin fsetid kill net_raw sys_resource sys_nice };
+allow zygote system:fifo_file w_file_perms;
+## naver line pop2, appstore: ANR occurs at exception
+#allow zygote untrusteddomain:process ptrace;
+
+########## fs_type
+allow zygote sdcard_type:dir create_dir_perms;
+allow zygote sdcard_type:file create_file_perms;
+allow zygote sdcard_type:filesystem unmount;
+allow zygote { sysfs proc }:file write;
+allow zygote sysfs_devices_system_cpu:file rw_file_perms;
+allow zygote tmpfs:dir r_dir_perms;
+allow zygote tmpfs:filesystem unmount;
+
+########## dev_type
+allow zygote graphics_device:chr_file rw_file_perms;
+allow zygote hci_attach_dev:chr_file rw_file_perms;
+allow zygote vold_device:blk_file r_file_perms;
+
+########## file_type
+allow zygote anr_data_file:file rw_file_perms;
+allow zygote app_data_file:dir create_dir_perms;
+allow zygote app_data_file:file create_file_perms;
+allow zygote app_library_file:dir r_dir_perms;
+allow zygote app_library_file:file r_file_perms;
+allow zygote media_rw_data_file:dir { create_dir_perms mounton };
+allow zygote media_rw_data_file:file create_file_perms;
+allow zygote obb_apk_file:dir create_dir_perms;
+allow zygote shell_data_file:dir { r_dir_perms mounton };
+allow zygote system_data_file:dir { create_dir_perms mounton };
+allow zygote sysfs_battery_supply:file rw_file_perms;
+
+#neverallow by Google: allow zygote system_file:dir write;
+
+allow zygote system_library_file:dir r_dir_perms;
+allow zygote zygote_exec:file { open execute_no_trans };
+allow zygote zygote_tmpfs:file append;
+
+########## etc_type
+allow zygote csc_prop:property_service set;
+#neverallow Google CTS-android-5.0.2_r1 : allow zygote default_prop:property_service set;
+allow zygote setupwizard_prop:property_service set;
+allow zygote system_prop:property_service set;
+allow zygote denial_prop:property_service set;
+
+#FRP persistent block path
+#Usually this prop is set by init but in case of some CHN models, handled by csc feature
+#Request from yk.a.cho
+allow zygote frppath_prop:property_service set;
+
+
+########## known issue.
+# for vmware
+allow zygote vmware_app:process { dyntransition setpgid };
+
+#neverallow by Google:(domain init:binder call;)  allow zygote init:binder call;
+
+#from CTS testing
+allow zygote media_rw_data_file:dir { create_dir_perms mounton};
+
+#from NSA
+# handle bugreports b/10498304
+allow zygote ashmem_device:chr_file execute;
+allow zygote shell_data_file:file { write getattr };
+allow zygote system:binder { transfer call };
+allow zygote servicemanager:binder { call };
+
+# for patchoat: create symlink /data/dalvik-cache/arm/system@framework@boot.oat target: /system/framework/arm/boot.oat
+allow zygote dalvikcache_data_file:lnk_file create_file_perms;
+
+############ knox_common #############
+########## type and macro.
+binder_call(zygote, containerdomain)
+
+########## self and domain_type
+########## fs_type
+allow zygote labeledfs:filesystem unmount;
+allow zygote proc_avc_msg:file rw_file_perms;
+
+########## dev_type
+allow vold knox_dar_device:chr_file r_file_perms;
+allow vold knox_dar_shared_device:chr_file r_file_perms;
+
+########## file_type
+allow zygote audit_log:dir create_dir_perms;
+allow zygote audit_log:file create_file_perms;
+allow zygote bbccontainer_app_data_backend:dir create_dir_perms;
+allow zygote container_app_data_backend:dir { rw_dir_perms mounton setattr };
+allow zygote container_app_data_file:dir { create_dir_perms mounton };
+allow zygote container_app_data_file:file create_file_perms;
+allow zygote container_app_sdcard_file:dir mounton;
+allow zygote container_file_type:dir r_dir_perms;
+allow zygote irm_media_data_file:dir create_dir_perms;
+allow zygote irm_media_data_file:file create_file_perms;
+
+########## etc_type
+########## known issue.
+# Zygote should never trust 3rd party apps..
+allow zygote containerdomain:fd use;
+allow zygote containerdomain:process { dyntransition getpgid setpgid };
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow zygote self:tcp_socket *;
+## naver line pop2, appstore: ANR occurs at exception
+#allow zygote untrusteddomain:process ptrace;
+
+########## fs_type
+########## dev_type
+allow zygote bluetooth_serial_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+allow zygote { node port }:tcp_socket { node_bind name_bind };
+
+########## known issue.
+
+
+########## androd-m-preview: denials ########
+allow zygote log_device:chr_file w_file_perms;
+allow zygote property_socket:sock_file w_file_perms;
+allow zygote users_system_data_file:file r_file_perms;
+
+
+############ avc_log #############
+#audit(1388534515.039:169): avc:  denied  { create } for  pid=1841 comm="zygote" name="legacy" scontext=u:r:zygote:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+#audit(1403080203.525:249): avc:  denied  { mounton } for  pid=17957 comm="zygote" path="/storage/emulated/legacy" dev="sdcardfs" ino=1044486 scontext=u:r:zygote:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+#audit(1403080203.525:249): avc:  denied  { mounton } for  pid=17957 comm="zygote" path="/storage/emulated/legacy" dev="sdcardfs" ino=1044486 scontext=u:r:zygote:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+#audit(1403079336.410:218): avc:  denied  { write } for  pid=6473 comm="zygote" name="100" dev="mmcblk0p25" ino=130587 scontext=u:r:zygote:s0 #tcontext=u:object_r:container_app_data_backend:s0:c2 tclass=dir
+#audit(1403076996.610:30): avc:  denied  { read } for  pid=510 comm="vold" name="dek_log" dev="tmpfs" ino=8883 scontext=u:r:vold:s0 tcontext=u:object_r:knox_dar_device:s0 tclass=chr_file
+#audit(1403173619.348:201): avc:  denied  { unmount } for  pid=5340 comm="zygote" scontext=u:r:zygote:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+#audit(1388537169.452:209): avc:  denied  { create } for  pid=12715 comm="main" name="system@framework@boot.oat" scontext=u:r:zygote:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=lnk_file
+# avc:  denied  { write } for  pid=20928 comm="zygote" name="boot_low_freq" dev="sysfs" ino=20638 scontext=u:r:zygote:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=0 SEPF_SM-G920S_5.1.1_0013
+# avc:  denied  { read } for  pid=20466 comm="blkid" name="disk:8,48" dev="tmpfs" ino=145769 scontext=u:r:zygote:s0 tcontext=u:object_r:vold_device:s0 tclass=blk_file permissive=0
+# avc:  denied  { create } for  pid=13139 comm="main" name="NPKI" scontext=u:r:zygote:s0 tcontext=u:object_r:bbccontainer_app_data_backend:s0 tclass=dir permissive=1 SEPF_SAMSUNG-SM-N920A_5.1.1_0037
+# avc:  denied  { setattr } for  pid=2829 comm="main" name="ams.log" dev="mmcblk0p21" ino=65070 scontext=u:r:zygote:s0 tcontext=u:object_r:audit_log:s0 tclass=file item=0 name="/data/misc/audit/ams.log" inode=65070 dev=103:0d mode=0100600 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:audit_log:s0
+# avc:  denied  { sys_nice } for  pid=777 comm="main" capability=23  scontext=u:r:zygote:s0 tcontext=u:r:zygote:s0 tclass=capability permissive=0
+# avc:  denied  { write } for  pid=3180 comm="main" name="audit" dev="tmpfs" ino=4829 scontext=u:r:zygote:s0 tcontext=u:object_r:audit_log:s0 tclass=dir permissive=0
+

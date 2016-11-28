@@ -1,0 +1,14 @@
+# create new domain setup_fs
+type setup_fs, domain;
+type setup_fs_exec, exec_type, file_type;
+
+init_daemon_domain(setup_fs)
+
+#SEC changed :allow setup_fs block_device:dir create_dir_perms;
+allow setup_fs block_device:dir r_dir_perms;
+#SEC removed : allow setup_fs nvm_block_device:blk_file create_file_perms;
+allow setup_fs proc_sysrq:file create_file_perms;
+allow setup_fs self:capability sys_boot;
+allow setup_fs system_file:file execute_no_trans;
+#SEC removed : allow setup_fs cache_block_device:blk_file create_file_perms;
+

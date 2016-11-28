@@ -1,0 +1,115 @@
+#
+# apaservice
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type apaservice, domain;
+type apaservice_exec, exec_type, file_type;
+typeattribute apaservice mlstrustedsubject;
+# for B2C users
+typeattribute apaservice trusteddomain;
+typeattribute apaservice system_domain;
+
+binder_use(apaservice)
+binder_call(apaservice, container_app)
+binder_call(apaservice, jackservice)
+binder_call(apaservice, platform_app)
+binder_call(apaservice, untrusted_app)
+init_daemon_domain(apaservice)
+unix_socket_rw(apaservice, init)
+
+########## self and domain_type
+allow apaservice jackservice:unix_stream_socket connectto;
+allow apaservice kernel:system module_request;
+allow apaservice radio:fd use;
+allow apaservice system_app:fd use;
+allow apaservice untrusteddomain:fd use;
+allow apaservice untrusteddomain:unix_stream_socket connectto;
+
+########## fs_type
+allow apaservice sdcard_internal:dir rw_dir_perms;
+allow apaservice sdcard_internal:file create_file_perms;
+
+########## dev_type
+########## file_type
+allow apaservice app_data_file:dir rw_dir_perms;
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#allow apaservice app_data_file:{ file lnk_file } rw_file_perms;
+allow apaservice app_data_file:file rw_file_perms;
+allow apaservice app_data_file:lnk_file w_file_perms;
+
+allow apaservice app_library_file:dir r_dir_perms;
+allow apaservice efs_file:dir r_dir_perms;
+allow apaservice efs_file:file r_file_perms;
+allow apaservice jack_data_file:dir create_dir_perms;
+allow apaservice jack_data_file:{ file sock_file } create_file_perms;
+allow apaservice jack_socket:dir rw_dir_perms;
+allow apaservice jack_socket:sock_file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow apaservice app_library_file:file execute;
+allow apaservice media_rw_data_file:dir w_dir_perms;
+allow apaservice media_rw_data_file:file create_file_perms;
+allow apaservice platform_app_data_file:dir r_dir_perms;
+allow apaservice system_data_file:dir w_dir_perms;
+allow apaservice system_data_file:sock_file create_file_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow apaservice system_data_file:file create_file_perms;
+allow apaservice system_data_file:file r_file_perms;
+
+allow apaservice system_file:file { x_file_perms execmod };
+
+########## etc_type
+allow apaservice apaservice_service:service_manager add;
+allow apaservice jackservice_service:service_manager find;
+allow apaservice scheduling_policy_service:service_manager find;
+
+########## androd-m-preview: denials ########
+allow apaservice permission_service:service_manager find;
+
+########## known issue.
+# Request from Professional Audio SDK team. Dae Beom Park<dbs.park@samsung.com>
+# related to simpleclient apk
+#neverallow Google CTS-android-5.0.2_r1 : allow apaservice apk_data_file:file execute;
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+allow apaservice container_app:binder transfer;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow apaservice container_app_data_backend:dir rw_dir_perms;
+allow apaservice container_app_data_backend:file rw_file_perms;
+allow apaservice container_app_sdcard_file:dir rw_dir_perms;
+allow apaservice container_app_sdcard_file:file rw_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { add } for service=com.samsung.android.jam.IAPAService scontext=u:r:apaservice:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+# avc:  denied  { execute } for  pid=2947 comm="Binder_1" path="/data/app/com.samsung.android.sdk.professionalaudio.sample.simpleclient-1/lib/arm/libwave.so" dev="mmcblk0p26" ino=131374 scontext=u:r:apaservice:s0 tcontext=u:object_r:apk_data_file:s0 tclass=file
+# avc:  denied  { create } for  pid=294 comm="apaservice" name="apa_settings.cfg" scontext=u:r:apaservice:s0 tcontext=u:object_r:system_data_file:s0 tclass=file SEPF_SM-G900F_5.0_0001
+# avc:  denied  { write } for  pid=3053 comm="apaservice" name="jack" dev="sda17" ino=520215 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=3053 comm="apaservice" name="apa_settings.cfg" scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3053 comm="apaservice" name="apa_settings.cfg" scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3053 comm="apaservice" path="/data/misc/jack/apa_settings.cfg" dev="sda17" ino=520223 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3053 comm="apaservice" name="jack_default_1038_0" dev="tmpfs" ino=42500 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { create } for  pid=3053 comm="apaservice" name="jack_apa_control_1038_0" scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { setattr } for  pid=3053 comm="apaservice" name="jack_apa_control_1038_0" dev="tmpfs" ino=42518 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { unlink } for  pid=10736 comm="apaservice" name="jack_apa_control_1038_0" dev="tmpfs" ino=42518 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=3051 comm="apaservice" name="jack" dev="tmpfs" ino=5399 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=3051 comm="apaservice" name="jack_wait_1038_0" scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=dir permissive=1
+# avc:  denied  { remove_name } for  pid=10552 comm="apaservice" name="jack_wait_1038_0" dev="tmpfs" ino=47650 scontext=u:r:apaservice:s0 tcontext=u:object_r:jack_socket:s0 tclass=dir permissive=1
+# avc:  denied  { sendto } for  pid=8414 comm="mmusic.morphwiz" path="/dev/socket/jack/set.priority" scontext=u:r:untrusted_app:s0 tcontext=u:r:apaservice:s0 tclass=unix_dgram_socket permissive=1
+# avc:  denied  { sendto } for  pid=7916 comm=4173796E635461736B202331 path="/dev/socket/jack/set.priority" scontext=u:r:untrusted_app:s0 tcontext=u:r:apaservice:s0 tclass=unix_dgram_socket permissive=1
+# avc:  denied  { connectto } for  pid=2973 comm="Binder_1" path=0070726F66657373696F6E616C617564696F2E617061736572766963652E617061636F6E74726F6C scontext=u:r:apaservice:s0 tcontext=u:r:untrusted_app:s0 tclass=unix_stream_socket
+# avc:  denied  { find } for service=com.samsung.android.jam.IJackService scontext=u:r:apaservice:s0 tcontext=u:object_r:jackservice_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=scheduling_policy scontext=u:r:apaservice:s0 tcontext=u:object_r:scheduling_policy_service:s0 tclass=service_manager
+# avc:  denied  { execmod } for  pid=529 comm="apaservice" path="/system/lib/libsthmb.so" dev="sda20" ino=2423 scontext=u:r:apaservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { call } for  pid=9644 comm="Binder_3" scontext=u:r:apaservice:s0 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=binder permissive=0 SEPF_SECMOBILE_6.0.1_0002
+

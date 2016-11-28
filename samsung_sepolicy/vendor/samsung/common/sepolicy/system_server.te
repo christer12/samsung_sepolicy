@@ -1,0 +1,626 @@
+#
+# system_server
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typealias system_server alias system;
+
+# for B2C users
+typeattribute system_server trusteddomain;
+#typeattribute system_server system_domain;
+# temporary permissive to gather the log.
+# permissive system;
+
+absolute_create(system_server)
+access_kmsg(system_server)
+access_logcat(system_server)
+binder_call(system_server, at_distributor)
+binder_call(system_server, bintvoutservice)
+binder_call(system_server, connfwexe)
+binder_call(system_server, container_app)
+binder_call(system_server, dumpstate)
+binder_call(system_server, gpsd)
+
+#neverallow by Google:(domain init:binder call;) 
+#binder_call(system_server, init)
+
+#binder_call(system_server, init_shell)
+binder_call(system_server, kiesexe)
+binder_call(system_server, rild)
+binder_call(system_server, sec-ril)
+binder_call(system_server, sensorhubservice)
+binder_call(system_server, servicemanager)
+binder_call(system_server, zygote)
+binder_use(system_server)
+dumplog_create(system_server)
+mobicore_use(system_server)
+r_dir_file(system_server, dev_type)
+
+#neverallow by Google: ({ domain -keystore -init -kernel -recovery } keystore_data_file:notdevfile_class_set *;)
+#r_dir_file(system_server, file_type)
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow system_server { file_type -keystore_data_file }:dir r_dir_perms;
+allow system_server { file_type -keystore_data_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow system_server { file_type -keystore_data_file }:{ file lnk_file } r_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server { bluetooth_data_file nfc_data_file shell_data_file app_data_file }:file open
+allow system_server { file_type -keystore_data_file -vold_data_file  -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#allow system_server { bluetooth_data_file nfc_data_file shell_data_file app_data_file }:lnk_file r_file_perms;
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+allow system_server { bluetooth_data_file nfc_data_file }:lnk_file r_file_perms;
+
+allow system_server { bluetooth_data_file nfc_data_file shell_data_file app_data_file }:file { getattr read ioctl lock };
+
+r_dir_file(system_server, containerdomain)
+unix_socket_rw(system_server, charon)
+unix_socket_rw(system_server, eris)
+unix_socket_rw(system_server, actlmand)
+
+########## self and domain_type
+allow system_server adbd:binder call;
+allow system_server adbd:process sigchld;
+allow system_server apaservice:process setsched;
+allow system_server appdomain:fifo_file rw_file_perms;
+allow system_server appdomain:process getsched;
+allow system_server at_distributor:fd use;
+allow system_server auditd:lnk_file r_file_perms;
+allow system_server bluetooth:unix_stream_socket { getattr getopt read write shutdown };
+allow system_server cellgeofenced:unix_stream_socket connectto;
+allow system_server container_app:unix_stream_socket { read write };
+allow system_server containerdomain:fifo_file w_file_perms;
+allow system_server dhcp:process signal;
+allow system_server domain:{ tcp_socket udp_socket } getattr;
+allow system_server domain:lnk_file r_file_perms;
+allow system_server domain:process getattr;
+allow system_server imsd:process setsched;
+allow system_server init:fifo_file { read write };
+allow system_server init:fifo_file read;
+allow system_server init:process getsched;
+allow system_server init:unix_dgram_socket sendto;
+allow system_server init:unix_stream_socket { getopt getattr setopt read write };
+allow system_server jackservice:process setsched;
+allow system_server kernel:process { getsched setsched };
+allow system_server kernel:key search;
+#allow system_server keystore:keystore_key { insert get delete clear_uid add_auth user_changed};
+allow system_server mediaserver:{ tcp_socket udp_socket }  rw_socket_perms;
+allow system_server mediaserver:unix_stream_socket connectto;
+allow system_server mediaserver_tmpfs:fd use;
+allow system_server p2p_supplicant:unix_dgram_socket sendto;
+allow system_server platform_app:dir lock;
+allow system_server platform_app:udp_socket getopt;
+allow system_server rild:binder call;
+allow system_server secure_storage:unix_stream_socket connectto;
+allow system_server self:capability { setuid chown fowner sys_ptrace setgid dac_override sys_module };
+allow system_server self:netlink_route_socket *;
+allow system_server self:rawip_socket *;
+allow system_server sensorhubservice:fd use;
+allow system_server sensorhubservice:fifo_file read;
+allow system_server shell:fifo_file w_file_perms;
+allow system_server surfaceflinger:fifo_file r_file_perms;
+allow system_server system_app:dir lock;
+allow system_server tee:unix_dgram_socket sendto;
+allow system_server untrusteddomain:{ tcp_socket udp_socket } create_socket_perms;
+allow system_server untrusteddomain:fifo_file w_file_perms;
+allow system_server zygote:file w_file_perms;
+allow system_server zygote:process { signal sigkill getsched };
+
+########## fs_type
+allow system_server cgroup:dir create_dir_perms;
+allow system_server devpts:dir rw_dir_perms;
+allow system_server devpts:file_class_set rw_file_perms;
+allow system_server proc:dir lock;
+allow system_server proc:file w_file_perms;
+
+#neverallow by Google: ({ fs_type -rootfs }:file execute;) (sdcard_type:file { { getattr open read ioctl lock } { open append write } };)
+#neverallow Google CTS-android-m-preview: neverallow system_server sdcard_type:dir { open read write }
+allow system_server sdcard_type:dir { create reparent rename rmdir setattr getattr search ioctl add_name remove_name }; 
+#allow system_server sdcard_type:file { create_file_perms x_file_perms };
+#allow system_server sdcard_type:dir r_file_perms;
+#allow system_server sdcard_type:file r_file_perms;
+#allow system_server sdcard_type:file execute;
+
+allow system_server sysfs:dir create_dir_perms;
+allow system_server sysfs:file create_file_perms;
+allow system_server sysfs_battery_supply:file rw_file_perms;
+allow system_server sysfs_battery_supply:file setattr;
+allow system_server sysfs_sec:{ file lnk_file } rw_file_perms;
+allow system_server sysfs_sec:dir rw_dir_perms;
+allow system_server sysfs_ss_writable:file rw_file_perms;
+allow system_server sysrq_proc:file rw_file_perms;
+
+########## dev_type
+allow system_server binder_device:chr_file ioctl;
+
+#neverallow by Google:(block_device:blk_file { open read write };) 
+#allow system_server block_device:blk_file rw_file_perms;
+#neverallow by Google:(kmem_device:chr_file *;)
+allow system_server { dev_type -trstdomain_no_rw_device }:devfile_class_set getattr;
+
+#neverallow by Google: 
+#allow system_server device:chr_file r_file_perms;
+allow system_server clock_device:chr_file write;
+allow system_server gpu_device:chr_file rw_file_perms;
+allow system_server device:sock_file rw_file_perms;
+allow system_server diag_device:chr_file r_file_perms;
+allow system_server diag_device:chr_file write;
+#neverallow Google CTS-android-m-preview: neverallow system_server { dev_type -frp_block_device }:blk_file { { append create link unlink relabelfrom rename setattr write } open read ioctl lock }
+#allow system_server emmcblk_device:blk_file rw_file_perms;
+allow system_server hrm_device:chr_file r_file_perms;
+allow system_server i2c_device:chr_file rw_file_perms;
+allow system_server io_device:chr_file { read open ioctl };
+allow system_server ir_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server { dev_type -frp_block_device }:blk_file { { append create link unlink relabelfrom rename setattr write } open read ioctl lock }
+#allow system_server paramblk_device:blk_file rw_file_perms;
+allow system_server radio_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server { dev_type -frp_block_device }:blk_file { { append create link unlink relabelfrom rename setattr write } open read ioctl lock }
+#allow system_server secure_storage_device:file_class_set r_file_perms;
+allow system_server sensor_device:chr_file r_file_perms;
+allow system_server socket_device:sock_file rw_file_perms;
+allow system_server timerirq_device:chr_file rw_file_perms;
+allow system_server tzic_device:chr_file rw_file_perms;
+allow system_server ump_device:chr_file rw_file_perms;
+allow system_server urandom_device:chr_file rw_file_perms;
+allow system_server usb_bus_device:chr_file rw_file_perms;
+allow system_server usb_bus_device:dir r_dir_perms;
+allow system_server validity_device:{ fifo_file chr_file } rw_file_perms;
+allow system_server validity_device:dir rw_dir_perms;
+
+########## file_type
+allow system_server { charon_socket dumpstate_socket eris_socket mtpd_socket racoon_socket }:dir rw_dir_perms;
+allow system_server { charon_socket dumpstate_socket eris_socket mtpd_socket racoon_socket }:sock_file create_file_perms;
+allow system_server adbd_socket:sock_file write;
+allow system_server apk_tmp_file:file rw_file_perms;
+allow system_server app_data_file:dir relabelfrom;
+allow system_server app_data_file:file execute;
+allow system_server app_efs_file:dir create_dir_perms;
+allow system_server app_efs_file:file create_file_perms;
+allow system_server app_library_file:dir { create_dir_perms relabelto relabelfrom };
+allow system_server app_library_file:file { create_file_perms x_file_perms };
+allow system_server audio_data_file:file rwx_file_perms;
+allow system_server audit_log:dir w_dir_perms;
+allow system_server audit_log:file create_file_perms;
+allow system_server carrier_efs_file:dir create_dir_perms;
+allow system_server carrier_efs_file:file create_file_perms;
+allow system_server efs_file:dir create_dir_perms;
+allow system_server efs_file:file create_file_perms;
+allow system_server epm_socket:sock_file rw_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server dex2oat_exec:file { execute execute_no_trans }
+#allow system_server exec_type:file execute;
+#neverallow Google CTS-android-m-preview: neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+allow system_server { exec_type -dex2oat_exec - su_exec}:file execute;
+
+allow system_server frigate_socket:sock_file rw_file_perms;
+allow system_server gps_data_file:dir create_dir_perms;
+allow system_server gps_data_file:{ sock_file file fifo_file } create_file_perms;
+
+#neverallow by Google CTS : allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:dir { create_dir_perms relabelto relabelfrom };
+#neverallow by Google CTS : allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:file { create_file_perms relabelto relabelfrom };
+#neverallow by Google: ({ domain -keystore -init -kernel -recovery } keystore_data_file:notdevfile_class_set *;)
+#neverallow by Google CTS : allow system_server { file_type -keystore_data_file }:notdevfile_class_set r_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:dir { relabelto relabelfrom };
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:dir { relabelto relabelfrom };
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:file { relabelto relabelfrom };
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type }:file { relabelto relabelfrom };
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:dir create_dir_perms;
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type  }:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:file create_file_perms;
+allow system_server { file_type -trstdomain_no_read_file -trstdomain_no_write_file  -exec_type  }:file create_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow system_server { file_type -keystore_data_file -bluetooth_data_file -nfc_data_file -shell_data_file -app_data_file }:notdevfile_class_set r_file_perms;
+allow system_server { file_type -trstdomain_no_read_file}:notdevfile_class_set r_file_perms;
+
+## Need to test for the below type. ##
+##allow system_server { unlabeled container_file_type container_system_file fixmo_app_data_file good_app_data_file knox_clipboard_file }:dir { create_dir_perms relabelto relabelfrom };
+##allow system_server { unlabeled container_file_type container_system_file fixmo_app_data_file good_app_data_file knox_clipboard_file }:file { create_file_perms relabelto relabelfrom };
+
+allow system_server ppp_system_file:file rx_file_perms;
+allow system_server sec_efs_file:dir create_dir_perms;
+allow system_server sec_efs_file:file create_file_perms;
+allow system_server security_file:dir create_dir_perms;
+allow system_server security_file:file create_file_perms;
+allow system_server shell_exec:file rx_file_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+#allow system_server su_exec:file rx_file_perms;
+allow system_server su_exec:file r_file_perms;
+
+allow system_server system_data_file:file relabelto;
+allow system_server system_data_file:dir relabelto;
+allow system_server system_fifo:dir r_dir_perms;
+
+#neverallow by Google: allow system_server system_file:dir rw_dir_perms;
+allow system_server system_file:dir r_dir_perms;
+#neverallow by Google: allow system_server system_file:file rw_file_perms;
+allow system_server system_file:file r_file_perms;
+allow system_server system_file:file execmod;
+
+allow system_server lptcp_socket:sock_file rw_file_perms;
+allow system_server thermal_socket:sock_file rw_file_perms;
+allow system_server tima_dump_exec:file x_file_perms;
+allow system_server tima_keystore_file:dir create_dir_perms;
+allow system_server tima_keystore_file:file create_file_perms;
+allow system_server tima_log:dir create_dir_perms;
+allow system_server tima_log:file create_file_perms;
+allow system_server tz_socket:sock_file write;
+allow system_server users_system_data_file:dir create_dir_perms;
+allow system_server users_system_data_file:file create_file_perms;
+allow system_server vdc_exec:file x_file_perms;
+allow system_server vold_socket:sock_file rw_file_perms;
+allow system_server wallpaper_file:file create_file_perms;
+allow system_server wifiver_data_file:file rw_file_perms;
+allow system_server wifi_data_file:sock_file create_file_perms;
+allow system_server wifi_efs_file:dir r_dir_perms;
+allow system_server wifi_efs_file:file r_file_perms;
+allow system_server wpa_socket:sock_file { getattr link unlink rename };
+
+########## etc_type
+allow system_server audio_prop:property_service set;
+allow system_server bluetooth_prop:property_service set;
+allow system_server camera_prop:property_service set;
+allow system_server ctl_dumpstate_prop:property_service set;
+#neverallow by Google CTS : allow system_server default_prop:property_service set;
+allow system_server fm_prop:property_service set;
+allow system_server radio_prop:property_service set;
+allow system_server setupwizard_prop:property_service set;
+allow system_server shell_prop:property_service set;
+allow system_server system_prop:property_service set;
+allow system_server telecom_service:service_manager add;
+allow system_server ucs_prop:property_service set;
+allow system_server user_prop:property_service set;
+allow system_server vpn_prop:property_service set;
+
+########## known issue.
+# Access devices.
+allow system_server random_device:chr_file rw_file_perms;
+
+# Explicitly not granting open, these are passed fd's
+allow system_server system_app:fifo_file { append write };
+
+# for Vmware
+allow system_server vmware_app:process sigkill;
+
+# Art platform support
+allow system_server app_data_file:dir relabelfrom;
+allow system_server dalvikcache_data_file:file execute;
+allow system_server platform_app_data_file:dir relabelfrom;
+
+# socket connection with radio. used for sprint itson IPC
+allow system_server radio:unix_stream_socket connectto;
+
+# connection with nqs
+allow system_server nqs:unix_stream_socket connectto;
+
+# ReactiveService of system_server : need the socket connection to process AT command
+allow system_server at_distributor:unix_stream_socket connectto;
+allow system_server ddexe:unix_stream_socket connectto;
+
+# Absolute additions requested by hs2010.kim
+allow system_server abt_pers_data_file:dir create_dir_perms;
+allow system_server abt_pers_data_file:file create_file_perms;
+allow system_server app_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server { bluetooth_data_file nfc_data_file shell_data_file app_data_file }:file open
+allow system_server app_data_file:file { create rename setattr unlink getattr read ioctl lock append write };
+
+# magnetic sensor (/dev/alps_io)
+allow system_server input_device:chr_file rw_file_perms;
+
+# to support security_spota_file
+allow system_server security_spota_file:dir { create_dir_perms relabelto };
+allow system_server security_spota_file:file { create_file_perms relabelto };
+
+
+## Security team Request to write widevine key via SystemService.
+#/data/app/tlcd_sock
+allow system_server apk_data_file:file r_file_perms;
+allow system_server apk_data_file:dir rw_dir_perms;
+type_transition system_server apk_data_file:sock_file drmserver_socket "tlcd_sock";
+allow system_server drmserver_socket:sock_file create_file_perms;
+allow system_server apk_data_file:sock_file unlink;
+#/dev/s5p-smem
+allow system_server s5p_smem_device:chr_file write;
+
+# customized drm (i.e : /data/.sktdrm)
+allow system_server drm_playready_file:dir rw_dir_perms;
+allow system_server drm_playready_file:file rw_file_perms;
+
+
+# No.41 system service set property, sys.reset_reason
+# hero2graceltexx/hero2gracelte:6.0.1/G935FXXE1APED/SEPF_SECMOBILE_6.0.1_0012
+set_prop(system_server, etc_debug_prop)
+
+
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+allow system_server containerdomain:process { getattr getsched setsched sigkill signal };
+allow system_server containerdomain:dir r_dir_perms;
+allow system_server containerdomain:{ file lnk_file } rw_file_perms;
+allow system_server containerdomain:{ tcp_socket udp_socket } { setopt read write getopt };
+
+########## fs_type
+allow system_server proc_avc_msg:file rw_file_perms;
+
+########## dev_type
+allow system_server kmsg_device:chr_file rw_file_perms;
+allow system_server knox_kap_device:chr_file r_file_perms;
+
+########## file_type
+allow system_server container_app_data_file:dir { create_dir_perms relabelfrom };
+allow system_server container_app_data_file:file { create_file_perms relabelfrom };
+allow system_server container_app_data_backend:dir { create_dir_perms relabelto };
+allow system_server container_app_data_backend:file { create_file_perms relabelto };
+allow system_server container_system_file:dir create_dir_perms;
+allow system_server container_system_file:file create_file_perms;
+allow system_server container_system_file:lnk_file { create rename unlink };
+allow system_server knox_clipboard_file:dir { create_dir_perms relabelto };
+allow system_server knox_clipboard_file:file create_file_perms;
+
+########## etc_type
+allow system_server config_prop:property_service set;
+allow system_server drs_date_prop:property_service set;
+allow system_server knox_kap_prop:property_service set;
+
+########## known issue.
+# Allow system server to access persist.security.ams0
+allow system_server container_mgmt_prop:property_service set;
+
+# Allow system server to access persist.security.mdm
+allow system_server policy_mgmt_prop:property_service set;
+
+# Allow system server to access persist.security.good
+allow system_server good_mgmt_prop:property_service set;
+
+# Allow system server to access persist.security.tlc
+allow system_server tlc_mgmt_prop:property_service set;
+
+# Allow system server to access audit.ondenial
+allow system_server denial_prop:property_service set;
+
+# Knox back-up and restore issue - Need to check 
+#neverallow by Google: allow system_server unlabeled:dir create_dir_perms;
+#neverallow by Google: allow system_server unlabeled:file create_file_perms;
+allow system_server unlabeled:dir { rmdir setattr rw_dir_perms link unlink rename };
+allow system_server unlabeled:file { setattr rw_file_perms link unlink rename };
+
+# connection with epmd
+unix_socket_connect(system_server, epm, epmd)
+
+# sdptest
+allow system_server knox_dar_device:chr_file rw_file_perms;
+allow system_server knox_dar_shared_device:chr_file rw_file_perms;
+
+# container 2.0 wallpaer image, P151201-02914
+# want to assign container_app_data_backend, but typeofparse error. So temporal assign bbccontainer_app_data_backend
+allow system_server system_data_file:dir ra_dir_perms;
+type_transition system_server system_data_file:dir bbccontainer_app_data_backend "container2.0";
+allow system_server bbccontainer_app_data_backend:dir create_dir_perms;
+allow system_server bbccontainer_app_data_backend:file create_file_perms;
+
+# data/system/container
+type_transition system_server system_data_file:dir container_system_file "container";
+
+
+## redsocks, Giga-lte feature of KOR all operator (KTT, LGU, SKT) and Open market turkey
+# kttMptcpService, enableRedSocks and killRedSocks tarts redsocks.
+# old feature execute_with_no_trans directly system/bin/redsocks, new feature trigger init_service.
+# avc:  denied  { set } for property=ctl.redsocks scontext=u:r:system_server:s0 tcontext=u:object_r:ctl_redsocks_prop:s0 tclass=property_service
+allow system_server redsocks_exec:file rx_file_perms;
+allow system_server ctl_redsocks_prop:property_service set;
+
+# iris service binder call irisd_service
+binder_call(system_server, irisd)
+allow system_server irisd_service:service_manager find;
+
+
+# mood light implementation, http://mobilerndhub.sec.samsung.net/hub/site/seandroid/board/Request/view/14428134/?page=1
+# /sys/class/leds/moodlight/blink and /sys/class/leds/smartglow/blink
+# avc:  denied  { read write } for  pid=1292 comm="system_server" name="blink" dev="sysfs" ino=7616 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_led_writable:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=1292 comm="system_server" path="/sys/devices/smartglow.11/leds/smartglow/blink" dev="sysfs" ino=7616 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_led_writable:s0 tclass=file permissive=1
+allow system_server sysfs_led_writable:file rw_file_perms;
+
+
+# server/power/ShutdownDialog read PowerOff.ogg based on the CL7874987(PROPERTY_SHUTDOWN_SKU = "persist.sys.omc_respath"
+allow system_server omr_file:dir r_dir_perms;
+allow system_server omr_file:file r_file_perms;
+
+
+
+
+############ qcom_common #############
+########## type and macro.
+binder_call(system_server, gsiff_daemon)
+
+########## self and domain_type
+#allow system_server logwrapper:lnk_file r_file_perms;
+#allow system_server logwrapper:unix_dgram_socket sendto;
+allow system_server mm-pp-daemon:unix_stream_socket connectto;
+allow system_server mpdecision:unix_dgram_socket sendto;
+allow system_server mpdecision:unix_stream_socket connectto;
+allow system_server mpdecision_socket:sock_file rw_file_perms;
+allow system_server qmuxd:unix_stream_socket connectto;
+allow system_server secstarter:lnk_file read;
+allow system_server self:capability2 block_suspend;
+allow system_server untrusteddomain:process { signull sigstop };
+
+########## fs_type
+allow system_server devpts:dir rw_dir_perms;
+allow system_server devpts:file rw_file_perms;
+allow system_server firmware:dir r_dir_perms;
+#neverallow by Google CTS : allow system_server firmware:file rx_file_perms;
+allow system_server firmware:file r_file_perms;
+allow system_server sysfs_thermal:dir r_dir_perms;
+allow system_server sysfs_thermal:file r_file_perms;
+
+########## dev_type
+allow system_server ciqbridge_device:{ chr_file file } rw_file_perms;
+allow system_server ciqbridge_device:dir rw_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server { dev_type -frp_block_device }:blk_file { { append create link unlink relabelfrom rename setattr write } open read ioctl lock }
+#allow system_server emmcblk_device:blk_file create_file_perms;
+allow system_server fm_radio_device:chr_file rw_file_perms;
+allow system_server kgsl_device:chr_file { rw_file_perms execute };
+allow system_server mtp_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow system_server { dev_type -frp_block_device }:blk_file { { append create link unlink relabelfrom rename setattr write } open read ioctl lock }
+#allow system_server padblk_device:blk_file create_file_perms;
+allow system_server secure_storage_device:sock_file rw_file_perms;
+allow system_server smd_device:chr_file rw_file_perms;
+allow system_server socket_device:sock_file w_file_perms;
+
+########## file_type
+allow system_server asec_apk_file:dir create_dir_perms;
+allow system_server imei_efs_file:dir r_dir_perms;
+allow system_server location_data_file:{ file sock_file } create_file_perms;
+allow system_server mdns_socket:sock_file w_file_perms;
+allow system_server persist_data_file:dir create_dir_perms;
+allow system_server persist_data_file:file w_file_perms;
+allow system_server pps_socket:sock_file w_file_perms;
+allow system_server qmux_radio_socket:dir rw_dir_perms;
+allow system_server qmux_radio_socket:sock_file create_file_perms;
+allow system_server tombstones_data_file:dir r_dir_perms;
+
+########## etc_type
+allow system_server mpdecision_prop:property_service set;
+# avc:  denied  { set } for property=ctl.mpdecision scontext=u:r:system_server:s0 tcontext=u:object_r:mpdecision_prop:s0 tclass=property_service
+
+
+########## known issue.
+#TUI
+allow system_server system_app:unix_dgram_socket sendto;
+
+# Rules for TIMA app to work
+allow system_server qseecom_device:chr_file create_file_perms;
+
+allow system_server wcnss_service:unix_stream_socket connectto;
+
+# P151219-00909
+allow system_server node:rawip_socket node_bind;
+# avc:  denied  { node_bind } for  pid=10480 comm="Thread-541" saddr=2600:1001:b02d:fff3:c5e4:e193:78e1:ba65 scontext=u:r:system_server:s0 tcontext=u:object_r:node:s0 tclass=rawip_socket permissive=0 SEPF_SECMOBILE_6.0.1_0002
+
+# P160123-00541 
+allow system_server kernel:process sigkill;
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow system_server kernel:system syslog_read;
+allow system_server p2p_supplicant:unix_dgram_socket sendto;
+allow system_server self:capability { setuid chown sys_ptrace setgid dac_override };
+allow system_server self:netlink_route_socket { write getattr setopt };
+allow system_server self:rawip_socket { getopt create setopt };
+allow system_server self:rawip_socket { write read };
+
+########## fs_type
+allow system_server proc:file w_file_perms;
+
+########## dev_type
+allow system_server akm8963_device:chr_file rw_file_perms;
+allow system_server log_device:chr_file r_file_perms;
+allow system_server m2m1shot_device:chr_file rw_file_perms;
+allow system_server usb_device:chr_file rw_file_perms;
+
+########## file_type
+allow system_server bluetooth_efs_file:file rw_file_perms;
+allow system_server app_efs_file:file r_file_perms;
+allow system_server sensor_efs_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+# CoverManager.LedCoverController
+allow system_server uart_device:chr_file rw_file_perms;
+allow system_server uhid_device:chr_file rw_file_perms;
+
+###### Mobile Payments ######
+allow system_server sem_device:chr_file { write open };
+allow system_server sysfs_mst_writable:file rw_file_perms;
+allow system_server mst_ctrl_device:chr_file { write open };
+
+########## androd-m-preview: denials ########
+allow system_server dumpstate_prop:property_service set;
+allow system_server service_manager_type:service_manager find;
+allow system_server { service_manager_type -gatekeeper_service -default_android_service }:service_manager add;
+allow system_server sdp_cryptod:unix_stream_socket connectto;
+#allow system_server self:zygote { specifyseinfo specifyids };
+allow system_server users_system_data_file:{ dir file } relabelfrom;
+allow system_server knox_clipboard_file:{ dir file lnk_file } { relabelfrom relabelto };
+allow system_server servicemanager:service_manager list;
+
+############ avc_log #############
+# avc:  denied  { execute_no_trans } for  pid=15396 comm="dumpstate" path="/system/bin/vdc" dev="mmcblk0p24" ino=593 scontext=u:r:system_server:s0 tcontext=u:object_r:vdc_exec:s0 tclass=file
+# avc:  denied  { unlink } for  pid=3917 comm="WifiStateMachin" name="wlan0" dev="mmcblk0p21" ino=261670 scontext=u:r:system_server:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=sock_file SEPF_SM-N910C_4.4.3_0018
+# avc:  denied  { write open } for  pid=3231 comm="system_server" name="/dev/peel_ir" dev="tmpfs" ino=2975 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { set } for property=persist.service.bdroid.version scontext=u:r:system_server:s0 tcontext=u:object_r:bluetooth_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=1145 comm="PersonaManagerS" name="dek_evt" dev="tmpfs" ino=9166 scontext=u:r:system_server:s0 tcontext=u:object_r:knox_dar_device:s0 tclass=chr_file SEPF_SAMSUNG-SM-N910A_4.4.4_A018
+# avc:  denied  { connectto } for  pid=1103 comm="ActivityManager" path=00636F6D2E6974736F6E696E632E69706374657374 scontext=u:r:system_server:s0 tcontext=u:r:radio:s0 tclass=unix_stream_socket
+# avc:  denied  { connectto } for  pid=1077 comm="system_server" path="/dev/socket/nqs_qsb_comm" scontext=u:r:system_server:s0 tcontext=u:r:nqs:s0 tclass=unix_stream_socket
+# saddr=01002F6465762F736F636B65742F6E71735F7173625F636F6D6D00 item=0 name=(null) inode=7294 dev=00:0b mode=0140660 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:socket_device:s0
+# avc:  denied  { connectto } for  pid=986 comm="EnterpriseParti" path="/dev/socket/epm" scontext=u:r:system_server:s0 tcontext=u:r:epmd:s0 tclass=unix_stream_socket
+#audit(46781.281:43): avc:  denied  { search } for  pid=866 comm="system_server" name="thermal" dev="sysfs" ino=15490 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=dir
+#audit(46781.281:43): avc:  denied  { read } for  pid=866 comm="system_server" name="temp" dev="sysfs" ino=15502 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=file
+#audit(46781.281:43): avc:  denied  { open } for  pid=866 comm="system_server" name="temp" dev="sysfs" ino=15502 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=file
+#audit(46781.281:43): arch=40000028 syscall=322 per=800000 success=yes exit=22 a0=ffffff9c a1=afccb40c a2=20000 a3=0 items=1 ppid=408 pid=866 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=429audit(46781.281:43):  cwd="/"
+#audit(46781.281:43): item=0 name="/sys/devices/virtual/thermal/thermal_zone0/temp" inode=15502 dev=00:0c mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs_thermal:s0
+#audit(46842.290:51): avc:  denied  { search } for  pid=1217 comm="SensorService" name="thermal" dev="sysfs" ino=15490 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=dir
+#audit(46842.290:51): avc:  denied  { read } for  pid=1217 comm="SensorService" name="temp" dev="sysfs" ino=15502 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=file
+#audit(46842.290:51): avc:  denied  { open } for  pid=1217 comm="SensorService" name="temp" dev="sysfs" ino=15502 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=file
+#audit(46842.290:51): arch=40000028 syscall=322 per=800000 success=yes exit=113 a0=ffffff9c a1=afdcb40c a2=20000 a3=0 items=1 ppid=979 pid=1217 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4audit(46842.290:51):  cwd="/"
+#audit(46842.290:51): item=0 name="/sys/devices/virtual/thermal/thermal_zone0/temp" inode=15502 dev=00:0c mode=0100444 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs_thermal:s0
+# avc:  denied  { write } for  pid=23159 comm="Thread-144" name="m2m1shot_scaler0" dev="tmpfs" ino=4267 scontext=u:r:system_server:s0 tcontext=u:object_r:m2m1shot_device:s0 tclass=chr_file SEPF_SM-N910C_4.4.4_A018
+# avc:  denied  { write } for  pid=3600 comm="cover" name="ttySAC2" dev="tmpfs" ino=3415 scontext=u:r:system_server:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file SEPF_SM-N910C_4.4.4_A019
+# avc:  denied  { write } for  pid=26567 comm="system_server" name="uinput" dev="tmpfs" ino=3232 scontext=u:r:system_server:s0 tcontext=u:object_r:uhid_device:s0 tclass=chr_file SEPF_GT-I9500_5.0_0001
+# avc:  denied  { create } for  pid=4759 comm="Thread-197" name="alarm_svc" scontext=u:r:system_server:s0 tcontext=u:object_r:gps_data_file:s0 tclass=sock_file permissive=0
+# arch=40000028 syscall=282 per=800000 success=no exit=-13 a0=136 a1=650eba14 a2=22 a3=0 items=3 ppid=376 ppcomm=main pid=4759 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="Thread-197" exe="/system/bin/app_process32" subj=u:r:system_server:s0 key=(null)
+# saddr=/data/misc/location/mq/alarm_svc
+# avc:  denied  { write } for  pid=12721 comm=5353524D2048616E646C6572205468 name="siop_level" dev="sysfs" ino=23112 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file SEPF_SM-N910C_5.0_0002
+# item=0 name="/sys/class/power_supply/battery/siop_level" inode=23112 dev=00:0e mode=0100664 ouid=1000 ogid=1001 rdev=00:00 obj=u:object_r:sysfs_battery_supply:s0
+# avc:  denied  { search } for  pid=1489 comm="WifiStateMachin" scontext=u:r:system_server:s0 tcontext=u:r:kernel:s0 tclass=key
+# TR LTE avc:  denied  { create } for  pid=9055 comm="Thread-618" name="alarm_svc" scontext=u:r:system_server:s0 tcontext=u:object_r:location_data_file:s0 tclass=sock_file permissive=0 SEPF_SM-N910F_5.0.1_0002
+# avc:  denied  { connectto } for  pid=9589 comm="Thread-634" path=00616E745F736F636B scontext=u:r:system_server:s0 tcontext=u:r:wcnss_service:s0 tclass=unix_stream_socket permissive=0
+# avc:  denied  { read } for  pid=915 comm="system_server" name="alps_io" dev="tmpfs" ino=6947 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { setattr } for  pid=4424 comm="system_server" name="fg_asoc" dev="sysfs" ino=27437 scontext=u:r:system_server:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=0
+# avc:  denied  { set } for property=service.camera.sfs.running scontext=u:r:system_server:s0 tcontext=u:object_r:camera_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=4471 comm="Binder_B" name="tzic" dev="tmpfs" ino=3738 scontext=u:r:system_server:s0 tcontext=u:object_r:tzic_device:s0 tclass=chr_file permissive=1
+# P150213-01519 avc:  denied  { set } for property=vpn.status.check scontext=u:r:system_server:s0 tcontext=u:object_r:vpn_prop:s0 tclass=property_service
+# P150309-04048 avc:  denied  { set } for property=ril.cpa_navi_state scontext=u:r:system_server:s0 tcontext=u:object_r:radio_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=2944 comm="ActivityManager" name="kmsg" dev="tmpfs" ino=8011 scontext=u:r:system_server:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=0
+# avc:  denied  { set } for property=setupwizard.mode scontext=u:r:system_server:s0 tcontext=u:object_r:setupwizard_prop:s0 tclass=property_service
+# widevine avc:  denied  { write } for  pid=11592 comm="wvkprov" name="s5p-smem" dev="tmpfs" ino=3710 scontext=u:r:system_server:s0 tcontext=u:object_r:s5p_smem_device:s0 tclass=chr_file permissive=1
+# widevine avc:  denied  { unlink } for  pid=11605 comm="wvkprov" name="tlcd_sock" dev="sda18" ino=655365 scontext=u:r:system_server:s0 tcontext=u:object_r:apk_data_file:s0 tclass=sock_file permissive=1
+# widevine avc:  denied  { create } for  pid=11605 comm="wvkprov" name="tlcd_sock" scontext=u:r:system_server:s0 tcontext=u:object_r:apk_data_file:s0 tclass=sock_file permissive=1
+# HDCP Key Check  avc:  denied  { write } for  pid=6805 comm="insthk" name="tz" dev="tmpfs" ino=9556 scontext=u:r:system_server:s0 tcontext=u:object_r:tz_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=3634 comm="android.display" name="i2c-11" dev="tmpfs" ino=4327 scontext=u:r:system_server:s0 tcontext=u:object_r:i2c_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=5940 comm=5353524D2048616E646C6572205468 name="thermal-recv-client" dev="tmpfs" ino=8410 scontext=u:r:system_server:s0 tcontext=u:object_r:thermal_socket:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1.1_0023
+# avc:  denied  { write } for  pid=4505 comm="android.bg" name=".gps.interface.pipe.to_gpsd" dev="sda18" ino=327689 scontext=u:r:system_server:s0 tcontext=u:object_r:gps_data_file:s0 tclass=fifo_file permissive=1
+# avc:  denied  { set } for property=sys.dumpstate.opt scontext=u:r:system_server:s0 tcontext=u:object_r:dumpstate_prop:s0 tclass=property_service
+# avc:  denied  { relabelfrom } for  pid=3920 comm="PersonaManagerS" name="wallpaper" dev="sda18" ino=262620 scontext=u:r:system_server:s0 tcontext=u:object_2:users_system_data_&ile:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=7404 comm="Binder_C" name="p3" dev="tmpfs" ino=2820 scontext=u:r:system_server:s0 tcontext=u:object_r:sem_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.1.1_0032
+# avc:  denied  { list } for service=NULL scontext=u:r:system_server:s0 tcontext=u:r:servicemanager:s0 tclass=service_manager
+# avc:  denied  { setsched } for  pid=3627 comm="Binder_2" scontext=u:r:system_server:s0 tcontext=u:r:imsd:s0 tclass=process permissive=1
+# avc:  denied  { write } for  pid=2307 comm="NetworkTimeUpda" name="rtc0" dev="tmpfs" ino=15375 scontext=u:r:system_server:s0 tcontext=u:object_r:clock_device:s0 tclass=chr_file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# reg. dev/gnss_ipc as the gps_device
+# avc:  denied  { ioctl } for  pid=3017 comm="android.bg" path="/dev/gnss_ipc" dev="tmpfs" ino=7272 ioctlcmd=4b00 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { read write } for  pid=3017 comm="android.bg" name="gnss_ipc" dev="tmpfs" ino=7272 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { execmod } for  pid=6091 comm=4E444B204D65646961436F6465635F path="/system/lib/libarac.so" dev="mmcblk0p24" ino=2156 scontext=u:r:system_server:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { getsched } for  pid=2239 comm="top" scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=process permissive=0
+# avc:  denied  { getsched } for  pid=2239 comm="top" scontext=u:r:system_server:s0 tcontext=u:r:init:s0 tclass=process permissive=0 
+# avc:  denied  { signull } for  pid=6679 comm=5353524D2048616E646C6572205468 scontext=u:r:system_server:s0 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=process permissive=0 SEPF_SM-G925F_6.0_0002
+# avc:  denied  { sigstop } for  pid=6679 comm=5353524D2048616E646C6572205468 scontext=u:r:system_server:s0 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=process permissive=0 SEPF_SM-G925F_6.0_0002
+# avc:  denied  { write } for  pid=2034 comm="WifiStateMachin" name=".wifiver.info" dev="mmcblk0p28" ino=19 scontext=u:r:system_server:s0 tcontext=u:object_r:wifiver_data_file:s0 tclass=file permissive=1
+# avc:  denied  { sendto } for  pid=6274 comm="Binder_6" path=007375696C7374 scontext=u:r:system_server:s0 tcontext=u:r:tee:s0 tclass=unix_dgram_socket permissive=0
+# avc:  denied  { set } for property=hw.fm.version scontext=u:r:system_server:s0 tcontext=u:object_r:fm_prop:s0 tclass=property_service
+# syscall=129(exynos8890:__NR_kill) avc:  denied  { sigkill } for  pid=11271 comm="Binder_5" scontext=u:r:system_server:s0 tcontext=u:r:kernel:s0 tclass=process permissive=0 SEPF_SECMOBILE_6.0.1_0003
+# N910V booting denial: avc:  denied  { set } for property=config.vc_call_vol_steps scontext=u:r:system_server:s0 tcontext=u:object_r:config_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=8757 comm="Binder_B" name="lptcpSocket" dev="sda18" ino=458762 scontext=u:r:system_server:s0 tcontext=u:object_r:lptcp_socket:s0 tclass=sock_file permissive=0 SEPF_SECMOBILE_6.0.1_0003
+

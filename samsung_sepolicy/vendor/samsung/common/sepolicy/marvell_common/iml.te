@@ -1,0 +1,28 @@
+
+
+## SEC added:
+typeattribute iml trusteddomain;
+typeattribute iml device_domain;
+
+allow iml self:capability dac_override;
+
+allow iml system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow iml system_data_file:file create_file_perms;
+allow iml system_data_file:file r_file_perms;
+
+allow iml phone_data_file:dir create_dir_perms;
+allow iml phone_data_file:file create_file_perms;
+
+## avc_log
+# avc:  denied  { write } for  pid=2970 comm="IMLLog" name="/" dev="mmcblk0p18" ino=2 scontext=u:r:iml:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=2970 comm="IMLLog" name="mrvl_tel_iml.cfg" scontext=u:r:iml:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=2970 comm="IMLLog" name="mrvl_tel_iml.cfg" scontext=u:r:iml:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=2735 comm="IMLLog" name="phone" dev="mmcblk0p18" ino=38 scontext=u:r:iml:s0 tcontext=u:object_r:phone_data_file:s0 tclass=dir permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { add_name } for  pid=2735 comm="IMLLog" name="mrvl_tel_iml.cfg" scontext=u:r:iml:s0 tcontext=u:object_r:phone_data_file:s0 tclass=dir permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { create } for  pid=2735 comm="IMLLog" name="mrvl_tel_iml.cfg" scontext=u:r:iml:s0 tcontext=u:object_r:phone_data_file:s0 tclass=file permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { write open } for  pid=2735 comm="IMLLog" path="/data/misc/phone/mrvl_tel_iml.cfg" dev="mmcblk0p18" ino=52 scontext=u:r:iml:s0 tcontext=u:object_r:phone_data_file:s0 tclass=file permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { getattr } for  pid=2735 comm="IMLLog" path="/data/misc/phone/mrvl_tel_iml.cfg" dev="mmcblk0p18" ino=52 scontext=u:r:iml:s0 tcontext=u:object_r:phone_data_file:s0 tclass=file permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { dac_override } for  pid=3070 comm="IMLLog" capability=1  scontext=u:r:iml:s0 tcontext=u:r:iml:s0 tclass=capability permissive=0

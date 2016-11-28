@@ -1,0 +1,47 @@
+#
+# actlmand
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type actlmand, domain;
+type actlmand_exec, exec_type, file_type;
+# for B2C users
+typeattribute actlmand trusteddomain;
+typeattribute actlmand system_domain;
+
+init_daemon_domain(actlmand)
+
+########## self and domain_type
+#neverallow Google CTS-android-5.0.2_r1 : remove sys_rawio, allow actlmand self:capability { setuid sys_rawio setgid dac_override };
+allow actlmand self:capability { setuid setgid dac_override };
+
+########## fs_type
+########## dev_type
+#neverallow Google CTS-android-5.0.2_r1 : allow actlmand block_device:blk_file rw_file_perms;
+allow actlmand block_device:dir r_dir_perms;
+allow actlmand dw_mmc_device:dir r_dir_perms;
+allow actlmand efsblk_device:blk_file rw_file_perms;
+allow actlmand emmcblk_device:blk_file rw_file_perms;
+# to access McDriver
+allow actlmand mobicore-user_device:chr_file rw_file_perms;
+
+
+########## file_type
+allow actlmand system_data_file:dir w_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow actlmand system_data_file:file create_file_perms;
+allow actlmand system_data_file:file r_file_perms;
+
+allow actlmand system_data_file:sock_file create_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=3771 comm="reactived" name="mobicore-user" dev="tmpfs" ino=12895 scontext=u:r:actlmand:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# avc:  denied  { open } for  pid=3771 comm="reactived" path="/dev/mobicore-user" dev="tmpfs" ino=12895 scontext=u:r:actlmand:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# item=0 name="/dev/mobicore-user" inode=12895 dev=00:0d mode=020666 ouid=1001 ogid=1000 rdev=f4:01 obj=u:object_r:mobicore-user_device:s0
+# avc:  denied  { ioctl } for  pid=3771 comm="reactived" path="/dev/mobicore-user" dev="tmpfs" ino=12895 scontext=u:r:actlmand:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+

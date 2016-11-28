@@ -1,0 +1,15 @@
+#
+# sdcardd
+#
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+allow sdcardd xsdcardfs:filesystem { mount unmount remount };
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+############ avc_log #############
+

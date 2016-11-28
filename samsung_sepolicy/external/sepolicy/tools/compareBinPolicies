@@ -1,0 +1,33 @@
+#!/bin/bash
+
+err () {
+	echo -e "$@"
+	exit 1
+}
+
+TMP1=$(tempfile)
+TMP2=$(tempfile)
+
+#echo -e "$TMP1\n$TMP2"| xargs -n1 -P2 -I{} checkpolicy -c26 -M "{}" -o "$TMP1" > /dev/null || err "\e[1;31mError compiling $1\e[0m"
+checkpolicy -c26 -M "$1" -o "$TMP1" > /dev/null || err "\e[1;31mError compiling $1\e[0m"
+checkpolicy -c26 -M "$2" -o "$TMP2" > /dev/null || err "\e[1;31mError compiling $2\e[0m"
+
+FIRST=$(ls -l --block-size 1024 "$TMP1" | awk '{print $5}')
+SECOND=$(ls -l --block-size 1024 "$TMP2" | awk '{print $5}')
+RATIO_1=$(awk "BEGIN {printf \"%.1f\",${FIRST}/${SECOND}}")
+RATIO_2=$(awk "BEGIN {printf \"%.1f\",${SECOND}/${FIRST}}")
+
+echo -e "before:\e[1;31m${FIRST}KB\e[0m ($1)"
+echo -e "after:\e[1;31m${SECOND}KB\e[0m ($2)"
+#echo -e "$1 compiled:\e[1;31m${FIRST}KB\e[0m"
+#echo -e "$2 compiled:\e[1;31m${SECOND}KB\e[0m"
+if [[ $FIRST -lt $SECOND ]]; then
+	echo -e "$1 produces a \e[1;36m${RATIO_2}x\e[0m smaller binary policy."
+elif [[ $FIRST -gt $SECOND ]]; then
+	echo -e "$2 produces a \e[1;36m${RATIO_1}x\e[0m smaller binary policy."
+else
+	echo -e "$2 produces the same size binary policy."
+fi
+
+rm "$TMP1"
+rm "$TMP2"

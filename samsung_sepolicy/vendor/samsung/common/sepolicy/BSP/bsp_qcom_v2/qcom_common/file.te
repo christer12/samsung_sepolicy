@@ -1,0 +1,57 @@
+typeattribute rfs_data_file trstappdomain_no_read_file;
+
+typeattribute ipacm_data_file data_file_type;
+typeattribute usf_data_file data_file_type;
+
+typeattribute camera_socket socket_file_type;
+typeattribute cnd_socket socket_file_type;
+typeattribute dpmd_socket socket_file_type;
+typeattribute dpmwrapper_socket socket_file_type;
+typeattribute ims_socket socket_file_type;
+typeattribute ipacm_socket socket_file_type;
+typeattribute location_socket socket_file_type;
+typeattribute pps_socket socket_file_type;
+typeattribute mpctl_socket socket_file_type;
+typeattribute sensors_socket socket_file_type;
+typeattribute qmuxd_socket socket_file_type;
+typeattribute qlogd_socket socket_file_type;
+typeattribute thermal_socket socket_file_type;
+
+typeattribute qmuxd_socket mlstrustedobject;
+
+typealias qmuxd_socket alias qmux_audio_socket;
+typealias qmuxd_socket alias qmux_bluetooth_socket;
+typealias qmuxd_socket alias qmux_gps_socket;
+typealias qmuxd_socket alias qmux_radio_socket;
+
+
+typeattribute proc_audiod rw_fs_type;
+typeattribute proc_dirty_ratio rw_fs_type;
+
+typeattribute bt_firmware_file r_fs_type;
+typeattribute sysfs_battery_supply r_fs_type;
+typeattribute sysfs_cpu_online r_fs_type;
+typeattribute sysfs_esoc r_fs_type;
+typeattribute sysfs_hsic r_fs_type;
+typeattribute sysfs_hsic_modem_wait r_fs_type;
+typeattribute sysfs_hsic_host_rdy r_fs_type;
+typeattribute sysfs_leds r_fs_type;
+typeattribute sysfs_mpdecision r_fs_type;
+typeattribute sysfs_msmuart_file r_fs_type;
+typeattribute sysfs_rqstats r_fs_type;
+typeattribute sysfs_smd_open_timeout r_fs_type;
+typeattribute sysfs_socinfo r_fs_type;
+typeattribute sysfs_ssr r_fs_type;
+typeattribute sysfs_ssr_toggle r_fs_type;
+typeattribute sysfs_thermal r_fs_type;
+typeattribute sysrq_trigger_proc r_fs_type;
+typeattribute sysfs_usb_supply r_fs_type;
+typeattribute sysfs_usb_uicc r_fs_type;
+
+
+typeattribute location_app_data_file app_data_type;
+typeattribute dpmd_app_data_file     app_data_type;
+typeattribute qsee_svc_app_data_file app_data_type;
+typeattribute mdtp_svc_app_data_file app_data_type;
+typeattribute qtitetherservice_app_data_file app_data_type;
+

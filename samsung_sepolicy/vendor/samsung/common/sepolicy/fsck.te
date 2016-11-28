@@ -1,0 +1,13 @@
+#permissive fsck;
+allow fsck efsblk_device:blk_file rw_file_perms;
+allow fsck emmcblk_device:blk_file rw_file_perms;
+allow fsck cache_block_device:blk_file rw_file_perms;
+allow fsck dm_device:chr_file rw_file_perms;
+
+# fsck writes klog, but mknod by init(do_check_fs).
+allow fsck klog_device:chr_file { r_file_perms write };
+# avc:  denied  { write } for  pid=2959 comm="e2fsck" path=2F6465762F5F5F6B6D7367202864656C6574656429 dev="tmpfs" ino=4382 scontext=u:r:fsck:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=0
+# avc:  denied  { ioctl } for  pid=249 comm="e2fsck" path=2F6465762F5F5F6B6D7367202864656C6574656429 dev="tmpfs" ino=8203 ioctlcmd=5401 scontext=u:r:fsck:s0 tcontext=u:object_r:klog_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=458 comm="e2fsck" path="/dev/device-mapper" dev="tmpfs" ino=15904 scontext=u:r:fsck:s0 tcontext=u:object_r:dm_device:s0 tclass=chr_file permissive=0
+
+

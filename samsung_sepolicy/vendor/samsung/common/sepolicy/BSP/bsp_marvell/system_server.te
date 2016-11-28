@@ -1,0 +1,47 @@
+# for system_server
+#SEC removed: allow system_server mrvlgpu_device:chr_file create_file_perms;
+allow system_server mrvlgpu_device:chr_file rw_file_perms;
+#SEC removed: allow system_server graphics_device:dir create_dir_perms;
+allow system_server graphics_device:dir r_dir_perms;
+allow system_server mwirelessd:unix_stream_socket unix_stream_socket_perms;
+allow system_server phservice:binder call;
+
+allow system_server nvm_data_file:dir create_dir_perms;
+#SEC removed: allow system_server serial_device:chr_file create_file_perms;
+allow system_server shell_exec:file { read execute open execute_no_trans };
+allow system_server teesst_data_file:dir getattr;
+#SEC removed: allow system_server default_prop:property_service set;
+allow system_server wireless_data_file:sock_file create_file_perms;
+allow system_server wireless_data_file:dir create_dir_perms;
+allow system_server init:unix_dgram_socket unix_dgram_socket_perms;
+allow system_server wifi_data_file:sock_file create_file_perms;
+allow system_server memsic_device:chr_file create_file_perms;
+allow system_server atcmdsrv:unix_stream_socket unix_stream_socket_perms;
+allow system_server ipc_device:chr_file create_file_perms;
+#SEC removed: allow system_server diag_device:chr_file create_file_perms;
+
+allow system_server tmpfs:sock_file create_file_perms;
+allow system_server init:unix_dgram_socket rw_socket_perms;
+allow system_server gps_data_file:dir create_dir_perms;
+allow system_server gps_data_file:sock_file create_file_perms;
+allow system_server mrvl_gpsd:unix_dgram_socket unix_dgram_socket_perms;
+allow system_server atcmdsrv:unix_stream_socket unix_stream_socket_perms;
+allow system_server mwirelessd:unix_stream_socket unix_stream_socket_perms;
+allow system_server dump_log_data_file:dir create_dir_perms;
+allow system_server dump_log_data_file:file create_file_perms;
+allow system_server ctl_dumpstate_prop:property_service set;
+#SEC removed: allow system_server kmsg_device:chr_file create_file_perms;
+allow system_server ssipc_device:chr_file create_file_perms;
+
+
+# This is a neverallow issue. fuse is a type of sdcard. 
+# system_server.te, 410 line:
+#   # Do not allow accessing SDcard files as unsafe ejection could
+#   # cause the kernel to kill the system_server.
+#   neverallow system_server sdcard_type:file rw_file_perms;
+#
+# allow system_server fuse:file write;
+
+# ReceiveBootService
+#SEC removed: allow system_server system_server_service:service_manager { add find list };
+

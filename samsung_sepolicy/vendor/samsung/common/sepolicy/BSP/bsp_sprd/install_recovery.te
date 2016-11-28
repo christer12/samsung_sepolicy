@@ -1,0 +1,1 @@
+#SEC removed : allow install_recovery mmcblk_device:blk_file rw_file_perms;

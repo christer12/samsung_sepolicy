@@ -1,0 +1,4 @@
+
+#neverallow Google-android-5.0.2_r1 : allow rmt_storage block_device:blk_file rw_file_perms;
+allow rmt_storage fscblk_device:blk_file rw_file_perms;
+allow rmt_storage emmcblk_device:blk_file rw_file_perms;

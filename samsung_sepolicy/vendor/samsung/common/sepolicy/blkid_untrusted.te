@@ -1,0 +1,28 @@
+#
+# blkid_untrusted
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+allow blkid_untrusted vold:netlink_socket { read write };
+allow blkid_untrusted vold:unix_stream_socket { read write };
+
+########## fs_type
+########## dev_type
+allow blkid_untrusted qseecom_device:chr_file { read write };
+
+########## file_type
+allow blkid_untrusted sec_efs_file:file r_file_perms;
+
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=1915 comm="sh" path="socket:[16599]" dev="sockfs" ino=16599 scontext=u:r:blkid_untrusted:s0 tcontext=u:r:vold:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { read write } for  pid=1915 comm="sh" path="socket:[17479]" dev="sockfs" ino=17479 scontext=u:r:blkid_untrusted:s0 tcontext=u:r:vold:s0 tclass=netlink_socket permissive=1 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { read } for  pid=3199 comm="sh" path="/efs/recovery/bootmessage" dev="sda3" ino=75 scontext=u:r:blkid_untrusted:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=0
+# avc:  denied  { read write } for  pid=9491 comm="sh" path="/dev/qseecom" dev="tmpfs" ino=15903 scontext=u:r:blkid_untrusted:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+
+

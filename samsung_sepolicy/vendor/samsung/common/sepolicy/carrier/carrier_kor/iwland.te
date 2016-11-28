@@ -1,0 +1,22 @@
+
+# iwland
+#changeBySEA : type iwland, domain, mlstrustedobject;
+type iwland, domain;
+type iwland_exec, exec_type, file_type;
+init_daemon_domain(iwland)
+
+allow iwland node:udp_socket node_bind;
+allow iwland port:udp_socket name_bind;
+allow iwland cgroup:dir create_dir_perms;
+allow iwland kernel:system module_request;
+allow iwland radio_data_file:file r_file_perms;
+allow iwland rild:unix_stream_socket connectto;
+allow iwland self:capability { setuid net_admin setgid net_bind_service };
+allow iwland self:key_socket { create_socket_perms rw_socket_perms };
+allow iwland self:netlink_route_socket { write bind create read nlmsg_write nlmsg_read };
+allow iwland self:udp_socket { create_socket_perms rw_socket_perms };
+allow iwland skt_socket:dir rw_dir_perms;
+allow iwland skt_socket:sock_file { create setattr };
+allow iwland system_data_file:dir create_dir_perms;
+#allow iwland system_data_file:file create_file_perms;
+allow iwland system_data_file:file r_file_perms;

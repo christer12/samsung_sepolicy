@@ -1,0 +1,307 @@
+
+allow { domain -appdomain } log_device:chr_file rw_file_perms;
+#allow sem log_device:chr_file write;
+#allow argosd log_device:chr_file rw_file_perms;
+#allow bauthserver log_device:chr_file rw_file_perms;
+#allow gatekeeperd log_device:chr_file rw_file_perms;
+#allow perfprofd log_device:chr_file rw_file_perms;
+#allow system_server log_device:chr_file rw_file_perms;
+#allow tzdatacheck log_device:chr_file rw_file_perms;
+#allow lhd log_device:chr_file rw_file_perms;
+
+#============= auditd ==============
+allow auditd system_service:service_manager find;
+
+#============= init ==============
+allow init obb_apk_file:dir mounton;
+allow init tmpfs:dir_file_class_set create_file_perms;
+
+#============= kernel ==============
+allow kernel device:chr_file unlink;
+allow kernel device:dir rmdir;
+allow kernel self:capability chown;
+allow kernel sysfs:file setattr;
+
+#============= radio ==============
+allow radio kernel:system module_request;
+#type=1400 audit(1421228202.370:235): avc:  denied  { module_request } for  pid=8496 comm="dex2oat" kmod="personality-8" scontext=u:r:radio:s0 tcontext=u:r:kernel:s0 tclass=system permissive=1
+
+#============= sdcardd ==============
+allow sdcardd vold:unix_stream_socket { read write };
+
+#============= toolbox ==============
+## maybe..need to domain transtion
+allow toolbox emmcblk_device:blk_file r_file_perms;
+# avc:  denied  { read } for  pid=10107 comm="umount" name="sda17" dev="tmpfs" ino=16629 scontext=u:r:toolbox:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { open } for  pid=10107 comm="umount" path="/dev/block/sda17" dev="tmpfs" ino=16629 scontext=u:r:toolbox:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=3 a0=ffffff9c a1=7f99ee6666 a2=0 a3=0 items=0 ppid=1 ppcomm=init pid=10107 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="umount" exe="/system/bin/toybox" subj=u:r:toolbox:s0 key=(null)
+# avc:  denied  { ioctl } for  pid=10107 comm="umount" path="/dev/block/sda17" dev="tmpfs" ino=16629 scontext=u:r:toolbox:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+
+#============= lpm ==============
+#neverallow allow lpm rootfs:dir { write add_name };
+#neverallow allow lpm rootfs:file { write create };
+#type=1400 audit(1420114602.000:14): avc:  denied  { write } for  pid=2721 comm="lpm" name="Battery" dev="rootfs" ino=3536 scontext=u:r:lpm:s0 tcontext=u:object_r:rootfs:s0 tclass=dir permissive=1
+#type=1400 audit(1420114602.000:14): avc:  denied  { add_name } for  pid=2721 comm="lpm" name="batt_capacity_max" scontext=u:r:lpm:s0 tcontext=u:object_r:rootfs:s0 tclass=dir permissive=1
+#type=1400 audit(1420114602.000:14): avc:  denied  { create } for  pid=2721 comm="lpm" name="batt_capacity_max" scontext=u:r:lpm:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=1
+#type=1400 audit(1420114602.000:14): avc:  denied  { write } for  pid=2721 comm="lpm" path="/efs/Battery/batt_capacity_max" dev="rootfs" ino=16843 scontext=u:r:lpm:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=1
+
+#============= lhd ==============
+#neverallow allow lhd system_data_file:file write;
+# resolve at lhd.te
+
+#============= dumpsys ==============
+allow dumpsys dumplog_data_file:dir create_dir_perms;
+allow dumpsys dumplog_data_file:file create_file_perms;
+
+#============= procrank ==============
+userdebug_or_eng(`
+allow procrank dumplog_data_file:file rw_file_perms;
+')
+
+#============= ss_conn_daemon ==============
+#neverallow allow ss_conn_daemon system_data_file:file { write create };
+type_transition ss_conn_daemon system_data_file:file proc_info_file "ss_conn_daemon.pid";
+allow ss_conn_daemon proc_info_file:file create_file_perms;
+#type=1400 audit(1420113626.270:14): avc:  denied  { create } for  pid=2999 comm="ss_conn_daemon" name="ss_conn_daemon.pid" scontext=u:r:ss_conn_daemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1400 audit(1420113626.270:14): avc:  denied  { write } for  pid=2999 comm="ss_conn_daemon" path="/data/ss_conn_daemon.pid" dev="sda18" ino=15 scontext=u:r:ss_conn_daemon:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+
+#============= recovery ==============
+#neverallow allow recovery rootfs:file { write create setattr };
+#neverallow allow recovery system_data_file:dir { write remove_name create add_name setattr };
+#neverallow allow recovery system_data_file:file { write create unlink setattr };
+#allow recovery system_data_file:dir { write remove_name create add_name setattr };
+#auditallow recovery system_data_file:dir { write remove_name create add_name setattr };
+#allow recovery system_data_file:file { write create unlink setattr };
+#auditallow recovery system_data_file:file { write create unlink setattr };
+#type=1400 audit(1420113606.730:19): avc:  denied  { create } for  pid=2957 comm="update_binary" name="CSCVersion.txt" scontext=u:r:recovery:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=1
+#type=1400 audit(1420113606.730:19): avc:  denied  { write } for  pid=2957 comm="update_binary" path="/system/CSCVersion.txt" dev="rootfs" ino=11698 scontext=u:r:recovery:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=1
+#type=1300 audit(1420113606.730:19): arch=40000028 syscall=5 success=yes exit=48 a0=67a838 a1=20241 a2=1a4 a3=ffab660c items=0 ppid=2675 ppcomm=recovery pid=2957 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="update_binary" exe="/tmp/update_binary" subj=u:r:recovery:s0 key=(null)
+#type=1400 audit(1420113606.730:20): avc:  denied  { setattr } for  pid=2957 comm="update_binary" name="CSCVersion.txt" dev="rootfs" ino=11698 scontext=u:r:recovery:s0 tcontext=u:object_r:rootfs:s0 tclass=file permissive=1
+#type=1300 audit(1420113606.730:20): arch=40000028 syscall=269 success=yes exit=0 a0=67a838 a1=ffab65f8 a2=4892fac0 a3=0 items=0 ppid=2675 ppcomm=recovery pid=2957 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="update_binary" exe="/tmp/update_binary" subj=u:r:recovery:s0 key=(null)
+#type=1400 audit(1420113610.210:21): avc:  denied  { write } for  pid=2675 comm="recovery" name="/" dev="sda18" ino=2 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+#type=1400 audit(1420113610.210:21): avc:  denied  { add_name } for  pid=2675 comm="recovery" name="media" scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+#type=1400 audit(1420113610.210:21): avc:  denied  { create } for  pid=2675 comm="recovery" name="media" scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+#type=1300 audit(1420113610.210:21): arch=c00000b7 syscall=34 success=yes exit=0 a0=ffffff9c a1=7f887b1f1d a2=1f8 a3=7f887b1f1d items=0 ppid=1 ppcomm=init pid=2675 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="recovery" exe="/sbin/recovery" subj=u:r:recovery:s0 key=(null)
+#type=1400 audit(1420113610.210:22): avc:  denied  { setattr } for  pid=2675 comm="recovery" name="media" dev="sda18" ino=262145 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+#type=1300 audit(1420113610.210:22): arch=c00000b7 syscall=54 success=yes exit=0 a0=ffffff9c a1=7f887b1f1d a2=3ff a3=3ff items=0 ppid=1 ppcomm=init pid=2675 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="recovery" exe="/sbin/recovery" subj=u:r:recovery:s0 key=(null)
+#type=1400 audit(1420113610.560:23): avc:  denied  { create } for  pid=2675 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1400 audit(1420113610.560:23): avc:  denied  { write } for  pid=2675 comm="recovery" path=2F646174612F6D656469612F53616D73756E672F4D757369632F4F7665722074686520486F72697A6F6E2E6D7033 dev="sda18" ino=262148 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1420113610.560:23): arch=c00000b7 syscall=56 success=yes exit=50 a0=ffffff9c a1=7f863d9800 a2=241 a3=81a4 items=0 ppid=1 ppcomm=init pid=2675 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="recovery" exe="/sbin/recovery" subj=u:r:recovery:s0 key=(null)
+#type=1400 audit(1420113610.630:24): avc:  denied  { setattr } for  pid=2675 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="sda18" ino=262148 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1420113610.630:24): arch=c00000b7 syscall=53 success=yes exit=0 a0=ffffff9c a1=7f863d9800 a2=81a4 a3=0 items=0 ppid=1 ppcomm=init pid=2675 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="recovery" exe="/sbin/recovery" subj=u:r:recovery:s0 key=(null)
+#type=1400 audit(1420113611.770:25): avc:  denied  { remove_name } for  pid=2675 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="sda18" ino=262148 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+#type=1400 audit(1420113611.770:25): avc:  denied  { unlink } for  pid=2675 comm="recovery" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="sda18" ino=262148 scontext=u:r:recovery:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1420113611.770:25): arch=c00000b7 syscall=35 success=yes exit=0 a0=ffffff9c a1=7f863d9000 a2=0 a3=100 items=0 ppid=1 ppcomm=init pid=2675 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="recovery" exe="/sbin/recovery" subj=u:r:recovery:s0 key=(null) 
+
+
+#============= fingerprintd ==============
+#neverallow allow fingerprintd system_data_file:dir { write create add_name };
+#neverallow allow fingerprintd system_data_file:file { write create open };
+## solution :
+type_transition fingerprintd system_data_file:dir biometrics_data_file "biometrics";
+allow fingerprintd system_data_file:dir ra_dir_perms;
+allow fingerprintd biometrics_data_file:dir create_dir_perms;
+allow fingerprintd biometrics_data_file:file create_file_perms;
+# avc:  denied  { open } for  pid=3173 comm="fingerprintd" path="/data/biometrics/meta/calib.dat" dev="sda18" ino=393224 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=19 a0=ffffff9c a1=7f9c4a11d8 a2=0 a3=0 items=0 ppid=1 ppcomm=init pid=3173 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="fingerprintd" exe="/system/bin/fingerprintd" subj=u:r:fingerprintd:s0 key=(null)
+# avc:  denied  { write } for  pid=3981 comm=504F5349582074696D65722030 name="calib.dat" dev="sda18" ino=393224 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=19 a0=ffffff9c a1=7f9bc02018 a2=241 a3=1b6 items=0 ppid=1 ppcomm=init pid=3981 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm=504F5349582074696D65722030 exe="/system/bin/fingerprintd" subj=u:r:fingerprintd:s0 key=(null)
+
+#============= gps ==============
+#neverallow allow gpsd system_data_file:file { write create };
+## solution :
+#type_transition for /data/system/gps
+type_transition gpsd system_data_file:dir gps_data_file "gps";
+allow gpsd system_data_file:dir ra_dir_perms;
+allow gpsd gps_data_file:dir create_dir_perms;
+allow gpsd gps_data_file:notdevfile_class_set create_file_perms;
+
+#============= macloader ==============
+#neverallow allow macloader system_data_file:file { write create };
+## solution :
+type_transition macloader system_data_file:file proc_info_file ".cid.info";
+type_transition macloader system_data_file:file wifiver_data_file ".otp.info";
+allow macloader proc_info_file:file create_file_perms;
+allow macloader wifiver_data_file:file create_file_perms;
+allow mfgloader wifiver_data_file:file rw_file_perms;
+allow kernel wifiver_data_file:file create_file_perms;
+
+#type=1400 audit(1420125136.430:55): avc:  denied  { create } for  pid=3126 comm="macloader" name=".cid.info" scontext=u:r:macloader:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1400 audit(1420125136.430:55): avc:  denied  { write } for  pid=3126 comm="macloader" path="/data/.cid.info" dev="sda18" ino=22 scontext=u:r:macloader:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1420125136.430:55): arch=c00000b7 syscall=29 success=yes exit=0 a0=7 a1=8914 a2=7ff7be1790 a3=7ff7be1760 items=0 ppid=1 ppcomm=init pid=3126 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="macloader" exe="/system/bin/macloader" subj=u:r:macloader:s0 key=(null)
+
+#============= mediaserver ==============
+allow mediaserver sensorservice_service:service_manager find;
+#neverallow allow mediaserver system_data_file:file { write create };
+## solution :
+#type_transition for /data/snd
+type_transition mediaserver system_data_file:dir audio_data_file "snd";
+allow mediaserver system_data_file:dir ra_dir_perms;
+allow mediaserver audio_data_file:dir create_dir_perms;
+allow mediaserver audio_data_file:notdevfile_class_set create_file_perms;
+#avc:  denied  { find } for service=sensorservice scontext=u:r:mediaserver:s0 tcontext=u:object_r:sensorservice_service:s0 tclass=service_manager
+# avc:  denied  { create } for  pid=3090 comm="mediaserver" name="sf_VOIP_WB_HANDSET.txt" scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3090 comm="mediaserver" path="/data/snd/DiamondVoice/SF/sf_VOIP_WB_HANDSET.txt" dev="sda18" ino=655374 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { setattr } for  pid=6127 comm="AudioIn_18" name="miccalib.txt" dev="sda18" ino=65850 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1 SEPF_SM-G925F_6.0_0001
+
+#============= wpa ==============
+#neverallow allow wpa system_data_file:file write;
+## solution :
+allow wpa wifiver_data_file:file rw_file_perms;
+#type=1400 audit(1420532654.680:169): avc:  denied  { write } for  pid=9095 comm="wpa_supplicant" name=".wifiver.info" dev="sda18" ino=13 scontext=u:r:wpa:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+
+#============= secure_storage ==============
+#neverallow allow secure_storage system_data_file:file { write create unlink setattr };
+## solution :
+type_transition secure_storage system_data_file:dir secure_storage_data_file "secure_storage";
+allow secure_storage system_data_file:dir ra_dir_perms;
+allow secure_storage secure_storage_data_file:dir create_dir_perms;
+allow secure_storage secure_storage_data_file:notdevfile_class_set create_file_perms;
+allow dex2oat secure_storage_data_file:file r_file_perms;
+#type=1400 audit(1420532654.170:166): avc:  denied  { create } for  pid=3199 comm="secure_storage_" name="ss_data.db" scontext=u:r:secure_storage:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1400 audit(1420532654.170:166): avc:  denied  { write } for  pid=3199 comm="secure_storage_" path="/data/system/secure_storage/.system.bin.wpa_supplicant/ss_data.db" dev="sda18" ino=327758 scontext=u:r:secure_storage:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1420532654.170:166): arch=40000028 syscall=322 per=8 success=yes exit=16 a0=ffffff9c a1=f7070248 a2=a0042 a3=180 items=0 ppid=1 ppcomm=init pid=3199 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="secure_storage_" exe="/system/bin/secure_storage_daemon" subj=u:r:secure_storage:s0 key=(null)
+#type=1400 audit(1420532654.190:167): avc:  denied  { unlink } for  pid=3199 comm="secure_storage_" name="ss_data.db-journal" dev="sda18" ino=327759 scontext=u:r:secure_storage:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1420532654.190:167): arch=40000028 syscall=328 per=8 success=yes exit=0 a0=ffffff9c a1=f707028b a2=0 a3=f75c91c7 items=0 ppid=1 ppcomm=init pid=3199 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="secure_storage_" exe="/system/bin/secure_storage_daemon" subj=u:r:secure_storage:s0 key=(null)
+#type=1400 audit(1420532654.670:168): avc:  denied  { setattr } for  pid=3199 comm="secure_storage_" name="ss_data.db" dev="sda18" ino=327758 scontext=u:r:secure_storage:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+
+#============= system_server ==============
+# avc:  denied  { ioctl } for  pid=3536 comm="system_server" path="/dev/block/sda11" dev="tmpfs" ino=17469 scontext=u:r:system_server:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=0
+# ls -alZ /dev/block/platform/15570000.ufs/by-name/ | grep sda11
+# lrwxrwxrwx root     root              u:object_r:block_device:s0 PERSISTENT -> /dev/block/sda11
+
+#neverallow allow system_server app_data_file:file open;
+#audit(1421228291.980:249): avc:  denied  { open } for  pid=7715 comm="NetworkTimeUpda" path="/data/data/.drm/.playready/beforeTime.ini" dev="sda18" ino=459784 scontext=u:r:system_server:s0 tcontext=u:object_r:app_data_file:s0 tclass=file permissive=1
+#audit(1421228291.980:249): arch=c00000b7 syscall=56 success=yes exit=315 a0=ffffff9c a1=7f89f67ce0 a2=241 a3=1b6 items=0 ppid=3151 ppcomm=main pid=7715 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="NetworkTimeUpda" exe="/system/bin/app_process64" subj=u:r:system_server:s0 key=(null)
+
+#neverallow allow system_server dalvikcache_data_file:dir { write remove_name rmdir };
+#neverallow allow system_server dalvikcache_data_file:file unlink;
+#type=1300 audit(1421228202.370:235): arch=40000028 syscall=136 per=8 success=yes exit=0 a0=8 a1=b a2=ffc43354 a3=ffc43f84 items=0 ppid=8480 ppcomm=ndroid.incallui pid=8496 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 ses=4294967295 tty=(none) comm="dex2oat" exe="/system/bin/dex2oat" subj=u:r:radio:s0 key=(null)
+#type=1400 audit(1440477676.780:160): avc:  denied  { write } for  pid=3614 comm="system_server" name="arm64" dev="sda18" ino=655683 scontext=u:r:system_server:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=dir permissive=1
+#type=1400 audit(1440477676.780:160): avc:  denied  { remove_name } for  pid=3614 comm="system_server" name="base.odex" dev="sda18" ino=655684 scontext=u:r:system_server:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=dir permissive=1
+#type=1400 audit(1440477676.780:160): avc:  denied  { unlink } for  pid=3614 comm="system_server" name="base.odex" dev="sda18" ino=655684 scontext=u:r:system_server:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file permissive=1
+#type=1300 audit(1440477676.780:160): arch=c00000b7 syscall=35 success=yes exit=0 a0=ffffff9c a1=7f888c21e0 a2=0 a3=100 items=0 ppid=3153 ppcomm=main pid=3614 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="system_server" exe="/system/bin/app_process64" subj=u:r:system_server:s0 key=(null)
+#type=1400 audit(1440477676.780:161): avc:  denied  { rmdir } for  pid=3614 comm="system_server" name="arm64" dev="sda18" ino=655683 scontext=u:r:system_server:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=dir permissive=1
+#type=1300 audit(1440477676.780:161): arch=c00000b7 syscall=35 success=yes exit=0 a0=ffffff9c a1=7f888c21e0 a2=200 a3=100 items=0 ppid=3153 ppcomm=main pid=3614 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="system_server" exe="/system/bin/app_process64" subj=u:r:system_server:s0 key=(null)
+
+#============= tlc_server ==============
+#neverallow
+#neverallow allow tlc_server system_data_file:dir { write add_name create };
+#neverallow allow tlc_server system_data_file:file { write create open setattr };
+## solution :
+type_transition tlc_server system_data_file:dir dcm_data_file "tz_dcm";
+allow tlc_server system_data_file:dir ra_dir_perms;
+# already have the create perms for dcm_data_file;
+# avc:  denied  { write } for  pid=3903 comm="cp" name="dcm.dat" dev="sda18" ino=131122 scontext=u:r:tlc_server:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=3903 comm="cp" path="/data/misc/tz_dcm/dcm.dat" dev="sda18" ino=131122 scontext=u:r:tlc_server:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=4 a0=ffffff9c a1=7f9679d020 a2=242 a3=81a4 items=0 ppid=3900 ppcomm=sh pid=3903 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="cp" exe="/system/bin/toybox" subj=u:r:tlc_server:s0 key=(null)
+# avc:  denied  { setattr } for  pid=3904 comm="chmod" name="dcm.dat" dev="sda18" ino=131122 scontext=u:r:tlc_server:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=53 success=yes exit=0 a0=ffffff9c a1=7fa885e0ad a2=81a4 a3=0 items=0 ppid=3900 ppcomm=sh pid=3904 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="chmod" exe="/system/bin/toybox" subj=u:r:tlc_server:s0 key=(null)
+
+#============= undefined_service ==============
+allow init undefined_service:process dyntransition;
+allow undefined_service sdcardd_exec:file { read execute open execute_no_trans };
+allow undefined_service system_file:file execute_no_trans;
+allow undefined_service tmpfs:chr_file write;
+
+#1. epmlogd
+# avc:  denied  { execute_no_trans } for  pid=3180 comm="init" path="/system/bin/epmlogd" dev="sda15" ino=551 scontext=u:r:undefined_service:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# arch=c00000b7 syscall=221 success=yes exit=0 a0=7fb27705fc a1=7fb2762528 a2=591aa8 a3=590000 items=0 ppid=1 ppcomm=init pid=3180 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="epmlogd" exe="/system/bin/epmlogd" subj=u:r:undefined_service:s0 key=(null)
+
+#2. sdcardd
+# avc:  denied  { execute_no_trans } for  pid=3198 comm="init" path="/system/bin/sdcard" dev="sda15" ino=707 scontext=u:r:undefined_service:s0 tcontext=u:object_r:sdcardd_exec:s0 tclass=file permissive=1
+
+# temporary allow-rule te be prepared for TG NOTICE. It is just for NO-denial at booting-time.
+#allow cbd cbd_tmpfs:file { create append setattr };
+#=============  Need to request TG to check the denial ==============
+## 1. samsung.smartfaceservice
+#resolved at system.te
+# avc:  denied  { add } for service=samsung.smartfaceservice scontext=u:r:system_app:s0 tcontext=u:object_r:system_service:s0 tclass=service_manager
+
+# avc:  denied  { add_name } for  pid=25722 comm="cbd" name="cp_boot_done_201509032018_57.log" scontext=u:r:cbd:s0 tcontext=u:object_r:tmpfs:s0 tclass=dir permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { append } for  pid=25722 comm="cbd" path="/storage/emulated/0/log/cp_boot_done_201509032018_57.log" dev="tmpfs" ino=128141 scontext=u:r:cbd:s0 tcontext=u:object_r:cbd_tmpfs:s0 tclass=file permissive=1 SEPF_SM-G925F_6.0_0001
+
+
+####### REMAINED NEVEVERALLOW VIOLICATION RULES ######
+#============= toolbox ==============
+#neverallow allow toolbox self:capability sys_rawio;
+#allow toolbox self:capability sys_rawio;
+#auditallow toolbox self:capability sys_rawio;
+#type=1400 audit(1420532672.950:272): avc:  denied  { sys_rawio } for  pid=10107 comm="umount" capability=17  scontext=u:r:toolbox:s0 tcontext=u:r:toolbox:s0 tclass=capability permissive=1
+#type=1300 audit(1420532672.950:272): arch=c00000b7 syscall=29 success=no exit=-22 a0=3 a1=4c01 a2=0 a3=7fc9f1bfc0 items=0 ppid=1 ppcomm=init pid=10107 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="umount" exe="/system/bin/toybox" subj=u:r:toolbox:s0 key=(null)
+
+#============= system_server ==============
+#neverallow allow system_server dex2oat_exec:file { execute execute_no_trans };
+#allow system_server dex2oat_exec:file { execute execute_no_trans };
+#auditallow system_server dex2oat_exec:file { execute execute_no_trans };
+#audit(1440472735.392:254): avc:  denied  { execute } for  pid=29308 comm="system_server" name="dex2oat" dev="sda15" ino=483 scontext=u:r:system_server:s0 tcontext=u:object_r:dex2oat_exec:s0 tclass=file permissive=1
+#audit(1440472735.392:254): avc:  denied  { execute_no_trans } for  pid=29308 comm="system_server" path="/system/bin/dex2oat" dev="sda15" ino=483 scontext=u:r:system_server:s0 tcontext=u:object_r:dex2oat_exec:s0 tclass=file permissive=1
+
+#neverallow allow system_server emmcblk_device:blk_file { read write open };
+#allow system_server emmcblk_device:blk_file { read write open ioctl };
+#auditallow system_server emmcblk_device:blk_file { read write open ioctl };
+#type=1400 audit(1420532657.220:170): avc:  denied  { read write } for  pid=4264 comm="ActivityManager" name="sda4" dev="tmpfs" ino=16577 scontext=u:r:system_server:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+#type=1400 audit(1420532657.220:170): avc:  denied  { open } for  pid=4264 comm="ActivityManager" path="/dev/block/sda4" dev="tmpfs" ino=16577 scontext=u:r:system_server:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+#type=1300 audit(1420532657.220:170): arch=c00000b7 syscall=56 success=yes exit=272 a0=ffffff9c a1=7f70111600 a2=42 a3=180 items=0 ppid=3150 ppcomm=main pid=4264 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="ActivityManager" exe="/system/bin/app_process64" subj=u:r:system_server:s0 key=(null)
+
+#============= ffu ==============
+#neverallow allow ffu self:capability sys_rawio;
+#allow ffu self:capability sys_rawio;
+
+
+
+########## qcomm ###########
+#============= init ==============
+allow init abt_pers_data_file:dir mounton;
+allow init carrier_file:dir mounton;
+allow init persist_data_file:dir mounton;
+
+#============= qti_init_shell ==============
+#init.qcom.sensors.sh
+allow qti_init_shell efs_file:dir search;
+allow qti_init_shell app_efs_file:dir create_dir_perms;
+allow qti_init_shell persist_usf_file:lnk_file create;
+
+#============= sensors ==============
+allow sensors efs_file:dir search;
+allow sensors app_efs_file:dir rw_dir_perms;
+allow sensors app_efs_file:file create_file_perms;
+
+#============= vold ==============
+allow vold hidden_file:dir mounton;
+
+#============= fingerprintd =============
+allow fingerprintd qseecom_device:chr_file rw_file_perms;
+allow fingerprintd firmware_file:file r_file_perms;
+
+#============= sem ==============
+allow sem firmware_file:file r_file_perms;
+
+# need to check
+unix_socket_connect(mm-qcamerad, property, init)
+
+
+
+#audit(1420084344.989:12): avc:  denied  { mounton } for  pid=1 comm="init" path="/persist" dev="rootfs" ino=16180 scontext=u:r:init:s0 tcontext=u:object_r:persist_data_file:s0 tclass=dir permissive=1
+#audit(1420084345.059:13): avc:  denied  { mounton } for  pid=1 comm="init" path="/carrier" dev="rootfs" ino=16184 scontext=u:r:init:s0 tcontext=u:object_r:carrier_file:s0 tclass=dir permissive=1
+#audit(1420084345.079:14): avc:  denied  { mounton } for  pid=1 comm="init" path="/persdata/absolute" dev="rootfs" ino=16209 scontext=u:r:init:s0 tcontext=u:object_r:abt_pers_data_file:s0 tclass=dir permissive=1
+
+#audit(1420084346.729:16): avc:  denied  { search } for  pid=667 comm="chown" name="FactoryApp" dev="sda6" ino=20 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1
+#audit(1420084346.729:17): avc:  denied  { setattr } for  pid=667 comm="chown" name="sensors" dev="sda6" ino=22 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1
+#audit(1420081270.302:24): avc:  denied  { search } for  pid=982 comm="sensors.qcom" name="FactoryApp" dev="sda6" ino=20 scontext=u:r:sensors:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1
+#audit(1420081270.302:25): avc:  denied  { read write } for  pid=982 comm="sensors.qcom" name="sns.reg" dev="sda6" ino=28 scontext=u:r:sensors:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file permissive=1
+#audit(1420081270.302:25): avc:  denied  { open } for  pid=982 comm="sensors.qcom" path="/efs/FactoryApp/sensors/sns.reg" dev="sda6" ino=28 scontext=u:r:sensors:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file permissive=1
+#audit(1420081270.312:26): avc:  denied  { read } for  pid=982 comm="sensors.qcom" name="sensors" dev="sda6" ino=22 scontext=u:r:sensors:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1
+#audit(1420081270.312:26): avc:  denied  { open } for  pid=982 comm="sensors.qcom" path="/efs/FactoryApp/sensors" dev="sda6" ino=22 scontext=u:r:sensors:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1
+#audit(1420081271.552:33): avc:  denied  { connectto } for  pid=815 comm="mm-qcamera-daem" path="/dev/socket/property_service" scontext=u:r:mm-qcamerad:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket permissive=1
+#audit(1420081286.032:259): avc:  denied  { execute } for  pid=2704 comm="system_server" name="dex2oat" dev="sda20" ino=486 scontext=u:r:system_server:s0 tcontext=u:object_r:dex2oat_exec:s0 tclass=file permissive=1
+#audit(1420081316.732:291): avc:  denied  { read } for  pid=2255 comm="Binder_5" name="max_hrm" dev="tmpfs" ino=16122 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+#audit(1420081316.732:291): avc:  denied  { open } for  pid=2255 comm="Binder_5" path="/dev/max_hrm" dev="tmpfs" ino=16122 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+#audit(1420081316.872:292): avc:  denied  { ioctl } for  pid=1829 comm="system_server" path="/dev/max_hrm" dev="tmpfs" ino=16122 ioctlcmd=fd01 scontext=u:r:system_server:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+#audit(1420082946.842:305): avc:  denied  { read write } for  pid=816 comm="fingerprintd" name="qseecom" dev="tmpfs" ino=14864 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+#audit(1420082946.842:305): avc:  denied  { open } for  pid=816 comm="fingerprintd" path="/dev/qseecom" dev="tmpfs" ino=14864 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+#audit(1420082946.842:306): avc:  denied  { ioctl } for  pid=816 comm="fingerprintd" path="/dev/qseecom" dev="tmpfs" ino=14864 ioctlcmd=970a scontext=u:r:fingerprintd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+#audit(1420082946.842:307): avc:  denied  { read } for  pid=816 comm="fingerprintd" name="securefp.mdt" dev="sda15" ino=81 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+#avc:  denied  { add_name } for  pid=10134 comm="sensors.qcom" name="sns.reg" scontext=u:r:sensors:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+

@@ -1,0 +1,46 @@
+#
+# createsystemfile
+#
+
+############ knox_common #############
+########## type and macro.
+type createsystemfile, domain;
+type createsystemfile_exec, exec_type, file_type;
+typeattribute createsystemfile mlstrustedsubject;
+
+init_daemon_domain(createsystemfile)
+
+########## self and domain_type
+allow createsystemfile self:capability { dac_override chown fowner };
+
+########## fs_type
+########## dev_type
+########## file_type
+allow createsystemfile container_app_data_backend:dir create_dir_perms;
+allow createsystemfile container_app_data_backend:file create_file_perms;
+allow createsystemfile container_app_data_file:dir create_dir_perms;
+allow createsystemfile container_app_data_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow createsystemfile data_file_type:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow createsystemfile data_file_type:file  create_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:file  create_file_perms;
+#neverallow Google CTS-android-m-preview :neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+allow createsystemfile { data_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:file  create_file_perms;
+
+allow createsystemfile system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow createsystemfile system_data_file:file create_file_perms;
+allow createsystemfile system_data_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

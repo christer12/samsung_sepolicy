@@ -1,0 +1,92 @@
+# 
+# Samsung presigned apps including third party apps
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#changeBySEA : type samsung_app, domain, mlstrustedsubject;
+type samsung_app, domain;
+# for B2C users
+typeattribute samsung_app trusteddomain;
+typeattribute samsung_app trusted_app_domain;
+
+app_domain(samsung_app)
+binder_call(samsung_app, zygote)
+# Access bluetooth.
+bluetooth_domain(samsung_app)
+dumplog_create(samsung_app)
+# Access the network.
+net_domain(samsung_app)
+unix_socket_rw(samsung_app, bluetooth)
+
+########## self and domain_type
+allow samsung_app appdomain:fifo_file r_file_perms;
+allow samsung_app bluetooth:unix_stream_socket shutdown;
+#neverallow Google CTS :allow samsung_app init:binder { transfer call };
+allow samsung_app init:unix_stream_socket { connectto setopt };
+allow samsung_app netd:unix_stream_socket connectto;
+allow samsung_app rild:unix_stream_socket connectto;
+allow samsung_app sec-ril:unix_stream_socket connectto;
+allow samsung_app self:{ tcp_socket udp_socket } *;
+#neverallow Google CTS-android-5.0.2_r1 : remove write, allow samsung_app self:netlink_kobject_uevent_socket { read write bind setopt };
+allow samsung_app self:netlink_kobject_uevent_socket { read bind setopt create };
+
+allow samsung_app self:netlink_route_socket { read bind create };
+allow samsung_app system:tcp_socket { read write };
+
+########## fs_type
+allow samsung_app devpts:chr_file rw_file_perms;
+allow samsung_app sdcard_type:dir create_dir_perms;
+allow samsung_app sdcard_type:file create_file_perms;
+
+########## dev_type
+allow samsung_app qtaguid_device:chr_file r_file_perms;
+allow samsung_app usb_device:chr_file rw_file_perms;
+
+########## file_type
+allow samsung_app app_data_file:file x_file_perms;
+#changeBySEA : allow samsung_app app_library_file:dir r_dir_perms;
+allow samsung_app audit_log:file create_file_perms;
+allow samsung_app cache_file:dir create_dir_perms;
+allow samsung_app dnsproxyd_socket:sock_file w_file_perms;
+allow samsung_app drm_efs_file:dir rw_dir_perms;
+allow samsung_app drm_efs_file:file rw_file_perms;
+allow samsung_app hidden_file:file rw_file_perms;
+allow samsung_app init_tmpfs:file read;
+allow samsung_app platform_app_data_file:dir create_dir_perms;
+allow samsung_app platform_app_data_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow samsung_app property_socket:sock_file w_file_perms;
+allow samsung_app radio_data_file:file create_file_perms;
+allow samsung_app samsung_app_tmpfs:file w_file_perms;
+allow samsung_app system_data_file:file execute;
+#neverallow Google CTS-android-5.0.2_r1 :allow samsung_app system_data_file:lnk_file unlink;
+allow samsung_app system_file:file execute_no_trans;
+allow samsung_app wifi_efs_file:dir r_dir_perms;
+allow samsung_app wifi_efs_file:file r_file_perms;
+
+########## etc_type
+allow samsung_app node:{ tcp_socket udp_socket } node_bind;
+allow samsung_app port:{ tcp_socket udp_socket } name_bind;
+allow samsung_app port:tcp_socket name_connect;
+allow samsung_app port:tcp_socket name_connect;
+
+########## androd-m-preview: denials ########
+allow samsung_app service_manager_type:service_manager find;
+
+########## known issue.
+
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow samsung_app app_efs_file:file rw_file_perms;
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# audit(1421071847.339:223): avc:  denied  { create } for  pid=20568 comm="UEventObserver" scontext=u:r:samsung_app:s0 tcontext=u:r:samsung_app:s0 tclass=netlink_kobject_uevent_socket permissive=1
+

@@ -1,0 +1,8 @@
+# grant additional permissions for kernel
+
+allow kernel self:capability mknod;
+allow kernel device:blk_file create_file_perms;
+
+# it's triggered by kernel.
+domain_auto_trans(kernel, core_compressor_exec, core_compressor) 
+

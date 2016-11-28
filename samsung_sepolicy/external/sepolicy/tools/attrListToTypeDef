@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+err() {
+	echo "$@" 1>&2
+	exit 255
+}
+
+if [[ $# -ne 2 ]] || [[ ! -f "/$INSTANCE/types-dir/$2" ]] || [[ ! -f "$1" ]]; then
+	err "Usage: attrListToTypeDef POLICY_FILE ATTR_LIST_FILE"
+fi
+
+POLICY="$1"
+
+LIST=$(cat /$INSTANCE/types-dir/"$2")
+LINE=$(typeDefLine -n $POLICY $2)
+
+#lock
+exec 201>/$INSTANCE/dtLock
+flock 201
+
+
+sed -i $LINE's|;|'"$LIST"';|' "$POLICY"
+

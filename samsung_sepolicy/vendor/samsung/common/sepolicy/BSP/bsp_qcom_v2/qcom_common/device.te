@@ -1,0 +1,20 @@
+
+type qseecom_device, dev_type;
+
+typealias ssd_device alias ssdblk_device;
+typealias modem_efs_partition_device alias modemstblk_device;
+typealias modem_efs_partition_device alias fsg_device;
+
+typealias mmc_block_device alias mmcblk0_device;
+typealias rpmb_device alias mmcblk0rpmb_device;
+
+typealias hsic_device alias qmuxd_device;
+
+typealias gpu_device alias kgsl_device;
+typeattribute kgsl_device mlstrustedobject;
+
+typealias gadget_serial_device alias usb_serial_device;
+typealias wcnss_device alias wifi_device;
+
+
+

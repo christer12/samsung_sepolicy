@@ -1,0 +1,11 @@
+
+##SEC added
+allow servicemanager kmsg_device:chr_file write;
+
+## avc_log
+# avc:  denied  { write } for  pid=2580 comm="servicemanager" name="kmsg" dev="tmpfs" ino=1211 scontext=u:r:servicemanager:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=1
+#[   14.719794] C1     1 (           init) avc:  denied  { set } for property=debug.dump.type scontext=u:r:servicemanager:s0 tcontext=u:object_r:debug_prop:s0 tclass=property_service
+#[   14.719853] C1     1 (           init) init: sys_prop: permission denied uid:1000  name:debug.dump.type
+#[   14.720170] C0  2566 ( servicemanager) binder: 2566:2566 BC_REQUEST_DEATH_NOTIFICATION death notification already set
+#[   14.720497] C0     1 (           init) avc:  denied  { set } for property=ctl.dumpstate scontext=u:r:servicemanager:s0 tcontext=u:object_r:ctl_dumpstate_prop:s0 tclass=property_service
+#[   14.720553] C0     1 (           init) init: sys_prop: Unable to start service ctl [dumpstate] uid:1000 gid:1000 pid:2566

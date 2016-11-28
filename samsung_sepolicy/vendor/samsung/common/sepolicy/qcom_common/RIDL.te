@@ -1,0 +1,22 @@
+#
+# RIDL
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow RIDL logcat_exec:file rx_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { execute } for  pid=766 comm="sh" name="logcat" dev="sda20" ino=562 scontext=u:r:RIDL:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=775 comm="sh" path="/system/bin/logcat" dev="sda20" ino=562 scontext=u:r:RIDL:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+# avc:  denied  { execute_no_trans } for  pid=775 comm="sh" path="/system/bin/logcat" dev="sda20" ino=562 scontext=u:r:RIDL:s0 tcontext=u:object_r:logcat_exec:s0 tclass=file permissive=1
+
+

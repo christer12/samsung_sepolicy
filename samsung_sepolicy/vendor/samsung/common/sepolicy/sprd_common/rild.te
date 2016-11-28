@@ -1,0 +1,22 @@
+#
+# rild
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow rild modemdriver_vpad_device:chr_file write;
+########## file_type
+allow rild shell_data_file:sock_file write;
+
+########## etc_type
+allow rild debug_prop:property_service set;
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { set } for property=debug.slog.enabled scontext=u:r:rild:s0 tcontext=u:object_r:debug_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=5798 comm="slogctl" name="slog_sock" dev="mmcblk0p26" ino=132518 scontext=u:r:rild:s0 tcontext=u:object_r:shell_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=5525 comm="rild" name="spipe_lte9" dev="tmpfs" ino=9493 scontext=u:r:rild:s0 tcontext=u:object_r:modemdriver_vpad_device:s0 tclass=chr_file permissive=1

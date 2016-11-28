@@ -1,0 +1,3 @@
+typealias location alias quipc_main;
+typealias location_exec alias quipc_main_exec;
+

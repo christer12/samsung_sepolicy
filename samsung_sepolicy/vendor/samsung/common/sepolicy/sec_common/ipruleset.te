@@ -1,0 +1,23 @@
+#
+# ipruleset
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type ipruleset, domain;
+type ipruleset_exec, exec_type, file_type;
+# for B2C users
+typeattribute ipruleset trusteddomain;
+typeattribute ipruleset system_domain;
+
+init_daemon_domain(ipruleset)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+

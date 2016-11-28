@@ -1,0 +1,19 @@
+
+
+# mfw access.
+#neverallow Google-android-5.0.2_r1 : allow mfw system_data_file:dir { write add_name create setattr };
+allow mfw felica_device:chr_file rw_file_perms;
+allow mfw nfcfelica_device:chr_file r_file_perms;
+
+#neverallow Google-android-5.0.2_r1 : allow mfw system_prop:property_service { set };
+allow mfw felicashell_device:chr_file { read write open };
+allow mfw felica_data_file:dir create_dir_perms;
+
+#Add Felica 20130221
+allow mfw felica_data_file:file create_file_perms;
+allow mfw felica_data_file:notdevfile_class_set create_file_perms;
+
+# for B2C users
+#changeBySEA : typeattribute mfw trusteddomain;
+#changeBySEA : typeattribute mfw trusted_app_domain;
+

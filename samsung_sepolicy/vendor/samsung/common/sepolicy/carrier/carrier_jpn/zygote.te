@@ -1,0 +1,6 @@
+#============= zygote ==============
+allow zygote anr_data_file:file w_file_perms;
+allow zygote system_data_file:sock_file w_file_perms;
+allow zygote init:dir r_dir_perms;
+allow zygote init:file r_file_perms;
+

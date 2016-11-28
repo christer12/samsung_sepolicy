@@ -1,0 +1,24 @@
+
+type iml, domain;
+type iml_exec, exec_type, file_type;
+
+init_daemon_domain(iml)
+
+allow iml self:capability { setuid setgid };
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow iml system_data_file:file create_file_perms;
+allow iml system_data_file:file r_file_perms;
+
+allow iml tmpfs:dir create_dir_perms;
+allow iml tmpfs:sock_file create_file_perms;
+allow iml system_data_file:dir create_dir_perms;
+allow iml dump_log_data_file:file create_file_perms;
+allow iml dump_log_data_file:dir create_dir_perms;
+allow iml infor_device:chr_file create_file_perms;
+allow iml tel_data_file:file create_file_perms;
+allow iml tel_data_file:dir create_dir_perms;
+
+file_type_trans(iml, system_data_file, tel_data_file)
+type_transition iml system_data_file:notdevfile_class_set tel_data_file;

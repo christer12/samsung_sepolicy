@@ -1,0 +1,20 @@
+# gsiff_daemon
+
+
+binder_use(gsiff_daemon)
+binder_call(gsiff_daemon, system)
+binder_call(gsiff_daemon, servicemanager)
+
+allow gsiff_daemon kernel:system module_request;
+allow gsiff_daemon qmuxd:unix_stream_socket connectto;
+allow gsiff_daemon qmux_gps_socket:sock_file create_file_perms;
+allow gsiff_daemon qmux_gps_socket:dir w_dir_perms;
+allow gsiff_daemon self:socket *;
+allow gsiff_daemon system:unix_stream_socket { read write setopt };
+allow gsiff_daemon system_data_file:dir w_dir_perms;
+allow gsiff_daemon system_data_file:file r_file_perms;
+allow gsiff_daemon system_data_file:sock_file create_file_perms;
+allow gsiff_daemon system_data_file:fifo_file create_file_perms;
+
+
+

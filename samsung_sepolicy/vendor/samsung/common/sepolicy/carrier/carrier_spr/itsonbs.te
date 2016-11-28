@@ -1,0 +1,62 @@
+#
+# itsonbs
+#
+
+type itsonbs, domain;
+type itsonbs_exec, exec_type, file_type;
+
+domain_trans(init, itsonbs_exec, itsonbs)
+dumplog_create(itsonbs)
+
+allow itsonbs itsonbs_exec:file { entrypoint r_file_perms };
+
+allow itsonbs carrier_file:dir { create_dir_perms relabelfrom };
+#neverallow Google CTS-android-5.0.2_r1 : allow itsonbs carrier_file:{ file lnk_file } { create_file_perms execute relabelfrom };
+allow itsonbs carrier_file:{ file lnk_file } { create_file_perms relabelfrom };
+
+allow itsonbs carrier_file:file  execute_no_trans;
+allow itsonbs cgroup:dir create_dir_perms;
+allow itsonbs devpts:chr_file r_file_perms;
+allow itsonbs kernel:key { view read search };
+allow itsonbs security_file:file { read open };
+allow itsonbs self:capability { dac_override sys_admin sys_module fowner chown fsetid };
+allow itsonbs shell_data_file:dir create_dir_perms;
+
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#allow itsonbs shell_data_file:{ file lnk_file } create_file_perms;
+allow itsonbs shell_data_file:file create_file_perms;
+allow itsonbs shell_data_file:lnk_file { create rename setattr unlink getattr open ioctl lock open append write };
+
+#neverallow Google CTS-android-5.0.2_r1 : allow itsonbs shell_data_file:file x_file_perms;
+allow itsonbs shell_exec:file r_file_perms;
+allow itsonbs sprintitson_file:dir { create_dir_perms relabelto };
+#neverallow Google CTS-android-5.0.2_r1 : allow itsonbs sprintitson_file:{ file lnk_file } { create_file_perms execute relabelto };
+allow itsonbs sprintitson_file:{ file lnk_file } { create_file_perms relabelto };
+
+allow itsonbs sprintitson_file:file  execute_no_trans;
+allow itsonbs system_file:dir r_dir_perms;
+allow itsonbs system_file:file rx_file_perms;
+
+# itsON M migration
+allow itsonbs itsonapp_data_file:dir create_dir_perms;
+allow itsonbs itsonapp_data_file:file create_file_perms;
+
+# temporary permissive to gather the log.
+# permissive itsonbs;
+
+## avc_log : AOSP/B2C
+# avc:  denied  { chown } for  pid=402 comm="update_binary" capability=0  scontext=u:r:itsonbs:s0 tcontext=u:r:itsonbs:s0 tclass=capability
+# avc:  denied  { fowner } for  pid=402 comm="update_binary" capability=3  scontext=u:r:itsonbs:s0 tcontext=u:r:itsonbs:s0 tclass=capability
+# avc:  denied  { fsetid } for  pid=402 comm="update_binary" capability=4  scontext=u:r:itsonbs:s0 tcontext=u:r:itsonbs:s0 tclass=capability
+# avc:  denied  { execute } for  pid=402 comm="itson_installer" name="update_binary" dev="mmcblk0p27" ino=655371 scontext=u:r:itsonbs:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file
+# avc:  denied  { execute_no_trans } for  pid=402 comm="itson_installer" path="/data/local/tmp/update_binary" dev="mmcblk0p27" ino=655371 scontext=u:r:itsonbs:s0 tcontext=u:object_r:shell_data_file:s0 tclass=file
+# avc:  denied  { add_name } for  pid=363 comm="itson_installer" name="0" scontext=u:r:itsonbs:s0 tcontext=u:object_r:cgroup:s0 tclass=dir SEPF_SM-G900P_5.0_0001
+# avc:  denied  { sys_admin } for  pid=362 comm="restorecon" capability=21  scontext=u:r:itsonbs:s0 tcontext=u:r:itsonbs:s0 tclass=capability
+# avc:  denied  { create } for  pid=375 comm="itson_installer" name="0" scontext=u:r:itsonbs:s0 tcontext=u:object_r:cgroup:s0 tclass=dir
+# audit(1388617084.780:13): arch=40000028 syscall=39 per=800000 success=no exit=-13 a0=be94e20c a1=1fd a2=be94e20c a3=0 items=1 ppid=370 pid=375 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="itson_installer" exe="/system/vendor/itson/itson_installer" subj=u:r:itsonbs:s0 key=(null)
+# audit(1388617084.780:13):  cwd="/"
+# audit(1388617084.780:13): item=0 name="/acct/uid/0" inode=6947 dev=00:0d mode=040755 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:cgroup:s0
+# avc:  denied  { search } for  pid=243 comm="insmod" scontext=u:r:itsonbs:s0 tcontext=u:r:kernel:s0 tclass=key permissive=1 SEPF_SM-G530P_5.1_0011
+# avc:  denied  { write } for  pid=3189 comm="rm" name="app_update_staging" dev="sda21" ino=524907 scontext=u:r:itsonbs:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=dir permissive=1
+# avc:  denied  { remove_name } for  pid=3189 comm="rm" name="itson-update.zip" dev="sda21" ino=524908 scontext=u:r:itsonbs:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=dir permissive=1
+# avc:  denied  { unlink } for  pid=3189 comm="rm" name="itson-update.zip" dev="sda21" ino=524908 scontext=u:r:itsonbs:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1

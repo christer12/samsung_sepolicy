@@ -1,0 +1,70 @@
+# special policy for eng build
+userdebug_or_eng(`
+
+#for Wolfserver.apk - Automation test in QA team
+#allow shell self:capability net_raw;
+#allow shell mobicore-user_device:chr_file rw_file_perms;
+#allow shell mobicoredaemon:unix_stream_socket connectto;
+
+# FOR TESTING TZAPPS FROM SHELL (DO NOT MERGE TO PROD)
+#allow shell system_data_file:file { execute execute_no_trans };
+
+#allow init_shell self:capability { setuid setgid };
+
+# Allow adb remount only for Eng binary
+#allow adbd labeledfs:filesystem remount;
+#allow kernel functionfs:filesystem mount;
+
+# for Android 4.4
+#allow adbd systemblk_device:blk_file { read ioctl open };
+#allow adbd emmcblk_device:blk_file { read ioctl open };
+
+# Ping test on ADB
+#allow shell self:rawip_socket create_socket_perms;
+
+# screencap -p /data/log/img.png (SPR slate)
+#allow shell self:capability dac_override;
+
+# for CHINA NAL SECURITY TEST
+#allow shell app_data_file:file execute;
+
+# Monkey test for Eng
+allow selinux_net ashmem_device:chr_file execute;
+allow selinux_net csc_prop:property_service set;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow selinux_net dalvikcache_data_file:file { write setattr };
+
+allow selinux_net init:unix_stream_socket connectto;
+allow selinux_net input_device:chr_file { write getattr open };
+allow selinux_net property_socket:sock_file write;
+allow selinux_net self:capability { fowner fsetid dac_override };
+allow selinux_net selinux_net_exec:file open;
+allow selinux_net servicemanager:binder call;
+allow selinux_net setupwizard_prop:property_service set;
+allow selinux_net shell_exec:file { read execute open execute_no_trans };
+allow selinux_net system:binder { transfer call };
+allow selinux_net system_file:file execute_no_trans;
+allow selinux_net zygote_exec:file { read getattr open execute execute_no_trans };
+
+############ qcom_common #############
+# FOR TESTING TZAPPS FROM SHELL (DO NOT MERGE TO PROD)
+#allow shell qseecom_device:chr_file rw_file_perms;
+
+# TO SUPPORT FOTA VERIFICATION FOR DEVICE BLOCK
+#allow shell mdmblk_device:blk_file r_file_perms;
+#allow shell emmcblk_device:blk_file r_file_perms;
+#allow shell block_device:blk_file r_file_perms;
+#allow shell apnhlosblk_device:blk_file r_file_perms;
+#allow shell recoveryblk_device:blk_file r_file_perms;
+
+#for Hasati App - VoLTE test app by ATT
+unix_socket_rw(untrusted_app,system_app)
+#allow system_app self:capability *;
+#allow untrusteddomain device:dir create_dir_perms;
+#allow untrusteddomain device:file create_file_perms;
+#allow untrusteddomain device:chr_file rw_file_perms;
+#allow untrusteddomain device:sock_file create_file_perms;
+
+')
+

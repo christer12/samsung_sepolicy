@@ -1,0 +1,24 @@
+#
+# sshd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type sshd, domain;
+type sshd_exec, exec_type, file_type;
+
+# for B2C users
+typeattribute sshd trusteddomain;
+typeattribute sshd system_domain;
+
+init_daemon_domain(sshd)
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+

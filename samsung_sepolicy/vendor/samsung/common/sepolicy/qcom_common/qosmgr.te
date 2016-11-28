@@ -1,0 +1,12 @@
+# qosmgr
+
+type qosmgr, domain;
+type qosmgr_exec, exec_type, file_type;
+init_daemon_domain(qosmgr)
+
+# rulese
+allow qosmgr sysfs:file write;
+
+# for B2C users
+typeattribute qosmgr trusteddomain;
+typeattribute qosmgr device_domain;

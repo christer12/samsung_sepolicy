@@ -1,0 +1,8 @@
+typealias ims alias imsqmidaemon;
+typealias ims_exec alias imsqmidaemon_exec;
+
+# for B2C users
+typeattribute imsqmidaemon trusteddomain;
+typeattribute imsqmidaemon device_domain;
+
+

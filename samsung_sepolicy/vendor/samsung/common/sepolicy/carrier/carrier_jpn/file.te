@@ -1,0 +1,10 @@
+type securityfs, fs_type, mlstrustedobject;
+
+# McAfee
+# to avoid neverallow policy of bsp_qcom_v1
+
+############ trstdomain_no_read_file #############
+typeattribute rfs_data_file trstdomain_no_read_file;
+
+############ trstdomain_no_write_file #############
+typeattribute rfs_data_file trstdomain_no_write_file;

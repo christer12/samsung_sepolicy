@@ -1,0 +1,6 @@
+## SEC added
+allow mediaserver media_prop:property_service set;
+
+############ avc_log #############
+# avc:  denied  { set } for property=media.dump.switch scontext=u:r:mediaserver:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+

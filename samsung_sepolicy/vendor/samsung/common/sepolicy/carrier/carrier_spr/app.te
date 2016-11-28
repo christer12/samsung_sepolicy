@@ -1,0 +1,26 @@
+allow { appdomain -untrusted_app -shell } carrier_file:dir create_dir_perms;
+allow { appdomain -untrusted_app -shell } carrier_file:file create_file_perms;
+
+allow containerdomain carrier_file:dir create_dir_perms;
+allow containerdomain carrier_file:file create_file_perms;
+
+allow untrusteddomain cfiat_socket:sock_file rw_file_perms;
+allow untrusteddomain kipc_socket:sock_file rw_file_perms;
+
+#SEC_SEforAndroid : Conflict with good requirements
+allow { appdomain -good_app } sprintitson_file:file execute;
+
+# P160112-00506 shell read /carrier/chameleon.xml
+allow shell carrier_file:dir r_dir_perms;
+allow shell carrier_file:file r_file_perms;
+
+#allow system_app self:netlink_socket *;
+#violate neverallow rule
+
+#allow shell sprintitson_file:dir { write remove_name };
+#allow shell sprintitson_file:file { getattr link unlink rename };
+
+## avc_msg
+# P140930-00286 avc:  denied  { execute } for  pid=3912 comm="facebook.katana" path="/carrier/itson/resources/libitsonoem.so" dev="mmcblk0p26" ino=28 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:sprintitson_file:s0 tclass=file SEPF_SM-N915P_4.4.4_A019
+
+

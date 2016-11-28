@@ -1,0 +1,40 @@
+# create new domain FMRadiod
+type FMRadiod, domain;
+type FMRadiod_exec, exec_type, file_type;
+
+init_daemon_domain(FMRadiod)
+
+allow FMRadiod self:capability { setuid setgid };
+allow FMRadiod servicemanager:binder { transfer call };
+allow FMRadiod fuse:file write;
+allow FMRadiod dumpstate:fd use;
+#allow FMRadiod system_data_file:file write;
+allow FMRadiod dumpstate:unix_stream_socket unix_stream_socket_perms;
+allow FMRadiod shell:fd use;
+allow FMRadiod shell:fifo_file create_file_perms;
+allow FMRadiod app_data_file:file create_file_perms;
+allow FMRadiod untrusted_app:fd use;
+allow FMRadiod FMRadiod_tmpfs:file create_file_perms;
+allow FMRadiod mwireless_device:chr_file create_file_perms;
+allow FMRadiod fuse:file create_file_perms;
+allow FMRadiod mediaserver:binder { transfer call };
+allow FMRadiod mwirelessd:unix_stream_socket unix_stream_socket_perms;
+allow FMRadiod platform_app:binder call;
+allow FMRadiod platform_app:fd use;
+allow FMRadiod sysfs:file create_file_perms;
+allow FMRadiod tmpfs:dir create_dir_perms;
+allow FMRadiod wireless_data_file:sock_file create_file_perms;
+allow FMRadiod wireless_data_file:dir create_dir_perms;
+
+allow FMRadiod dumpstate:fd use;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow FMRadiod system_data_file:file create_file_perms;
+allow FMRadiod system_data_file:file r_file_perms;
+
+#SEC changed: allow FMRadiod system_server_service:service_manager add;
+allow FMRadiod FMRadiod_service:service_manager add;
+allow FMRadiod dump_log_data_file:file create_file_perms;
+allow FMRadiod dump_log_data_file:dir create_dir_perms;
+

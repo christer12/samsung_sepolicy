@@ -1,0 +1,2 @@
+allow surfaceflinger init:dir r_dir_perms;
+allow surfaceflinger init:file r_file_perms;

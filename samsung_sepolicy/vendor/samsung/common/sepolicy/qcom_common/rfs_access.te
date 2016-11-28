@@ -1,0 +1,6 @@
+allow rfs_access self:capability { setuid net_raw setgid setpcap };
+
+# avc:  denied  { setpcap } for  pid=460 comm="rfs_access" capability=8  scontext=u:r:rfs_access:s0 tcontext=u:r:rfs_access:s0 tclass=capability permissive=1 SEPF_SM-G920V_5.0_0002
+# avc:  denied  { setgid } for  pid=460 comm="rfs_access" capability=6  scontext=u:r:rfs_access:s0 tcontext=u:r:rfs_access:s0 tclass=capability permissive=1 SEPF_SM-G920V_5.0_0002
+# avc:  denied  { setuid } for  pid=460 comm="rfs_access" capability=7  scontext=u:r:rfs_access:s0 tcontext=u:r:rfs_access:s0 tclass=capability permissive=1 SEPF_SM-G920V_5.0_0002
+# avc:  denied  { net_raw } for  pid=460 comm="rfs_access" capability=13  scontext=u:r:rfs_access:s0 tcontext=u:r:rfs_access:s0 tclass=capability permissive=1 SEPF_SM-G920V_5.0_0002

@@ -1,0 +1,39 @@
+#
+# exyrngd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+type exyrngd, domain;
+type exyrngd_exec, exec_type, file_type;
+init_daemon_domain(exyrngd)
+
+# for B2C users
+typeattribute exyrngd trusteddomain;
+# temporary permissive to gather the log.
+# permissive exyrngd;
+
+########## self and domain_type
+allow exyrngd self:capability sys_admin;
+
+########## fs_type
+########## dev_type
+#neverallow Google CTS-android-5.0.2_r1 :allow exyrngd hw_random_device:chr_file r_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+#avc:  denied  { read } for  pid=3715 comm="exyrngd" name="hw_random" dev="tmpfs" ino=7494 scontext=u:r:exyrngd:s0 tcontext=u:object_r:hw_random_device:s0 tclass=chr_file SEPF_SM-G900H_5.0_0001
+#avc:  denied  { open } for  pid=3715 comm="exyrngd" path="/dev/hw_random" dev="tmpfs" ino=7494 scontext=u:r:exyrngd:s0 tcontext=u:object_r:hw_random_device:s0 tclass=chr_file SEPF_SM-G900H_5.0_0001
+#arch=40000028 syscall=322 per=800000 success=yes exit=3 a0=ffffff9c a1=be958750 a2=20000 a3=0 items=1 ppid=1 p
+#id=3715 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="exyrngd" exe="/system/bin/exyrngd" sub
+#j=u:r:exyrngd:s0 key=(null)
+#cwd="/"
+#item=0 name="/dev/hw_random" inode=7494 dev=00:0d mode=020440 ouid=0 ogid=1000 rdev=0a:b7 obj=u:object_r:hw_random_device:s0
+#avc:  denied  { sys_admin } for  pid=3733 comm="exyrngd" capability=21  scontext=u:r:exyrngd:s0 tcontext=u:r:exyrngd:s0 tclass=capability SEPF_SM-G900H_5.0_0001
+#arch=40000028 syscall=54 per=800000 success=yes exit=0 a0=4 a1=40085203 a2=b6c19020 a3=bed75338 items=0 ppid=1 pid=3733 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="exyrngd" exe="/system/bin/exyrngd"
+#subj=u:r:exyrngd:s0 key=(null)
+

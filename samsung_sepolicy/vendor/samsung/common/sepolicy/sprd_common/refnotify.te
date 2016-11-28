@@ -1,0 +1,15 @@
+##SEC added:
+allow refnotify cache_file:dir create_dir_perms;
+allow refnotify cache_file:file create_file_perms;
+allow refnotify cache_file:fifo_file create_file_perms;
+allow refnotify clock_device:chr_file { open read write ioctl };
+allow refnotify spipe_device:chr_file { read write open };
+allow refnotify sysfs_graphics:file write;
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=176 comm="refnotify" name="spipe_w8" dev="tmpfs" ino=2335 scontext=u:r:refnotify:s0 tcontext=u:object_r:spipe_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=176 comm="refnotify" name="dynamic_pclk" dev="sysfs" ino=4652 scontext=u:r:refnotify:s0 tcontext=u:object_r:sysfs_graphics:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=194 comm="refnotify" name="/" dev="mmcblk0p22" ino=2 scontext=u:r:refnotify:s0 tcontext=u:object_r:cache_file:s0 tclass=dir permissive=1 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { add_name } for  pid=194 comm="refnotify" name="w_timesyncfifo" scontext=u:r:refnotify:s0 tcontext=u:object_r:cache_file:s0 tclass=dir permissive=1 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { create } for  pid=194 comm="refnotify" name="w_timesyncfifo" scontext=u:r:refnotify:s0 tcontext=u:object_r:cache_file:s0 tclass=fifo_file permissive=1 SEPF_SM-G531H_5.0_0011
+

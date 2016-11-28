@@ -1,0 +1,6 @@
+
+## CP daemon
+/system/bin/rild_exynos         u:object_r:rild_exec:s0
+/system/bin/rild_SIPC           u:object_r:rild_exec:s0
+/system/bin/dmd                 u:object_r:dmd_exec:s0
+

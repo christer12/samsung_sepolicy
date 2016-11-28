@@ -1,0 +1,17 @@
+# for bluetooth
+
+#SEC changed: allow bluetooth bluetooth_device:chr_file create_file_perms;
+allow bluetooth bluetooth_device:chr_file rw_file_perms;
+allow bluetooth mwirelessd:unix_stream_socket unix_stream_socket_perms;
+
+# /data/misc/wireless/socket_daemon
+allow bluetooth wireless_data_file:sock_file create_file_perms;
+allow bluetooth wireless_data_file:dir create_dir_perms;
+#SEC changed: allow bluetooth mrvlgpu_device:chr_file create_file_perms;
+allow bluetooth mrvlgpu_device:chr_file rw_file_perms;
+#SEC changed: allow bluetooth graphics_device:dir create_dir_perms;
+allow bluetooth graphics_device:dir r_dir_perms;
+# /data/log/ntv-*.txt.tmp files
+allow bluetooth dump_log_data_file:file create_file_perms;
+
+

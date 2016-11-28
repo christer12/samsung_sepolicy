@@ -1,0 +1,129 @@
+#
+# dtvserver
+# 
+# The dtvserver cooperates with sd server and dtvbml server to implement TV viewing.
+# Communication is only between the device and DTV applications, 
+# no other communications with other application is performed.
+# Provides following functions.
+#  - Get surface from device to enable TV program to be displayed.
+#  - Execute channel changing and viewing request in response to request from the DTV application.
+#  - Execute recording and playing request in response to request from the DTV application.
+# All acquired information are discarded during dtvserver exit. 
+# Contact: leesc, kwang.moon, jongwoo.hwang, minhwa80.kim, dj14.park, yi2.jung, kj2017.lee. DTV Team (Multimedia R&D Group)(Multimedia R&D Group)
+#
+
+# temporary permissive to gather the log.
+#permissive dtvserver;
+
+########## type and macro.
+type dtvserver, domain;
+type dtvserver_exec, exec_type, file_type;
+mobicore_use(dtvserver)
+init_daemon_domain(dtvserver)
+
+# Create and use network sockets.
+net_domain(dtvserver)
+
+binder_use(dtvserver)
+binder_call(dtvserver, mediaserver)
+binder_call(dtvserver, surfaceflinger)
+binder_call(dtvserver, appdomain)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow dtvserver mmb_device:chr_file rw_file_perms;
+allow dtvserver video_device:chr_file rw_file_perms;
+
+
+########## file_type
+allow dtvserver dumplog_data_file:file write;
+allow dtvserver media_rw_data_file:dir create_dir_perms;
+allow dtvserver media_rw_data_file:file create_file_perms;
+allow dtvserver sdcard_internal:dir create_dir_perms;
+allow dtvserver sdcard_internal:file create_file_perms;
+allow dtvserver { mnt_user_file storage_file }:dir { getattr search };
+allow dtvserver { mnt_user_file storage_file }:lnk_file { getattr read };
+allow dtvserver storage_file:lnk_file read;
+allow dtvserver radio_data_file:dir search;
+allow dtvserver radio_data_file:file { read open };
+allow dtvserver sysfs_sec:file rw_file_perms;
+allow dtvserver system_data_file:dir ra_dir_perms;
+allow dtvserver system_data_file:file r_file_perms;
+allow dtvserver system_file:file execmod;
+
+ 
+########## etc_type
+# Fullseg add service for /system/bin/dtvserver
+allow dtvserver dtvserver_service:service_manager { add find };
+allow dtvserver mediaserver_service:service_manager find;
+
+
+########## known issue.
+
+# access /data/misc/multimedia
+allow dtvserver system_data_file:dir ra_dir_perms;
+type_transition dtvserver system_data_file:dir mediaserver_data_file "multimedia";
+allow dtvserver mediaserver_data_file:dir create_dir_perms;
+allow dtvserver mediaserver_data_file:notdevfile_class_set create_file_perms;
+
+## this is for jp.co.fsi.fs1seg
+allow dtvserver app_data_file:file r_file_perms;
+allow dtvserver app_data_file:dir rw_dir_perms;
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=22749 comm="TunerMonitorSta" name="isdbt" dev="tmpfs" ino=16696 scontext=u:r:dtvserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=22749 comm="TunerMonitorSta" path="/dev/isdbt" dev="tmpfs" ino=16696 scontext=u:r:dtvserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=22749 comm="TunerMonitorSta" path="/dev/isdbt" dev="tmpfs" ino=16696 scontext=u:r:dtvserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { getattr } for  pid=3094 comm="dtvserver" path="/data/media" dev="sda21" ino=523269 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { write } for  pid=3094 comm="dtvserver" name="media" dev="sda21" ino=523269 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=3094 comm="dtvserver" name="MPE_ROOT" scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3094 comm="dtvserver" name="MPE_ROOT" scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { read } for  pid=3094 comm="dtvserver" name="100MLVDO" dev="sda21" ino=523272 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { open } for  pid=3094 comm="dtvserver" path="/data/media/MPE_ROOT/100MLVDO" dev="sda21" ino=523272 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { search } for  pid=22749 comm="TunerMonitorSta" name="/" dev="sdcardfs" ino=523269 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3094 comm="dtvserver" name="MPG_DATA" scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read write open } for  pid=3094 comm="dtvserver" path="/data/media/MPE_ROOT/100MLVDO/MPG_INFO/MPG_DATA" dev="sda21" ino=523274 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1
+# avc:  denied  { setattr } for  pid=3094 comm="dtvserver" name="MPG_DATA" dev="sda21" ino=523274 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1
+# avc:  denied  { getattr } for  pid=3094 comm="dtvserver" path="/data/media/MPE_ROOT/100MLVDO/MPG_INFO/MPG_DATA" dev="sda21" ino=523274 scontext=u:r:dtvserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1
+# avc:  denied  { transfer } for  pid=3094 comm="dtvserver" scontext=u:r:dtvserver:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1
+# avc:  denied  { call } for  pid=3094 comm="dtvserver" scontext=u:r:dtvserver:s0 tcontext=u:r:servicemanager:s0 tclass=binder permissive=1
+# avc:  denied  { call } for  pid=22665 comm="alarmThread" scontext=u:r:dtvserver:s0 tcontext=u:r:mediaserver:s0 tclass=binder permissive=1
+# avc:  denied  { transfer } for  pid=22665 comm="alarmThread" scontext=u:r:dtvserver:s0 tcontext=u:r:mediaserver:s0 tclass=binder permissive=1
+# avc:  denied  { use } for  pid=23735 comm="Binder_3" path="/dev/ashmem" dev="tmpfs" ino=16709 scontext=u:r:dtvserver:s0 tcontext=u:r:mediaserver:s0 tclass=fd permissive=1
+# avc:  denied  { call } for  pid=23136 comm="DtvSvAir_Thread" scontext=u:r:dtvserver:s0 tcontext=u:r:surfaceflinger:s0 tclass=binder permissive=1
+# avc:  denied  { transfer } for  pid=23136 comm="DtvSvAir_Thread" scontext=u:r:dtvserver:s0 tcontext=u:r:surfaceflinger:s0 tclass=binder permissive=1
+# avc:  denied  { use } for  pid=24518 comm="Binder_5" path="anon_inode:dmabuf" dev="anon_inodefs" ino=8381 scontext=u:r:dtvserver:s0 tcontext=u:r:surfaceflinger:s0 tclass=fd permissive=1
+# avc:  denied  { write } for  pid=31097 comm="camCardTask" name="SECTION" dev="sda21" ino=130843 scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=31097 comm="camCardTask" name="7fe3.dat" scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=31097 comm="camCardTask" name="7fe3.dat" scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=31097 comm="camCardTask" path="/data/fullseg/RMP/SECTION/7fe3.dat" dev="sda21" ino=130855 scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=31612 comm="camCardTask" path="/data/fullseg/RMP/PARAM/INITIAL/multi2_key.dat" dev="sda21" ino=130854 scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { call } for  pid=26406 comm="DtvSvListener" scontext=u:r:dtvserver:s0 tcontext=u:r:untrusted_app:s0 tclass=binder permissive=1
+# avc:  denied  { transfer } for  pid=26406 comm="DtvSvListener" scontext=u:r:dtvserver:s0 tcontext=u:r:untrusted_app:s0 tclass=binder permissive=1
+# avc:  denied  { getattr } for  pid=23140 comm="VideoDecProc" path="/dev/video6" dev="tmpfs" ino=16573 scontext=u:r:dtvserver:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=23140 comm="VideoDecProc" name="video6" dev="tmpfs" ino=16573 scontext=u:r:dtvserver:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=23140 comm="VideoDecProc" path="/dev/video6" dev="tmpfs" ino=16573 scontext=u:r:dtvserver:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=23140 comm="VideoDecProc" path="/dev/video6" dev="tmpfs" ino=16573 scontext=u:r:dtvserver:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { getattr } for  pid=27987 comm="VideoDecProc" path="/dev/video6" dev="tmpfs" ino=16573 scontext=u:r:dtvserver:s0 tcontext=u:object_r:video_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { search } for  pid=11884 comm="BmlThread" name="jp.co.fsi.fs1seg" dev="sda21" ino=393302 scontext=u:r:dtvserver:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir permissive=0 SEPF_SGH-N516_5.0.2_0004
+# avc:  denied  { write } for  pid=5649 comm="camCardTask" name="multimedia" dev="sda21" ino=917509 scontext=u:r:dtvserver:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { create } for  pid=11147 comm="BmlThread" name="cert" scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=609 comm="BmlThread" name="dnsproxyd" dev="tmpfs" ino=16605 scontext=u:r:dtvserver:s0 tcontext=u:object_r:dnsproxyd_socket:s0 tclass=sock_file permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { connectto } for  pid=609 comm="BmlThread" path="/dev/socket/dnsproxyd" scontext=u:r:dtvserver:s0 tcontext=u:r:netd:s0 tclass=unix_stream_socket permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { write } for  pid=609 comm="BmlThread" name="fwmarkd" dev="tmpfs" ino=16601 scontext=u:r:dtvserver:s0 tcontext=u:object_r:fwmarkd_socket:s0 tclass=sock_file permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { name_connect } for  pid=609 comm="BmlThread" dest=80 scontext=u:r:dtvserver:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { search } for  pid=1108 comm="WriteThread" name="radio" dev="sda21" ino=131082 scontext=u:r:dtvserver:s0 tcontext=u:object_r:radio_data_file:s0 tclass=dir permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { read } for  pid=1108 comm="WriteThread" name="ahrh" dev="sda21" ino=131145 scontext=u:r:dtvserver:s0 tcontext=u:object_r:radio_data_file:s0 tclass=file permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { open } for  pid=1108 comm="WriteThread" path="/data/misc/radio/ahrh" dev="sda21" ino=131145 scontext=u:r:dtvserver:s0 tcontext=u:object_r:radio_data_file:s0 tclass=file permissive=1 SEPF_SC-04G_5.0.2_0009
+# avc:  denied  { read } for  pid=1032 comm="TunerMonitorSta" name="primary" dev="tmpfs" ino=43134 scontext=u:r:dtvserver:s0 tcontext=u:object_r:mnt_user_file:s0 tclass=lnk_file permissive=1
+# avc:  denied  { execmod } for  pid=1486 comm="dtvserver" path="/system/lib/libarac.so" dev="sda18" ino=2180 scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=1032 comm="TunerMonitorSta" name="primary" dev="tmpfs" ino=9061 scontext=u:r:dtvserver:s0 tcontext=u:object_r:storage_file:s0 tclass=lnk_file permissive=1
+# avc:  denied  { find } for service=media.audio_flinger scontext=u:r:dtvserver:s0 tcontext=u:object_r:mediaserver_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=sd.service scontext=u:r:dtvserver:s0 tcontext=u:object_r:dtvserver_service:s0 tclass=service_manager
+# avc:  denied  { write } for  pid=1000 comm="camCardTask" path="/data/misc/multimedia/tPbEeDqAxLrMpCeGbOzWoK" dev="sda21" ino=1704047 scontext=u:r:dtvserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=1843 comm="dumpsys" path="/data/log/DumpsysAll_SC04GOME1BOK5-2015-11-23_19:17:58.txt.tmp" dev="sda21" ino=131184 scontext=u:r:dtvserver:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# audit(1449295309.491:409): avc:  denied  { read } for  pid=26296 comm="TunerMonitorSta" name="primary" dev="tmpfs" ino=8819 scontext=u:r:dtvserver:s0 tcontext=u:object_r:storage_file:s0 tclass=lnk_file permissive=0
+# avc:  denied  { search } for  pid=19344 comm="Binder_1" name="jp.co.fsi.fs1seg" dev="sda21" ino=917568 scontext=u:r:dtvserver:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=dir permissive=0
+
+

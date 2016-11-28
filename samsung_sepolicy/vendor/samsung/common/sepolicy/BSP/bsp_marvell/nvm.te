@@ -1,0 +1,23 @@
+# create new domain nvm
+type nvm, domain;
+type nvm_exec, exec_type, file_type;
+
+# allow the transition from $1_exec to $1
+# process nvm is for phone, nvm-aponly is for tablet
+# both these two processes will be labeled to nvm.
+init_daemon_domain(nvm)
+
+allow nvm diag:unix_dgram_socket unix_dgram_socket_perms;
+allow nvm tmpfs:dir create_dir_perms;
+allow nvm tmpfs:sock_file create_file_perms;
+allow nvm init:unix_dgram_socket unix_dgram_socket_perms;
+allow nvm self:capability { fowner chown sys_admin fsetid sys_tty_config setuid sys_nice setgid dac_override };
+allow nvm nvm_device:chr_file create_file_perms;
+
+# access to /NVM/
+allow nvm nvm_data_file:dir create_dir_perms;
+allow nvm nvm_data_file:file create_file_perms;
+
+#SEC removed: allow nvm nvm_block_device:dir create_dir_perms;
+#SEC removed: allow nvm nvm_block_device:file create_file_perms;
+

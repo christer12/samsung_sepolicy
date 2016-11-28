@@ -1,0 +1,90 @@
+#
+# scs
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type scs, domain;
+type scs_exec, exec_type, file_type;
+
+# for B2C users
+#typeattribute scs trusteddomain;
+# temporary permissive to gather the log.
+#permissive scs;
+
+init_daemon_domain(scs)
+
+########## self and domain_type
+allow scs init:unix_stream_socket connectto;
+
+########## fs_type
+allow scs dumplog_data_file:dir create_dir_perms;
+allow scs dumplog_data_file:file create_file_perms;
+
+########## dev_type
+########## file_type
+allow scs carrier_file:dir r_dir_perms;
+allow scs carrier_file:{lnk_file file } r_file_perms;
+allow scs property_socket:sock_file write;
+allow scs system_data_file:dir r_dir_perms;
+allow scs system_data_file:file r_file_perms;
+# board N.25, OMC agent download omr/res. in Grace / 6.0.1_0011
+allow scs omr_file:dir create_dir_perms;
+allow scs omr_file:file create_file_perms;
+
+########## etc_type
+allow scs csc_prop:property_service set;
+allow scs radio_prop:property_service set;
+allow scs setupwizard_prop:property_service set;
+allow scs system_prop:property_service set;
+#neverallow Google CTS-android-5.0.2_r1 : allow scs default_prop:property_service set;
+
+########## known issue.
+
+### /efs/imei/mps_code.dat
+allow scs efs_file:dir r_dir_perms;
+allow scs efs_file:file r_file_perms;
+allow scs imei_efs_file:dir r_dir_perms;
+allow scs imei_efs_file:file r_file_perms;
+
+############ avc_log #############
+# avc:  denied  { set } for property=csc.country_code scontext=u:r:scs:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=persist.sys.localevar scontext=u:r:scs:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=csc.nosimlanguage scontext=u:r:scs:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=400 comm="scs" name="property_service" dev="tmpfs" ino=7515 scontext=u:r:scs:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file SEPF_SM-G900P_5.0_0002
+# avc:  denied  { connectto } for  pid=400 comm="scs" path="/dev/socket/property_service" scontext=u:r:scs:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket SEPF_SM-G900P_5.0_0002
+# avc:  denied  { search } for  pid=301 comm="scs" name="log" dev="mmcblk0p26" ino=523269 scontext=u:r:scs:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_0002
+# arch=40000028 syscall=322 per=800000 success=no exit=-13 a0=ffffff9c a1=b6fc66d4 a2=20441 a3=1b6 items=1 ppid=1 ppcomm=init pid=301 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="scs" exe="/system/bin/scs" subj=u:r:scs:s0 key=(null)
+# cwd="/"
+# item=0 name="/data/log/scs.txt"
+# audit_enabled=1 old=1 auid=4294967295 ses=4294967295 subj=u:r:auditd:s0 res=1
+# avc:  denied  { open } for  pid=2444 comm="scs" path="/data/omc/others.xml" dev="mmcblk0p23" ino=130536 scontext=u:r:scs:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1 SEPF_SM-G903F_5.1.1_0035
+
+############ csc_prop #############
+# ro.csc.country_code
+# ro.csc.countryiso_code
+# ro.csc.sales_code
+
+############ system_prop #############
+# persist.sys.localevar
+# persist.sys.language
+# persist.sys.country
+
+############ csc_prop #############
+# persist.csc.nosimlanguage
+# persist.csc.nosimcountry
+
+############ carrier_spr #############
+############ default_prop #############
+# ro.com.google.clientidbase.am
+# ro.com.google.clientidbase.ms
+# ro.com.google.clientidbase.yt
+############ avc_msg #############
+# avc:  denied  { set } for property=setupwizard.launchtype scontext=u:r:scs:s0 tcontext=u:object_r:setupwizard_prop:s0 tclass=property_service
+# avc:  denied  { read } for  pid=3286 comm="scs" name="chameleon.xml" dev="sda18" ino=16 scontext=u:r:scs:s0 tcontext=u:object_r:carrier_file:s0 tclass=file permissive=1 SEPF_SM-N920P_5.1.1_0030
+# avc:  denied  { open } for  pid=3286 comm="scs" path="/carrier/chameleon.xml" dev="sda18" ino=16 scontext=u:r:scs:s0 tcontext=u:object_r:carrier_file:s0 tclass=file permissive=1 SEPF_SM-N920P_5.1.1_0030
+# avc:  denied  { search } for  pid=943 comm="scs" name="imei" dev="sda6" ino=26 scontext=u:r:scs:s0 tcontext=u:object_r:imei_efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=3283 comm="scs" name="ui" dev="sda19" ino=18 scontext=u:r:scs:s0 tcontext=u:object_r:omr_file:s0 tclass=dir permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { remove_name } for  pid=3283 comm="scs" name="PowerOff.ogg" dev="sda19" ino=19 scontext=u:r:scs:s0 tcontext=u:object_r:omr_file:s0 tclass=dir permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { unlink } for  pid=3283 comm="scs" name="PowerOff.ogg" dev="sda19" ino=19 scontext=u:r:scs:s0 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0011
+# avc:  denied  { rmdir } for  pid=3283 comm="scs" name="ui" dev="sda19" ino=18 scontext=u:r:scs:s0 tcontext=u:object_r:omr_file:s0 tclass=dir permissive=1 SEPF_SECMOBILE_6.0.1_0011

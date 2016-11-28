@@ -1,0 +1,15 @@
+allow shell tmpfs:lnk_file { getattr read };
+#SEC removed: allow shell shell_data_file:sock_file write;
+
+### for bug:472144 {
+#SEC removed : allow shell net_data_file:dir search;
+### }
+
+allow shell log_device:chr_file read;
+#SEC removed : allow shell ctl_default_prop:property_service set;
+#SEC removed : allow shell slog_file:dir {search getattr read open write remove_name rmdir};
+#SEC removed : allow shell slog_file:file {getattr read write open unlink};
+#SEC removed : allow shell shell:netlink_socket {create read write};
+#SEC removed : allow shell slogd:unix_stream_socket connectto;
+#SEC removed : allow shell shell:packet_socket create;
+allow shell prod_file:dir { search getattr };

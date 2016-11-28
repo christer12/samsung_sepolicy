@@ -1,0 +1,83 @@
+#
+# domain
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute wpa trusteddomain;
+typeattribute wpa system_domain;
+
+binder_call(wpa, servicemanager)
+binder_call(wpa, keystore)
+
+########## self and domain_type
+allow wpa debuggerd:unix_dgram_socket sendto;
+allow wpa dumpstate:unix_dgram_socket sendto;
+allow wpa init:unix_dgram_socket sendto;
+allow wpa init:unix_stream_socket connectto;
+#allow wpa init_shell:unix_dgram_socket sendto;
+allow wpa keystore:unix_stream_socket connectto;
+allow wpa rild:unix_stream_socket connectto;
+allow wpa secure_storage:unix_stream_socket connectto;
+allow wpa self:netlink_route_socket *;
+allow wpa self:netlink_socket *;
+allow wpa self:packet_socket *;
+allow wpa self:udp_socket *;
+allow wpa shell:unix_dgram_socket sendto;
+allow wpa system_app:unix_dgram_socket sendto;
+
+########## fs_type
+#neverallow by Google CTS : allow wpa sdcard_type:dir rw_dir_perms;
+allow wpa sdcard_type:dir getattr;
+#neverallow by Google CTS : allow wpa sdcard_type:file { r_file_perms link_file_perms };
+
+########## dev_type
+allow wpa device:file r_file_perms;
+allow wpa secure_storage_device:dir r_dir_perms;
+allow wpa secure_storage_device:sock_file w_file_perms;
+
+########## file_type
+allow wpa property_socket:sock_file w_file_perms;
+allow wpa system_data_file:dir r_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow wpa system_data_file:file w_file_perms;
+allow wpa system_data_file:file r_file_perms;
+allow wpa wifi_data_file:sock_file w_file_perms;
+allow wpa wpa_exec:file execute_no_trans;
+
+########## etc_type
+allow wpa tlc_server_service:service_manager find;
+allow wpa system_service:service_manager find;
+
+########## known issue.
+# for CTS
+userdebug_or_eng(`
+allow wpa su:unix_dgram_socket sendto;
+')
+
+#r_dir_file(wpa, file_type)
+# replacing r_dir_file macro and removing container related access
+#allow wpa { file_type -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_file_type -fixmo_app_data_file -good_app_data_file }:dir r_dir_perms;
+#allow wpa { file_type -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_file_type -fixmo_app_data_file -good_app_data_file }:{ file lnk_file } r_file_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow wpa { file_type -trstdomain_no_read_file  }:dir r_dir_perms;
+allow wpa { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow wpa { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+allow wpa { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+allow wpa { shell_data_file app_data_file }:file r_file_perms;
+
+########## androd-m-preview: denials ########
+allow wpa shell_exec:file { execute execute_no_trans };
+allow wpa efs_file:dir r_dir_perms;
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=7077 comm="wpa_supplicant" name="/" dev="sda3" ino=2 scontext=u:r:wpa:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { find } for service=CCM scontext=u:r:wpa:s0 tcontext=u:object_r:tlc_server_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=com.samsung.ucs.ucsservice scontext=u:r:wpa:s0 tcontext=u:object_r:system_service:s0 tclass=service_manager
+

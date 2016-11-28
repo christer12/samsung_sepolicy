@@ -1,0 +1,14 @@
+# define new file and socket file
+#SEC removed:type smartcard_data_file, file_type, data_file_type;
+type nvm_data_file, file_type, data_file_type;
+type teesst_data_file, file_type, data_file_type;
+type wireless_data_file, file_type, data_file_type;
+
+#SEC removed to use alias: type dump_log_data_file, file_type, data_file_type;
+#SEC removed to use aluas: type tel_data_file, file_type, data_file_type;
+
+
+# new socket type
+#SEC removed:type imsd_socket, file_type;
+type embmsd_socket, file_type;
+

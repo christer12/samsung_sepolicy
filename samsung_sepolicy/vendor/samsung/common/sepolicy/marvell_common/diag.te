@@ -1,0 +1,11 @@
+
+typealias diag_uart_log_tmpfs alias diag_tmpfs;
+
+## SEC added
+allow diag block_device:dir r_dir_perms;
+allow diag emmcblk_device:blk_file r_file_perms;
+allow diag cploader_block_device:blk_file r_file_perms;
+allow diag tz_device:chr_file rw_file_perms;
+allow diag phone_data_file:dir create_dir_perms;
+allow diag phone_data_file:file create_file_perms;
+

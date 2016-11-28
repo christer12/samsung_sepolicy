@@ -1,0 +1,10 @@
+at_distributor:fd
+init:unix_stream_socket
+system:unix_stream_socket
+untrusteddomain:unix_stream_socket
+video_device:dir
+asec_apk_file:dir
+radio_data_file:dir
+ashmem_device:chr_file
+kgsl_device:chr_file
+drm_security_system_file:dir

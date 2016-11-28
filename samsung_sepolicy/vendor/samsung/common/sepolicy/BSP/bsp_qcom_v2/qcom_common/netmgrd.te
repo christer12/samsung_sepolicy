@@ -1,0 +1,5 @@
+# for B2C users
+typeattribute netmgrd trusteddomain;
+typeattribute netmgrd device_domain;
+
+

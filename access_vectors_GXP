@@ -1,0 +1,928 @@
+#
+# Define common prefixes for access vectors
+#
+# common common_name { permission_name ... }
+
+
+#
+# Define a common prefix for file access vectors.
+#
+
+common file
+{
+	ioctl			n
+	read			R
+	write			W
+	create			W
+	getattr			R
+	setattr			W
+	lock			n
+	relabelfrom		R
+	relabelto		W
+	append			W
+	unlink			W
+	link			W
+	rename			W
+	execute			R
+	swapon			RW
+	quotaon			RW
+	mounton			RW
+}
+
+
+#
+# Define a common prefix for socket access vectors.
+#
+
+common socket
+{
+# inherited from file
+	ioctl			n
+	read			R
+	write			W
+	create			W
+	getattr			R
+	setattr			W
+	lock			n
+	relabelfrom		R
+	relabelto		W
+	append			W
+# socket-specific
+	bind			W
+	connect			W
+	listen			R
+	accept			R
+	getopt			R
+	setopt			W
+	shutdown		W
+	recvfrom		R
+	sendto			W
+	recv_msg		R
+	send_msg		W
+	name_bind		n
+}
+
+#
+# Define a common prefix for ipc access vectors.
+#
+
+common ipc
+{
+	create			W
+	destroy			W
+	getattr			R
+	setattr			W
+	read			R
+	write			W
+	associate		n
+	unix_read		R
+	unix_write		W
+}
+
+#
+#  Define a common prefix for userspace database object access vectors.
+#
+
+common database
+{
+	create			W
+	drop			W
+	getattr			R
+	setattr			W
+	relabelfrom		R
+	relabelto		W
+}
+
+#
+# Define a common prefix for pointer and keyboard access vectors.
+#
+
+common x_device
+{
+	getattr			R
+	setattr			W
+	use			R
+	read			R
+	write			W
+	getfocus		R
+	setfocus		W
+	bell			W
+	force_cursor		W
+	freeze			W
+	grab			W
+	manage			W
+	list_property		R
+	get_property		R
+	set_property		W
+	add			W
+	remove			W
+	create			W
+	destroy			W  
+}
+
+#
+# Define the access vectors.
+#
+# class class_name [ inherits common_name ] { permission_name ... }
+
+
+#
+# Define the access vector interpretation for file-related objects.
+#
+
+class filesystem
+{
+	mount			W
+	remount			W
+	unmount			W
+	getattr			R
+	relabelfrom		R
+	relabelto		W
+	transition		W
+	associate		n
+	quotamod		W
+	quotaget		R
+}
+
+class dir
+inherits file
+{
+	add_name		W
+	remove_name		W
+	reparent		W
+	search			R
+	rmdir			RW
+	open			n
+	audit_access		NA 	n
+	execmod			n
+}
+
+class file
+inherits file
+{
+	execute_no_trans	R
+	entrypoint		R
+	execmod			n
+	open			n
+	audit_access		NA	n
+}
+
+class lnk_file
+inherits file
+{
+	open			n
+	audit_access		NA	n
+	execmod			n
+}
+
+class chr_file
+inherits file
+{
+	execute_no_trans	R
+	entrypoint		R
+	execmod			n
+	open			n
+	audit_access		NA	n
+}
+
+class blk_file
+inherits file
+{
+	open			n
+	audit_access		NA
+	execmod			NA
+}
+
+class sock_file
+inherits file
+{
+	open			n
+	audit_access		NA
+	execmod			NA
+}
+
+class fifo_file
+inherits file
+{
+	open			n
+	audit_access		NA
+	execmod			NA
+}
+
+class fd
+{
+	use			RW
+}
+
+
+#
+# Define the access vector interpretation for network-related objects.
+#
+
+class socket
+inherits socket
+
+class tcp_socket
+inherits socket
+{
+	connectto		W
+	newconn			W
+	acceptfrom		R
+	node_bind		n
+	name_connect		W
+}
+
+class udp_socket
+inherits socket
+{
+	node_bind		n
+}
+
+class rawip_socket
+inherits socket
+{
+	node_bind		n
+}
+
+class node
+{
+	tcp_recv		R
+	tcp_send		W
+	udp_recv		R
+	udp_send		W
+	rawip_recv		R
+	rawip_send		W
+	enforce_dest		n
+	dccp_recv		R
+	dccp_send		W
+	recvfrom		R
+	sendto			W
+}
+
+class netif
+{
+	tcp_recv		R
+	tcp_send		W
+	udp_recv		R
+	udp_send		W
+	rawip_recv		R
+	rawip_send		W
+	dccp_recv		R
+	dccp_send		W
+	ingress			R
+	egress			W
+}
+
+class netlink_socket
+inherits socket
+
+class packet_socket
+inherits socket
+
+class key_socket
+inherits socket
+
+class unix_stream_socket
+inherits socket
+{
+	connectto		W
+	newconn			W
+	acceptfrom		R
+}
+
+class unix_dgram_socket
+inherits socket
+
+#
+# Define the access vector interpretation for process-related objects
+#
+
+class process
+{
+	fork			n
+	transition		W
+	sigchld 		W	# commonly granted from child to parent
+	sigkill 		W	# cannot be caught or ignored
+	sigstop 		W	# cannot be caught or ignored
+	signull 		n	# for kill(pid, 0)
+	signal  		W	# all other signals
+	ptrace			RW
+	getsched		R
+	setsched		W
+	getsession		R
+	getpgid			R
+	setpgid			W
+	getcap			R
+	setcap			W
+	share			RW
+	getattr			R
+	setexec			W
+	setfscreate		W
+	noatsecure		n
+	siginh			n
+	setrlimit		n
+	rlimitinh		n
+	dyntransition		W
+	setcurrent		W
+	execmem			n
+	execstack		n
+	execheap		n
+	setkeycreate		W
+	setsockcreate		W
+}
+
+
+#
+# Define the access vector interpretation for ipc-related objects
+#
+
+class ipc
+inherits ipc
+
+class sem
+inherits ipc
+
+class msgq
+inherits ipc
+{
+	enqueue			W
+}
+
+class msg
+{
+	send			W
+	receive			R
+}
+
+class shm
+inherits ipc
+{
+	lock			n
+}
+
+
+#
+# Define the access vector interpretation for the security server.
+#
+
+class security
+{
+	compute_av		n
+	compute_create		n
+	compute_member		n
+	check_context		n
+	load_policy		n	
+	compute_relabel		n
+	compute_user		n
+	setenforce     		n			# was avc_toggle in system class
+	setbool			n
+	setsecparam		n
+	setcheckreqprot		n
+	read_policy		n
+}
+
+
+#
+# Define the access vector interpretation for system operations.
+#
+
+class system
+{
+	ipc_info		n
+	syslog_read		n
+	syslog_mod		n
+	syslog_console		n
+	module_request		n
+}
+
+#
+# Define the access vector interpretation for controling capabilies
+#
+
+class capability
+{
+	# The capabilities are defined in include/linux/capability.h
+	# Capabilities >= 32 are defined in the capability2 class.
+	# Care should be taken to ensure that these are consistent with
+	# those definitions. (Order matters)
+
+	chown			n
+	dac_override		n
+	dac_read_search		n
+	fowner			n
+	fsetid			n
+	kill			n
+	setgid			n
+	setuid			n
+	setpcap			n
+	linux_immutable		n
+	net_bind_service	n	
+	net_broadcast		n
+	net_admin		n
+	net_raw			n
+	ipc_lock		n	
+	ipc_owner		n
+	sys_module		n
+	sys_rawio		n
+	sys_chroot		n
+	sys_ptrace		n
+	sys_pacct		n
+	sys_admin		n
+	sys_boot		n
+	sys_nice		n
+	sys_resource		n
+	sys_time		n
+	sys_tty_config		n
+	mknod			n
+	lease			n
+	audit_write		n
+	audit_control		n
+	setfcap			n
+}
+
+class capability2
+{
+	mac_override		n	# unused by SELinux
+	mac_admin		n	# unused by SELinux
+	syslog			NA
+	wake_alarm		NA
+	block_suspend		NA
+}
+
+#
+# Define the access vector interpretation for controlling
+# changes to passwd information.
+#
+class passwd
+{
+	passwd			W	# change another user passwd
+	chfn			W	# change another user finger info
+	chsh			W	# change another user shell
+	rootok  		n	# pam_rootok check (skip auth)		
+	crontab 		W	# crontab on another user
+}
+
+#
+# SE-X Windows stuff
+#
+class x_drawable
+{
+	create			W
+	destroy			W
+	read			R
+	write			W
+	blend			W
+	getattr			R
+	setattr			W
+	list_child		R
+	add_child		W
+	remove_child		W
+	list_property		R
+	get_property		R
+	set_property		W
+	manage			W
+	override		n
+	show			W
+	hide			W
+	send			W
+	receive			R
+}
+
+class x_screen
+{
+	getattr			R
+	setattr			W
+	hide_cursor		W
+	show_cursor		W
+	saver_getattr		R
+	saver_setattr		W
+	saver_hide		W
+	saver_show		W
+}
+
+class x_gc
+{
+	create			W
+	destroy			W
+	getattr			R
+	setattr			W
+	use			R
+}
+
+class x_font
+{
+	create			W
+	destroy			W
+	getattr			R
+	add_glyph		W
+	remove_glyph		W
+	use			R
+}
+
+class x_colormap
+{
+	create			W
+	destroy			W
+	read			R
+	write			W
+	getattr			R
+	add_color		W
+	remove_color		W
+	install			W
+	uninstall		W
+	use			R
+}
+
+class x_property
+{
+	create			W
+	destroy			W
+	read			R
+	write			W
+	append			W
+	getattr			R
+	setattr			W
+}
+
+class x_selection
+{
+	read			R
+	write			W
+	getattr			R
+	setattr			W
+}
+
+class x_cursor
+{
+	create			W
+	destroy			W
+	read			R
+	write			W
+	getattr			R
+	setattr			W
+	use			R
+}
+
+class x_client
+{
+	destroy			W
+	getattr			R
+	setattr			W
+	manage			W
+}
+
+class x_device
+inherits x_device
+
+class x_server
+{
+	getattr			R
+	setattr			W
+	record			R
+	debug			RW
+	grab			W
+	manage			RW
+}
+
+class x_extension
+{
+	query			R
+	use			R
+}
+
+class x_resource
+{
+	read			R
+	write			W
+}
+
+class x_event
+{
+	send			W
+	receive			R
+}
+
+class x_synthetic_event
+{
+	send			W
+	receive			R
+}
+
+#
+# Extended Netlink classes
+#
+class netlink_route_socket
+inherits socket
+{
+	nlmsg_read		R
+	nlmsg_write		W
+}
+
+class netlink_firewall_socket
+inherits socket
+{
+	nlmsg_read		R
+	nlmsg_write		W
+}
+
+class netlink_tcpdiag_socket
+inherits socket
+{
+	nlmsg_read		R
+	nlmsg_write		W
+}
+
+class netlink_nflog_socket
+inherits socket
+
+class netlink_xfrm_socket
+inherits socket
+{
+	nlmsg_read		R
+	nlmsg_write		W
+}
+
+class netlink_selinux_socket
+inherits socket
+
+class netlink_audit_socket
+inherits socket
+{
+	nlmsg_read		R
+	nlmsg_write		W
+	nlmsg_relay		W
+	nlmsg_readpriv		R
+	nlmsg_tty_audit		W
+}
+
+class netlink_ip6fw_socket
+inherits socket
+{
+	nlmsg_read		R
+	nlmsg_write		W
+}
+
+class netlink_dnrt_socket
+inherits socket
+
+# Define the access vector interpretation for controlling
+# access and communication through the D-BUS messaging
+# system.
+#
+class dbus
+{
+	acquire_svc		RW
+	send_msg		W
+}
+
+# Define the access vector interpretation for controlling
+# access through the name service cache daemon (nscd).
+#
+class nscd
+{
+	getpwd			R	
+	getgrp			R
+	gethost			R
+	getstat			R
+	admin			W
+	shmempwd		R
+	shmemgrp		R
+	shmemhost		R
+	getserv			R
+	shmemserv		R
+}
+
+# Define the access vector interpretation for controlling
+# access to IPSec network data by association
+#
+class association
+{
+	sendto			W
+	recvfrom		R
+	setcontext		W
+	polmatch		R
+}
+
+# Updated Netlink class for KOBJECT_UEVENT family.
+class netlink_kobject_uevent_socket
+inherits socket
+
+class appletalk_socket
+inherits socket
+
+class packet
+{
+	send			W
+	recv			R
+	relabelto		W
+	flow_in	# deprecated	R
+	flow_out # deprecated	W
+	forward_in		R
+	forward_out		W
+}
+
+class key
+{
+	view			R
+	read			R
+	write			W
+	search			R
+	link			W
+	setattr			W
+	create			W
+}
+
+class context
+{
+	translate		n
+	contains		n
+}
+
+class dccp_socket
+inherits socket
+{
+	node_bind		n
+	name_connect		W
+}
+
+class memprotect
+{
+	mmap_zero		n
+}
+
+class db_database
+inherits database
+{
+	access			RW
+	install_module		R
+	load_module		R
+	get_param # deprecated	R
+	set_param # deprecated	W
+}
+
+class db_table
+inherits database
+{
+	use   # deprecated	R
+	select			n
+	update			W
+	insert			W
+	delete			W
+	lock			n
+}
+
+class db_procedure
+inherits database
+{
+	execute			R
+	entrypoint		R
+	install			W
+}
+
+class db_column
+inherits database
+{
+	use	# deprecated 	R
+	select			n
+	update			W
+	insert			W
+}
+
+class db_tuple
+{
+	relabelfrom		R
+	relabelto		W
+	use	# deprecated	R
+	select			n
+	update			W
+	insert			W
+	delete			W
+}
+
+class db_blob
+inherits database
+{
+	read			R
+	write			W
+	import			W
+	export			R
+}
+
+# network peer labels
+class peer
+{
+	recv			NA	R
+}
+
+class x_application_data
+{
+	paste			W	
+	paste_after_confirm	W
+	copy			R	
+}
+
+class kernel_service
+{
+	use_as_override		n
+	create_files_as		n
+}
+
+class tun_socket
+inherits socket
+{
+	attach_queue		NA
+}
+
+class x_pointer
+inherits x_device
+
+class x_keyboard
+inherits x_device
+
+class db_schema
+inherits database
+{
+	search			R
+	add_name		W
+	remove_name		W
+}
+
+class db_view
+inherits database
+{
+	expand			NA
+}
+
+class db_sequence
+inherits database
+{
+	get_value		NA
+	next_value		NA
+	set_value		NA
+}
+
+class db_language
+inherits database
+{
+	implement		NA
+	execute			R
+}
+
+class binder
+{
+	impersonate		NA
+	call			NA
+	set_context_mgr		NA
+	transfer		NA
+}
+
+class property_service
+{
+	set  			NA
+}
+
+class service_manager
+{
+	add  			W
+	find 			NA
+	list 			NA
+}
+
+class keystore_key
+{
+	get_state 		NA
+	get 			NA
+	insert			W
+	delete			W
+	exist			NA
+	list			NA
+	reset			NA
+	password		W
+	lock			n
+	unlock			NA
+	is_empty		NA
+	sign			NA
+	verify			NA
+	grant			NA
+	duplicate 		NA
+	clear_uid		NA
+	add_auth		NA
+	user_changed		NA
+}
+
+class debuggerd
+{
+	dump_tombstone		NA
+	dump_backtrace		NA
+}
+
+class drmservice {
+	consumeRights 		NA
+	setPlaybackStatus	NA
+	openDecryptSession	NA
+	closeDecryptSession	NA
+	initializeDecryptUnit	NA
+	decrypt			NA
+	finalizeDecryptUnit	NA
+	pread			NA
+}

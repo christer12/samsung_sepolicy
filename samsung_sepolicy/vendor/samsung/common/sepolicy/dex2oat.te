@@ -1,0 +1,32 @@
+#
+# dex2oat
+# 
+# permissive dex2oat;
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute dex2oat trusteddomain;
+typeattribute dex2oat system_domain;
+
+########## self and domain_type
+allow dex2oat kernel:system module_request;
+
+########## fs_type
+########## dev_type
+########## file_type
+#neverallow Google CTS-android-5.0.2_r1 : allow dex2oat system_library_file:file execute;
+
+########## etc_type
+########## known issue.
+## connection with secure_storage
+allow dex2oat secure_storage:unix_stream_socket connectto;
+allow dex2oat secure_storage_device:sock_file write;
+
+########## androd-m-preview: denials ########
+allow dex2oat shell_exec:file { r_file_perms execute execute_no_trans };
+
+############ avc_log #############
+# avc:  denied  { execute } for  pid=856 comm="dex2oat" path="/system/lib/libsigchain.so" dev="mmcblk0p16" ino=1371 scontext=u:r:dex2oat:s0 tcontext=u:object_r:system_library_file:s0 tclass=file
+# avc:  denied  { write } for  pid=1565 comm="main" name="ssd_socket" dev="tmpfs" ino=7376 scontext=u:r:dex2oat:s0 tcontext=u:object_r:secure_storage_device:s0 tclass=sock_file
+# avc:  denied  { connectto } for  pid=1565 comm="main" path="/dev/.secure_storage/ssd_socket" scontext=u:r:dex2oat:s0 tcontext=u:r:secure_storage:s0 tclass=unix_stream_socket SEPF_SM-G900F_L_A001
+
+

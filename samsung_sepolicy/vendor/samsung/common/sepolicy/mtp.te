@@ -1,0 +1,30 @@
+#
+# mdp
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute mtp trusteddomain;
+#typeattribute mtp system_domain;
+# temporary permissive to gather the log.
+# permissive mtp;
+
+########## self and domain_type
+allow mtp kernel:system module_request;
+allow mtp self:tcp_socket { create setopt connect write read };
+allow mtp self:rawip_socket create;
+
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+allow mtp port:tcp_socket name_connect;
+
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { module_request } for  pid=5905 comm="mtpd" kmod="pppox-proto-4" scontext=u:r:mtp:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+
+

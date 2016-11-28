@@ -1,0 +1,29 @@
+#
+# Store app - for access to Knox store
+#
+
+############ knox_common #############
+########## type and macro.
+#changeBySEA : type store_app, commonplatformappdomain, domain;
+#changeBySEA type store_app, domain;
+# for B2C users
+#changeBySEA typeattribute store_app trusteddomain;
+#changeBySEA typeattribute store_app trusted_app_domain;
+
+#changeBySEA app_domain(store_app)
+#changeBySEA platform_app_domain(store_app)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+#changeBySEA allow store_app store_app_data_file:file create_file_perms;
+#changeBySEA allow store_app store_app_data_file:dir create_dir_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

@@ -1,0 +1,29 @@
+#
+# cnd
+#
+#type cnd_exec, exec_type, file_type;
+#type cnd, domain;
+
+#init_daemon_domain(cnd)
+
+unix_socket_connect(cnd, property, init)
+
+allow cnd self:capability { setuid setgid fsetid dac_override net_admin net_raw };
+allow cnd sysfs:file w_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow cnd system_data_file:file create_file_perms;
+allow cnd system_data_file:file r_file_perms;
+allow cnd system_data_file:dir rw_dir_perms;
+allow cnd system_data_file:sock_file create_file_perms;
+allow cnd self:netlink_tcpdiag_socket create_socket_perms;
+allow cnd self:netlink_route_socket create_socket_perms;
+allow cnd qmux_radio_socket:sock_file create_file_perms;
+allow cnd qmux_radio_socket:dir rw_dir_perms;
+allow cnd qmuxd:unix_stream_socket connectto;
+allow cnd init:unix_stream_socket connectto;
+allow cnd diag_device:chr_file rw_file_perms;
+allow cnd device:sock_file create_file_perms;
+
+# for B2C users
+typeattribute cnd trusteddomain;
+typeattribute cnd device_domain;

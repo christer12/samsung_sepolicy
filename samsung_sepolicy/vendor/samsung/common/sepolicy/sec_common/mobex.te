@@ -1,0 +1,55 @@
+#
+# mobex
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type mobexdaemon, domain;
+type mobexdaemon_exec, exec_type, file_type;
+# for B2C users
+typeattribute mobexdaemon trusteddomain;
+typeattribute mobexdaemon system_domain;
+
+init_daemon_domain(mobexdaemon)
+
+########## self and domain_type
+allow mobexdaemon init:unix_stream_socket connectto;
+allow mobexdaemon kiesexe:unix_stream_socket connectto;
+allow mobexdaemon self:tcp_socket { write read create connect };
+allow mobexdaemon system_app:unix_stream_socket connectto;
+
+########## fs_type
+allow mobexdaemon sdcard_internal:dir create_dir_perms;
+allow mobexdaemon sdcard_internal:file create_file_perms;
+allow mobexdaemon sdcard_external:dir create_dir_perms;
+allow mobexdaemon sdcard_external:file create_file_perms;
+allow mobexdaemon sdcard_type:file rw_file_perms;
+
+########## dev_type
+########## file_type
+allow mobexdaemon app_data_file:dir r_dir_perms;
+allow mobexdaemon media_rw_data_file:dir create_dir_perms;
+allow mobexdaemon media_rw_data_file:file create_file_perms;
+allow mobexdaemon obb_apk_file:dir rw_dir_perms;
+allow mobexdaemon property_socket:sock_file w_file_perms;
+allow mobexdaemon radio_data_file:dir rw_dir_perms;
+allow mobexdaemon radio_data_file:file rw_file_perms;
+allow mobexdaemon shell_exec:file rx_file_perms;
+allow mobexdaemon system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mobexdaemon system_data_file:file create_file_perms;
+allow mobexdaemon system_data_file:file r_file_perms;
+
+allow mobexdaemon system_data_file:sock_file create_file_perms;
+allow mobexdaemon system_file:file x_file_perms;
+
+########## etc_type
+allow mobexdaemon kies_prop:property_service set;
+allow mobexdaemon port:tcp_socket name_connect;
+
+########## known issue.
+
+
+############ avc_log #############
+
+

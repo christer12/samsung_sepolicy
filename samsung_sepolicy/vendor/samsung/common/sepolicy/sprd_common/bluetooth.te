@@ -1,0 +1,5 @@
+allow bluetooth kernel:system module_request;
+
+############ avc_log #############
+# avc:  denied  { module_request } for  pid=4481 comm="bt_hc_worker" kmod="tty-ldisc-25" scontext=u:r:bluetooth:s0 tcontext=u:r:kernel:s0 tclass=system permissive=1 SEPF_SM-G531H_5.0_0011
+

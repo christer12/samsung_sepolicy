@@ -1,0 +1,15 @@
+# create the new domain kmsg
+type kmsg, domain;
+type kmsg_exec, exec_type, file_type;
+
+init_daemon_domain(kmsg)
+
+allow kmsg kernel:system syslog_mod;
+allow kmsg kmsg_tmpfs:file create_file_perms;
+allow kmsg self:capability dac_override;
+allow kmsg self:capability2 syslog;
+# only read permission can be granted for kmsg
+allow kmsg shell_exec:file read;
+allow kmsg system_file:file execute_no_trans;
+allow kmsg tmpfs:dir create_dir_perms;
+

@@ -1,0 +1,62 @@
+#
+# lptcpgc  LPTCP (Low Power TCP)
+# Reduces additional radio connection setups of UE and results in network signaling reduction and improved mobile device battery life time.
+# Provides following client-initiated graceful TCP connection close to prevent a delayed server-initiate TCP connection close :
+#   - Proactive TCP connection close
+#   - Batching delayed TCP connection closes.
+# Client only solution.
+# No modification on client applications or server functions
+# Working on a Whitelist (preconfigured target Apps list)
+#   i.e. Facebook, Twitter, Email, Flipboard, AccuWeather, Yahoo Weather, Wongi Weather, Naver Mail, Daum Mail
+# yk929.hong,Communications Solution Lab
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type lptcpgc, domain, mlstrustedsubject;
+type lptcpgc_exec, exec_type, file_type;
+type lptcp_socket, socket_file_type, file_type, mlstrustedobject;
+
+init_daemon_domain(lptcpgc)
+#permissive lptcpgc;
+unix_socket_connect(appdomain, lptcp, lptcpgc)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow lptcpgc system_data_file:dir { write remove_name add_name };
+allow lptcpgc system_data_file:sock_file { create unlink };
+
+########## etc_type
+########## known issue.
+# type transition to lptcp_socket
+type_transition lptcpgc socket_device:sock_file lptcp_socket;
+type_transition lptcpgc system_data_file:sock_file lptcp_socket;
+
+# Allow the domain to add entries to the directory.
+allow lptcpgc socket_device:dir rw_dir_perms;
+#allow lptcpgc system_data_file:dir rw_dir_perms;
+
+# Allow the domain to create the file.
+allow lptcpgc lptcp_socket:sock_file create_file_perms;
+
+# lptcpController CONFIG_FILE, /data/misc/lpnet/lpnetConfig
+allow lptcpgc system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow lptcpgc system_data_file:file create_file_perms;
+allow lptcpgc system_data_file:file r_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=3064 comm="lptcpController" name="/" dev="dm-0" ino=2 scontext=u:r:lptcpgc:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { remove_name } for  pid=3064 comm="lptcpController" name="lptcpSocket" dev="dm-0" ino=36 scontext=u:r:lptcpgc:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { unlink } for  pid=3064 comm="lptcpController" name="lptcpSocket" dev="dm-0" ino=36 scontext=u:r:lptcpgc:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { add_name } for  pid=3064 comm="lptcpController" name="lptcpSocket" scontext=u:r:lptcpgc:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3064 comm="lptcpController" name="lptcpSocket" scontext=u:r:lptcpgc:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=4217 comm="JDWP" name="lptcpSocket" dev="dm-0" ino=36 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=4602 comm="JDWP" name="lptcpSocket" dev="dm-0" ino=36 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=4918 comm="JDWP" name="lptcpSocket" dev="dm-0" ino=36 scontext=u:r:filtered_google_app:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { write } for  pid=5101 comm="JDWP" name="lptcpSocket" dev="dm-0" ino=36 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { open } for  pid=3090 comm="lptcpController" path="/data/misc/lpnet/lpnetConfig" dev="sda18" ino=131129 scontext=u:r:lptcpgc:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=0

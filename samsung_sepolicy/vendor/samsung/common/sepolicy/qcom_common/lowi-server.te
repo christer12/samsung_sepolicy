@@ -1,0 +1,8 @@
+# lowi-server
+
+allow lowi-server gps_data_file:sock_file create_file_perms;
+allow lowi-server location-mq:unix_stream_socket connectto;
+
+# for B2C users
+typeattribute lowi-server trusteddomain;
+typeattribute lowi-server device_domain;

@@ -1,0 +1,5 @@
+# mobicore daemon
+# MSM8996 patch ES2 : allow mcStarter self:capability dac_override;
+
+#  avc:  denied  { dac_override } for  pid=576 comm="mcStarter" capability=1  scontext=u:r:mcStarter:s0 tcontext=u:r:mcStarter:s0 tclass=capability permissive=0
+

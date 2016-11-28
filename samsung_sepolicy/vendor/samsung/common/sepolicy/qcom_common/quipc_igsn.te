@@ -1,0 +1,7 @@
+# quipc_igsn
+allow quipc_igsn system_data_file:dir create_dir_perms;
+allow quipc_igsn system_data_file:fifo_file create_file_perms;
+
+# for B2C users
+typeattribute quipc_igsn trusteddomain;
+typeattribute quipc_igsn device_domain;

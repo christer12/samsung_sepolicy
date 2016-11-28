@@ -1,0 +1,56 @@
+#
+# sdp_cryptod
+#
+
+############ knox_common #############
+########## type and macro.
+type sdp_cryptod, domain;
+#permissive sdp_cryptod;
+type sdp_cryptod_exec, exec_type, file_type;
+
+init_daemon_domain(sdp_cryptod)
+
+########## self and domain_type
+allow sdp_cryptod self:netlink_socket create_socket_perms;
+allow sdp_cryptod kernel:system module_request;
+allow sdp_cryptod tzdaemon:unix_stream_socket connectto;
+
+# P150617-07942 : requested by heeseung.yoo
+allow sdp_cryptod mobicore-user_device:chr_file rw_file_perms;
+allow sdp_cryptod mobicoredaemon:unix_stream_socket connectto;
+allow sdp_cryptod users_system_data_file:dir rw_dir_perms;
+allow sdp_cryptod users_system_data_file:file create_file_perms;
+
+########## fs_type
+########## dev_type
+allow sdp_cryptod emmcblk_device:blk_file r_file_perms;
+allow sdp_cryptod qseecom_device:chr_file rw_file_perms;
+allow sdp_cryptod tz_socket:sock_file rw_file_perms;
+
+########## androd-m-preview: denials ########
+allow sdp_cryptod log_device:chr_file rw_file_perms;
+allow sdp_cryptod log_device:dir r_dir_perms;
+
+########## file_type
+# knox creation fail in KLTE M
+allow sdp_cryptod firmware_file:dir r_dir_perms;
+allow sdp_cryptod firmware_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { module_request } for  pid=404 comm="sdp_cryptod" kmod="net-pf-16-proto-29" scontext=u:r:sdp_cryptod:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+# arch=40000028 syscall=281 per=800000 success=no exit=-93 a0=10 a1=3 a2=1d a3=b6c9b070 items=0 ppid=1 pid=404 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="sdp_cryptod" exe="/system/bin/sdp_cryptod" subj=u:r:sdp_cryptod:s0 key=(null)
+# avc:  denied  { write } for  pid=3315 comm="sdp_cryptod" name="101" dev="sda17" ino=327038 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { connectto } for  pid=3315 comm="sdp_cryptod" path=006D636461656D6F6E scontext=u:r:sdp_cryptod:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { read write } for  pid=3308 comm="sdp_cryptod" name="mobicore-user" dev="tmpfs" ino=17709 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { getattr } for  pid=3308 comm="sdp_cryptod" path="/data/system/users/0/KEK_MDM" dev="sda17" ino=326498 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read write } for  pid=531 comm="sdp_cryptod" name="qseecom" dev="tmpfs" ino=9589 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file
+# item=0 name="/dev/qseecom" inode=9589 dev=00:0b mode=020660 ouid=1000 ogid=1026 rdev=f0:00 obj=u:object_r:qseecom_device:s0item=0 name="/dev/qseecom" inode=9589 dev=00:0b mode=020660 ouid=1000 ogid=1026 rdev=f0:00 obj=u:object_r:qseecom_device:s0
+# avc:  denied  { connectto } for  pid=3247 comm="sdp_cryptod" path="/dev/socket/tz" scontext=u:r:sdp_cryptod:s0 tcontext=u:r:tzdaemon:s0 tclass=unix_stream_socket permissive=0
+# avc:  denied  { read } for  pid=661 comm="sdp_cryptod" name="skmm_ta.mdt" dev="mmcblk0p1" ino=96 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=661 comm="sdp_cryptod" name="skmm_ta.mdt" dev="mmcblk0p1" ino=96 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=3234 comm="sdp_cryptod" name="sda4" dev="tmpfs" ino=14089 scontext=u:r:sdp_cryptod:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=0
+

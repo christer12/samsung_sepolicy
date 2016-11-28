@@ -1,0 +1,47 @@
+#
+# secprov_nexti
+#
+# This process checks for secure provisioning at boot time and once it is checked the process exits.
+# In provisioning process, it checks for the credentials package by it in Device ROM with in the location defined in the configuration file.
+# It runs its proprietary application (trustlet-tlbin opening using mobicore client), which loads libDxDrmServer.so, and calls the Set CEK to TZ API.
+# It runs its proprietary application, which loads libDxDrmServer.so, and calls the VerifyStoredCek API and other provisioning APIs.
+# If secured provisioning fails at boot time then the DxModule return errors.
+# Contact: sy3070.kim@samsung.com, bora09.jeong@samsung.com
+
+############ aosp and sec_common #############
+########## type and macro.
+type secprov_nexti, domain;
+type secprov_nexti_exec, exec_type, file_type;
+
+init_daemon_domain(secprov_nexti)
+
+
+########## self and domain_type
+allow secprov_nexti mobicoredaemon:unix_stream_socket connectto;
+allow secprov_nexti self:capability { fowner chown fsetid dac_override };
+allow secprov_nexti shell_exec:file rx_file_perms; 
+
+########## fs_type
+########## dev_type
+allow secprov_nexti mobicore-user_device:chr_file rw_file_perms;
+allow secprov_nexti s5p_smem_device:chr_file rw_file_perms;
+allow secprov_nexti qseecom_device:chr_file rw_file_perms;
+
+
+########## file_type
+allow secprov_nexti drm_playready_file:dir create_dir_perms;
+allow secprov_nexti drm_playready_file:file create_file_perms;
+allow secprov_nexti firmware_file:dir r_dir_perms;
+allow secprov_nexti firmware_file:file r_file_perms;
+
+########## etc_type
+
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=731 comm="secprov_nexti" name="qseecom" dev="tmpfs" ino=3788 scontext=u:r:secprov_nexti:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { ioctl } for  pid=723 comm="secprov_nexti" path="/dev/qseecom" dev="tmpfs" ino=14926 ioctlcmd=970a scontext=u:r:secprov_nexti:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=723 comm="secprov_nexti" name="dxprdy.mdt" dev="sda15" ino=35 scontext=u:r:secprov_nexti:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=723 comm="secprov_nexti" path="/firmware/image/dxprdy.mdt" dev="sda15" ino=35 scontext=u:r:secprov_nexti:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+# arch=40000028 syscall=322 per=8 success=yes exit=7 a0=ffffff9c a1=ffec4f70 a2=20000 a3=0 items=0 ppid=1 pid=723 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="secprov_nexti" exe="/system/bin/secprov_nexti" subj=u:r:secprov_nexti:s0 key=(null)
+# avc:  denied  { lock } for  pid=723 comm="secprov_nexti" path="/firmware/image/dxprdy.mdt" dev="sda15" ino=35 scontext=u:r:secprov_nexti:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=1
+# arch=40000028 syscall=143 per=8 success=yes exit=0 a0=7 a1=6 a2=20000 a3=7 items=0 ppid=1 pid=723 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="secprov_nexti" exe="/system/bin/secprov_nexti" subj=u:r:secprov_nexti:s0 key=(null)

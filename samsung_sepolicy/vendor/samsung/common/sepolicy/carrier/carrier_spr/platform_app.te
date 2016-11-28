@@ -1,0 +1,11 @@
+#
+# Platform app
+#
+
+allow platform_app sprintitson_file:file execute;
+
+## avc_log : B2C
+# avc:  denied  { execute } for  pid=9651 comm=”app.videoplayer” path=”/carrier/itson/resources/libitsonoem.so" dev="mmcblk0p26" ino=27 scontext=u:r:platform_app:s0 tcontext=u:object_r:sprintitson_file:s0 tclass=file
+
+## avc_log : B2B
+

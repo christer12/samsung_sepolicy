@@ -1,0 +1,27 @@
+#Policy for peripheral_manager
+#per_mgr - peripheral_manager domain
+
+############ qcom_common #############
+########## type and macro.
+binder_call(per_mgr, system_server)
+binder_call(per_mgr, sensors)
+
+########## self and domain_type
+allow per_mgr self:binder { transfer call };
+
+########## fs_type
+########## dev_type
+########## file_type
+allow per_mgr dumplog_data_file:dir rw_dir_perms;
+allow per_mgr dumplog_data_file:file rw_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# type=1400 msg=audit(1388543866.839:413): avc:  denied  { write } for  pid=7441 comm="dumpsys" path="/data/log/dump.log" dev="sda16" ino=132256 scontext=u:r:per_mgr:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0 SEPF_SM-G920V_5.0.1_0002
+# avc:  denied  { call } for  pid=553 comm="pm-service" scontext=u:r:per_mgr:s0 tcontext=u:r:system_server:s0 tclass=binder permissive=0
+# MSM8992, philippelte avc:  denied  { call } for  pid=449 comm="pm-proxy" scontext=u:r:per_mgr:s0 tcontext=u:r:per_mgr:s0 tclass=binder permissive=1
+# avc:  denied  { transfer } for  pid=449 comm="pm-proxy" scontext=u:r:per_mgr:s0 tcontext=u:r:per_mgr:s0 tclass=binder permissive=1
+# avc:  denied  { call } for  pid=623 comm="Binder_4" scontext=u:r:per_mgr:s0 tcontext=u:r:sensors:s0 tclass=binder permissive=1

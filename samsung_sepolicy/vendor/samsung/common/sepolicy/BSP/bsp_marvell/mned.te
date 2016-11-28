@@ -1,0 +1,12 @@
+# create new domain mned, NFC
+type mned, domain;
+type mned_exec, exec_type, file_type;
+
+init_daemon_domain(mned)
+
+allow mned system_data_file:dir create_dir_perms;
+allow mned system_data_file:sock_file create_file_perms;
+
+allow mned nfc_data_file:dir create_dir_perms;
+allow mned nfc_data_file:sock_file create_file_perms;
+

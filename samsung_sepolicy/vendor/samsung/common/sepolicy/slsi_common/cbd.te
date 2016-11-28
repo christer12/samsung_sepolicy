@@ -1,0 +1,76 @@
+# cbd
+type cbd, domain;
+type cbd_exec, exec_type, file_type;
+init_daemon_domain(cbd)
+
+type_transition cbd device:chr_file radio_device;
+
+allow cbd bin_nv_data_efs_file:file rw_file_perms;
+allow cbd block_device:dir r_dir_perms;
+allow cbd cgroup:dir create_dir_perms;
+allow cbd device:dir rw_dir_perms;
+allow cbd efs_file:dir r_dir_perms;
+allow cbd efs_file:file r_file_perms;
+allow cbd init:unix_stream_socket connectto;
+allow cbd kmsg_device:chr_file rw_file_perms;
+allow cbd kernel:system syslog_read;
+allow cbd log_device:chr_file r_file_perms;
+allow cbd media_rw_data_file:dir create_dir_perms;
+allow cbd media_rw_data_file:dir ra_dir_perms;
+allow cbd media_rw_data_file:file create_file_perms;
+allow cbd media_rw_data_file:file rw_file_perms;
+allow cbd mif_device:chr_file r_file_perms;
+allow cbd mif_device:chr_file w_file_perms;
+allow cbd nv_core_efs_file:file r_file_perms;
+allow cbd property_socket:sock_file w_file_perms;
+allow cbd radio:file r_file_perms;
+allow cbd radio_device:chr_file create_file_perms;
+allow cbd radio_device:chr_file rw_file_perms;
+allow cbd radioblk_device:blk_file rw_file_perms;
+allow cbd emmcblk_device:blk_file rw_file_perms;
+allow cbd rild_prop:property_service set;
+allow cbd rootfs:file entrypoint;
+allow cbd sdcard_type:dir create_dir_perms;
+allow cbd sdcard_type:file create_file_perms;
+allow cbd sdcard_type:file w_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : remove mknod, allow cbd self:capability { setuid mknod dac_override };
+allow cbd self:capability { setuid dac_override sys_boot };
+allow cbd self:capability2 { block_suspend syslog };
+allow cbd sysfs_wake_lock:file { open append };
+allow cbd cbd_log_data:file create_file_perms;
+allow cbd cbd_log_data:dir rw_dir_perms;
+allow cbd logcat_exec:file { read getattr open execute execute_no_trans };
+allow cbd logd:unix_stream_socket connectto;
+allow cbd logdr_socket:sock_file write;
+allow cbd shell_exec:file rx_file_perms;
+allow cbd serial_device:chr_file rw_file_perms;
+allow cbd spi_boot_device:chr_file rw_file_perms;
+allow cbd sysfs:file w_file_perms;
+allow cbd sysfs_ss_writable:file rw_file_perms;
+allow cbd system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow cbd system_data_file:file create_file_perms;
+allow cbd system_data_file:file r_file_perms;
+allow cbd system_file:file x_file_perms;
+
+# access /storage/emulated
+allow cbd tmpfs:dir create_dir_perms;
+allow cbd tmpfs:file create_file_perms;
+
+allow cbd uart_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow cbd usbfs:filesystem mount;
+allow cbd usbfs:dir r_dir_perms;
+
+mobicore_use(cbd)
+
+# for B2C users
+typeattribute cbd trusteddomain;
+typeattribute cbd device_domain;
+
+# modem secure check
+# avc:  denied  { sys_boot } for  pid=3103 comm="cbd" capability=22  scontext=u:r:cbd:s0 tcontext=u:r:cbd:s0 tclass=capability permissive=1
+# avc:  denied  { write } for  pid=9810 comm="cbd" name="kmsg" dev="tmpfs" ino=3301 scontext=u:r:cbd:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { create } for  pid=5563 comm="cbd" name="log" scontext=u:r:cbd:s0 tcontext=u:object_r:tmpfs:s0 tclass=dir permissive=1 SEPF_SM-G925F_6.0_0001
+#  avc:  denied  { block_suspend } for  pid=1975 comm="cbd" capability=36  scontext=u:r:cbd:s0 tcontext=u:r:cbd:s0 tclass=capability2 permissive=0 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { read } for  pid=10560 comm="cbd" name="nv_data.bin" dev="sda3" ino=32 scontext=u:r:cbd:s0 tcontext=u:object_r:efs_file:s0 tclass=file permissive=0
+# avc:  denied  { write } for  pid=6206 comm="cbd" name="ttyHS0" dev="tmpfs" ino=10522 scontext=u:r:cbd:s0 tcontext=u:object_r:serial_device:s0 tclass=chr_file permissive=0

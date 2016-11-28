@@ -1,0 +1,174 @@
+######################################################################
+# mmbi apk/native type declaration
+type mmb_mw, domain, mlstrustedsubject;
+type mmb_mw_exec, exec_type, file_type;
+init_daemon_domain(mmb_mw)
+
+######################################################################
+# mmbi apk apps policy
+
+#domain add
+platform_app_domain(mmb_apk)
+
+#binder add
+binder_service(mmb_apk)
+binder_use(mmb_apk)
+binder_call(mmb_apk, mmb_mw)
+
+#allow list
+allow mmb_apk mmb_data_file:dir create_dir_perms;
+allow mmb_apk mmb_data_file:file create_file_perms;
+allow mmb_apk mmb_data_file:unix_stream_socket connectto;
+allow mmb_apk mmb_data_file:file x_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow mmb_apk system_data_file:sock_file write;
+
+allow mmb_apk mmb_mw:unix_stream_socket connectto;
+allow mmb_apk system:unix_stream_socket { setopt };
+#allow mmb_apk fimg2d_video_device:chr_file rw_file_perms;
+
+#allow mmb_apk pvrsync_device:chr_file rw_file_perms;
+
+#neverallow Google-android-5.0.2_r1 : allow mmb_apk system_data_file:dir create_dir_perms;
+#neverallow Google-android-5.0.2_r1 : allow mmb_apk system_data_file:file create_file_perms;
+allow mmb_apk dumplog_data_file:file w_file_perms;
+allow mmb_apk tzic_device:chr_file r_file_perms;
+allow mmb_apk drm_data_file:file r_file_perms;
+#NSA neverallow { domain -init -system -ueventd -unconfineddomain -qrngd } hw_random_device:chr_file *;
+#neverallow Google-android-5.0.2_r1 :allow mmb_apk hw_random_device:chr_file rw_file_perms;
+
+allow mmb_apk app_data_file:file execute;
+allow mmb_apk app_data_file:dir search;
+
+# M version Mobile TV porting
+allow mmb_apk activity_service:service_manager find;
+allow mmb_apk graphicsstats_service:service_manager find;
+allow mmb_apk mmb_data_file:sock_file write;
+allow mmb_apk mmb_mw_service:service_manager find;
+
+######################################################################
+# mmbi native apps policy
+
+#binder add
+binder_service(mmb_mw)
+binder_use(mmb_mw)
+binder_call(mmb_mw, mmb_apk)
+
+#allow list
+allow mmb_mw mmb_data_file:dir create_dir_perms;
+allow mmb_mw mmb_data_file:file create_file_perms;
+
+allow mmb_mw random_device:chr_file r_file_perms;
+
+allow mmb_mw system_data_file:dir create_dir_perms;
+allow mmb_mw system_data_file:file r_file_perms;
+allow mmb_mw system_data_file:sock_file create_file_perms;
+
+allow mmb_mw mmb_apk:dir r_file_perms;
+
+allow mmb_mw device:sock_file write;
+allow mmb_mw rild:unix_stream_socket connectto;
+
+
+#neverallow Google-android-5.0.2_r1 : allow mmb_mw mmb_mw_exec:dir create_dir_perms;
+#neverallow Google-android-5.0.2_r1 : allow mmb_mw mmb_mw_exec:file create_file_perms;
+
+#neverallow Google-android-5.0.2_r1 : allow mmb_mw device:chr_file rw_file_perms;
+
+allow mmb_mw sdcard_type:dir create_dir_perms;
+allow mmb_mw sdcard_type:file create_file_perms;
+
+allow mmb_mw self:capability { dac_override net_raw net_admin setuid setgid };
+
+binder_call(mmb_mw,surfaceflinger)
+binder_call(mmb_mw,mmb_mw)
+binder_call(mmb_mw,mediaserver)
+
+allow mmb_mw self:udp_socket {create setopt bind write read shutdown name_bind node_bind};
+allow mmb_mw port:udp_socket { name_bind };
+allow mmb_mw node:udp_socket { node_bind };
+
+allow mmb_mw dumplog_data_file:dir create_dir_perms;
+allow mmb_mw dumplog_data_file:file create_file_perms;
+
+allow mmb_mw video_device:chr_file rw_file_perms;
+allow mmb_mw video_device:lnk_file r_file_perms;
+allow mmb_mw video_device:dir r_dir_perms;
+
+
+#allow mmb_mw pvrsync_device:chr_file rw_file_perms;
+
+allow mmb_mw cgroup:dir create_dir_perms;
+#NSA neverallow { domain -init -system -ueventd -unconfineddomain -qrngd } hw_random_device:chr_file *;
+#neverallow Google-android-5.0.2_r1 : allow mmb_mw hw_random_device:chr_file rw_file_perms;
+
+allow mmb_mw audio_device:chr_file rw_file_perms;
+
+######################################################################
+# Tmm Monitor and Factory policy
+
+# Read/write TMM drive for Factory application
+#neverallow CTS : allow system_app device:chr_file rw_file_perms;
+
+allow mmb_mw system_app:fd use;
+allow mmb_mw radio_data_file:file r_file_perms;
+allow mmb_mw radio_data_file:dir r_dir_perms;
+allow mmb_mw radio_data_file:dir create_dir_perms;
+allow mmb_mw radio_data_file:dir search;
+allow mmb_mw media_rw_data_file:dir r_dir_perms;
+allow mmb_mw media_rw_data_file:dir create_dir_perms;
+allow mmb_mw media_rw_data_file:file create_file_perms;
+allow mmb_mw media_rw_data_file:file w_file_perms;
+allow mmb_mw mmb_device:chr_file  rw_file_perms;
+allow mmb_mw drm_data_file:file r_file_perms;
+allow mmb_mw drm_data_file:dir create_dir_perms;
+allow mmb_mw drm_data_file:dir search;
+allow mmb_mw socket_device:sock_file w_file_perms;
+allow mmb_mw sec-ril:unix_stream_socket connectto;
+allow mmb_mw mpdecision:unix_stream_socket connectto;
+allow mmb_mw sysfs:file w_file_perms;
+allow mmb_mw shell_data_file:dir r_dir_perms;
+allow mmb_mw rootfs:dir mounton;
+allow mmb_mw sdcard_type:dir mounton;
+allow mmb_mw self:capability { fowner chown fsetid };
+allow mmb_mw self:capability sys_admin;
+allow mmb_mw init:dir r_dir_perms;
+allow mmb_mw init:file r_file_perms;
+allow mmb_mw init:unix_stream_socket { read write };
+allow mmb_mw kernel:dir getattr;
+allow mmb_mw platform_app:dir r_dir_perms;
+
+# Fullseg / Oneseg - TMM module service
+allow mmb_mw mmb_mw_service:service_manager add;
+
+
+allow mmb_mw mediaserver_service:service_manager find;
+allow mmb_mw mmb_apk:dir r_dir_perms;
+allow mmb_mw mmb_apk:file r_file_perms;
+allow mmb_mw mmb_mw_service:service_manager find;
+allow mmb_mw shell_data_file:file r_file_perms;
+allow mmb_mw system_file:file execmod;
+
+# for appdata /data/data/com.nttdocomo.mmb.android.mmbsv.process/pfsetup/mmbsemngmw.db
+allow mmb_mw app_data_file:dir r_dir_perms;
+allow mmb_mw app_data_file:file { rw_file_perms setattr };
+
+
+# for B2C users
+#changeBySEA : typeattribute mmb_apk trusteddomain;
+#changeBySEA : typeattribute mmb_apk trusted_app_domain;
+
+typeattribute mmb_mw trusteddomain;
+typeattribute mmb_mw device_domain;
+
+# avc:  denied  { add } for service=streccm.service scontext=u:r:mmb_mw:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager 
+# avc:  denied  { add } for service=fclicemwserver scontext=u:r:mmb_mw:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+# avc:  denied  { add } for service=mmbfcmp4mw.player scontext=u:r:mmb_mw:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+# avc:  denied  { read write } for  pid=3055 comm="MmbStCtlMwServi" name="dev/isdbt" dev="tmpfs" ino=3643 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=0
+# avc:  denied  { connectto } for  pid=5041 comm="d.mmbsv.process" path=004D6D62436143617344726D4D77 scontext=u:r:mmb_apk:s0:c512,c768 tcontext=u:r:mmb_mw:s0 tclass=unix_stream_socket permissive=0
+# avc:  denied  { find } for service=stctl.service scontext=u:r:mmb_apk:s0:c512,c768 tcontext=u:object_r:mmb_mw_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=media.audio_policy scontext=u:r:mmb_mw:s0 tcontext=u:object_r:mediaserver_service:s0 tclass=service_manager
+# avc:  denied  { search } for  pid=28522 comm="Binder_3" name="com.nttdocomo.mmb.android.mmbsv.process" dev="sda21" ino=917596 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=dir permissive=0
+# avc:  denied  { read write } for  pid=12056 comm="Binder_2" name="mmbsemngmw.db" dev="sda21" ino=1048898 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1
+# avc:  denied  { setattr } for  pid=12056 comm="Binder_2" name="mmbsemngmw.db" dev="sda21" ino=1048898 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1
+# avc:  denied  { lock } for  pid=12056 comm="Binder_2" path="/data/data/com.nttdocomo.mmb.android.mmbsv.process/pfsetup/mmbsemngmw.db" dev="sda21" ino=1048898 scontext=u:r:mmb_mw:s0 tcontext=u:object_r:app_data_file:s0:c512,c768 tclass=file permissive=1
+

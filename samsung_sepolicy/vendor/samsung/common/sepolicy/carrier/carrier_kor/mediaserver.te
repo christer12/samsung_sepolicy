@@ -1,0 +1,34 @@
+
+#============= mediaserver ==============
+allow mediaserver drm_data_file:dir create_dir_perms;
+allow mediaserver drm_data_file:file create_file_perms;
+allow mediaserver dmb:binder { transfer call };
+allow mediaserver playready_file:dir r_dir_perms;
+allow mediaserver playready_file:file rw_file_perms;
+allow mediaserver shell_data_file:dir w_dir_perms;
+allow mediaserver shell_data_file:file create_file_perms;
+allow mediaserver video_device:lnk_file r_file_perms;
+allow mediaserver video_device:dir r_dir_perms;
+
+############ slsi_common #############
+allow mediaserver drm_efs_file:dir r_dir_perms;
+allow mediaserver drm_efs_file:file rw_file_perms;
+allow mediaserver sdcard_internal:dir create_dir_perms;
+
+
+############ LGT #############
+#============= mediaserver ==============
+allow mediaserver lgt_contents_file:dir create_dir_perms;
+allow mediaserver lgt_contents_file:file create_file_perms;
+allow mediaserver untrusteddomain:unix_stream_socket { read write };
+
+
+############ SLSI SKT #############
+allow mediaserver playready_file:file { read write getattr open };
+allow mediaserver playready_file:dir search;
+allow mediaserver radio_data_file:dir search;
+
+allow mediaserver sktdrm_prop:property_service set;
+
+############ avc_log #############
+# avc:  denied  { set } for property=media.sktdrm.timediff scontext=u:r:mediaserver:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service

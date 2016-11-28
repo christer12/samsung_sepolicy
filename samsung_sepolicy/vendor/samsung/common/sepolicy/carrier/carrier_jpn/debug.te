@@ -1,0 +1,3 @@
+#============= dumpsys ==============
+allow dumpsys mmb_mw:binder call;
+allow dumpsys oneseg_mw:binder call;

@@ -1,0 +1,114 @@
+#
+# sec-ril.te
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type sec-ril, domain;
+type sec-ril_exec, exec_type, file_type;
+# for B2C users
+typeattribute sec-ril trusteddomain;
+typeattribute sec-ril system_domain;
+
+init_daemon_domain(sec-ril)
+access_kmsg(sec-ril)
+dumplog_create(sec-ril)
+binder_use(sec-ril)
+binder_call(sec-ril, system)
+binder_call(sec-ril, servicemanager)
+
+########## self and domain_type
+allow sec-ril init:unix_stream_socket connectto;
+allow sec-ril kernel:system module_request;
+allow sec-ril rild:unix_stream_socket connectto;
+allow sec-ril self:capability { net_admin dac_override net_raw sys_module setuid chown };
+allow sec-ril self:process ptrace;
+allow sec-ril self:{ udp_socket packet_socket } { read create ioctl };
+
+########## fs_type
+allow sec-ril rootfs:file execute;
+allow sec-ril sysfs:file create_file_perms;
+allow sec-ril sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow sec-ril alarm_device:chr_file write;
+allow sec-ril ashmem_device:chr_file rx_file_perms;
+
+########## file_type
+allow sec-ril anr_data_file:dir r_dir_perms;
+allow sec-ril anr_data_file:file rw_file_perms;
+allow sec-ril app_data_file:dir create_dir_perms;
+allow sec-ril app_data_file:file create_file_perms;
+allow sec-ril app_efs_file:dir create_dir_perms;
+allow sec-ril app_efs_file:file create_file_perms;
+allow sec-ril carrier_efs_file:dir create_dir_perms;
+allow sec-ril carrier_efs_file:file create_file_perms;
+allow sec-ril efs_file:dir create_dir_perms;
+allow sec-ril efs_file:file create_file_perms;
+allow sec-ril imei_efs_file:dir create_dir_perms;
+allow sec-ril imei_efs_file:file create_file_perms;
+allow sec-ril property_socket:sock_file write;
+allow sec-ril radio_data_file:dir rw_dir_perms;
+allow sec-ril radio_data_file:file create_file_perms;
+allow sec-ril radio_device:chr_file rw_file_perms;
+allow sec-ril sec_efs_file:dir create_dir_perms;
+allow sec-ril sec_efs_file:file create_file_perms;
+allow sec-ril shell_exec:file rx_file_perms;
+allow sec-ril system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow sec-ril system_data_file:file create_file_perms;
+allow sec-ril system_data_file:file r_file_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow sec-ril system_file:dir setattr;
+allow sec-ril system_file:file x_file_perms;
+allow sec-ril zygote_exec:file rx_file_perms;
+
+########## etc_type
+allow sec-ril radio_prop:property_service set;
+allow sec-ril rild_prop:property_service set;
+allow sec-ril system_prop:property_service set;
+
+########## known issue.
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow sec-ril qmuxd:unix_stream_socket connectto;
+
+########## fs_type
+allow sec-ril sysfs_wake_lock:file { read write open };
+
+########## dev_type
+########## file_type
+allow sec-ril qmux_radio_socket:dir { write add_name };
+allow sec-ril qmux_radio_socket:sock_file { write create setattr };
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc: denied { execute } for pid=17071 comm="app_process" path="/data/dalvik-cache/arm/system@framework@boot.oat" dev="mmcblk0p28" ino=130574 scontext=u:r:sec-ril:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file
+#audit(46769.790:28): avc:  denied  { write } for  pid=201 comm="sec-ril" name="qmux_radio" dev="tmpfs" ino=5644 scontext=u:r:sec-ril:s0 tcontext=u:object_r:qmux_radio_socket:s0 tclass=dir
+#audit(46769.790:28): avc:  denied  { add_name } for  pid=201 comm="sec-ril" name=716D75785F636C69656E745F736F636B657420202020323031 scontext=u:r:sec-ril:s0 tcontext=u:object_r:qmux_radio_socket:s0 tclass=dir
+#audit(46769.790:28): avc:  denied  { create } for  pid=201 comm="sec-ril" name=716D75785F636C69656E745F736F636B657420202020323031 scontext=u:r:sec-ril:s0 tcontext=u:object_r:qmux_radio_socket:s0 tclass=sock_file
+#audit(46769.790:28): arch=40000028 syscall=282 per=800000 success=yes exit=0 a0=a a1=bec674ac a2=32 a3=0 items=3 ppid=1 pid=201 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=4294967295 comm=
+#audit(46769.790:28): saddr=01002F6465762F736F636B65742F716D75785F726164696F2F716D75785F636C69656E745F736F636B657420202020323031
+#audit(46769.790:28): item=0 name=(null) inode=5644 dev=00:0b mode=042770 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:qmux_radio_socket:s0
+#audit(46769.790:28): item=1 name=(null) inode=5644 dev=00:0b mode=042770 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:qmux_radio_socket:s0
+#audit(46769.790:28): item=2 name=(null) inode=5859 dev=00:0b mode=0140700 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:qmux_radio_socket:s0
+#audit(46769.790:29): avc:  denied  { setattr } for  pid=201 comm="sec-ril" name=716D75785F636C69656E745F736F636B657420202020323031 dev="tmpfs" ino=5859 scontext=u:r:sec-ril:s0 tcontext=u:object_r:qmux_radio_socket:s0 tclass=sock_file
+#audit(46769.790:29): arch=40000028 syscall=333 per=800000 success=yes exit=0 a0=ffffff9c a1=bec674ae a2=1b0 a3=0 items=1 ppid=1 pid=201 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=42949672audit(46769.790:29):  cwd="/"
+#audit(46769.790:29): item=0 name=2F6465762F736F636B65742F716D75785F726164696F2F716D75785F636C69656E745F736F636B657420202020323031 inode=5859 dev=00:0b mode=0140700 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:qmux_radio_socket:s0
+#audit(46778.788:39): avc:  denied  { write } for  pid=201 comm="sec-ril" name="qmux_connect_socket" dev="tmpfs" ino=7224 scontext=u:r:sec-ril:s0 tcontext=u:object_r:qmux_radio_socket:s0 tclass=sock_file
+#audit(46778.788:39): avc:  denied  { connectto } for  pid=201 comm="sec-ril" path="/dev/socket/qmux_radio/qmux_connect_socket" scontext=u:r:sec-ril:s0 tcontext=u:r:qmuxd:s0 tclass=unix_stream_socket
+#audit(46778.788:39): arch=40000028 syscall=283 per=800000 success=yes exit=0 a0=a a1=bec6743c a2=2c a3=b6e7a774 items=1 ppid=1 pid=201 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=429496729
+#audit(46778.788:39): saddr=01002F6465762F736F636B65742F716D75785F726164696F2F716D75785F636F6E6E6563745F736F636B6574
+#audit(46778.788:39): item=0 name=(null) inode=7224 dev=00:0b mode=0140660 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:qmux_radio_socket:s0
+#audit(46778.929:40): avc:  denied  { read write } for  pid=795 comm="sec-ril" name="wake_lock" dev="sysfs" ino=58 scontext=u:r:sec-ril:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file
+#audit(46778.929:40): avc:  denied  { read write open } for  pid=795 comm="sec-ril" name="wake_lock" dev="sysfs" ino=58 scontext=u:r:sec-ril:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file
+#audit(46778.929:40): arch=40000028 syscall=322 per=800000 success=yes exit=16 a0=ffffff9c a1=b6c03316 a2=20002 a3=0 items=1 ppid=1 pid=795 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 tty=(none) ses=42949audit(46778.929:40):  cwd="/"
+#audit(46778.929:40): item=0 name="/sys/power/wake_lock" inode=58 dev=00:0c mode=0100660 ouid=1001 ogid=1000 rdev=00:00 obj=u:object_r:sysfs_wake_lock:s0
+
+

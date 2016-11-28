@@ -1,0 +1,6 @@
+# for game
+allow installd platform_app_data_file:file create_file_perms;
+
+# for smartcard
+#SEC removed: allow installd smartcard_data_file:lnk_file create_file_perms;
+

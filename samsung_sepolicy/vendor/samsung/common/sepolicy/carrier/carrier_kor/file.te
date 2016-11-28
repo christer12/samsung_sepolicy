@@ -1,0 +1,16 @@
+# File type definition
+type  tdmb_device, dev_type, mlstrustedobject;
+typealias icd_device alias icd_dev_file;
+type  playready_file, file_type, mlstrustedobject;
+
+
+############ LGT #############
+type  lgt_contents_file, file_type, mlstrustedobject;
+type  lgt_mwlan_dev_file, dev_type;
+type  lgt_ipsecdrvtl_dev_file, dev_type;
+type  mwlan_aarp_device, dev_type;
+type  mwlan_ipsecdrvtl_device, dev_type;
+
+############ SKT #############
+type  skt_socket, dev_type, mlstrustedobject;
+

@@ -1,0 +1,12 @@
+# ssr_diag
+
+
+# rules
+allow ssr_diag self:netlink_kobject_uevent_socket read;
+allow ssr_diag diag_device:chr_file read;
+allow ssr_diag diag_device:chr_file rw_file_perms;
+allow ssr_diag self:netlink_kobject_uevent_socket { bind create setopt read };
+
+# for B2C users
+typeattribute ssr_diag trusteddomain;
+typeattribute ssr_diag device_domain;

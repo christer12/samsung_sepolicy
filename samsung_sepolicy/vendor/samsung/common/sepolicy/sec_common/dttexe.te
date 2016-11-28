@@ -1,0 +1,33 @@
+#
+# dttexe
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type dttexe, domain;
+type dttexe_exec, exec_type, file_type;
+# for B2C users
+typeattribute dttexe trusteddomain;
+typeattribute dttexe system_domain;
+
+init_daemon_domain(dttexe)
+
+########## self and domain_type
+allow dttexe ddexe:unix_stream_socket connectto;
+allow dttexe self:capability { setuid dac_override sys_boot };
+
+########## fs_type
+########## dev_type
+########## file_type
+allow dttexe radio_data_file:file rw_file_perms;
+allow dttexe radio_data_file:dir rw_dir_perms;
+allow dttexe system_data_file:sock_file rw_file_perms;
+allow dttexe system_file:file execute_no_trans;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

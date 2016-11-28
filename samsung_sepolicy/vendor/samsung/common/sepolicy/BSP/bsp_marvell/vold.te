@@ -1,0 +1,6 @@
+# for cbc(aes)
+allow vold kernel:system module_request;
+allow vold init:unix_stream_socket unix_stream_socket_perms;
+# SEC removed : allow vold userdata_block_device:blk_file create_file_perms;
+
+

@@ -1,0 +1,10 @@
+#
+# property_contexts
+#
+
+############ carrier_kor #############
+############ SKT #############
+media.sktdrm.timediff	u:object_r:sktdrm_prop:s0 
+
+############ LGT #############
+ctl.mwlan_vpncored	u:object_r:ctl_mwlan_vpncored_prop:s0

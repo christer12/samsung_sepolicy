@@ -1,0 +1,10 @@
+type cp_diskserver, domain;
+type cp_diskserver_exec, exec_type, file_type;
+
+init_daemon_domain(cp_diskserver)
+
+allow cp_diskserver spipe_device:chr_file { open read write };
+allow cp_diskserver block_device:dir { search };
+#SEC remove: allow cp_diskserver nv_mmcblk_device:blk_file { open read write ioctl };
+allow cp_diskserver self:capability { dac_override };
+

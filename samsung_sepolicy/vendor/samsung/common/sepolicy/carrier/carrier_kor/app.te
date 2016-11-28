@@ -1,0 +1,82 @@
+
+#============= platform_app ==============
+allow platform_app dmb:binder { transfer call };
+allow platform_app radio_data_file:file { read open };
+allow platform_app devpts:chr_file { read write };
+allow platform_app self:packet_socket { read create ioctl setopt };
+allow platform_app wifi_efs_file:file r_file_perms;
+
+#============= system_app ==============
+allow system_app dmb:binder call;
+allow system_app mediaserver:unix_stream_socket connectto;
+allow system_app kernel:system module_request;
+allow system_app system_data_file:sock_file write;
+allow system_app rild:unix_stream_socket connectto;
+allow system_app devpts:chr_file { read write };
+allow system_app qmux_radio_socket:dir w_dir_perms;
+allow system_app qmux_radio_socket:sock_file create_file_perms;
+allow system_app qmuxd:unix_stream_socket connectto;
+
+
+#============= untrusteddomain ==============
+#== smart dmb ==
+allow untrusteddomain dmb:binder { transfer call };
+allow untrusteddomain dmb:unix_stream_socket connectto;
+
+# untrusted : ip6tables ( related to v3 vaccine )
+allow untrusteddomain icd_dev_file:file r_file_perms;
+
+# untrusted : hoppin
+allow untrusteddomain playready_file:dir w_dir_perms;
+allow untrusteddomain playready_file:file create_file_perms;
+
+############ slsi_common #############
+allow platform_app drm_efs_file:file w_file_perms;
+
+allow system_app diag_device:chr_file rw_file_perms;
+allow system_app ctl_dumpstate_prop:property_service set;
+allow system_app device:sock_file write;
+allow system_app drm_efs_file:dir w_dir_perms;
+allow system_app drm_efs_file:file create_file_perms;
+
+############ LGT #############
+#============= system_app ==============
+allow system_app lgt_mwlan_dev_file:chr_file r_file_perms;
+allow system_app lgt_ipsecdrvtl_dev_file:chr_file r_file_perms;
+
+
+#============= radio ==============
+allow radio lgt_contents_file:file r_file_perms;
+
+#============= untrusteddomain ==============
+# untrusted : lgt_contents_file
+allow untrusteddomain lgt_contents_file:dir create_dir_perms;
+allow untrusteddomain lgt_contents_file:file create_file_perms;
+
+
+############ SKT #############
+allow platform_app tbased:binder call;
+
+allow system_app tbased:binder call;
+
+#============= untrusteddomain ==============
+
+# untrusted : com.skt.iwland:remote
+allow untrusteddomain skt_socket:sock_file write;
+allow untrusteddomain iwland:unix_stream_socket connectto;
+
+# untrusted : ip6tables
+allow untrusteddomain icd_dev_file:file r_file_perms;
+
+# untrusted : melon
+#neverallow allow untrusteddomain drm_data_file:file create_file_perms;
+allow untrusteddomain drm_data_file:file r_file_perms;
+
+
+# com.sktelecom.hoppin.mobile / com.iloen.melon  customized drm (i.e : /data/.sktdrm)
+allow untrusteddomain drm_playready_file:dir r_dir_perms;
+allow untrusteddomain drm_playready_file:file r_file_perms;
+allow system_app drm_playready_file:dir r_dir_perms;
+allow system_app drm_playready_file:file r_file_perms;
+
+

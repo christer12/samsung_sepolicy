@@ -1,0 +1,30 @@
+##SEC added:
+allow engpc app_efs_file:dir create_dir_perms;
+allow engpc app_efs_file:file create_file_perms;
+allow engpc emmcblk_device:blk_file { open read write };
+allow engpc devpts:chr_file setattr;
+allow engpc efs_file:dir r_dir_perms;
+allow engpc efs_file:file r_file_perms;
+allow engpc imei_efs_file:dir create_dir_perms;
+allow engpc imei_efs_file:file create_file_perms;
+allow engpc sec_efs_file:dir create_dir_perms;
+allow engpc sec_efs_file:file create_file_perms;
+allow engpc self:capability { fowner sys_time };
+allow engpc self:capability2 syslog;
+allow engpc slog_device:chr_file rw_file_perms;
+allow engpc usb_serial_device:chr_file { read write open ioctl };
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=248 comm="engpc" name="slog_w" dev="tmpfs" ino=516 scontext=u:r:engpc:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { open } for  pid=248 comm="engpc" path="/dev/slog_w" dev="tmpfs" ino=516 scontext=u:r:engpc:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { setattr } for  pid=173 comm="engpc" name="16" dev="devpts" ino=19 scontext=u:r:engpc:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=1 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { syslog } for  pid=281 comm="logcat" capability=34  scontext=u:r:engpc:s0 tcontext=u:r:engpc:s0 tclass=capability2 permissive=0
+# avc:  denied  { search } for  pid=278 comm="engpc" name="/" dev="mmcblk0p17" ino=2 scontext=u:r:engpc:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0 SEPF_SM-G531H_5.0_0011
+# avc:  denied  { search } for  pid=309 comm="engpc" name="FactoryApp" dev="mmcblk0p17" ino=16 scontext=u:r:engpc:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { open } for  pid=325 comm="engpc" path="/efs/imei/prodcode.dat" dev="mmcblk0p17" ino=34 scontext=u:r:engpc:s0 tcontext=u:object_r:imei_efs_file:s0 tclass=file permissive=1 SEPF_SM-G531H_5.1_0011
+# avc:  denied  { open } for  pid=325 comm="engpc" path="/efs/FactoryApp/cal_date" dev="mmcblk0p17" ino=36 scontext=u:r:engpc:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file permissive=1 SEPF_SM-G531H_5.1_0011
+# avc:  denied  { fowner } for  pid=312 comm="engpc" capability=3  scontext=u:r:engpc:s0 tcontext=u:r:engpc:s0 tclass=capability permissive=1
+# avc:  denied  { setattr } for  pid=312 comm="engpc" name="prodcode.dat" dev="mmcblk0p17" ino=34 scontext=u:r:engpc:s0 tcontext=u:object_r:imei_efs_file:s0 tclass=file permissive=1 SEPF_SM-G531H_5.1_0011
+# avc:  denied  { setattr } for  pid=312 comm="engpc" name="cal_date" dev="mmcblk0p17" ino=36 scontext=u:r:engpc:s0 tcontext=u:object_r:app_efs_file:s0 tclass=file permissive=1 SEPF_SM-G531H_5.1_0011
+# avc:  denied  { sys_time } for  pid=440 comm="engpc" capability=25  scontext=u:r:engpc:s0 tcontext=u:r:engpc:s0 tclass=capability permissive=0

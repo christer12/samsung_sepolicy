@@ -1,0 +1,5 @@
+
+# Transitions to seclabel processes in init.rc
+allow init itsonbs:process transition;
+
+

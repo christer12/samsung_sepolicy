@@ -1,0 +1,14 @@
+#
+# Copyright 2015 McAfee, Inc. All rights reserved.
+#
+
+# McAfee scanner daemon
+type mfescand_socket, file_type;
+
+# McAfee directories/files
+type mcafee_conf_file, file_type;
+type mcafee_data_file, file_type, data_file_type;
+type mcafee_mcs_file, file_type, data_file_type;
+type mcafee_mcsfs_xm_file, file_type, data_file_type;
+type mcafee_temp_file, file_type, data_file_type;
+

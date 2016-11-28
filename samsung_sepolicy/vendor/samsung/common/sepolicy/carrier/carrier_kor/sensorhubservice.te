@@ -1,0 +1,2 @@
+
+allow sensorhubservice devpts:chr_file { read write };

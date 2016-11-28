@@ -1,0 +1,44 @@
+#
+# aprd
+#
+############ aosp and sec_common #############
+########## type and macro.
+type aprd, domain;
+type aprd_exec, exec_type, file_type;
+typealias aprd alias collect_apr;
+typealias aprd_exec alias collect_apr_exec;
+
+init_daemon_domain(aprd)
+unix_socket_connect(aprd, rild, rild)
+
+########## self and domain_type
+allow aprd self:capability dac_override;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow aprd anr_data_file:dir r_dir_perms;
+allow aprd anr_data_file:file r_file_perms;
+allow aprd system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow aprd system_data_file:file create_file_perms;
+allow aprd system_data_file:file r_file_perms;
+
+allow aprd tombstone_data_file:dir r_dir_perms;
+allow aprd tombstone_data_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { open } for  pid=166 comm="aprd" path="/data/sprdinfo/apr.xml" dev="mmcblk0p26" ino=131410 scontext=u:r:aprd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=166 comm="aprd" name="apr.xml" dev="mmcblk0p26" ino=131410 scontext=u:r:aprd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { dac_override } for  pid=4317 comm="aprd" capability=1  scontext=u:r:aprd:s0 tcontext=u:r:aprd:s0 tclass=capability permissive=1
+# avc:  denied  { read } for  pid=4317 comm="aprd" name="anr" dev="mmcblk0p26" ino=130829 scontext=u:r:aprd:s0 tcontext=u:object_r:anr_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { read } for  pid=4317 comm="aprd" name="tombstones" dev="mmcblk0p26" ino=130838 scontext=u:r:aprd:s0 tcontext=u:object_r:tombstone_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { connectto } for  pid=4316 comm="aprd" path=006D6F64656D64 scontext=u:r:aprd:s0 tcontext=u:r:rild:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { create } for  pid=177 comm="aprd" name="sprdinfo" scontext=u:r:aprd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=177 comm="aprd" name="apr.xml" scontext=u:r:aprd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+

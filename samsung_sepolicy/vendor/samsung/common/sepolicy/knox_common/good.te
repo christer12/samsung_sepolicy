@@ -1,0 +1,229 @@
+#
+# good_app
+# Most GOOD related policies should be here.
+#
+
+############ knox_common #############
+########## type and macro.
+
+### Use Binder
+binder_use(good_app)
+binder_call(good_app, bluetooth)
+binder_call(good_app, good_app)
+binder_call(good_app, gad_untrusted_app)
+binder_call(good_app, keystore)
+binder_call(good_app, mediaserver)
+binder_call(good_app, nfc)
+binder_call(good_app, platform_app)
+binder_call(good_app, radio)
+binder_call(good_app, surfaceflinger)
+binder_call(good_app, system_app)
+binder_call(good_app, system)
+binder_call(good_app, zygote)
+binder_call(bluetooth, good_app)
+binder_call(gad_untrusted_app, good_app)
+binder_call(mediaserver, good_app)
+binder_call(nfc, good_app)
+binder_call(platform_app, good_app)
+binder_call(radio, good_app)
+binder_call(surfaceflinger, good_app)
+binder_call(system, good_app)
+binder_call(system_app, good_app)
+binder_call(zygote, good_app)
+binder_call(sec_untrusted_app, good_app)
+binder_call(good_app, sec_untrusted_app)
+
+########## self and domain_type
+########## fs_type
+allow good_app devpts:chr_file getattr;
+
+########## dev_type
+allow good_app kgsl_device:chr_file rw_file_perms;
+
+########## file_type
+allow good_app tombstone_data_file:dir search;
+allow good_app tombstone_data_file:file { open append getattr };
+
+########## etc_type
+########## known issue.
+### Zygote <--> GOOD
+allow zygote good_app:process *;
+allow good_app zygote:process sigchld;
+allow zygote good_app_data_file:dir { create_dir_perms mounton };
+allow zygote good_app_data_file:file create_file_perms;
+allow good_app zygote:unix_stream_socket { getopt getattr };
+allow good_app zygote_tmpfs:file r_file_perms;
+allow good_app zygote_exec:lnk_file read;
+allow good_app zygote_exec:file getattr;
+
+### System <--> GOOD
+allow system good_app:process *;
+allow { system system_app } good_app:dir r_dir_perms;
+allow { system system_app } good_app:{ file lnk_file fifo_file } rw_file_perms;
+allow { system system_app } good_app:{ tcp_socket udp_socket unix_stream_socket } { setopt read write getopt };
+allow { system system_app } good_app_data_file:dir { create_dir_perms relabelfrom relabelto };
+allow { system system_app } good_app_data_file:file { create_file_perms relabelfrom relabelto };
+allow good_app { system system_app }:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow good_app { system system_app }:{ file lnk_file fifo_file } rw_file_perms;
+allow good_app { system_app }:{ file lnk_file fifo_file } rw_file_perms;
+
+allow good_app { system system_app }:{ tcp_socket udp_socket unix_stream_socket } { setopt read write getopt };
+allow good_app system_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow good_app system_file:{ file lnk_file } rw_file_perms;
+allow good_app system_file:{ file lnk_file } r_file_perms;
+
+allow good_app system_app_data_file:dir search;
+
+### The rule "allow good_app system_file:file execute_no_trans" is required for Good Access to run /system/bin/dexopt to run jar file when starting
+### 07-24 17:12:55.988 E/dalvikvm(24936): execv '/system/bin/dexopt' failed: Permission denied
+### 07-24 17:12:57.998 I/knox    ( 4441): type=1400 msg=audit(1406247175.988:757): avc:  denied  { execute_no_trans } for  pid=24936 comm="com.good.gdgma" path="/system/bin/dexopt" dev="mmcblk0p23" 
+### ino=315 scontext=u:r:good_app:s0 tcontext=u:object_r:system_file:s0 tclass=file SEPF_SM-G900F_4.4.2_0018
+allow good_app system_file:file { execute_no_trans};
+allow good_app system_data_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow good_app system_file:{ file lnk_file } rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow good_app system_data_file:{ file lnk_file } rw_file_perms;
+allow good_app system_data_file:{ file lnk_file } r_file_perms;
+
+### Installd <--> GOOD
+allow installd good_app:fd use;
+allow installd good_app_data_file:dir { create_dir_perms relabelfrom relabelto };
+allow installd good_app_data_file:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow good_app installd:fd use;
+
+### GOOD <--> GOOD/GAD
+#neverallow Google CTS-android-5.0.2_r1 :allow good_app self:{ tcp_socket udp_socket netlink_kobject_uevent_socket netlink_route_socket } create_socket_perms;
+allow good_app self:{ tcp_socket udp_socket netlink_route_socket } create_socket_perms;
+
+allow good_app good_app_data_file:dir create_dir_perms;
+allow good_app good_app_data_file:{ file lnk_file sock_file } create_file_perms;
+allow good_app good_app_data_file:file execute;
+
+#allow good_app gad_untrusted_app:{ tcp_socket udp_socket netlink_kobject_uevent_socket netlink_route_socket } create_socket_perms;
+#L MR1 Neverallow rule, so removed netlink_kobject_uevent_socket. 
+allow good_app gad_untrusted_app:{ tcp_socket udp_socket netlink_route_socket } create_socket_perms;
+
+#allow gad_untrusted_app good_app:{ tcp_socket udp_socket netlink_kobject_uevent_socket netlink_route_socket } create_socket_perms;
+#L MR1 Neverallow rule, so removed netlink_kobject_uevent_socket. 
+allow gad_untrusted_app good_app:{ tcp_socket udp_socket netlink_route_socket } create_socket_perms;
+
+allow gad_untrusted_app good_app_data_file:dir create_dir_perms;
+allow gad_untrusted_app good_app_data_file:{ file lnk_file sock_file } create_file_perms;
+
+### allow good communicate with limited set of domains
+allow good_app { init surfaceflinger netd isolated_app }:unix_stream_socket { read write connectto getattr shutdown setopt getopt };
+
+### When launched, the lib will be created
+#changeBySEA : allow good_app app_library_file:dir { r_dir_perms execmod setattr };
+
+#neverallow Google CTS-android-m-preview:neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow good_app app_library_file:file { rx_file_perms execmod setattr };
+#changeBySEA : allow good_app app_library_file:file { rx_file_perms setattr };
+
+### Vold <--> GOOD
+allow vold good_app:fd use;
+allow vold good_app_data_file:filesystem { relabelfrom relabelto mount unmount remount };
+allow vold good_app_data_file:dir { create_dir_perms mounton };
+allow vold good_app_data_file:{ file lnk_file } create_file_perms;
+
+### Access internal storage
+allow good_app media_rw_data_file:dir r_dir_perms;
+allow good_app media_rw_data_file:file r_file_perms;
+allow good_app sdcard_internal:dir r_dir_perms;
+allow good_app sdcard_internal:file r_file_perms;
+
+### Labeled file system association
+#neverallow Google CTS-android-5.0.2_r1 :allow good_app labeledfs:filesystem { associate getattr };
+allow good_app labeledfs:filesystem getattr;
+allow good_app_data_file labeledfs:filesystem { associate getattr };
+
+### allow good react with some sid (TODO should be very specific)
+allow good_app kernel:system module_request;
+allow good_app node:{ tcp_socket udp_socket } { node_bind };
+allow good_app port:tcp_socket { name_bind name_connect };
+allow good_app port:udp_socket name_bind;
+
+### Potential allow rules (TODO You MUST be very careful!!!)
+#allow bluetooth good_app:file r_file_perms;
+#allow init_shell good_app_data_file:dir r_dir_perms;
+allow good_app dnsproxyd_socket:sock_file rw_file_perms;
+allow good_app cache_file:dir create_dir_perms;
+allow good_app cache_file:file create_file_perms;
+allow good_app selinuxfs:filesystem getattr;
+allow good_app shell_data_file:dir search;
+allow good_app shell_data_file:file getattr;
+allow good_app qtaguid_proc:file rw_file_perms;
+allow good_app ashmem_device:chr_file execute;
+allow debuggerd good_app:lnk_file read;
+
+# required for the "application not responding"
+allow good_app anr_data_file:dir search;
+allow good_app anr_data_file:file { open append getattr };
+
+### good app to access mobicore daemon and devices
+allow good_app mobicore-user_device:chr_file rw_file_perms;
+allow good_app mobicoredaemon:unix_stream_socket connectto;
+
+# PLM issue - P140611-00697
+allow good_app video_device:chr_file rw_file_perms;
+
+# Support ART mode
+allow good_app dalvikcache_data_file:file execute;
+allow good_app dex2oat_exec:file rx_file_perms;
+allow good_app apk_data_file:dir r_dir_perms;
+allow good_app apk_data_file:file { rx_file_perms execmod };
+
+# Allow good app to write fwmarkd socket file.
+allow good_app fwmarkd_socket:sock_file write;
+
+# Allow good app to access shared RELRO.
+allow good_app shared_relro_file:dir search;
+allow good_app shared_relro_file:file { read getattr open };
+
+# Allow good app to access keychain data file
+allow good_app keychain_data_file:file { read getattr open };
+allow good_app keychain_data_file:dir search;
+
+# Allow good app to search misc_user_data_file dir.
+allow good_app misc_user_data_file:dir search;
+
+### netd <--> GOOD
+allow netd good_app:fd use; 
+allow netd good_app:tcp_socket { read write setopt getopt };
+allow netd good_app:udp_socket { read write setopt getopt };
+
+#changeBySEA : All donaudit rules move to dontaudit.te
+
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow good_app graphics_device:chr_file rw_file_perms;
+allow good_app ump_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+allow good_app system_service:service_manager find;
+allow good_app drmserver_service:service_manager find;
+allow good_app mediaserver_service:service_manager find;
+allow good_app nfc_service:service_manager find;
+allow good_app radio_service:service_manager find;
+allow good_app surfaceflinger_service:service_manager find;
+allow good_app app_api_service:service_manager find;
+allow good_app system_api_service:service_manager find;
+
+############ avc_log #############
+# allow good_app download_file:file {read getattr};
+#type=1400 msg=audit(1404260475.480:236): avc:  denied  { read } for  pid=17373 comm="Binder_5" path="/data/data/com.android.providers.downloads/cache/downloadfile-1.mp4" dev="mmcblk0p26" ino=525294 #scontext=u:r:good_app:s0 tcontext=u:object_r:download_file:s0 tclass=file SEPF_SM-G900F_4.4.4_0018
+#type=1300 msg=audit(1404260475.480:236): arch=40000028 syscall=54 per=a00000 success=yes exit=0 a0=9 a1=c0186201 a2=7a044b98 a3=7a044b90 items=0 ppid=273 pid=17373 auid=4294967295 uid=10048 gid=10048 #euid=10048 suid=10048 fsuid=10048 egid=10048 sgid=10048 fsgid=10048 tty=(none) ses=4294967295 comm="Binder_5" exe="/system/bin/app_process" subj=u:r:media_app:s0 key=(null)
+#type=1320 msg=audit(1404260475.480:236):
+#type=1400 msg=audit(1404260475.510:237): avc:  denied  { getattr } for  pid=9660 comm="completeDownloa" path="/data/data/com.android.providers.downloads/cache/downloadfile-1.mp4" dev="mmcblk0p26" #ino=525294 scontext=u:r:good_app:s0 tcontext=u:object_r:download_file:s0 tclass=file SEPF_SM-G900F_4.4.4_0018
+#type=1300 msg=audit(1404260475.510:237): arch=40000028 syscall=54 per=a00000 success=yes exit=0 a0=92 a1=541b a2=8338eac4 a3=8338eab8 items=0 ppid=273 pid=9660 auid=4294967295 uid=10207 gid=10207 #euid=10207 suid=10207 fsuid=10207 egid=10207 sgid=10207 fsgid=10207 tty=(none) ses=4294967295 comm="completeDownloa" exe="/system/bin/app_process" subj=u:r:good_app:s0 key=(null)
+#type=1320 msg=audit(1404260475.510:237):
+# allow good_app devpts:chr_file getattr;
+#type=1400 msg=audit(1406595294.530:238): avc:  denied  { getattr } for  pid=15679 comm="Binder_4" path="/dev/pts/2" dev="devpts" ino=5 scontext=u:r:good_app:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file SEPF_SM-N910F_4.4.4_A019
+#type=1300 msg=audit(1406595294.530:238): arch=40000028 syscall=197 per=a00000 success=yes exit=0 a0=44 a1=796f8898 a2=400ad394 a3=79369cf0 items=0 ppid=358 pid=15679 auid=4294967295 uid=10215 gid=10215 euid=10215 suid=10215 fsuid=10215 egid=10215 sgid=10215 fsgid=10215 ses=4294967295 tty=(none) comm="Binder_4" exe="/system/bin/app_process" subj=u:r:good_app:s0 key=(null)
+
+

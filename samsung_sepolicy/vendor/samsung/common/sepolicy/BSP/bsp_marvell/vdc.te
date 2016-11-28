@@ -1,0 +1,6 @@
+# grant additional permission for vdc
+
+#SEC removed:allow vdc system_data_file:file create_file_perms;
+allow vdc dump_log_data_file:file create_file_perms;
+allow vdc dump_log_data_file:dir create_dir_perms;
+

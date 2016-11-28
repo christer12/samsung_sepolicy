@@ -1,0 +1,8 @@
+# Policy for wfdservice
+
+allow wfdservice dumplog_data_file:file write;
+allow wfdservice system_file:file execmod;
+
+#  avc:  denied  { execmod } for  pid=572 comm="wfdservice" path="/system/lib/libsthmb.so" dev="sda20" ino=2423 scontext=u:r:wfdservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=19040 comm="dumpsys" path="/data/log/DumpsysAll_G935AUCU0AOKC-2015-11-23_11:48:35.txt.tmp" dev="sda23" ino=1048676 scontext=u:r:wfdservice:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001
+

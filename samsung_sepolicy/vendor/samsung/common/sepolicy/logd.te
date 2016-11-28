@@ -1,0 +1,20 @@
+#
+# logd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+#neverallow Google CTS-android-5.0.2_r1 :allow logd system_library_file:file execute;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { execute } for  pid=174 comm="logd" path="/system/lib/libsigchain.so" dev="mmcblk0p16" ino=1371 scontext=u:r:logd:s0 tcontext=u:object_r:system_library_file:s0 tclass=file
+
+

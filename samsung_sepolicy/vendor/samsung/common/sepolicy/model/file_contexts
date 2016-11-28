@@ -1,0 +1,41 @@
+############################# 
+# Device node
+#
+
+############################# 
+# DATA file
+#
+/data/data/\.drm(/.*)?	u:object_r:drm_playready_file:s0
+############################# 
+# efs file
+#
+# com.sec.android.preloadinstaller write currentlyFactoryReset
+# path was changed /efs/recovery/currentlyFactoryReset" by recovery team.
+#/efs/\.currentlyFactoryReset            u:object_r:app_efs_file:s0
+/efs/Battery/fg_full_voltage		 u:object_r:app_efs_file:s0
+# com.sec.imsservice write silent_redial
+/efs/silent_redial                     u:object_r:app_efs_file:s0
+# HDCP and Widevine key. support r/w for radio and system app
+/efs/h2k\.dat                           u:object_r:cpk_efs_file:s0
+/efs/redata\.bin                        u:object_r:cpk_efs_file:s0
+/efs/wv\.keys                           u:object_r:cpk_efs_file:s0
+/efs/total_call_time                   u:object_r:app_efs_file:s0
+
+
+############################# 
+# System files of sec_common
+#
+/system/bin/ftm_ptt             u:object_r:ftm_ptt_exec:s0
+/system/bin/lpm                 u:object_r:lpm_exec:s0
+/system/bin/rtccd3          u:object_r:rtcc_exec:s0
+
+############################# 
+# Device node of sec_common
+#
+/dev/block/mmcblk[0-9].*	   u:object_r:emmcblk_device:s0
+/dev/block/zram[0-9]		u:object_r:ram_device:s0
+
+/sys/class/net/wlan0/queues/rx-[0-9]/rps_cpus             u:object_r:sysfs_ss_writable:s0
+/sys/class/kgsl/kgsl-3d0/dispatch(/.*)?     --            u:object_r:sysfs_ss_writable:s0
+/sys/class/power_supply/battery/camera                    u:object_r:sysfs_app_writable:s0
+

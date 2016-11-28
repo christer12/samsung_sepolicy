@@ -1,0 +1,6 @@
+
+## SEC added
+type phone_data_file, file_type, data_file_type;
+
+typealias diag_data_file alias tel_data_file;
+typeattribute embmsd_socket socket_file_type;

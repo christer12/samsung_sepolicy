@@ -1,0 +1,594 @@
+#
+# system_app
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#changeBySEA : typeattribute system_app mlstrustedsubject;
+# for B2C users
+typeattribute system_app trusteddomain;
+typeattribute system_app trusted_app_domain;
+typeattribute system_app mlsselectedsubject;
+# temporary permissive to gather the log.
+# permissive system_app;
+
+access_kmsg(system_app)
+access_logcat(system_app)
+
+#binder_call(system_app, init)
+#violate neverallow rule
+
+binder_call(system_app, bintvoutservice)
+binder_call(system_app, sensorhubservice)
+binder_call(system_app, healthd)
+binder_call(system_app, jackservice)
+binder_call(system_app, zygote)
+dumplog_create(system_app)
+mobicore_use(system_app)
+unix_socket_connect(system_app, cs, cs)
+unix_socket_connect(system_app, epm, epmd)
+#unix_socket_connect(system_app, property, init)
+set_prop(system_app, net_radio_prop)
+set_prop(system_app, system_radio_prop)
+set_prop(system_app, radio_prop)
+set_prop(system_app, ctl_default_prop)
+set_prop(system_app, ctl_dumpstate_prop)
+set_prop(system_app, csc_prop)
+set_prop(system_app, log_prop)
+set_prop(system_app, seclevel_prop)
+set_prop(system_app, shell_prop)
+set_prop(system_app, system_prop)
+set_prop(system_app, knox_kap_prop)
+
+# ime_app(com.sec.android.inputmethod)
+# Remote Code Execution issue
+# https://www.nowsecure.com/blog/2015/06/16/remote-code-execution-as-system-user-on-samsung-phones/
+
+type ime_app, domain;
+
+app_domain(ime_app)
+net_domain(ime_app)
+binder_service(ime_app)
+
+#changeBySEA : typeattribute ime_app mlstrustedsubject;
+typeattribute ime_app trusteddomain;
+typeattribute ime_app trusted_app_domain;
+
+########## self and domain_type
+allow system_app at_distributor:unix_stream_socket connectto;
+allow system_app connfwexe:unix_stream_socket connectto;
+allow system_app container_app:dir r_dir_perms;
+allow system_app cs:unix_stream_socket connectto;
+allow system_app init:process signull;
+allow system_app init:unix_dgram_socket sendto;
+allow system_app init:unix_stream_socket setopt;
+allow system_app IPSecService:unix_stream_socket connectto;
+allow system_app kernel:process setsched;
+allow system_app kernel:system module_request;
+#neverallow Google CTS-android-5.0.2_r1 :allow system_app kiesexe:process signal;
+allow system_app mediaserver:unix_stream_socket connectto;
+allow system_app mobexdaemon:unix_stream_socket connectto;
+allow system_app netd:unix_stream_socket connectto;
+allow system_app samsung_app:lnk_file r_file_perms;
+allow system_app secure_storage:unix_stream_socket connectto;
+
+#allow system_app self:capability { setuid setgid net_raw chown sys_ptrace sys_module setgid net_admin dac_override };
+#violate neverallow rule
+
+allow system_app self:chr_file rw_file_perms;
+
+#allow system_app self:netlink_kobject_uevent_socket *;
+#violate neverallow rule. change to:
+allow system_app self:netlink_kobject_uevent_socket { read create getattr setattr lock relabelfrom relabelto bind connect listen accept getopt setopt shutdown recvfrom sendto recv_msg send_msg name_bind };
+
+allow system_app self:netlink_route_socket *;
+allow system_app self:packet_socket { write bind create read setopt };
+allow system_app self:tun_socket create;
+allow system_app self:{ udp_socket tcp_socket rawip_socket } *;
+allow system_app sensorhubservice:fifo_file r_file_perms;
+allow system_app syscope_app:process signal;
+allow system_app system_server:tcp_socket { getattr getopt };
+allow system_app system_server:unix_stream_socket connectto;
+allow system_app tlc_server:unix_dgram_socket sendto;
+allow system_app untrusteddomain:lnk_file {link unlink rename r_file_perms};
+allow system_app vcsFPService:process signull;
+allow system_app vold:unix_stream_socket connectto;
+allow system_app wpa:unix_dgram_socket sendto;
+
+########## fs_type
+allow system_app cgroup:dir create_dir_perms;
+allow system_app cgroup:file create_file_perms;
+allow system_app debugfs:file r_file_perms;
+
+#allow system_app proc:file w_file_perms;
+#violate neverallow rule. change to:
+allow system_app proc:file { open append };
+
+allow system_app sdcard_type:dir create_dir_perms;
+allow system_app sdcard_type:file create_file_perms;
+
+allow system_app sysfs_devices_system_cpu:file rw_file_perms;
+allow system_app sysfs_exynos_writable:file w_file_perms;
+allow system_app sysfs_lcd_writable:file w_file_perms;
+allow system_app sysfs_mst_writable:file rw_file_perms;
+allow system_app sysfs_sec:dir rw_dir_perms;
+allow system_app sysfs_sec:{ file lnk_file } rw_file_perms;
+allow system_app sysfs_sensor_writable:file rw_file_perms;
+allow system_app sysfs_ss_writable:file rw_file_perms;
+allow system_app tmpfs:dir rw_dir_perms;
+allow system_app tmpfs:file rw_file_perms;
+
+########## dev_type
+allow system_app alarm_device:chr_file rw_file_perms;
+
+#allow system_app block_device:blk_file rw_file_perms;
+#violate neverallow rule. change to:
+allow system_app block_device:blk_file { getattr ioctl lock append };
+
+allow system_app block_device:lnk_file r_file_perms;
+allow system_app device:sock_file write;
+allow system_app device:file r_file_perms;
+allow system_app dw_mmc_device:dir r_dir_perms;
+allow system_app dw_mmc_device:file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow system_app efsblk_device:blk_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow system_app emmcblk_device:blk_file rw_file_perms;
+allow system_app graphics_device:chr_file rw_file_perms;
+allow system_app input_device:chr_file { read write ioctl open };
+allow system_app mtp_device:chr_file rw_file_perms;
+allow system_app null_device:chr_file create_file_perms;
+allow system_app ovr_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow system_app paramblk_device:blk_file rw_file_perms;
+allow system_app secure_storage_device:dir r_dir_perms;
+allow system_app secure_storage_device:sock_file w_file_perms;
+allow system_app sem_device:chr_file rw_file_perms;
+allow system_app socket_device:dir w_dir_perms;
+
+#allow system_app socket_device:sock_file write;
+#violate neverallow rule
+
+#allow system_app socket_device:sock_file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app socket_device:sock_file { create setattr r_file_perms append link rename};
+
+allow system_app tty_device:chr_file rw_file_perms;
+allow system_app tui_device:chr_file create_file_perms;
+allow system_app uhid_device:chr_file rw_file_perms;
+allow system_app url_device:chr_file rw_file_perms;
+allow system_app validity_device:{ fifo_file chr_file } rw_file_perms;
+allow system_app validity_device:dir rw_dir_perms;
+allow system_app validity_device:file r_file_perms;
+
+########## file_type
+allow system_app anr_data_file:dir create_dir_perms;
+allow system_app anr_data_file:file { getattr link unlink rename };
+
+#neverallow Google CTS-android-m-preview:neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow system_app app_data_file:file { execute execmod };
+allow system_app app_data_file:file execute;
+allow system_app app_data_file:file execmod; #ignoretypeofrule
+
+allow system_app app_efs_file:dir create_dir_perms;
+allow system_app app_efs_file:file create_file_perms;
+
+#allow system_app apk_tmp_file:file rw_file_perms;
+#violate neverallow rule. change to
+
+allow system_app audit_log:file w_file_perms;
+allow system_app backup_data_file:dir create_dir_perms;
+allow system_app backup_data_file:file create_file_perms;
+allow system_app cache_backup_file:file { getattr link unlink rename };
+allow system_app cache_file:dir create_dir_perms;
+allow system_app carrier_efs_file:dir create_dir_perms;
+allow system_app carrier_efs_file:file create_file_perms;
+allow system_app carrier_file:dir create_dir_perms;
+allow system_app container_system_file:dir getattr;
+allow system_app cs_socket:sock_file rw_file_perms;
+#Remote Code Execution issue: allow system_app dalvikcache_data_file:dir rw_dir_perms;
+#Remote Code Execution issue: allow system_app dalvikcache_data_file:file create_file_perms;
+
+#allow system_app dhcp_data_file:file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app dhcp_data_file:file r_file_perms;
+
+allow system_app dhcp_exec:file x_file_perms;
+allow system_app diag_device:chr_file rw_file_perms;
+allow system_app dnsproxyd_socket:sock_file w_file_perms;
+
+#allow system_app drm_data_file:dir rw_dir_perms;
+#violate neverallow rule. change to:
+allow system_app drm_data_file:dir { r_dir_perms add_name remove_name };
+
+#allow system_app drm_data_file:file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app drm_data_file:file r_file_perms;
+allow system_app drm_playready_file:dir rw_dir_perms;
+allow system_app drm_playready_file:file create_file_perms;
+
+allow system_app dumpstate_socket:sock_file rw_file_perms;
+
+#allow system_app efs_file:dir create_dir_perms;
+#violate neverallow rule. change to:
+allow system_app efs_file:dir { create reparent rmdir setattr open getattr search ioctl add_name remove_name link unlink rename };	
+
+#allow system_app efs_file:file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app efs_file:file { create setattr open ioctl lock append getattr link unlink rename };
+
+allow system_app epm_socket:sock_file rw_file_perms;
+allow system_app gps_data_file:dir create_dir_perms;
+allow system_app gps_data_file:file create_file_perms;
+allow system_app hidden_file:dir create_dir_perms;
+allow system_app hidden_file:file create_file_perms;
+allow system_app icd_exec:file r_file_perms;
+allow system_app imsd_socket:sock_file rw_file_perms;
+allow system_app ipsec_socket:sock_file rw_file_perms;
+allow system_app msockets_socket:sock_file w_file_perms;
+allow system_app mtp_socket:sock_file w_file_perms;
+allow system_app nfc_data_file:file r_file_perms;
+allow system_app nfc_data_file:dir r_dir_perms;
+allow system_app platform_app_data_file:dir create_dir_perms;
+allow system_app platform_app_data_file:file create_file_perms;
+allow system_app radio_data_file:file r_file_perms;
+allow system_app shell_exec:file x_file_perms;
+allow system_app security_file:dir r_dir_perms;
+allow system_app security_file:file r_file_perms;
+allow system_app sec_efs_file:dir create_dir_perms;
+allow system_app sec_efs_file:file create_file_perms;
+allow system_app store_app_data_file:file create_file_perms;
+allow system_app store_app_data_file:dir create_dir_perms;
+allow system_app system_app_data_file:file x_file_perms;
+allow system_app system_app_data_file:sock_file create_file_perms;
+allow system_app system_app_tmpfs:file w_file_perms;
+allow system_app system_data_file:dir create_dir_perms;
+allow system_app system_data_file:fifo_file rw_file_perms;
+allow system_app system_data_file:file create_file_perms;
+allow system_app system_data_file:lnk_file create_file_perms;
+allow system_app system_data_file:sock_file create_file_perms;
+allow system_app system_fifo:fifo_file w_file_perms;
+
+#allow system_app system_file:file setattr;
+#violate neverallow rule
+
+allow system_app tima_dump_exec:file x_file_perms;
+allow system_app tombstone_data_file:dir create_dir_perms;
+allow system_app tombstone_data_file:file create_file_perms;
+allow system_app unlabeled:file write;
+allow system_app users_system_data_file:dir create_dir_perms;
+allow system_app users_system_data_file:file create_file_perms;
+
+#allow system_app wifi_data_file:dir rw_dir_perms;
+#violate neverallow rule. change to:
+allow system_app wifi_data_file:dir r_dir_perms;
+
+#allow system_app wifi_data_file:file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app wifi_data_file:file r_file_perms;
+
+#allow system_app wifi_data_file:sock_file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app wifi_data_file:sock_file r_file_perms;
+
+allow system_app wifi_efs_file:file create_file_perms;
+allow system_app wifi_efs_file:dir create_dir_perms;
+allow system_app wpa_socket:sock_file w_file_perms;
+
+########## etc_type
+allow system_app ctl_default_prop:property_service set;
+allow system_app ctl_dumpstate_prop:property_service set;
+#neverallow Google CTS-android-5.0.2_r1 : allow system_app default_prop:property_service set;
+allow system_app csc_prop:property_service set;
+#allow system_app ims_service:service_manager add;
+allow system_app log_prop:property_service set;
+allow system_app node:{ tcp_socket udp_socket} node_bind;
+allow system_app port:tcp_socket { name_bind name_connect };
+allow system_app port:udp_socket name_bind;
+allow system_app seclevel_prop:property_service set;
+allow system_app shell_prop:property_service set;
+allow system_app system_prop:property_service set;
+allow system_app ucs_prop:property_service set;
+allow system_app writingbuddymanager_service:service_manager add;
+
+#temporary add : IMS FC ( com.sec.ims.android )
+allow system_app radio_service:service_manager add;
+
+# avc:  denied  { set } for property=persist.ims.enable_gcf_mode scontext=u:r:system_app:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# add  persist.ims.               u:object_r:radio_prop:s0
+
+
+########## known issue.
+#r_dir_file(system_app, file_type)
+# replacing r_dir_file macro and removing container related access
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#changeBySEA allow system_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file -shell_data_file }:{ file lnk_file } r_file_perms;
+#changeBySEA allow system_app shell_data_file:file r_file_perms;
+
+# Allow settings app to read from asec
+allow system_app asec_apk_file:dir search;
+allow system_app asec_apk_file:file r_file_perms;
+
+# Remove remount permission to satisfy assertion that appdomain apps cannot have mounton/unmount capabilities
+#allow system_app labeledfs:filesystem remount;
+
+#from NSA
+# Perform binder IPC to any app domain.
+binder_call(system_app, appdomain)
+
+# Read SELinux enforcing status.
+selinux_getenforce(system_app)
+
+# filterpackageservice app: load library downfilter library
+allow system_app downfilters_lib_file:dir create_dir_perms;
+allow system_app downfilters_lib_file:file create_file_perms;
+
+# com.samsung.syncmlservice
+allow system_app otadm_efs_file:dir rw_dir_perms;
+allow system_app otadm_efs_file:file rw_file_perms;
+
+# com.sec.android.security.LogGuard
+allow system_app iss_efs_file:dir rw_dir_perms;
+allow system_app iss_efs_file:file rw_file_perms;
+
+# efs relabeling for DRK and Contents Protection Key
+allow system_app prov_efs_file:dir create_dir_perms;
+allow system_app prov_efs_file:file create_file_perms;
+allow system_app cpk_efs_file:dir create_dir_perms;
+allow system_app cpk_efs_file:file create_file_perms;
+
+# Rolback BSP Qcom Policy changes for /dev/qseecom.
+allow system_app qseecom_device:chr_file rw_file_perms;
+
+# com.sec.keyverifier read dev/icd, dev/icdr, dev/tzic
+allow system_app icd_device:chr_file r_file_perms;
+allow system_app tzic_device:chr_file rw_file_perms;
+
+# create (/data/fota)fota_data_file
+allow system_app fota_data_file:dir create_dir_perms;
+allow system_app fota_data_file:file create_file_perms;
+
+typeof retailmode_efs_file, sec_efs_file;
+# LDU, com.samsung.android.isag.retailmode.blockretailmode create a retailmode in /efs/sec_efs
+allow system_app sec_efs_file:dir ra_dir_perms;
+type_transition system_app sec_efs_file:dir retailmode_efs_file "retailmode";
+allow system_app retailmode_efs_file:dir create_dir_perms;
+allow system_app retailmode_efs_file:file create_file_perms;
+
+
+# com.samsung.android.app.omcagent r/w/c /omr resources
+allow system_app omr_file:dir create_dir_perms;
+allow system_app omr_file:file create_file_perms;
+# avc:  denied  { write } for  pid=22323 comm="id.app.omcagent" name="notifications" dev="sda23" ino=16 scontext=u:r:system_app:s0 tcontext=u:object_r:omr_file:s0 tclass=dir permissive=0
+
+# mood light implementation, http://mobilerndhub.sec.samsung.net/hub/site/seandroid/board/Request/view/14428134/?page=1
+# com.sec.android.app.hwmoduletest: /sys/class/leds/moodlight/blink and /sys/class/leds/smartglow/blink
+# avc:  denied  { write } for  pid=8371 comm="pp.hwmoduletest" name="blink" dev="sysfs" ino=7616 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs_led_writable:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=8371 comm="pp.hwmoduletest" path="/sys/devices/smartglow.11/leds/smartglow/blink" dev="sysfs" ino=7616 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs_led_writable:s0 tclass=file permissive=1
+allow system_app sysfs_led_writable:file rw_file_perms;
+
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+binder_call(system_app, containerdomain)
+
+########## fs_type
+allow system_app proc_avc_msg:file r_file_perms;
+
+########## dev_type
+allow system_app knox_dar_device:chr_file rw_file_perms;
+allow system_app knox_kap_device:chr_file r_file_perms;
+
+########## file_type
+allow system_app container_app_data_backend:dir r_dir_perms;
+allow system_app container_app_data_backend:lnk_file r_file_perms;
+allow system_app irm_media_data_file:dir create_dir_perms;
+allow system_app irm_media_data_file:file create_file_perms;
+allow system_app knox_clipboard_file:dir rw_dir_perms;
+allow system_app knox_clipboard_file:file rw_file_perms;
+
+########## etc_type
+allow system_app knox_kap_prop:property_service set;
+
+########## known issue.
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+allow system_app androidshmservice:binder call; 
+allow system_app apaservice:binder call; 
+allow system_app ATFWD-daemon:blk_file r_file_perms;
+allow system_app jackservice:binder call; 
+#allow system_app logwrapper:unix_dgram_socket sendto;
+allow system_app mm-pp-daemon:unix_stream_socket connectto;
+allow system_app mpdecision:unix_stream_socket connectto;
+allow system_app qmuxd:unix_stream_socket connectto;
+allow system_app qseecomd:unix_dgram_socket sendto;
+allow system_app rild:unix_stream_socket connectto; 
+allow system_app secstarter:unix_dgram_socket sendto;
+
+########## fs_type
+allow system_app ecryptfs:filesystem getattr;
+allow system_app firmware:file r_file_perms;
+
+########## dev_type
+#allow system_app audio_device:chr_file rw_file_perms;
+#violate neverallow rule. change to:
+
+allow system_app device:sock_file write;
+#neverallow Google CTS-android-5.0.2_r1 : allow system_app emmcblk_device:blk_file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow system_app padblk_device:blk_file create_file_perms;
+
+########## file_type
+allow system_app app_library_file:file create_file_perms;
+allow system_app carrier_file:file create_file_perms;
+allow system_app dhcp_exec:file rx_file_perms;
+allow system_app pps_socket:sock_file w_file_perms;
+allow system_app tz_socket:sock_file rw_file_perms;
+allow system_app qmux_radio_socket:dir { write add_name };
+allow system_app qmux_radio_socket:sock_file { write create setattr };
+
+#allow system_app shell_data_file:file w_file_perms;
+#violate neverallow rule. change to:
+allow system_app shell_data_file:file { open write };
+
+allow system_app system_data_file:file rx_file_perms;
+#duplicated
+#allow system_app su_exec:file rx_file_perms;
+allow system_app zygote_exec:file rx_file_perms;
+
+########## etc_type
+
+########## known issue.
+#TUI
+allow system_app system_server:unix_dgram_socket sendto;
+
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow system_app adbd:unix_stream_socket accept; 
+allow system_app diagexe:unix_stream_socket connectto;
+allow system_app syscope_app:process signal;
+allow system_app system:tcp_socket { read write };
+
+########## fs_type
+########## dev_type
+allow system_app s5p_smem_device:chr_file create_file_perms;
+
+########## file_type
+allow system_app apk_data_file:dir r_dir_perms;
+allow system_app asec_image_file:dir r_dir_perms;
+allow system_app drm_security_system_file:dir r_dir_perms;
+allow system_app app_efs_file:dir create_dir_perms;
+allow system_app app_efs_file:file create_file_perms;
+allow system_app sensor_efs_file:file create_file_perms;
+allow system_app shell_data_file:dir r_dir_perms;
+
+# com.samsung.android.authservice using below path "/data/.fido/..." 
+allow system_app fido_data_file:dir create_dir_perms;
+allow system_app fido_data_file:file create_file_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+#allow system_app su_exec:file rx_file_perms;
+allow system_app su_exec:file r_file_perms;
+
+allow system_app system_data_file:file rx_file_perms;
+
+#allow system_app system_file:file create_file_perms;
+#violate neverallow rule. change to:
+allow system_app system_file:file r_file_perms;
+
+allow system_app system_file:lnk_file { getattr execute };
+
+########## etc_type
+allow system_app seclevel_prop:property_service set;
+
+
+########## androd-m-preview: denials ########
+allow system_app camera_prop:property_service set;
+allow system_app system_service:service_manager find;
+allow system_app mtp_socket:dir w_dir_perms;
+allow system_app mtp_socket:sock_file create_file_perms;
+allow system_app frigate_socket:sock_file w_file_perms;
+allow system_app system_app_service:service_manager { find add };
+allow system_app smartfaceservice_service:service_manager { find add };
+# No.38 Change iris service name(iris to samsung.iris) and level(system_service to app_service)
+allow system_app irisservice_service:service_manager { find add };
+########## known issue.
+
+# com.sec.android.app.hwmoduletest access /data/validity/ValiditySnsrTest.log
+allow system_app vcsFPService_data_file:dir r_dir_perms;
+allow system_app vcsFPService_data_file:file r_file_perms;
+
+## CIQ testing
+allow system_app smd_device:chr_file w_file_perms;
+allow system_app ssipc_device:chr_file w_file_perms;
+#  avc:  denied  { write } for  pid=7012 comm="Thread-344" name="umts_ciq0" dev="tmpfs" ino=2927 scontext=u:r:system_app:s0 tcontext=u:object_r:ssipc_device:s0 tclass=chr_file permissive=0 SEPF_SAMSUNG-SM-G920A_6.0_0001
+# avc:  denied  { write } for  pid=3629 comm="Thread-308" name="smd4" dev="tmpfs" ino=7305 scontext=u:r:system_app:s0 tcontext=u:object_r:smd_device:s0 tclass=chr_file permissive=0 SEPF_SAMSUNG-SM-G900A_6.0_0001
+
+# type trans at first creation
+allow system_app system_data_file:dir ra_dir_perms;
+type_transition system_app system_data_file:dir fota_data_file "fota";
+
+# com.sec.android.app.felicatest(system_app) need to write operation. - http://mobilerndhub.sec.samsung.net/hub/site/seandroid/board/Request/view/14897438/?page=1
+allow system_app felica_device:chr_file w_file_perms;
+
+############ avc_log #############
+# avc:  denied  { add_name write } for  pid=6359 comm=".MtpApplication" name="mtp_event_socket" scontext=u:r:system_app:s0 #tcontext=u:object_r:socket_device:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+# avc:  denied  { create } for  pid=6359 comm=".MtpApplication" name="mtp_event_socket" scontext=u:r:system_app:s0 #tcontext=u:object_r:socket_device:s0 tclass=sock_file SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+# avc:  denied  { execute } for  pid=4992 comm="com.wssnps" path="/data/data/com.wssnps/files/libCryptionkey.so" dev="mmcblk0p25" #ino=914470 scontext=u:r:system_app:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+# avc:  denied  { lock } for  pid=1113 comm="erprint.service" path="/dev/validity/ValidityService.pid" dev="tmpfs" ino=9838 #scontext=u:r:system_app:s0 tcontext=u:object_r:validity_device:s0 tclass=file
+# avc:  denied  { signull } for  pid=1113 comm="erprint.service" #scontext=u:r:system_app:s0 tcontext=u:r:vcsFPService:s0 tclass=process
+# avc:  denied  { signull } for  pid=1261 comm="erprint.service" scontext=u:r:system_app:s0 tcontext=u:r:init:s0 tclass=process 
+# avc:  denied  { write } for  pid=19163 comm="debug_interface" name="dip_cmd" dev="tmpfs" ino=2749 scontext=u:r:system_app:s0 #tcontext=u:object_r:msockets_socket:s0 tclass=sock_file
+# avc:  denied  { write } for  pid=12299 comm="TMS_SVC_MAIN" name="cs_socket" dev="tmpfs" ino=10954 scontext=u:r:system_app:s0 (TmsService.Process) tcontext=u:object_r:cs_socket:s0 (skm daemon) tclass=sock_file SEPF_SM-N910F_4.4.4_A018
+# avc:  denied  { connectto } for  pid=20065 comm="TMS_SVC_MAIN" path="/dev/socket/cs_socket/cs_socket" scontext=u:r:system_app:s0 tcontext=u:r:cs:s0 tclass=unix_stream_socket SEPF_SM-N910F_4.4.4_A018
+#avc:  denied  { ioctl open read } for  pid=11745 comm="droid.hmt.vrsvc" path="/dev/ovr0" dev="tmpfs" ino=55244 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file SEPF_SM-N910F_4.4.4_0018 # com.samsung.android.hmt.vrsvc
+# avc:  denied  { create write } for  pid=6630 comm="g.syncmlservice" name="omadm_io_ipc_channel" scontext=u:r:system_app:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=sock_file SEPF_SM-N910V_4.4.4_0018 # com.samsung.syncmlservicecom.samsung.syncmlservice
+# avc:  denied  { rmdir remove_name write } for  pid=11695 comm=".android.system" name="mdm" dev="mmcblk0p27" ino=1441800 scontext=u:r:system_app:s0 tcontext=u:object_r:tombstone_data_file:s0 tclass=dir SEPF_SM-N910F_4.4.4_0018
+# avc:  denied  { unlink } for  pid=7076 comm=".android.system" name="load.cmm" dev="mmcblk0p26" ino=391715 scontext=u:r:system_app:s0 tcontext=u:object_r:tombstone_data_file:s0 tclass=file
+# avc:  denied  { write } for  pid=1838 comm="pboarduiservice" name="1149786200740_639_632" dev="mmcblk0p27" ino=1048631 scontext=u:r:system_app:s0 tcontext=u:object_r:knox_clipboard_file:s0:c2 tclass=dir
+# avc:  denied  { read } for  pid=8573 comm="ung.inputmethod" name="lib" dev="ecryptfs" ino=615 scontext=u:r:system_app:s0:c2 tcontext=u:object_r:container_app_data_backend:s0 tclass=lnk_file SEPF_SM-N9108W_4.4.4_A019
+#from CTS testing
+# avc:  denied  { getattr } for  pid=4611 comm=".MtpApplication" path="/data/knox" dev="mmcblk0p25" ino=522245 #scontext=u:r:system_app:s0 tcontext=u:object_r:container_app_data_backend:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { write } for  pid=7652 comm="Thread-727" name="dek_req" dev="tmpfs" ino=10429 scontext=u:r:system_app:s0:c2 tcontext=u:object_r:knox_dar_device:s0 tclass=chr_file SEPF_SAMSUNG-SM-N910A_4.4.4_A019
+# avc:  denied  { sendto } for  pid=2660 comm="eui:sui_service" path=007375696C7374 scontext=u:r:system_app:s0 tcontext=u:r:qseecomd:s0 tclass=unix_dgram_socket
+# Camera data/DownFilters/Lib 
+# avc:  denied  { setattr } for  pid=17855 comm="FilterPackageSe" name="Lib" dev="mmcblk0p26" ino=131037 scontext=u:r:system_app:s0 tcontext=u:object_r:downfilters_lib_file:s0 tclass=dir
+# audit(1415732666.465:203): avc:  denied  { write } for  pid=17855 comm="FilterPackageSe" name="Lib" dev="mmcblk0p26" ino=131037 scontext=u:r:system_app:s0 tcontext=u:object_r:downfilters_lib_file:s0 tclass=dir
+# audit(1415732666.465:203): avc:  denied  { add_name } for  pid=17855 comm="FilterPackageSe" name="com.samsung.android.filter.effect.sunshine.libsunshine.sig" scontext=u:r:system_app:s0 tcontext=u:object_r:downfilters_lib_file:s0 tclass=dir
+# audit(1415732666.465:203): avc:  denied  { create } for  pid=17855 comm="FilterPackageSe" name="com.samsung.android.filter.effect.sunshine.libsunshine.sig" scontext=u:r:system_app:s0 tcontext=u:object_r:downfilters_lib_file:s0 tclass=file
+# audit(1415732666.465:203): avc:  denied  { write } for  pid=17855 comm="FilterPackageSe" name="com.samsung.android.filter.effect.sunshine.libsunshine.sig" dev="mmcblk0p26" ino=131963 scontext=u:r:system_app:s0 tcontext=u:object_r:downfilters_lib_file:s0 tclass=file
+# audit(1417179275.760:204): avc:  denied  { read } for  pid=15422 comm="onic.tuiservice" name="t-base-tui" dev="tmpfs" ino=7994 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# audit(1417179275.760:204): avc:  denied  { open } for  pid=15422 comm="onic.tuiservice" path="/dev/t-base-tui" dev="tmpfs" ino=7994 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# audit(1417179275.760:204): arch=40000028 syscall=322 per=800000 success=yes exit=28 a0=ffffff9c a1=b43e2fd9 a2=20800 a3=0 items=1 ppid=2955 pid=15422 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 ses=4294967295 tty=(none) comm="onic.tuiservice" exe="/system/bin/app_process32" subj=u:r:system_app:s0 key=(null)
+# audit(1417179275.760:204):  cwd="/"
+# audit(1417179275.760:204): item=0 name="/dev/t-base-tui" inode=7994 dev=00:0d mode=020660 ouid=1000 ogid=1000 rdev=f1:00 obj=u:object_r:device:s0
+# audit(1417179275.760:205): avc:  denied  { ioctl } for  pid=15422 comm="onic.tuiservice" path="/dev/t-base-tui" dev="tmpfs" ino=7994 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+#audit(1388535096.149:209): avc:  denied  { write } for  pid=9859 comm="Thread-1043" name="mtp_sink_socket" dev="tmpfs" ino=71345 scontext=u:r:system_app:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file
+#saddr=01002F6465762F736F636B65742F6D74702F6D74705F73696E6B5F736F636B65740
+# com.samsung.android.MtpApplication
+# audit(741.079:205): avc:  denied  { write } for  pid=10993 comm="Thread-1271" name=".playready" dev="mmcblk0p27" ino=784900 scontext=u:r:system_app:s0 tcontext=u:object_r:drm_data_file:s0 tclass=dir permissive=1
+# audit(741.079:205): avc:  denied  { create } for  pid=10993 comm="Thread-1271" name="keyfile.dat" scontext=u:r:system_app:s0 tcontext=u:object_r:drm_data_file:s0 tclass=file permissive=1
+# audit(741.079:205): avc:  denied  { write } for  pid=10993 comm="Thread-1271" path="/data/data/.drm/.playready/keyfile.dat" dev="mmcblk0p27" ino=786323 scontext=u:r:system_app:s0 tcontext=u:object_r:drm_data_file:s0 tclass=file permissive=1
+# audit(741.079:205): item=1 name="/data/data/.drm/.playready/keyfile.dat" inode=786323 dev=b3:1b mode=0100600 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:drm_data_file:s0 nametype=CREATE
+# audit(741.079:206): avc:  denied  { setattr } for  pid=10993 comm="Thread-1271" name="keyfile.dat" dev="mmcblk0p27" ino=786323 scontext=u:r:system_app:s0 tcontext=u:object_r:drm_data_file:s0 tclass=file permissive=1
+# audit(741.079:206): item=0 name="/data/data/.drm/.playready/keyfile.dat" inode=786323 dev=b3:1b mode=0100600 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:drm_data_file:s0 nametype=NORMAL
+# /sys/class/mst/mst_ftmdrv/transmit : com.sec.android.app.hwmoduletest, com.sec.factory
+# avc:  denied  { write } for  pid=3889 comm="Thread-1646" name="transmit" dev="sysfs" ino=12755 scontext=u:r:system_app:s0 tcontext=u:object_r:sysfs:s0 tclass=file permissive=0
+# avc:  denied  { write } for  pid=8549 comm="Thread-818" name="url" dev="tmpfs" ino=3002 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=0 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { open } for  pid=13227 comm="Thread-832" path="/dev/url" dev="tmpfs" ino=3002 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { read } for  pid=13227 comm="Thread-832" name="url" dev="tmpfs" ino=3002 scontext=u:r:system_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { write } for  pid=27039 comm="ImsServiceStub" name="ipsec_socket" dev="tmpfs" ino=19859 scontext=u:r:system_app:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=0 SEPF_SAMSUNG-SM-G920A_5.0.2_0002
+# avc:  denied  { set } for property=com.google.clientidbase.ms scontext=u:r:system_app:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { read } for  pid=18158 comm="ndroid.settings" name="sepolicy_version" dev="sda17" ino=1441806 scontext=u:r:system_app:s0 tcontext=u:object_r:security_file:s0 tclass=file permissive=0
+# avc:  denied  { read } for  pid=12958 comm="Thread-1667" name="Screenshot_2015-01-30-15-39-17.png_thum.jpg" dev="sda20" ino=1179659 scontext=u:r:system_app:s0 tcontext=u:object_r:knox_clipboard_file:s0:c2 tclass=file permissive=0 SEPF_SM-G9250_5.0.2_0003
+# avc:  denied  { getattr } for  pid=12958 comm="Thread-1667" path="/data/clipboard100/3132646383920_596_287/Screenshot_2015-01-30-15-39-17.png" dev="sda20" ino=1179658 scontext=u:r:system_app:s0 tcontext=u:object_r:knox_clipboard_file:s0:c2 tclass=file permissive=0 SEPF_SM-G9250_5.0.2_0003
+# avc:  denied  { set } for property=diag.oriented scontext=u:r:system_app:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { read } for  pid=4955 comm="g.syncmlservice" name="otadm_sw_version" dev="mmcblk0p11" ino=78 scontext=u:r:system_app:s0 tcontext=u:object_r:efs_file:s0 tclass=file SEPF_SM-T807V_5.0.2_0005
+# avc:  denied  { write } for  pid=4955 comm="g.syncmlservice" name="/" dev="mmcblk0p11" ino=2 scontext=u:r:system_app:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+# avc:  denied  { getattr } for  pid=19711 comm="Thread-435" path="/data/system/container" dev="sda19" ino=524351 scontext=u:r:system_app:s0 tcontext=u:object_r:container_system_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=12397 comm="ng.sec.blowfish" name="taa" dev="tmpfs" ino=9761 scontext=u:r:system_app:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=1 SEPF_SM-A8000_5.1.1_0024
+# avc:  denied  { add } for service=samsung.smartfaceservice scontext=u:r:system_app:s0 tcontext=u:object_r:system_service:s0 tclass=service_manager
+# avc:  denied  { set } for property=service.camera.sfs.running scontext=u:r:system_app:s0 tcontext=u:object_r:camera_prop:s0 tclass=property_service
+# avc:  denied  { add } for service=ims scontext=u:r:system_app:s0 tcontext=u:object_r:radio_service:s0 tclass=service_manager
+# avc:  denied  { write } for  pid=6495 comm="icdverification" name="tzic" dev="tmpfs" ino=2932 scontext=u:r:system_app:s0 tcontext=u:object_r:tz_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=30767 comm="ndroid.settings" name="banner_com_samsung_nfc_gsma_1.png" dev="sda18" ino=525140 scontext=u:r:system_app:s0 tcontext=u:object_r:nfc_data_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=30767 comm="ndroid.settings" path="/data/data/com.android.nfc/files/banner_com_samsung_nfc_gsma_1.png" dev="sda18" ino=525140 scontext=u:r:system_app:s0 tcontext=u:object_r:nfc_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=30767 comm="ndroid.settings" name="banner_com_samsung_nfc_gsma_1.png" dev="sda18" ino=525140 scontext=u:r:system_app:s0 tcontext=u:object_r:nfc_data_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=30767 comm="ndroid.settings" path="/data/data/com.android.nfc/files/banner_com_samsung_nfc_gsma_1.png" dev="sda18" ino=525140 scontext=u:r:system_app:s0 tcontext=u:object_r:nfc_data_file:s0 tclass=file permissive=1
+
+#### com.sec.android.app.hwmoduletest
+# avc:  denied  { read } for  pid=9052 comm="Thread-812" name="ValiditySnsrTest.log" dev="mmcblk0p27" ino=327693 scontext=u:r:system_app:s0 tcontext=u:object_r:vcsFPService_data_file:s0 tclass=file permissive=1 No Property
+# avc:  denied  { open } for  pid=9052 comm="Thread-812" path="/data/validity/ValiditySnsrTest.log" dev="mmcblk0p27" ino=327693 scontext=u:r:system_app:s0 tcontext=u:object_r:vcsFPService_data_file:s0 tclass=file permissive=1
+# its neverallow rule. avc:  denied  { signal } for  pid=18295 comm=4173796E635461736B202336 scontext=u:r:system_app:s0 tcontext=u:r:system_server:s0 tclass=process permissive=0
+
+# avc:  denied  { write } for  pid=11400 comm=".app.felicatest" name="felica" dev="tmpfs" ino=9000 scontext=u:r:system_app:s0 tcontext=u:object_r:felica_device:s0 tclass=chr_file permissive=1

@@ -1,0 +1,262 @@
+#
+# mediaserver
+#
+
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute mediaserver trusteddomain;
+typeattribute mediaserver system_domain;
+# temporary permissive to gather the log.
+# permissive mediaserver;
+
+binder_call(mediaserver, nfc)
+binder_call(mediaserver, radio)
+binder_call(mediaserver, system)
+binder_call(mediaserver, containerdomain)
+binder_call(mediaserver, jackservice)
+binder_call(mediaserver, samsungpowersoundplay)
+dumplog_create(mediaserver)
+mobicore_use(mediaserver)
+#unix_socket_connect(mediaserver, property, init)
+set_prop(mediaserver, secmm_prop)
+set_prop(mediaserver, system_prop)
+set_prop(mediaserver, camera_prop)
+
+########## self and domain_type
+allow mediaserver at_distributor:fd use;
+allow mediaserver bluetooth:unix_stream_socket connectto;
+allow mediaserver { domain - containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+allow mediaserver { domain - containerdomain -fixmo_app -good_app }:file r_file_perms;
+allow mediaserver drmserver:unix_stream_socket connectto;
+allow mediaserver init:unix_stream_socket { getattr read write };
+allow mediaserver platform_app:dir r_dir_perms;
+allow mediaserver platform_app:file r_file_perms;
+allow mediaserver radio:dir r_dir_perms;
+allow mediaserver radio:file r_file_perms;
+allow mediaserver samsungpowersoundplay:file r_file_perms;
+allow mediaserver self:socket *;
+allow mediaserver self:capability { net_raw net_admin setuid setgid };
+allow mediaserver system:dir r_dir_perms;
+allow mediaserver system:file r_file_perms;
+allow mediaserver system:unix_stream_socket { read write setopt };
+allow mediaserver system_app:fifo_file w_file_perms;
+allow mediaserver untrusted_app_tmpfs:file write;
+allow mediaserver untrusteddomain:dir r_dir_perms;
+allow mediaserver untrusteddomain:file r_file_perms;
+allow mediaserver untrusteddomain:process sigchld;
+allow mediaserver untrusteddomain:unix_stream_socket { read write getattr connectto };
+
+########## fs_type
+allow mediaserver devpts:chr_file rw_file_perms;
+allow mediaserver firmware:file r_file_perms;
+allow mediaserver firmware:dir r_dir_perms;
+allow mediaserver proc:file write;
+allow mediaserver sdcard_type:dir create_dir_perms;
+allow mediaserver sdcard_type:file create_file_perms;
+allow mediaserver sysfs_ss_writable:file rw_file_perms;
+allow mediaserver tmpfs:file write;
+
+########## dev_type
+allow mediaserver camera_device:dir create_dir_perms;
+allow mediaserver camera_device:file create_file_perms;
+allow mediaserver diag_device:chr_file rw_file_perms;
+allow mediaserver graphics_device:dir rw_dir_perms;
+allow mediaserver i2c_device:chr_file rw_file_perms;
+allow mediaserver socket_device:sock_file create_file_perms;
+allow mediaserver video_device:lnk_file r_file_perms;
+allow mediaserver video_device:dir search;
+########## file_type
+
+allow mediaserver secmm_prop:property_service set;
+allow mediaserver system_prop:property_service set;
+allow mediaserver camera_prop:property_service set;
+
+allow mediaserver apk_data_file:sock_file w_file_perms;
+allow mediaserver app_data_file:dir rw_dir_perms;
+
+#neverallow by Google: ({ file_type -system_file -exec_type }:file execute; )  allow mediaserver app_data_file:file { create_file_perms execute };
+allow mediaserver app_data_file:file { create_file_perms };
+
+allow mediaserver app_data_file:sock_file setattr;
+allow mediaserver app_efs_file:dir create_dir_perms;
+allow mediaserver app_efs_file:file create_file_perms;
+allow mediaserver asec_apk_file:file r_file_perms;
+allow mediaserver asec_apk_file:dir search;
+allow mediaserver drm_data_file:dir create_dir_perms;
+allow mediaserver drm_data_file:file create_file_perms;
+allow mediaserver drmserver_socket:sock_file w_file_perms;
+allow mediaserver dumplog_data_file:file w_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow mediaserver dumplog_data_file:file x_file_perms;
+allow mediaserver efs_file:dir create_dir_perms;
+allow mediaserver efs_file:file create_file_perms;
+allow mediaserver isolated_app_tmpfs:file rw_file_perms;
+allow mediaserver mediaserver_tmpfs:file write;
+allow mediaserver obb_apk_file:dir create_dir_perms;
+allow mediaserver obb_apk_file:file create_file_perms;
+allow mediaserver personal_page_file:dir rw_dir_perms;
+allow mediaserver personal_page_file:file rw_file_perms;
+allow mediaserver platform_app_data_file:dir create_dir_perms;
+allow mediaserver platform_app_data_file:file create_file_perms;
+allow mediaserver radio_data_file:file r_file_perms;
+allow mediaserver radio_data_file:dir search;
+allow mediaserver sec_efs_file:dir create_dir_perms;
+allow mediaserver sec_efs_file:file create_file_perms;
+allow mediaserver shell_data_file:dir rw_dir_perms;
+allow mediaserver shell_data_file:file create_file_perms;
+allow mediaserver shell_data_file:file rw_file_perms; 
+allow mediaserver shell_exec:file rx_file_perms;
+allow mediaserver system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mediaserver system_data_file:file create_file_perms;
+allow mediaserver system_data_file:file r_file_perms;
+#neverallow by Google: allow mediaserver system_data_file:file x_file_perms;
+allow mediaserver system_data_file:sock_file create_file_perms;
+allow mediaserver system_fifo:dir r_dir_perms;
+allow mediaserver system_file:file { execmod x_file_perms };
+allow mediaserver system_library_file:dir r_dir_perms;
+
+
+########## etc_type
+#neverallow Google CTS-android-5.0.2_r1 : allow mediaserver default_prop:property_service set;
+
+########## known issue.
+
+# Allow /sys/power/wake_lock from nsa 4.4 policy update
+allow mediaserver sysfs_wake_lock:file rw_file_perms;
+
+#from CTS testing
+allow mediaserver media_rw_data_file:dir create_dir_perms;
+allow mediaserver media_rw_data_file:file create_file_perms;
+
+## access app data file of system_app
+allow mediaserver system_app_data_file:file { rw_file_perms setattr };
+allow mediaserver system_app_data_file:dir rw_dir_perms;
+
+# Run /system/bin/app_process.
+allow mediaserver zygote_exec:file rx_file_perms;
+# Dalvik Compiler, shared memory and memory map of PROT_EXEC
+allow mediaserver ashmem_device:chr_file execute;
+#neverallow by Google: allow mediaserver mediaserver_tmpfs:file execute;
+
+# load library downfilter library
+allow mediaserver downfilters_lib_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow mediaserver downfilters_lib_file:file rx_file_perms;
+allow mediaserver downfilters_lib_file:file r_file_perms;
+
+# support sec_uibc for com.sec.android.sidesync30
+allow mediaserver uibc_socket:dir rw_dir_perms;
+allow mediaserver uibc_socket:sock_file create_file_perms;
+
+# customized drm (i.e : /data/.sktdrm)
+allow mediaserver drm_playready_file:dir create_dir_perms;
+allow mediaserver drm_playready_file:file create_file_perms;
+
+# OMC_v3 mediaserver reads PowerOn.ogg in /omr resources.
+allow mediaserver omr_file:dir r_dir_perms;
+allow mediaserver omr_file:file r_file_perms;
+# avc:  denied  { read } for  pid=1611 comm="generic" name="PowerOn.ogg" dev="sda23" ino=105 scontext=u:r:mediaserver:s0 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=1611 comm="generic" path="/omr/VZW/res/media/audio/ui/PowerOn.ogg" dev="sda23" ino=105 scontext=u:r:mediaserver:s0 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1
+
+
+# SC-04F:6.0.1/SC04FOME1XPE1:eng
+# binding the api, SecExternalDisplayGetStatus
+# avc:  denied  { find } for service=TvoutService_C scontext=u:r:mediaserver:s0 tcontext=u:object_r:bintvoutservice_service:s0 tclass=service_manageravc:  denied  { find } for service=TvoutService_C scontext=u:r:mediaserver:s0 tcontext=u:object_r:bintvoutservice_service:s0 tclass=service_manager
+allow mediaserver bintvoutservice_service:service_manager find;
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+# Media server is one of the few domains that should be able to
+# access the container, for video playback, etc.
+container_trusted_agent(mediaserver)
+
+
+############ qcom_common #############
+########## type and macro.
+
+########## self and domain_type
+allow mediaserver mm-qcamera-daemon:unix_dgram_socket sendto;
+allow mediaserver mpdecision:unix_stream_socket connectto;
+allow mediaserver qmuxd:unix_stream_socket connectto;
+allow mediaserver thermald:unix_stream_socket connectto;
+
+########## fs_type
+
+########## dev_type
+allow mediaserver adnc_device:chr_file rw_file_perms; 
+allow mediaserver bluetooth_serial_device:chr_file rw_file_perms;
+allow mediaserver fm_radio_device:chr_file rw_file_perms;
+allow mediaserver kgsl_device:chr_file { rw_file_perms execute };
+allow mediaserver qseecom_device:chr_file rw_file_perms; 
+########## file_type
+allow mediaserver qmux_audio_socket:dir rw_dir_perms;
+allow mediaserver qmux_audio_socket:sock_file create_file_perms;
+
+########## etc_type
+allow mediaserver adsprpcd_service:service_manager add;
+allow mediaserver apaservice_service:service_manager find;
+########## known issue.
+
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+
+########## dev_type
+allow mediaserver m2m1shot_device:chr_file rw_file_perms;
+allow mediaserver pvrsync_device:chr_file rw_file_perms;
+allow mediaserver s5p_smem_device:chr_file rw_file_perms;
+allow mediaserver seiren_device:chr_file rw_file_perms;
+allow mediaserver srp_device:chr_file rw_file_perms;
+allow mediaserver ump_device:chr_file rw_file_perms;
+allow mediaserver ump_device:sock_file r_file_perms;
+
+########## file_type
+allow mediaserver drm_security_system_file:dir search;
+allow mediaserver drmserver_socket:sock_file w_file_perms;
+allow mediaserver setup_ymc_etc_system_file:dir rw_dir_perms;
+
+########## androd-m-preview: denials ########
+#allow mediaserver system_data_file:file create_file_perms;
+allow mediaserver system_service:service_manager find;
+allow mediaserver sysfs_graphics:file w_file_perms;
+
+
+########## etc_type
+type_transition mediaserver system_data_file:dir mediaserver_data_file "hdcp2_1013";
+type_transition mediaserver system_data_file:file mediaserver_data_file "EP_save.bak";
+allow mediaserver mediaserver_data_file:dir create_dir_perms;
+allow mediaserver mediaserver_data_file:notdevfile_class_set create_file_perms;
+
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=284 comm="mediaserver" path="/data/media/0/temp0.3gp" dev="mmcblk0p25" ino=522480 #scontext=u:r:mediaserver:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { getattr } for  pid=27968 comm="AudioTrack" path="/data/data/com.android.settings/shared_prefs/#com.android.settings_tactileassist.xml" dev="mmcblk0p25" ino=785243 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file SEPF_SAMSUNG-SM-#N900A_4.4.3_0018
+# avc:  denied  { execute } for  pid=15319 comm="Compiler" path="/dev/ashmem" dev="tmpfs" ino=10614 scontext=u:r:mediaserver:s0 tcontext=u:object_r:ashmem_device:s0 tclass=chr_file SEPF_SM-G900F_4.4.3_0018
+# avc:  denied  { execute } for  pid=15319 comm="Compiler" path=2F6465762F6173686D656D2F64616C76696B2D6A69742D636F64652D6361636865202864656C6574656429 dev="tmpfs" ino=78528 scontext=u:r:mediaserver:s0 tcontext=u:object_r:mediaserver_tmpfs:s0 tclass=file SEPF_SM-G900F_4.4.3_0018
+# avc:  denied  { search } for  pid=5064 comm="Binder_4" name="com.android.settings" dev="mmcblk0p21" ino=917673 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=dir SEPF_SM-N910C_4.4.4_0018
+# avc:  denied  { setattr } for  pid=10756 comm="mediaserver" name="settings.db-wal" dev="mmcblk0p21" ino=787208 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file SEPF_SM-N910S_4.4.4_A019
+# avc:  denied  { write } for  pid=7819 comm="FastMixer" name="i2c-1" dev="tmpfs" ino=2579 scontext=u:r:mediaserver:s0 tcontext=u:object_r:i2c_device:s0 tclass=chr_file SEPF_SM-A500F_4.4.4_A019
+# avc:  denied  { search } for  pid=850 comm="Binder_1" name="100" dev="sdcardfs" ino=131300 scontext=u:r:mediaserver:s0 tcontext=u:object_r:container_app_data_backend:s0:c2 tclass=dir SEPF_SM-N910F_4.4.4_A018
+# avc:  denied  { read open getattr ioctl } for  pid=12839 comm="AudioIn_DD" path="/dev/adnc2" dev="tmpfs" ino=8802 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file
+# avc:  denied  { read write } for  pid=20676 comm="PictureThread" name="m2m1shot_jpeg" dev="tmpfs" ino=5511 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file SEPF_SM-N910C_4.4.3_0018
+# avc:  denied  { open } for  pid=20676 comm="PictureThread" path="/dev/m2m1shot_jpeg" dev="tmpfs" ino=5511 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file SEPF_SM-N910C_4.4.3_0018
+# avc:  denied  { ioctl } for  pid=20677 comm="JpegMainEncodeT" path="/dev/m2m1shot_jpeg" dev="tmpfs" ino=5511 scontext=u:r:mediaserver:s0 tcontext=u:object_r:device:s0 tclass=chr_file SEPF_SM-N910C_4.4.3_0018
+# avc:  denied  { add } for service=listen.service scontext=u:r:mediaserver:s0 tcontext=u:object_r:adsprpcd_service:s0 tclass=service_manager
+# Downfilters for camera : avc:  denied  { execute } for  pid=4499 comm="Binder_3" path="/data/DownFilters/Lib/com.samsung.android.filter.effect.sunshine.libsunshine.so" dev="mmcblk0p26" ino=523317 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { create } for  pid=16524 comm="wfd_looper" name="8e33a746f0_1013.hdcp2" scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=0 SEPF_SM-G920P_6.0_0001
+# avc:  denied  { write } for  pid=9410 comm="Binder_4" name="EP_save.bak" dev="sda17" ino=16 scontext=u:r:mediaserver:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=0 SEPF_SM-N920S_6.0_0002
+# avc:  denied  { find } for service=com.samsung.android.jam.IAPAService scontext=u:r:mediaserver:s0 tcontext=u:object_r:apaservice_service:s0 tclass=service_manager
+

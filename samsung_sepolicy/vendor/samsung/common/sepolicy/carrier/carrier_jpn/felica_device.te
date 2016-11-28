@@ -1,0 +1,6 @@
+#felica start
+type nfcfelica_device, dev_type, mlstrustedobject;
+type felica_device, dev_type, mlstrustedobject;
+type felicashell_device, dev_type, mlstrustedobject;
+#felica end
+

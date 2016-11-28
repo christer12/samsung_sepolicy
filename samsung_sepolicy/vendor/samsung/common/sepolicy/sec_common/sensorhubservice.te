@@ -1,0 +1,49 @@
+#
+# sensorhubservice
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type sensorhubservice, domain;
+type sensorhubservice_exec, exec_type, file_type;
+# for B2C users
+typeattribute sensorhubservice trusteddomain;
+typeattribute sensorhubservice system_domain;
+
+binder_use(sensorhubservice)
+binder_call(sensorhubservice, system)
+binder_call(sensorhubservice, servicemanager)
+dumplog_create(sensorhubservice)
+init_daemon_domain(sensorhubservice)
+unix_socket_rw(sensorhubservice, init)
+
+########## self and domain_type
+allow sensorhubservice at_distributor:fd use;
+allow sensorhubservice radio:fd use;
+allow sensorhubservice self:capability dac_override;
+allow sensorhubservice system_app:fd use;
+allow sensorhubservice system_app:fifo_file w_file_perms;
+
+########## fs_type
+allow sensorhubservice sdcard_type:file w_file_perms;
+allow sensorhubservice sysfs:file write;
+allow sensorhubservice sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow sensorhubservice input_device:chr_file rw_file_perms;
+allow sensorhubservice input_device:dir r_dir_perms;
+########## file_type
+allow sensorhubservice platform_app_data_file:file w_file_perms;
+
+########## etc_type
+allow sensorhubservice sensorhubservice_service:service_manager add;
+
+########## known issue.
+# for CTS
+allow sensorhubservice { app_data_file sysfs_sensor_writable }:file w_file_perms;
+allow sensorhubservice untrusteddomain:fd use;
+
+############ avc_log #############
+# avc:  denied  { add } for service=sensorhubservice scontext=u:r:sensorhubservice:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+
+

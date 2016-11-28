@@ -1,0 +1,45 @@
+#
+# bootchecker
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type bootchecker, domain;
+type bootchecker_exec, exec_type, file_type;
+# for B2C Mode
+typeattribute bootchecker trusteddomain;
+typeattribute bootchecker system_domain;
+
+init_daemon_domain(bootchecker)
+
+########## self and domain_type
+allow bootchecker init:unix_stream_socket connectto;
+allow bootchecker kernel:system syslog_read;
+
+########## fs_type
+########## dev_type
+allow bootchecker device:sock_file write;
+
+########## file_type
+allow bootchecker bugreport_exec:file rx_file_perms;
+allow bootchecker dumplog_data_file:dir create_dir_perms;
+allow bootchecker dumplog_data_file:file create_file_perms;
+allow bootchecker dumpstate_socket:sock_file rw_file_perms;
+allow bootchecker logdr_socket:sock_file write;
+allow bootchecker property_socket:sock_file write;
+allow bootchecker shell_exec:file rx_file_perms;
+
+########## etc_type
+allow bootchecker ctl_dumpstate_prop:property_service set;
+
+########## androd-m-preview: denials ########
+allow bootchecker logcat_exec:file { r_file_perms execute execute_no_trans };
+
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { syslog_read } for  pid=439 comm="bootchecker" scontext=u:r:bootchecker:s0 tcontext=u:r:kernel:s0 tclass=system SEPF_SHV-E330S_5.0.1_0002
+# avc:  denied  { write } for  pid=2015 comm="logcat" name="logdr" dev="tmpfs" ino=9250 scontext=u:r:bootchecker:s0 tcontext=u:object_r:logdr_socket:s0 tclass=sock_file permissive=0 SEPF_JOSHUA_6.0_0001
+
+

@@ -1,0 +1,7 @@
+
+recovery_only(`
+# mcafee_conf_file(system/etc/mcafee)
+allow recovery { mcafee_conf_file }:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow recovery { mcafee_conf_file }:dir { create_dir_perms relabelfrom relabelto };
+')
+

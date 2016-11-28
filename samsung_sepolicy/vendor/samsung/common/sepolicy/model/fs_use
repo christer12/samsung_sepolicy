@@ -1,0 +1,8 @@
+############ knox_common #############
+## Multi Security Contexts
+# Label for vfat and sdcardfs
+fs_use_xattr sdcardfs u:object_r:xsdcardfs:s0;
+#fs_use_xattr vfat u:object_r:xsdcardfs:s0;
+# Label for eCryptfs.
+fs_use_xattr ecryptfs u:object_r:labeledfs:s0;
+

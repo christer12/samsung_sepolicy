@@ -1,0 +1,13 @@
+# quipc_main
+
+allow quipc_main gps_data_file:dir create_dir_perms;
+allow quipc_main gps_data_file:fifo_file create_file_perms;
+allow quipc_main system_data_file:dir create_dir_perms;
+allow quipc_main system_data_file:fifo_file create_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow quipc_main system_data_file:file create_file_perms;
+allow quipc_main system_data_file:file r_file_perms;
+
+# for B2C users
+typeattribute quipc_main trusteddomain;
+typeattribute quipc_main device_domain;

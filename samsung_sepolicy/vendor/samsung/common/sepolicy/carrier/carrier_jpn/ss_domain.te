@@ -1,0 +1,67 @@
+# for cts v2
+####### violation of Google-android-5.0.2_r1 #######
+#app.te
+#allow platform_app oneseg_mw_exec:dir w_dir_perms;
+#allow platform_app oneseg_mw_exec:file create_file_perms;
+
+#carrier.te
+#allow carrier_app self:netlink_kobject_uevent_socket { read write bind setopt };
+#allow carrier_app init:unix_stream_socket { connectto setopt };
+#allow carrier_app property_socket:sock_file w_file_perms;
+#allow carrier_app system_data_file:lnk_file unlink;
+#typeattribute carrier_app trusteddomain;
+#typeattribute carrier_app trusted_app_domain;
+
+#felica_app.te
+#allow efsks system_library_file:dir create_dir_perms;
+
+#felicalock.te
+#allow felicalock efs_file:file { read open write getattr ioctl create unlink setattr};
+#allow felicalock efs_file:dir { write add_name remove_name };
+#allow felicalock system_data_file:dir { write read open add_name create setattr getattr };
+
+#installd.te
+#allow installd oneseg_mw_exec:dir w_dir_perms;
+
+#mfc.te
+#allow mfc system_data_file:file { open create write ioctl };
+#allow mfc system_data_file:dir { write add_name create setattr };
+#allow mfc system_prop:property_service { set };
+
+#mfdp.te
+#allow mfdp system_library_file:dir create_dir_perms;
+
+#mfm.te
+#allow mfm system_data_file:dir{ write add_name create setattr };
+#allow mfm system_prop:property_service { set } ;
+
+#mfs.te
+#allow mfs system_data_file:file {  write open lock setattr create };
+#allow mfs system_data_file:dir {  write add_name create setattr };
+#allow mfs system_prop:property_service { set };
+
+#mfw.te
+#allow mfw system_data_file:dir { write add_name create setattr };
+#allow mfw system_prop:property_service { set };
+
+#mmb.te
+#allow mmb_apk system_data_file:sock_file write;
+#allow mmb_apk system_data_file:dir create_dir_perms;
+#allow mmb_apk system_data_file:file create_file_perms;
+#allow mmb_apk hw_random_device:chr_file rw_file_perms;
+#allow mmb_mw mmb_mw_exec:dir create_dir_perms;
+#allow mmb_mw mmb_mw_exec:file create_file_perms;
+#allow mmb_mw device:chr_file rw_file_perms;
+#allow mmb_mw hw_random_device:chr_file rw_file_perms;
+
+#oneseg.te
+#allow oneseg_apk device:chr_file r_file_perms;
+#allow oneseg_apk system_data_file:sock_file write;
+#allow oneseg_apk audio_device:chr_file rw_file_perms;
+#allow oneseg_apk system_data_file:dir create_dir_perms;
+#allow oneseg_apk system_data_file:file create_file_perms;
+#allow oneseg_mw oneseg_mw_exec:dir create_dir_perms;
+#allow oneseg_mw oneseg_mw_exec:file create_file_perms;
+#allow oneseg_mw device:chr_file rw_file_perms;
+
+

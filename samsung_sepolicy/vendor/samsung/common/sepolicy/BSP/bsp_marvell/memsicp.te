@@ -1,0 +1,12 @@
+# create  new domain memsicp
+
+type memsicp, domain;
+type memsicp_exec, exec_type, file_type;
+
+init_daemon_domain(memsicp)
+
+allow memsicp memsic_device:chr_file create_file_perms;
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow memsicp system_data_file:file create_file_perms;
+allow memsicp system_data_file:file r_file_perms;

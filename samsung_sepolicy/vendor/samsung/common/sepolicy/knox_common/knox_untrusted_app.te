@@ -1,0 +1,86 @@
+#
+# knox_untrusted_app
+#
+
+############ knox_common #############
+########## type and macro.
+# This type CAN binder between container world and outside
+#changeBySEA :typeof knox_untrusted_app, untrusted_app;
+# we replace the name as sec_untrusted_app
+typealias sec_untrusted_app alias knox_untrusted_app;
+
+#changeBySEA : typeattribute knox_untrusted_app mlstrustedsubject;
+
+# Allow  binder into the container
+# and vice versa
+binder_use(knox_untrusted_app)
+# From outside to inside
+binder_call(knox_untrusted_app, container_app)
+
+#untrustedapp_domain(knox_untrusted_app, app_data_file)
+dumplog_create(knox_untrusted_app)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow knox_untrusted_app system_file:file execute_no_trans;
+
+########## etc_type
+########## known issue.
+# The following rule is already covered by app.te: "allow appdomain init:binder { call transfer };"
+#allow knox_untrusted_app init:binder { transfer call };
+allow knox_untrusted_app init_tmpfs:file read;
+
+# VMware
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_untrusted_app vmware_app:binder *;
+#neverallow Google CTS-android-m-preview: neverallow { domain -servicemanager } *:binder set_context_mgr
+#allow knox_untrusted_app vmware_app:binder *;
+allow knox_untrusted_app vmware_app:binder ~set_context_mgr;
+
+# AWS
+allow knox_untrusted_app app_data_file:file execmod; #ignoretypeofrule
+
+#CAC support
+#neverallow Google CTS-android-5.0.2_r1 : allow knox_untrusted_app system_data_file:dir write;
+allow knox_untrusted_app smartcard_data_file:file create_file_perms;
+allow knox_untrusted_app smartcard_data_file:dir create_dir_perms;
+allow knox_untrusted_app smartcard_data_file:sock_file create_file_perms;
+
+# socket connection with untrusted_app
+allow untrusteddomain knox_untrusted_app:unix_stream_socket connectto;
+allow knox_untrusted_app {untrusteddomain -gad_untrusted_app}:unix_stream_socket connectto;
+
+# release_app needs to access knox_clipboard_file  P150207-04404 
+allow knox_untrusted_app knox_clipboard_file:dir create_dir_perms;
+allow knox_untrusted_app knox_clipboard_file:file create_file_perms;
+
+# VZW requirement of LLK feature, com.verizon.llkagent can set store demo mode to control the battery.
+allow knox_untrusted_app sysfs_battery_supply:file rw_file_perms;
+
+########## androd-m-preview: denials ########
+allow knox_untrusted_app system_service:service_manager find;
+
+## contacts app: /efs/imei/mps_code.dat
+allow knox_untrusted_app efs_file:dir search;
+allow knox_untrusted_app imei_efs_file:dir r_dir_perms;
+allow knox_untrusted_app imei_efs_file:file r_file_perms;
+
+## launcher app: /efs/FactoryApp
+allow knox_untrusted_app app_efs_file:dir r_dir_perms;
+allow knox_untrusted_app app_efs_file:file r_file_perms;
+
+allow knox_untrusted_app system_server:dir r_file_perms;
+allow knox_untrusted_app system_server:file r_file_perms;
+# avc:  denied  { read } for  pid=8279 comm="Binder_2" name="oom_adj" dev="proc" ino=614 scontext=u:r:knox_untrusted_app:s0 tcontext=u:r:system_server:s0 tclass=file permissive=0 SEPF_SM-G925F_6.0_0001
+
+
+############ avc_log #############
+#avc:  denied  { search } for  pid=16912 comm=4173796E635461736B202338 name="clipboard101" dev="sda18" ino=65542 scontext=u:r:untrusted_app:s0:c3 tcontext=u:object_r:knox_clipboard_file:s0:c3 tclass=dir permissive=0
+# P150219-00560 com.verizon.llkagent has shared key, avc:  denied  { write } for  pid=7711 comm="erizon.llkagent" name="store_mode" dev="sysfs" ino=27435 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=0
+
+# contacts app : avc:  denied  { read } for  pid=13416 comm="ndroid.contacts" name="mps_code.dat" dev="sda3" ino=18 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:imei_efs_file:s0 tclass=file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { open } for  pid=13416 comm="ndroid.contacts" path="/efs/imei/mps_code.dat" dev="sda3" ino=18 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:imei_efs_file:s0 tclass=file permissive=1 SEPF_SM-G925F_6.0_0001
+# root@zerolte:/ # ls -alZ /efs/imei -rw-rw-r-- radio    system            u:object_r:imei_efs_file:s0 mps_code.dat
+# launcher app : avc:  denied  { search } for  pid=17714 comm="id.app.launcher" name="FactoryApp" dev="sda3" ino=17 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:app_efs_file:s0 tclass=dir permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { search } for  pid=9325 comm="id.app.launcher" name="/" dev="sda3" ino=2 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0 SEPF_SM-G925F_6.0_0001

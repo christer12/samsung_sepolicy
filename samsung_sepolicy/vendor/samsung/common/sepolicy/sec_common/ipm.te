@@ -1,0 +1,109 @@
+#
+# IPM (Intelligent Power Management)
+# IPM is a Nerual Network based native intelligent power manager service, it handles GPU power 
+#  considering user experience(stable fps), device thermal conditions and GPU load
+# ipm is a native service which will be started from init.rc, though its started by init process by default
+# IPM is disabled by default. Game mode application service enables/disables as required
+# ipm.cpp uses defaultServiceManager()->addService(
+# Contact: ramesh.munikrishn d.ansorregui
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type ipm, domain;
+type ipm_exec, exec_type, file_type;
+
+
+# typeattribute ipm system_domain;
+# temporary permissive to gather the log.
+#permissive ipm;
+init_daemon_domain(ipm)
+typeattribute ipm trusteddomain;
+typeattribute ipm mlstrustedsubject;
+# Talk to init over the property socket.
+unix_socket_connect(ipm, property, init)
+
+binder_use(ipm)
+binder_call(ipm, adbd)
+binder_call(ipm, servicemanager)
+binder_call(ipm, system)
+binder_call(ipm, surfaceflinger)
+binder_service(ipm)
+dumplog_create(ipm)
+mobicore_use(ipm)
+binder_call(appdomain, ipm)
+binder_call(system, ipm)
+
+
+binder_call(ipm, binderservicedomain)
+# Read /proc/pid files for Binder clients.
+r_dir_file(ipm, binderservicedomain)
+
+########## self and domain_type
+allow ipm dumpsys:dir r_dir_perms;
+allow ipm dumpsys:file r_file_perms;
+allow ipm init:dir r_dir_perms;
+allow ipm init:file r_file_perms;
+allow ipm self:capability { dac_read_search sys_resource dac_override };
+allow ipm self:unix_stream_socket write;
+allow ipm shell:dir search;
+allow ipm shell:file r_file_perms;
+allow ipm system_app:file r_file_perms;
+allow ipm vold:dir search;
+allow ipm ipm_service:service_manager add;
+
+allow { appdomain -isolated_app } ipm_service:service_manager find;
+allow system_server ipm_service:service_manager find;
+allow ipm surfaceflinger_service:service_manager find;
+
+allow ipm domain:dir  { getattr search };
+allow ipm domain:lnk_file read;
+allow ipm system:fd use;
+allow ipm self:tcp_socket create;
+
+########## fs_type
+allow ipm debugfs:file r_file_perms;
+allow ipm sysfs_ss_writable:file rw_file_perms;
+
+########## file_type
+allow ipm isolated_app_tmpfs:file write;
+allow ipm media_rw_data_file:file w_file_perms;
+allow ipm shell_exec:file rx_file_perms;
+allow ipm system_data_file:file r_file_perms;
+allow ipm system_file:file x_file_perms;
+#allow ipm system_data_file:file write;
+#allow ipm system_data_file:dir create;
+#allow ipm system_data_file:file create;
+allow ipm shell_data_file:dir r_dir_perms;
+allow ipm system_data_file:dir ra_dir_perms;  
+allow ipm ipm_data_file:file write;
+allow ipm ipm_data_file:dir create; 
+allow ipm ipm_data_file:file create;
+allow ipm ipm_data_file:file r_file_perms;
+
+
+
+########## etc_type
+allow ipm debug_prop:property_service set;
+
+# for ACT 
+allow ipm untrusted_app_tmpfs:file w_file_perms;
+
+# for Bugreport
+unix_socket_rw(ipm, init)
+allow ipm devpts:chr_file { read write };
+
+########## self and domain_type
+allow ipm system:fd use;
+allow ipm self:tcp_socket create;
+allow ipm system_app:dir r_dir_perms;
+
+########## fs_type
+allow ipm sysfs:file write;
+allow ipm sysfs_graphics:file write;
+allow ipm sysfs:file setattr;
+
+########## known issue.
+## from J GED 
+allow ipm sysfs_graphics:file rw_file_perms;
+

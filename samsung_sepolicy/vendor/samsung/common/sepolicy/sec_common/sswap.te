@@ -1,0 +1,41 @@
+#
+# sswap seclabel
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type sswap, domain;
+type sswap_exec, exec_type, file_type;
+typeattribute sswap trusteddomain;
+typeattribute sswap system_domain;
+
+init_daemon_domain(sswap)
+########## self and domain_type
+allow sswap self:capability { sys_admin dac_override };
+
+
+########## fs_type
+allow sswap proc:file rw_file_perms;
+allow sswap rootfs:file entrypoint;
+allow sswap sysfs:file w_file_perms;
+allow sswap sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow sswap block_device:dir r_dir_perms;
+allow sswap swap_device:blk_file rw_file_perms;
+
+########## file_type
+allow sswap cache_file:file w_file_perms;
+
+########## etc_type
+allow sswap system_prop:property_service set;
+
+########## known issue.
+
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=2841 comm="sswap" name="swappiness" dev="proc" ino=5429 scontext=u:r:sswap:s0 tcontext=u:object_r:proc:s0 tclass=file
+# avc:  denied  { set } for property=persist.sys.swapoff scontext=u:r:sswap:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+
+

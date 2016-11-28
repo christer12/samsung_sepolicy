@@ -1,0 +1,50 @@
+#
+# eris
+# 
+# Provides following functions for eris
+# - Manipulate TUN/TAP devices
+# - Handle raw socket for IPsec turnneling
+# - Manage iptable to redirect packet in order to encrypt it
+# - Manipulate files and directories under the private /data/misc/eris directory
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# create the eris domain
+type eris, domain;
+# Introduce the eris executable
+type eris_exec, exec_type, file_type;
+
+# Inherit settings from net_domain
+net_domain(eris)
+
+# Inherit settings from init_daemon_domain
+init_daemon_domain(eris)
+
+########## self and domain_type
+allow eris self:capability { net_admin net_raw };
+
+########## fs_type
+
+########## dev_type
+# Allow eris to manipulate TUN/TAP devices
+allow eris tun_device:chr_file rw_file_perms;
+
+########## file_type
+# eris needs permissions to manipulate files and directories
+# under the private /data/misc/eris directory
+allow eris eris_data_file:file create_file_perms;
+allow eris eris_data_file:dir create_dir_perms;
+
+########## etc_type
+
+########## known issue.
+#rild socket connection and denials
+unix_socket_connect(eris, rild, rild)
+allow eris rild:tun_socket relabelfrom;
+allow eris sysfs_wake_lock:file rw_file_perms;
+
+############ avc_log #############
+# avc:  denied  { relabelfrom } for  pid=12511 comm="eris" scontext=u:r:eris:s0 tcontext=u:r:rild:s0 tclass=tun_socket permissive=0 SEPF_SM-G920T_6.0_0002
+# avc:  denied  { connectto } for  pid=12504 comm="eris" path=004D756C7469636C69656E74 scontext=u:r:eris:s0 tcontext=u:r:rild:s0 tclass=unix_stream_socket permissive=0 SEPF_SM-G920T_6.0_0002
+# avc:  denied  { read write } for  pid=25568 comm="eris" name="wake_lock" dev="sysfs" ino=103 scontext=u:r:eris:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file permissive=0 SEPF_SM-G920T_6.0_0002

@@ -1,0 +1,63 @@
+# create new domain marvelltel
+type marvelltel, domain;
+type marvelltel_exec, exec_type, file_type;
+
+init_daemon_domain(marvelltel)
+
+allow marvelltel ctl_default_prop:property_service set;
+# SEC removed : allow marvelltel default_prop:property_service set;
+allow marvelltel init:unix_stream_socket { connectto newconn acceptfrom };
+allow marvelltel init_tmpfs:file create_file_perms;
+allow marvelltel nvm_device:chr_file create_file_perms;
+allow marvelltel property_socket:sock_file create_file_perms;
+allow marvelltel radio_prop:property_service set;
+allow marvelltel self:capability { sys_module fowner chown fsetid dac_override ipc_lock ipc_lock};
+allow marvelltel shell_exec:file { read execute open };
+allow marvelltel shell_prop:property_service set;
+allow marvelltel sysfs:file create_file_perms;
+allow marvelltel system_file:file execute_no_trans;
+allow marvelltel system_prop:property_service set;
+allow marvelltel tmpfs:dir create_dir_perms;
+allow marvelltel marvelltel_tmpfs:file create_file_perms;
+allow marvelltel ctl_rildaemon_prop:property_service set;
+# SEC removed : allow marvelltel block_device:dir create_dir_perms;
+# SEC removed : allow marvelltel boot_block_device:blk_file create_file_perms;
+allow marvelltel marvelltel_tmpfs:file create_file_perms;
+allow marvelltel self:process execmem;
+allow marvelltel nvm_data_file:dir create_dir_perms;
+allow marvelltel nvm_data_file:file create_file_perms;
+# SEC removed : allow marvelltel cploader_block_device:blk_file create_file_perms;
+# SEC removed : allow marvelltel nvm_block_device:blk_file create_file_perms;
+allow marvelltel geu_device:chr_file create_file_perms;
+
+allow marvelltel sysfs_devices_system_cpu:file create_file_perms;
+#SEC removed: allow marvelltel teecsstdca_device:chr_file create_file_perms;
+#SEC removed : allow marvelltel boot_block_device:blk_file create_file_perms;
+allow marvelltel marvelltel_tmpfs:file getattr;
+allow marvelltel sysfs_devices_system_cpu:file create_file_perms;
+# SEC removed : allow marvelltel teecsstdca_device:chr_file create_file_perms;
+allow marvelltel dump_log_data_file:file create_file_perms;
+allow marvelltel dump_log_data_file:dir create_dir_perms;
+allow marvelltel tel_data_file:file create_file_perms;
+allow marvelltel tel_data_file:dir create_dir_perms;
+allow marvelltel fuse:dir create_dir_perms;
+allow marvelltel logd_socket:sock_file create_file_perms;
+allow marvelltel properties_device:file execute;
+allow marvelltel system_data_file:dir { create_dir_perms mounton };
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow marvelltel system_data_file:file create_file_perms;
+allow marvelltel system_data_file:file r_file_perms;
+
+# /dev/cpmem
+# SEC removed : allow marvelltel marvelltel_device:chr_file create_file_perms;
+allow marvelltel marvelltel_device:chr_file rw_file_perms;
+
+# /dev/block/mmcblk0p10
+# SEC removed : allow marvelltel radio_block_device:blk_file create_file_perms;
+# /dev/block/mmcblk0p1 
+# SEC removed : allow marvelltel mrd_block_device:blk_file create_file_perms;
+# /dev/block/mmcblk0p2
+# SEC removed : allow marvelltel mrd1_block_device:blk_file create_file_perms;
+

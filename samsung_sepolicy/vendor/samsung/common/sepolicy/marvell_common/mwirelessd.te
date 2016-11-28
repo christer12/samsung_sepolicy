@@ -1,0 +1,22 @@
+
+
+##SEC added
+allow mwirelessd bluetooth_efs_file:file r_file_perms;
+allow mwirelessd bluetooth_efs_file:dir r_dir_perms;
+allow mwirelessd efs_file:dir r_dir_perms;
+allow mwirelessd efs_file:file r_file_perms;
+allow mwirelessd nvm_data_file:dir r_dir_perms;
+allow mwirelessd system_file:file execute_no_trans;
+allow mwirelessd wifi_efs_file:dir r_dir_perms;
+allow mwirelessd wifi_efs_file:file r_file_perms;
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=2605 comm="MarvellWireless" name="wifi" dev="mmcblk0p6" ino=12 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=dir permissive=1
+# avc:  denied  { read } for  pid=2605 comm="MarvellWireless" name=".mac.info" dev="mmcblk0p6" ino=13 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=2605 comm="MarvellWireless" path="/efs/wifi/.mac.info" dev="mmcblk0p6" ino=13 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { getattr } for  pid=2605 comm="MarvellWireless" path="/efs/wifi/.mac.info" dev="mmcblk0p6" ino=13 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:wifi_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=2605 comm="MarvellWireless" name="bt_addr" dev="mmcblk0p6" ino=32 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:bluetooth_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=2605 comm="MarvellWireless" path="/efs/bluetooth/bt_addr" dev="mmcblk0p6" ino=32 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:bluetooth_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { getattr } for  pid=2605 comm="MarvellWireless" path="/efs/bluetooth/bt_addr" dev="mmcblk0p6" ino=32 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:bluetooth_efs_file:s0 tclass=file permissive=1
+# avc:  denied  { search } for  pid=2597 comm="MarvellWireless" name="/" dev="mmcblk0p6" ino=2 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { search } for  pid=2597 comm="MarvellWireless" name="/" dev="mmcblk0p13" ino=2 scontext=u:r:mwirelessd:s0 tcontext=u:object_r:nvm_data_file:s0 tclass=dir permissive=0

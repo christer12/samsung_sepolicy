@@ -1,0 +1,81 @@
+type vmwared, domain;
+type vmwared_exec, exec_type, file_type;
+init_daemon_domain(vmwared)
+
+allow vmwared domain:dir r_dir_perms;
+allow vmwared domain:file rx_file_perms;
+allow vmwared domain:lnk_file r_file_perms;
+allow vmwared domain:unix_stream_socket getattr;
+allow vmwared domain:netlink_kobject_uevent_socket getattr;
+allow vmwared domain:fifo_file getattr;
+allow vmwared domain:file getattr;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+#allow vmwared exec_type:file x_file_perms;
+allow vmwared { exec_type - su_exec }:file x_file_perms;
+
+# allow vmwared self:capability { setuid sys_module chown setgid net_raw net_admin dac_read_search sys_ptrace };
+# allow vmwared self:netlink_route_socket { write getattr setopt bind create nlmsg_read read };
+
+#neverallow Google CTS-android-5.0.2_r1 : allow vmwared self:capability *;
+allow vmwared self:netlink_route_socket *;
+
+allow vmwared exec_type:unix_stream_socket getattr;
+allow vmwared exec_type:fifo_file getattr;
+allow vmwared exec_type:socket getattr;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmwared { dev_type - hw_random_device }:chr_file getattr;
+allow vmwared { dev_type -trstdomain_no_rw_device }:chr_file getattr;
+#neverallow Google CTS-android-5.0.2_r1 : allow vmwared file_type:file getattr;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow vmwared { file_type -keystore_data_file }:file getattr;
+allow vmwared { file_type -keystore_data_file -vold_data_file }:file getattr;
+
+allow vmwared adbd:tcp_socket getattr;
+allow vmwared mpdecision:netlink_kobject_uevent_socket getattr;
+allow vmwared mpdecision:unix_stream_socket getattr;
+allow vmwared netd:netlink_kobject_uevent_socket getattr;
+allow vmwared netd:netlink_nflog_socket getattr;
+allow vmwared netd:netlink_route_socket getattr;
+allow vmwared netd:udp_socket getattr;
+#allow vmwared thermald:netlink_kobject_uevent_socket getattr;
+
+#allow vmwared thermald:unix_stream_socket getattr;
+allow vmwared ueventd:netlink_kobject_uevent_socket getattr;
+allow vmwared vold:netlink_kobject_uevent_socket getattr;
+allow vmwared zygote:netlink_selinux_socket getattr;
+
+allow vmwared adb_device:chr_file getattr;
+allow vmwared audio_data_file:dir r_dir_perms;
+allow vmwared audio_data_file:file getattr;
+allow vmwared firmware:dir r_dir_perms;
+allow vmwared firmware:file getattr;
+allow vmwared netd:fifo_file getattr;
+#allow vmwared thermald:fifo_file getattr;
+
+allow vmwared app_data_file:dir create_dir_perms;
+allow vmwared app_data_file:file create_file_perms;
+allow vmwared app_library_file:dir create_dir_perms;
+allow vmwared app_library_file:file { read getattr open };
+allow vmwared cgroup:dir create_dir_perms;
+allow vmwared cgroup:file create_file_perms;
+allow vmwared dhcp_system_file:dir r_dir_perms;
+allow vmwared dhcp_system_file:file getattr;
+allow vmwared ppp_system_file:dir r_dir_perms;
+allow vmwared ppp_system_file:file getattr;
+allow vmwared runas_exec:file getattr;
+allow vmwared shell_exec:file getattr;
+allow vmwared sysfs:file write;
+allow vmwared system_file:lnk_file getattr;
+allow vmwared vmware_device:chr_file create_file_perms;
+
+allow vmwared init:unix_stream_socket connectto;
+allow vmwared property_socket:sock_file write;
+allow vmwared selinuxfs:file getattr;
+allow vmwared domain:socket getattr;
+
+# for B2C users
+typeattribute vmwared trusteddomain;
+#neverallow Google CTS-android-5.0.2_r1 :typeattribute vmwared trusted_app_domain;
+typeattribute vmwared system_domain;
+

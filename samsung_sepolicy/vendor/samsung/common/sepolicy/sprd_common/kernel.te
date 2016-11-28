@@ -1,0 +1,5 @@
+#booting denial
+allow kernel sensors_device:chr_file rw_file_perms;
+
+
+#avc:  denied  { read write } for  pid=90 comm="otpreload" name="sprd_sensor" dev="tmpfs" ino=9646 scontext=u:r:kernel:s0 tcontext=u:object_r:sensors_device:s0 tclass=chr_file permissive=0

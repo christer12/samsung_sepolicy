@@ -1,0 +1,5 @@
+#
+# syscope_app
+#
+
+typealias system_app alias syscope_app;

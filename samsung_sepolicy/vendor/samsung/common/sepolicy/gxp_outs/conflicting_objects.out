@@ -1,0 +1,141 @@
+self:netlink_kobject_uevent_socket
+
+	WRITES BY UNTRUSTED: 
+	allow sec_untrusted_app self:netlink_kobject_uevent_socket { read bind create setopt };
+
+	READS BY TRUSTED: 
+	allow rild self:netlink_kobject_uevent_socket read;
+
+	NEVERALLOWS: 
+
+untrusteddomain:unix_stream_socket
+
+	WRITES BY UNTRUSTED: 
+	allow untrusteddomain untrusteddomain:unix_stream_socket { create_stream_socket_perms connectto };
+
+	READS BY TRUSTED: 
+	allow mediaserver untrusteddomain:unix_stream_socket { read write getattr connectto };
+	allow mediaserver untrusteddomain:unix_stream_socket { read write getattr connectto };
+
+	NEVERALLOWS: 
+
+obb_apk_file:file
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -good_app } obb_apk_file:file create_file_perms;
+
+	READS BY TRUSTED: 
+	allow kernel obb_apk_file:file read;
+
+	NEVERALLOWS: 
+
+bluetooth:unix_stream_socket
+
+	WRITES BY UNTRUSTED: 
+	allow untrusteddomain bluetooth:unix_stream_socket create_socket_perms;
+	allow appdomain bluetooth:unix_stream_socket create_socket_perms;
+
+	READS BY TRUSTED: 
+	allow system_server bluetooth:unix_stream_socket { getattr getopt read write shutdown };
+
+	NEVERALLOWS: 
+
+media_rw_data_file:dir
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -good_app } media_rw_data_file:dir create_dir_perms;
+
+	READS BY TRUSTED: 
+	allow zygote media_rw_data_file:dir { create_dir_perms mounton };
+	allow zygote media_rw_data_file:dir { create_dir_perms mounton};
+	allow vold media_rw_data_file:dir mounton;
+
+	NEVERALLOWS: 
+
+container_app_data_backend:file
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -good_app } container_app_data_backend:file create_file_perms;
+
+	READS BY TRUSTED: 
+	allow installd container_app_data_backend:file { relabelto relabelfrom create_file_perms};
+
+	NEVERALLOWS: 
+
+self:packet_socket
+
+	WRITES BY UNTRUSTED: 
+	allow untrusteddomain self:packet_socket create;
+	allow appdomain self:packet_socket create;
+
+	READS BY TRUSTED: 
+	allow rild self:packet_socket { read create ioctl };
+	allow rild self:packet_socket { read create ioctl };
+
+	NEVERALLOWS: 
+
+self:rawip_socket
+
+	WRITES BY UNTRUSTED: 
+	allow untrusteddomain self:rawip_socket create_socket_perms;
+
+	READS BY TRUSTED: 
+	allow system_server self:rawip_socket { getopt create setopt };
+	allow system_server self:rawip_socket { write read };
+
+	NEVERALLOWS: 
+
+container_app_data_backend:dir
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -good_app } container_app_data_backend:dir create_dir_perms;
+
+	READS BY TRUSTED: 
+	allow zygote container_app_data_backend:dir { rw_dir_perms mounton setattr };
+	allow debuggerd container_app_data_backend:dir search;
+	allow installd container_app_data_backend:dir { relabelto relabelfrom create_dir_perms };
+	allow sdcardd container_app_data_backend:dir { create_dir_perms mounton };
+	allow vold container_app_data_backend:dir { create_dir_perms mounton };
+
+	NEVERALLOWS: 
+
+shell_data_file:file
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -good_app } shell_data_file:file { r_file_perms write };
+	allow { appdomain -good_app } shell_data_file:file { write getattr };
+
+	READS BY TRUSTED: 
+	allow zygote shell_data_file:file { write getattr };
+	allow binderservicedomain shell_data_file:file { getattr write };
+
+	NEVERALLOWS: 
+
+app_data_file:dir
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -isolated_app -good_app } app_data_file:dir create_dir_perms;
+
+	READS BY TRUSTED: 
+	allow zygote container_app_data_file:dir { create_dir_perms mounton };
+	allow shell app_data_file:dir search;
+	allow adbd app_data_file:dir search;
+	allow system_server app_data_file:dir relabelfrom;
+	allow system_server app_data_file:dir relabelfrom;
+	allow system_server platform_app_data_file:dir relabelfrom;
+	allow system_server container_app_data_file:dir { create_dir_perms relabelfrom };
+
+	NEVERALLOWS: 
+	neverallow { untrusteddomain -carrier_app samsung_app vmware_app good_app } fixmo_app_data_file:dir_file_class_set ~getattr;
+	neverallow { untrusteddomain -carrier_app -gad_untrusted_app samsung_app vmware_app fixmo_app } good_app_data_file:dir_file_class_set ~getattr;
+
+obb_apk_file:dir
+
+	WRITES BY UNTRUSTED: 
+	allow { appdomain -good_app } obb_apk_file:dir create_dir_perms;
+
+	READS BY TRUSTED: 
+	allow vold obb_apk_file:dir { create_dir_perms mounton };
+
+	NEVERALLOWS: 
+

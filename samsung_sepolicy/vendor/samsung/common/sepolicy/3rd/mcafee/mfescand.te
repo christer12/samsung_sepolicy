@@ -1,0 +1,102 @@
+#
+# Copyright 2015 McAfee, Inc. All rights reserved.
+#
+
+# McAfee scanner daemon
+
+type mfescand, domain;
+type mfescand_exec, exec_type, file_type;
+
+init_daemon_domain(mfescand)
+net_domain(mfescand)
+
+allow mfescand self:capability { dac_override dac_read_search net_raw kill setgid setuid fowner fsetid chown sys_admin };
+
+allow mfescand system_file:file { open getattr read ioctl lock };
+
+# /system/etc/mcafee
+allow mfescand mcafee_conf_file:dir { open getattr read ioctl search };
+allow mfescand mcafee_conf_file:file { open getattr read ioctl lock };
+
+# /data/misc/mcafee
+allow mfescand mcafee_data_file:dir { create reparent rmdir setattr open getattr read search ioctl write add_name remove_name link unlink rename };
+allow mfescand mcafee_data_file:file { create setattr getattr open read ioctl lock append write link unlink rename };
+allow mfescand mcafee_mcs_file:dir { create reparent rmdir setattr open getattr read search ioctl write add_name remove_name link unlink rename };
+allow mfescand mcafee_mcs_file:file { create setattr getattr open read ioctl lock append write link unlink rename };
+allow mfescand mcafee_mcsfs_xm_file:dir { create reparent rmdir setattr open getattr read search ioctl write add_name remove_name link unlink rename };
+allow mfescand mcafee_mcsfs_xm_file:file { create setattr getattr open read ioctl lock append write link unlink rename };
+allow mfescand mcafee_temp_file:dir { create reparent rmdir setattr open getattr read search ioctl write add_name remove_name link unlink rename };
+allow mfescand mcafee_temp_file:file { create setattr getattr open read ioctl lock append write link unlink rename };
+
+# Check validity of SELinux context before use.
+selinux_check_context(mfescand)
+# Read /seapp_contexts and /data/security/seapp_contexts
+security_access_policy(mfescand)
+
+# mfescand features
+# - scan files
+allow mfescand
+    { domain fs_type dev_type file_type 
+        -trstdomain_no_read_fs -trstdomain_no_read_fs -trstdomain_no_read_file 
+        -trstdomain_no_rw_device -trstdomain_no_rw_device }:dir
+    { open getattr read ioctl search };
+allow mfescand
+    { domain fs_type dev_type file_type
+        -trstdomain_no_read_fs -trstdomain_no_read_fs -trstdomain_no_read_file 
+        -trstdomain_no_rw_device -trstdomain_no_rw_device }:{ file sock_file fifo_file }
+    { open getattr read ioctl lock };
+allow mfescand
+    { domain fs_type dev_type file_type
+        -trstdomain_no_read_fs -trstdomain_no_read_fs -trstdomain_no_read_file 
+        -trstdomain_no_rw_device -trstdomain_no_rw_device -shell_data_file -app_data_file }:lnk_file
+    { open getattr read ioctl lock };
+allow mfescand
+    { shell_data_file app_data_file }:lnk_file { open getattr ioctl lock };
+
+# - repair files
+allow mfescand
+    { domain fs_type dev_type file_type
+        -kmem_device -hw_random_device
+        -trstdomain_no_write_fs -trstdomain_no_write_fs -trstdomain_no_write_file
+        -trstdomain_no_rw_device -trstdomain_no_rw_device
+        -exec_type -oemfs -contextmount_type }:dir
+    { create setattr write reparent rmdir add_name remove_name link unlink rename };
+
+allow mfescand
+    { domain fs_type dev_type file_type
+        -trstdomain_no_write_fs -trstdomain_no_write_fs -trstdomain_no_write_file
+        -trstdomain_no_rw_device -trstdomain_no_rw_device
+        -exec_type -oemfs -contextmount_type -system_data_file}:{ file lnk_file fifo_file }
+    { create setattr append write link unlink rename };
+
+allow mfescand
+    system_data_file:{ lnk_file fifo_file }
+    { create setattr append write link unlink rename };
+
+allow mfescand
+    { domain fs_type dev_type file_type
+        -trstdomain_no_write_fs -trstdomain_no_write_fs -trstdomain_no_write_file
+        -trstdomain_no_rw_device -trstdomain_no_rw_device
+        -exec_type -oemfs -contextmount_type -zygote_socket }:sock_file
+    { create setattr append write link unlink rename };
+
+allow mfescand zygote_socket:sock_file
+    { create setattr append link unlink rename };
+
+
+allow mfescand { system_file exec_type -su_exec }:file { execute execute_no_trans };
+
+# - kill other process
+allow mfescand domain:process sigkill;
+
+# create and access /data/misc/mcafee
+allow mfescand system_data_file:dir ra_dir_perms;
+type_transition mfescand system_data_file:dir mcafee_data_file "mcafee";
+allow mfescand mcafee_data_file:dir create_dir_perms;
+allow mfescand mcafee_data_file:notdevfile_class_set create_file_perms;
+
+allow mfescand shell_data_file:dir { rw_dir_perms unlink };
+allow mfescand shell_data_file:file { rw_file_perms unlink };
+
+# avc log
+# avc:  denied  { write } for  pid=16770 comm="mfescand" name="tmp" dev="mmcblk0p26" ino=261634 scontext=u:r:mfescand:s0 tcontext=u:object_r:shell_data_file:s0 tclass=dir

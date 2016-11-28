@@ -1,0 +1,2 @@
+#============= cbd ==============
+allow cbd system_data_file:dir { read open };

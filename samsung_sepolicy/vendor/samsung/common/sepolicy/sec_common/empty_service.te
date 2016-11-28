@@ -1,0 +1,27 @@
+#
+# empty_service
+#
+
+
+############ aosp and sec_common #############
+########## type and macro.
+type empty_service, domain;
+type empty_service_exec, exec_type, file_type;
+
+init_daemon_domain(empty_service)
+
+userdebug_or_eng(`
+permissive empty_service;
+')
+
+########## self and domain_type
+
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+
+########## known issue.
+
+############ avc_log #############
+

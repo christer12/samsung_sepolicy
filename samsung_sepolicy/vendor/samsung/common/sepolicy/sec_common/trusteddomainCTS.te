@@ -1,0 +1,182 @@
+#
+# trusteddomain for CTS compatible
+#
+
+############ trusteddomain #############
+########## type and macro.
+########## self and domain_type
+allow trusteddomain { domain -trstdomain_no_access_subject }:process { sigchld signull getsched getpgid getcap getattr };
+
+allow trusteddomain { domain -trstdomain_no_access_subject }:fd use;
+allow trusteddomain { domain -trstdomain_no_access_subject }:dir r_dir_perms;
+allow trusteddomain { domain -trstdomain_no_access_subject }:file_class_set r_file_perms;
+
+# socket, ipc, key, msg, peer, binder
+#neverallow by Google:allow trusteddomain { domain -containerdomain -fixmo_app -good_app -system_domain }:socket_class_set { ioctl read getattr bind connect getopt accept };
+allow trusteddomain { domain -trstdomain_no_access_subject }:dgram_socket_class_set create_socket_perms;
+#changeBySEA mm_qcamerad si-4935: allow trusteddomain { domain -trstdomain_no_access_subject }:stream_socket_class_set { create_stream_socket_perms connectto };
+allow { trusteddomain -mm_qcamerad } { domain -trstdomain_no_access_subject }:stream_socket_class_set { create_stream_socket_perms connectto };
+#violated : allow trusteddomain { domain -trstdomain_no_access_subject }:ipc_class_set rw_ipc_perms;
+allow trusteddomain { domain -trstdomain_no_access_subject }:key { view read search };
+#violated : allow trusteddomain { domain -trstdomain_no_access_subject }:msg *;
+allow trusteddomain { domain -trstdomain_no_access_subject }:peer recv;
+allow trusteddomain { domain -trstdomain_no_access_subject }:binder { call transfer };
+allow trusteddomain zygote:unix_stream_socket { write getopt getattr };
+
+########## fs_type
+allow trusteddomain  { fs_type -trstdomain_no_read_fs -sdcard_type }:dir r_dir_perms;
+allow trusteddomain  { fs_type -trstdomain_no_read_fs -sdcard_type }:notdevfile_class_set r_file_perms;
+allow trusteddomain sysfs_app_writable:file rw_file_perms;
+
+########## dev_type
+allow trusteddomain { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device }:dir r_dir_perms;
+allow trusteddomain { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device }:{ notdevfile_class_set chr_file } r_file_perms;
+
+########## file_type
+allow trusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+allow trusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:file_class_set r_file_perms;
+allow trusteddomain { tmpfs_file_type data_file_type -app_data_type -trstappdomain_no_write_file -trstdomain_no_write_file } : dir w_dir_perms;
+allow trusteddomain { tmpfs_file_type data_file_type -app_data_type -trstappdomain_no_write_file -trstdomain_no_write_file } : notdevfile_class_set w_file_perms;
+
+# executable files
+allow trusteddomain { system_file exec_type -trstdomain_no_read_file }:file x_file_perms;
+
+
+########## etc_type
+########## known issue.
+# dumpstate/dumpsys of stressTest saves the log at sdcard_internal, CryptfsUtil::doDumpstate saves the log into cache_file 
+# allow trusteddomain { media_rw_data_file sdcard_internal cache_file }:file { append write getattr };
+#allow memtrack to trusteddomain
+allow trusteddomain debugfs:file { read getattr };
+
+# keyboard issue
+#neverallow by Google: allow trusteddomain app_data_file:file execute;
+#neverallow by Google: allow trusted_app_domain app_data_file:file execute;
+
+############ trusted_app_domain system_domain device_domain #############
+############ trusted_app_domain system_domain device_domain #############
+
+########## self and domain_type ##########
+allow trusted_app_domain kernel:system module_request;
+# from "allow domain self:capability sys_nice;"
+#neverallow Android-m conflict: 
+#allow { system_domain device_domain } self:capability sys_nice;
+
+# dir, file class
+allow system_domain { domain -trstdomain_no_access_subject }:dir create_dir_perms;
+allow system_domain { domain -trstdomain_no_access_subject }:file_class_set create_file_perms;
+allow device_domain { domain -system_domain -trstdomain_no_access_subject }:dir create_dir_perms;
+allow device_domain { domain -system_domain -trstdomain_no_access_subject }:file_class_set create_file_perms;
+allow trusted_app_domain { appdomain -trstdomain_no_access_subject }:dir create_dir_perms;
+allow trusted_app_domain { appdomain -trstdomain_no_access_subject }:file_class_set create_file_perms;
+
+# socket, ipc, key
+allow system_domain  { domain -trstdomain_no_access_subject }:socket_class_set *;
+allow trusted_app_domain { domain -trstdomain_no_access_subject } : dgram_socket_class_set create_socket_perms;
+allow trusted_app_domain { domain -trstdomain_no_access_subject } : stream_socket_class_set { create_stream_socket_perms connectto };
+allow trusted_app_domain { domain -trstdomain_no_access_subject } : { socket tun_socket appletalk_socket key_socket packet_socket rawip_socket } { ioctl read getattr bind connect getopt accept };
+#violated : allow { system_domain trusted_app_domain } { domain -trstdomain_no_access_subject }:ipc_class_set *;
+allow { system_domain trusted_app_domain } { domain -trstdomain_no_access_subject }:key *;
+
+#changeBySEA mm_qcamerad si-4935: allow device_domain { domain -system_domain -trstdomain_no_access_subject }:socket_class_set *;
+allow { device_domain -mm_qcamerad } { domain -system_domain -trstdomain_no_access_subject }:socket_class_set *;
+#violated : allow device_domain { domain -system_domain -trstdomain_no_access_subject }:ipc_class_set *;
+allow device_domain { domain -system_domain -trstdomain_no_access_subject }:key *;
+#changeBySEA mm_qcamerad si-4935: allow device_domain { system_domain -trstdomain_no_access_subject }:socket_class_set { ioctl read getattr bind connect getopt };
+allow { device_domain -mm_qcamerad } { system_domain -trstdomain_no_access_subject }:socket_class_set { ioctl read getattr bind connect getopt };
+#violated : allow device_domain { system_domain -trstdomain_no_access_subject }:ipc_class_set ~{ create destroy setattr };
+allow device_domain { system_domain -trstdomain_no_access_subject }:key { view read search };
+
+########## fs_type ##########
+# Modify: allow trusteddomain { fs_type -proc -sysfs -selinuxfs -rootfs -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_service_secure_type -container_file_type }:filesystem *;
+# to satisfy the assertion that
+# (1) Appdomain apps should not have mount permissions to certain fs_type.
+# (2) No domain can execute a type that it can write
+#neverallow by Google: allow { system_domain device_domain trusted_app_domain } { fs_type -proc -sysfs -selinuxfs -rootfs }:filesystem ~{ mount remount unmount };
+allow trusted_app_domain fs_type:filesystem getattr;
+allow { system_domain device_domain } { fs_type -proc -sysfs -selinuxfs -rootfs }:filesystem ~{ mount remount unmount relabelfrom relabelto };
+
+# Modify: allow trusteddomain { fs_type -proc -sysfs -selinuxfs -rootfs -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -dev_type -container_service_secure_type -container_file_type }:dir_file_class_set *;
+# to satisfy the assertion that
+# (1) Appdomain apps should not have mounton permissions to dir and file types
+# (2) Domain cannot execute a type it can write
+
+## r_fs_type
+allow { system_domain device_domain trusted_app_domain } { r_fs_type -trstdomain_no_read_fs }: dir r_dir_perms;
+allow { system_domain device_domain trusted_app_domain } { r_fs_type -trstdomain_no_read_fs } : file_class_set r_file_perms;
+
+## rx_fs_type
+allow { system_domain device_domain trusted_app_domain } { rx_fs_type -trstdomain_no_read_fs }: dir r_dir_perms;
+allow { system_domain device_domain } { rx_fs_type -trstdomain_no_read_fs }: { chr_file file } r_file_perms;
+allow trusted_app_domain { rx_fs_type -trstdomain_no_read_fs }: { chr_file file } rx_file_perms;
+
+allow { system_domain device_domain } { rx_fs_type -trstdomain_no_read_fs } : { blk_file lnk_file sock_file fifo_file } file_rx_execmod_perms;
+allow trusted_app_domain { rx_fs_type -trstdomain_no_read_fs } : { blk_file lnk_file sock_file fifo_file } { r_file_perms execute execmod };
+
+## rw_fs_type
+#neverallow by Google: ({ surfaceflinger system_server wpa } sdcard_type:file rw_file_perms;)
+allow { system_domain device_domain -surfaceflinger -system_server -wpa }  { rw_fs_type -trstdomain_no_read_fs -trstdomain_no_write_fs } : dir rw_dir_perms;
+allow { system_domain device_domain -surfaceflinger -system_server -wpa }  { rw_fs_type -trstdomain_no_read_fs -trstdomain_no_write_fs } : file_class_set rw_file_perms;
+allow { surfaceflinger system_server wpa } { rw_fs_type -trstdomain_no_read_fs -trstdomain_no_write_fs -sdcard_type } : dir rw_dir_perms;
+allow { surfaceflinger system_server wpa } { rw_fs_type -trstdomain_no_read_fs -trstdomain_no_write_fs -sdcard_type } : file_class_set rw_file_perms;
+allow trusted_app_domain { rw_fs_type -trstdomain_no_read_fs -trstdomain_no_write_fs } : dir rw_dir_perms;
+allow trusted_app_domain { rw_fs_type -trstdomain_no_read_fs -trstdomain_no_write_fs } : file_class_set rw_file_perms;
+
+
+########## dev_type ##########
+allow { system_domain device_domain } { dev_type -trstdomain_no_rw_device }:dir create_dir_perms;
+allow { system_domain device_domain } { dev_type -trstdomain_no_rw_device }:{ notdevfile_class_set } create_file_perms;
+#changeBySEA need to check more : allow { system_domain device_domain } { dev_type -trstdomain_no_rw_device }:chr_file create_file_perms;
+#changeBySEA need to check more : allow { system_domain device_domain } { dev_type -trstdomain_no_rw_device }:blk_file create_file_perms;
+allow trusted_app_domain { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device }:dir create_dir_perms;
+allow trusted_app_domain { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device }:{ notdevfile_class_set } create_file_perms;
+#changeBySEA need to check more : allow trusted_app_domain { dev_type -trstdomain_no_rw_device }:chr_file create_file_perms;
+
+
+########## file_type ##########
+allow trusted_app_domain { system_file system_library_file }:file execmod;
+
+#Modify: allow trusteddomain { file_type -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_file_type }:dir_file_class_set *;
+# to satisfy the assertion that
+# (1) Unprivileged domain cannot write to system partition, a.k.a., /system/ 
+# (2) No domain can execute any type it can write (except kernel, init, and su). (Note: we give write permission to data_file_type, but not execute permissions)
+# (3) No domain can write to exec_type except init, kernel and su.
+# (4) Appdomain apps should not have mounton permissions to dir and file types
+# excluding container_app_data_file to satisfy assert rule
+#allow { system_domain device_domain } { file_type -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_file_type }:dir *;
+#allow { system_domain device_domain } { file_type -knox_clipboard_file -unlabeled -container_file_type }:dir *;
+#allow trusted_app_domain { file_type -knox_clipboard_file -unlabeled -container_file_type }:dir ~mounton;
+
+# read access
+allow { system_domain device_domain } { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+allow { system_domain device_domain } { file_type -trstdomain_no_read_file }:file_class_set r_file_perms;
+
+# write and create access
+allow { system_domain device_domain } { cache_file_type data_file_type efs_type log_file_type misc_rw_file_type socket_file_type tmpfs_file_type -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+allow { system_domain device_domain } { cache_file_type data_file_type efs_type log_file_type misc_rw_file_type socket_file_type tmpfs_file_type -trstdomain_no_read_file -trstdomain_no_write_file } : file_class_set create_file_perms;
+
+
+allow trusted_app_domain { cache_file_type data_file_type efs_type log_file_type misc_rw_file_type socket_file_type tmpfs_file_type
+                                      -trstappdomain_no_read_file -trstappdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file }:dir create_dir_perms;
+allow trusted_app_domain { cache_file_type data_file_type efs_type log_file_type misc_rw_file_type socket_file_type tmpfs_file_type
+                                      -trstappdomain_no_read_file -trstappdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file }:file_class_set create_file_perms;
+
+
+
+########## etc_type ##########
+unix_socket_connect(system_domain, property, init)
+#changeBySEA mm_qcamerad si-4935: allow { system_domain device_domain trusted_app_domain } node_type:socket_class_set *;
+allow { system_domain device_domain trusted_app_domain -mm_qcamerad } node_type:socket_class_set *;
+allow { system_domain device_domain trusted_app_domain } netif_type:netif *;
+#changeBySEA mm_qcamerad si-4935: allow { system_domain device_domain trusted_app_domain } port_type:socket_class_set *;
+allow { system_domain device_domain trusted_app_domain -mm_qcamerad } port_type:socket_class_set *;
+allow { system_domain device_domain system_app radio bluetooth } { property_type -trstdomain_no_set_property }:property_service set;
+
+########## known issue. ##########
+
+
+## avc_log : AOSP/B2C
+# avc:  denied  { write } for  pid=15761 comm="dumpsys" path="/mnt/shell/emulated/0/GORILLA_OUTPUT/dumpstate_app_201407071110_com_sec_android_inputmethod_error.log" dev="sdcardfs" ino=1573325 scontext=u:r:healthd:s0 tcontext=u:object_r:sdcard_internal:s0 tclass=file SEPF_SM-N910C_4.4.4_0018
+# avc:  denied  { write } for  pid=29803 comm="dumpsys" path="/mnt/shell/emulated/0/GORILLA_OUTPUT/dumpstate_app_201407071041_com_sec_android_app_together:external_error.log" dev="sdcardfs" ino=1573325 scontext=u:r:surfaceflinger:s0 tcontext=u:object_r:sdcard_internal:s0 tclass=file SEPF_SM-N910C_4.4.4_0018
+# avc:  denied  { append } for  pid=24121 comm="dumpsys" path="/storage/emulated/legacy/ACT_LOGS/2014-07-18-07-08-17/act_bugreport_.txt" dev="sdcardfs" ino=522613 scontext=u:r:keystore:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N910A_4.4.4_A018
+

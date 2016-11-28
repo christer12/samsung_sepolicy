@@ -1,0 +1,12 @@
+
+## Neverallow allow init kmem_device:chr_file { read open setattr };
+allow init mmc_block_device:blk_file setattr;
+allow init swap_device:blk_file write;
+
+############ avc_log #############
+# avc:  denied  { setattr } for  pid=1 comm="init" name="mmcblk0" dev="tmpfs" ino=2989 scontext=u:r:init:s0 tcontext=u:object_r:mmc_block_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { read } for  pid=1 comm="init" name="mem" dev="tmpfs" ino=4160 scontext=u:r:init:s0 tcontext=u:object_r:kmem_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=1 comm="init" path="/dev/mem" dev="tmpfs" ino=4160 scontext=u:r:init:s0 tcontext=u:object_r:kmem_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { setattr } for  pid=1 comm="init" name="mem" dev="tmpfs" ino=4160 scontext=u:r:init:s0 tcontext=u:object_r:kmem_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { write } for  pid=225 comm="sswap" name="vnswap0" dev="tmpfs" ino=8729 scontext=u:r:init:s0 tcontext=u:object_r:swap_device:s0 tclass=blk_file permissive=1
+

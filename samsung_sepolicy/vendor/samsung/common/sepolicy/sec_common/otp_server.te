@@ -1,0 +1,54 @@
+#
+#  otp_server
+#
+
+############ sec_common #############
+########## type and macro.
+type otp_server, domain;
+type otp_server_exec, exec_type, file_type;
+typeattribute otp_server trusteddomain;
+typeattribute otp_server system_domain;
+typeattribute otp_server mlstrustedsubject;
+
+init_daemon_domain(otp_server)
+domain_auto_trans(system_server,otp_server_exec,otp_server)
+binder_use(otp_server)
+mobicore_use(otp_server)
+
+########## self and domain_type
+allow otp_server system_server:fifo_file { read write getattr ioctl };
+
+allow otp_server otp_server_service:service_manager add;
+########## fs_type
+#neverallow Google CTS-android-5.0.2_r1 : allow tlc_server firmware_file:file { rx_file_perms open };
+allow otp_server firmware_file:file r_file_perms;
+allow otp_server firmware_file:dir r_dir_perms;
+
+########## dev_type
+allow otp_server qseecom_device:chr_file { read write ioctl open };
+
+########## file_type
+allow otp_server app_efs_file:file { read open };
+allow otp_server efs_file:dir search;
+allow otp_server efs_type:dir r_dir_perms;
+allow otp_server efs_type:{ file lnk_file } r_file_perms;
+allow otp_server platform_app_data_file:dir rw_dir_perms;
+allow otp_server platform_app_data_file:file rw_file_perms;
+allow otp_server radio_data_file:dir search;
+allow otp_server radio_data_file:file { read open };
+allow otp_server shell_exec:file { read execute open execute_no_trans };
+allow otp_server system_file:file execute_no_trans;
+allow otp_server wifi_efs_file:file { read open };
+
+########## etc_type
+allow otp_server otp_server_service:service_manager add;
+
+########## self
+#allow otp_server self:capability dac_override;
+
+########## known issue.
+
+
+############ avc_log #############
+
+

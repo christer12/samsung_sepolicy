@@ -1,0 +1,9 @@
+#============= hbtp ==============
+allow hbtp sysfs_battery_supply:file { read open };
+
+############ avc_log #############
+# MSM8937 A7MVELTE avc:  denied  { read } for  pid=4053 comm="hbtp_daemon" name="status" dev="sysfs" ino=31577 scontext=u:r:hbtp:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0004
+# MSM8937 A7MVELTE avc:  denied  { open } for  pid=4053 comm="hbtp_daemon" path="/sys/devices/battery/power_supply/battery/status" dev="sysfs" ino=31577 scontext=u:r:hbtp:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0004
+# MSM8937 A7MVELTE arch=40000028 syscall=322 per=800008 success=yes exit=15 a0=ffffff9c a1=bebda644 a2=20000 a3=0 items=0 ppid=1 pid=4053 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="hbtp_daemon" exe="/system/vendor/bin/hbtp_daemon" subj=u:r:hbtp:s0 key=(null)
+
+

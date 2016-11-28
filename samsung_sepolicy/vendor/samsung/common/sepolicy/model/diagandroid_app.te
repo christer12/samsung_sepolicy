@@ -1,0 +1,5 @@
+#
+# diagandroid_app for CIQ
+#
+typealias system_app alias diagandroid_app;
+

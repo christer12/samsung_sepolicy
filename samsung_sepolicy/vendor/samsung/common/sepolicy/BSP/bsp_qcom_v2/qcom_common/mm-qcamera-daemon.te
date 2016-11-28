@@ -1,0 +1,11 @@
+typealias mm-qcamerad alias mm-qcamera-daemon;
+typealias mm-qcamerad alias mm_qcamerad;
+typealias mm-qcamerad_exec alias mm-qcamera-daemon_exec;
+
+allow mm-qcamerad mediaserver:fifo_file rw_file_perms;
+
+#### avc log ####
+#avc:  denied  { write } for  pid=29536 comm="CAM_MctServ" path="pipe:[297260]" dev="pipefs" ino=297260 scontext=u:r:mm-qcamerad:s0 tcontext=u:r:mediaserver:s0 tclass=fifo_file permissive=0 SEPF_SECMOBILE_6.0.1_0002
+
+
+

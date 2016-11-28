@@ -1,0 +1,10 @@
+
+
+##SEC added
+allow system_app phone_data_file:dir create_dir_perms;
+allow system_app phone_data_file:file create_file_perms;
+
+# Req from marvell, reason : app needs the write permission to access /tmp/DIAG_CMD_SOCKET as socket file.
+allow system_app tmpfs:dir create_dir_perms;
+allow system_app tmpfs:sock_file create_file_perms;
+

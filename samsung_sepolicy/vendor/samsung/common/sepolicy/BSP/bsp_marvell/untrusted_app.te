@@ -1,0 +1,302 @@
+# grant addtional permissions to untrusted_app
+nouse_userdebug_or_eng(`
+
+allow untrusted_app anr_data_file:dir getattr;
+allow untrusted_app apk_private_data_file:dir getattr;
+allow untrusted_app atcmdsrv_exec:file { getattr execute read open};
+allow untrusted_app atcmdsrv_tmpfs:file getattr;
+allow untrusted_app atcmdsrv_device:chr_file getattr;
+allow untrusted_app adb_device:chr_file getattr;
+allow untrusted_app adbd_socket:sock_file getattr;
+allow untrusted_app anr_data_file:dir { read open };
+allow untrusted_app anr_data_file:file getattr;
+allow untrusted_app audio_device:chr_file getattr;
+allow untrusted_app audio_device:dir { read getattr open };
+
+allow untrusted_app apk_data_file:dir { getattr };
+allow untrusted_app self:shm { unix_read unix_write associate read write };
+# read and write permissions can not be granted to this app
+allow untrusted_app graphics_device:chr_file { open ioctl };
+allow untrusted_app self:netlink_route_socket { write };
+
+allow untrusted_app block_device:dir search;
+allow untrusted_app bootanim_exec:file { read open };
+allow untrusted_app backup_data_file:dir getattr;
+allow untrusted_app bluetooth_data_file:dir getattr;
+allow untrusted_app bootanim_exec:file { getattr execute };
+allow untrusted_app block_device:blk_file getattr;
+allow untrusted_app block_device:dir { read getattr open };
+allow untrusted_app bluetooth_device:chr_file getattr;
+allow untrusted_app boot_block_device:blk_file getattr;
+
+allow untrusted_app clatd_exec:file { getattr execute };
+allow untrusted_app clatd_exec:file { read open };
+allow untrusted_app console_device:chr_file getattr;
+
+allow untrusted_app debuggerd_exec:file { read open };
+allow untrusted_app dhcp_exec:file { read open };
+allow untrusted_app diag_exec:file { read open };
+allow untrusted_app dnsmasq_exec:file { read open };
+allow untrusted_app drmserver_exec:file { read open };
+allow untrusted_app dumpstate_exec:file { read open };
+allow untrusted_app debugfs:lnk_file { read getattr };
+allow untrusted_app debuggerd_exec:file { getattr execute };
+allow untrusted_app device:dir read;
+allow untrusted_app devpts:dir read;
+allow untrusted_app dhcp_data_file:dir getattr;
+allow untrusted_app dhcp_exec:file { getattr execute };
+allow untrusted_app diag_exec:file { getattr execute };
+allow untrusted_app dnsmasq_exec:file { getattr execute };
+allow untrusted_app drm_data_file:dir getattr;
+allow untrusted_app drmserver_exec:file { getattr execute };
+allow untrusted_app dumpstate_exec:file { getattr execute };
+
+allow untrusted_app device:dir open;
+allow untrusted_app device:file getattr;
+allow untrusted_app devpts:dir open;
+allow untrusted_app diag_device:chr_file getattr;
+allow untrusted_app dm_device:chr_file getattr;
+allow untrusted_app dnsproxyd_socket:sock_file getattr;
+allow untrusted_app dumpstate_socket:sock_file getattr;
+
+allow untrusted_app eeh_exec:file { read open };
+allow untrusted_app eeh_exec:file { getattr execute };
+allow untrusted_app eeh_tmpfs:file getattr;
+allow untrusted_app eeh_device:chr_file getattr;
+
+allow untrusted_app FMRadiod_exec:file { getattr execute read open };
+allow untrusted_app FMRadiod:binder call;
+allow untrusted_app fuse_device:chr_file getattr;
+allow untrusted_app fscklogs:dir getattr;
+allow untrusted_app full_device:chr_file { read getattr };
+allow untrusted_app fuse_device:chr_file getattr;
+allow untrusted_app fwmarkd_socket:sock_file getattr;
+
+allow untrusted_app graphics_device:dir search;
+allow untrusted_app graphics_device:chr_file getattr;
+allow untrusted_app graphics_device:dir { read getattr open };
+
+allow untrusted_app hawk_exec:file { read open };
+allow untrusted_app hostapd_exec:file { read open };
+allow untrusted_app iml_exec:file { read open };
+allow untrusted_app imsc_exec:file { read open };
+allow untrusted_app installd_exec:file { read open };
+allow untrusted_app i2c_device:chr_file getattr;
+allow untrusted_app iio_device:chr_file getattr;
+allow untrusted_app input_device:chr_file getattr;
+allow untrusted_app input_device:dir { read getattr open };
+allow untrusted_app installd_socket:sock_file getattr;
+
+allow untrusted_app keystore_exec:file { read open };
+allow untrusted_app kmsg_exec:file { read open };
+allow untrusted_app lmkd_exec:file { read open };
+allow untrusted_app log_on_boot_exec:file { read open };
+allow untrusted_app logd_exec:file { read open };
+allow untrusted_app marvelltel_exec:file { read open };
+allow untrusted_app mdnsd_exec:file { read open };
+allow untrusted_app mediaserver_exec:file { read open };
+allow untrusted_app mned_exec:file { read open };
+allow untrusted_app mtp_exec:file { read open };
+allow untrusted_app mwirelessd_exec:file { read open };
+allow untrusted_app netd_exec:file { read open };
+
+allow untrusted_app ppp_exec:file { read open };
+allow untrusted_app pppmodem_exec:file { read open };
+#changeBySEA allow untrusted_app proc_security:file { getattr open read ioctl lock };
+#changeBySEA allow untrusted_app proc_sysrq:file rw_file_perms;
+
+allow untrusted_app racoon_exec:file { read open };
+allow untrusted_app rild_exec:file { read open };
+allow untrusted_app run_hawk_on_boot_exec:file { read open };
+allow untrusted_app sdcardd_exec:file { read open };
+allow untrusted_app servicemanager_exec:file { read open };
+allow untrusted_app setup_fs_exec:file { read open };
+allow untrusted_app surfaceflinger_exec:file { read open };
+
+allow untrusted_app hawk_exec:file { getattr execute };
+allow untrusted_app hostapd_exec:file { getattr execute };
+allow untrusted_app iml_exec:file { getattr execute };
+allow untrusted_app imsc_exec:file { getattr execute };
+allow untrusted_app installd_exec:file { getattr execute };
+allow untrusted_app kernel:security read_policy;
+allow untrusted_app keystore_exec:file { getattr execute };
+allow untrusted_app kmsg_exec:file { getattr execute };
+allow untrusted_app kmsg_tmpfs:file getattr;
+allow untrusted_app kmsg_device:chr_file getattr;
+
+allow untrusted_app lmkd_exec:file { getattr execute };
+allow untrusted_app log_on_boot_exec:file { getattr execute };
+allow untrusted_app logd_exec:file { getattr execute };
+allow untrusted_app lmkd_socket:sock_file getattr;
+allow untrusted_app log_device:dir { read getattr open };
+allow untrusted_app logd_socket:sock_file getattr;
+allow untrusted_app logdr_socket:sock_file getattr;
+allow untrusted_app logdw_socket:sock_file getattr;
+allow untrusted_app loop_device:blk_file getattr;
+
+allow untrusted_app marvelltel_exec:file { getattr execute };
+allow untrusted_app marvelltel_tmpfs:file getattr;
+allow untrusted_app mdnsd_exec:file { getattr execute };
+allow untrusted_app mediaserver_exec:file { getattr execute };
+allow untrusted_app mned_exec:file { getattr execute };
+allow untrusted_app mtp_exec:file { getattr execute };
+allow untrusted_app mwirelessd_exec:file { getattr execute };
+allow untrusted_app mrvlgpu_device:chr_file rw_file_perms;
+allow untrusted_app marvelltel_device:chr_file getattr;
+allow untrusted_app mdns_socket:sock_file getattr;
+allow untrusted_app mediaserver_device:chr_file getattr;
+allow untrusted_app mrd1_block_device:blk_file getattr;
+allow untrusted_app mrd_block_device:blk_file getattr;
+
+allow untrusted_app netd_exec:file { getattr execute };
+allow untrusted_app nvm_data_file:dir { read search getattr open };
+allow untrusted_app nvm_data_file:file getattr;
+allow untrusted_app nvm_exec:file { getattr execute };
+allow untrusted_app nvm_exec:file { read open };
+allow untrusted_app nvm_data_file:dir getattr;
+allow untrusted_app netd_socket:sock_file getattr;
+allow untrusted_app nvm_data_file:dir open;
+allow untrusted_app nvm_data_file:file getattr;
+allow untrusted_app nvm_device:chr_file { read getattr };
+
+allow untrusted_app ppp_exec:file { getattr execute };
+allow untrusted_app pppmodem_exec:file { getattr execute };
+allow untrusted_app property_data_file:dir getattr;
+allow untrusted_app pstorefs:dir { read search };
+allow untrusted_app phservice_exec:file { getattr execute read open };
+allow untrusted_app phservice:binder call;
+allow untrusted_app ppp_device:chr_file getattr;
+allow untrusted_app pppmodem_device:chr_file getattr;
+allow untrusted_app property_socket:sock_file getattr;
+allow untrusted_app pstorefs:dir open;
+allow untrusted_app pstorefs:file getattr;
+
+allow untrusted_app racoon_exec:file { getattr execute };
+allow untrusted_app radio_data_file:dir getattr;
+allow untrusted_app rild_exec:file { getattr execute };
+allow untrusted_app run_hawk_on_boot_exec:file { getattr execute };
+allow untrusted_app dump_log_data_file:file write;
+allow untrusted_app radio_block_device:blk_file getattr;
+allow untrusted_app rild_debug_socket:sock_file getattr;
+allow untrusted_app rild_socket:sock_file getattr;
+
+allow untrusted_app sdcardd_exec:file { getattr execute };
+allow untrusted_app servicemanager_exec:file { getattr execute };
+allow untrusted_app setup_fs_exec:file { getattr execute };
+allow untrusted_app su_exec:file getattr;
+allow untrusted_app surfaceflinger_exec:file { getattr execute };
+allow untrusted_app sysfs_lowmemorykiller:file { read getattr };
+allow untrusted_app sysfs_wake_lock:file getattr;
+allow untrusted_app self:shm { write unix_read unix_write associate read create };
+allow untrusted_app shell_data_file:dir { write add_name remove_name };
+allow untrusted_app system_app_data_file:dir getattr;
+allow untrusted_app su_exec:file getattr;
+allow untrusted_app serial_device:chr_file getattr;
+allow untrusted_app socket_device:sock_file getattr;
+allow untrusted_app sysfs_lowmemorykiller:file open;
+allow untrusted_app system_app_data_file:dir search;
+allow untrusted_app system_app_device:chr_file { read getattr };
+
+allow untrusted_app teesst_data_file:dir getattr;
+allow untrusted_app teecsstdca_exec:file { getattr execute };
+allow untrusted_app tmpfs:fifo_file getattr;
+allow untrusted_app tmpfs:sock_file getattr;
+allow untrusted_app tombstone_data_file:dir getattr;
+allow untrusted_app touch_updater_exec:file { getattr execute };
+allow untrusted_app teecsstdca_exec:file { read open };
+allow untrusted_app teecsstdca_device:chr_file getattr;
+allow untrusted_app touch_updater_exec:file { read open };
+allow untrusted_app tty_device:chr_file getattr;
+
+allow untrusted_app uncrypt_exec:file getattr;
+allow untrusted_app usermodehelper:dir { read search };
+allow untrusted_app usermodehelper:file getattr;
+allow untrusted_app uhid_device:chr_file getattr;
+allow untrusted_app uio_device:chr_file getattr;
+allow untrusted_app usermodehelper:dir open;
+allow untrusted_app usermodehelper:file { read open };
+allow untrusted_app vdc_exec:file { getattr execute };
+allow untrusted_app vold_exec:file { getattr execute };
+allow untrusted_app vdc_exec:file { read open };
+allow untrusted_app vold_exec:file { read open };
+allow untrusted_app vcs_device:chr_file getattr;
+allow untrusted_app video_device:chr_file getattr;
+allow untrusted_app vold_socket:sock_file getattr;
+
+allow untrusted_app wifi_data_file:dir getattr;
+allow untrusted_app wireless_data_file:dir search;
+allow untrusted_app wpa_exec:file { getattr execute };
+allow untrusted_app wireless_data_file:file getattr;
+allow untrusted_app wpa_exec:file { read open };
+allow untrusted_app watchdog_device:chr_file getattr;
+allow untrusted_app wireless_data_file:file getattr;
+allow untrusted_app wpa_device:chr_file getattr;
+allow untrusted_app wpa_socket:sock_file getattr;
+allow untrusted_app zygote:unix_dgram_socket getattr;
+allow untrusted_app zygote_socket:sock_file getattr;
+
+# do not give it more permission to access teesst
+allow untrusted_app teesst_data_file:dir getattr;
+allow untrusted_app boot_block_device:dir getattr;
+
+allow untrusted_app bootloader_block_device:blk_file getattr;
+allow untrusted_app cache_block_device:blk_file getattr;
+allow untrusted_app codecIPC_server_exec:file { read getattr open execute };
+allow untrusted_app cploader_block_device:blk_file getattr;
+allow untrusted_app cpuctl_device:chr_file getattr;
+allow untrusted_app debugfs:file getattr;
+allow untrusted_app device:chr_file getattr;
+allow untrusted_app dtim_block_device:blk_file getattr;
+allow untrusted_app embmsd_socket:sock_file getattr;
+allow untrusted_app gps_data_file:dir getattr;
+allow untrusted_app gps_device:chr_file getattr;
+allow untrusted_app infor_device:chr_file { read getattr };
+allow untrusted_app init_tmpfs:file getattr;
+allow untrusted_app ipc_device:chr_file getattr;
+allow untrusted_app memsic_device:chr_file getattr;
+allow untrusted_app memsicd_exec:file { read getattr open execute };
+allow untrusted_app memsicp_exec:file { read getattr open execute };
+allow untrusted_app mep2_block_device:blk_file getattr;
+allow untrusted_app misc_block_device:blk_file getattr;
+allow untrusted_app mrvl_gpsd_exec:file { read getattr open execute };
+allow untrusted_app nfc_data_file:dir getattr;
+allow untrusted_app nvm_block_device:blk_file getattr;
+allow untrusted_app pstorefs:file { read open };
+allow untrusted_app recovery_block_device:blk_file getattr;
+allow untrusted_app security_block_device:blk_file getattr;
+allow untrusted_app system_block_device:blk_file getattr;
+allow untrusted_app userdata_block_device:blk_file getattr;
+allow untrusted_app vpu_device:chr_file getattr;
+allow untrusted_app wpa_socket:dir getattr;
+allow untrusted_app audio_device:dir create_dir_perms;
+# The debugfs is supposed not to be read because of information leaky
+# check /externel/sepolicy/untrusted.te, 86 line
+# allow untrusted_app debugfs:file read;
+allow untrusted_app dump_log_data_file:dir create_dir_perms;
+allow untrusted_app dump_log_data_file:file create_file_perms;
+allow untrusted_app input_device:dir create_dir_perms;
+allow untrusted_app mwireless_device:chr_file create_file_perms;
+
+# This is a known issue caused by wdj. It try to create .wdj_config
+# under /data/local/tmp/*, which has conflict with Google's default
+# policy:
+#   allow untrusted_app shell_data_file:dir setattr;
+#   allow untrusted_app shell_data_file:file { create setattr };
+
+# TODO: why some app want to map the low memory
+# it's related to dynamic loading libuuid.so
+# allow untrusted_app self:memprotect mmap_zero;
+
+# TODO: debugfs /sys/kernel/debug, the rule is forbidden by
+# 74 line:
+#     Too much leaky information in debugfs. It's a security
+#     best practice to ensure these files aren't readable.
+#        neverallow untrusted_app debugfs:file read;
+# allow untrusted_app debugfs:file { read getattr };
+
+# TODO: againest the rule of 340 line in app.te
+# # Write to various pseudo file systems.
+#   neverallow { appdomain -bluetooth -nfc }
+#      sysfs:dir_file_class_set write;
+# allow untrusted_app sysfs:file write;
+')

@@ -1,0 +1,59 @@
+#
+# netmgrd.te
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#type netmgrd, domain;
+#type netmgrd_exec, exec_type, file_type;
+
+#init_daemon_domain(netmgrd)
+#unix_socket_connect(netmgrd, property, init)
+set_prop(netmgrd, system_prop)
+set_prop(netmgrd, radio_prop)
+set_prop(netmgrd, net_radio_prop)
+
+########## self and domain_type
+allow netmgrd kernel:system module_request;
+allow netmgrd qmuxd:unix_stream_socket connectto;
+allow netmgrd self:capability { sys_module setuid fsetid setgid net_raw net_admin dac_override chown setpcap };
+allow netmgrd self:rawip_socket create; 
+allow netmgrd self:{ udp_socket packet_socket netlink_socket netlink_route_socket rawip_socket } *;
+
+########## fs_type
+allow netmgrd proc:file w_file_perms;
+allow netmgrd proc:dir w_dir_perms;
+allow netmgrd proc_net:file w_file_perms;
+allow netmgrd proc_net:dir w_dir_perms;
+########## dev_type
+########## file_type
+allow netmgrd app_data_file:dir create_dir_perms;
+allow netmgrd app_data_file:file create_file_perms;
+allow netmgrd property_socket:sock_file w_file_perms;
+allow netmgrd qmux_radio_socket:dir rw_dir_perms;
+allow netmgrd qmux_radio_socket:sock_file create_file_perms;
+allow netmgrd radio_data_file:dir create_dir_perms;
+allow netmgrd radio_data_file:file create_file_perms;
+allow netmgrd shell_exec:file rx_file_perms;
+allow netmgrd system_data_file:dir rw_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow netmgrd system_data_file:file create_file_perms;
+allow netmgrd system_data_file:file r_file_perms;
+allow netmgrd system_file:file x_file_perms;
+
+########## etc_type
+allow netmgrd radio_prop:property_service set;
+allow netmgrd system_prop:property_service set;
+
+########## known issue.
+# from carrier_kor_slsi\common_lgt\netmgrd.te
+#allow netmgrd radio_prop:property_service set;
+
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=795 comm="sh" name="accept_ra" dev="proc" ino=5971 scontext=u:r:netmgrd:s0 tcontext=u:object_r:proc_net:s0 tclass=file
+# item=0 name="/proc/sys/net/ipv6/conf/rmnet_usb0/accept_ra" inode=5971 dev=00:03 mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:proc_net:s0
+# avc:  denied  { setpcap } for  pid=659 comm="netmgrd" capability=8  scontext=u:r:netmgrd:s0 tcontext=u:r:netmgrd:s0 tclass=capability permissive=0
+# arch=40000028 syscall=172 per=800000 success=no exit=-1 a0=18 a1=0 a2=0 a3=0 items=0 ppid=1 pid=659 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="netmgrd" exe="/system/bin/netmgrd" subj=u:r:netmgrd:s0 key=(null)
+

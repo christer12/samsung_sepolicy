@@ -1,0 +1,76 @@
+
+neverallow mrst_plugin_app { fixmo_app good_app untrusted_app shell }:binder call;  #ignoretypeofrule
+neverallow { fixmo_app good_app untrusted_app shell } mrst_plugin_app:binder call;  #ignoretypeofrule
+
+###### mrst_untrusted_app : main application ######
+typeof mrst_untrusted_app, untrusted_app;
+
+
+###### mrst_plugin_app : service plugin application ######
+##### import from external/sepolicy/platform_app.te
+type mrst_plugin_app, domain;
+app_domain(mrst_plugin_app)
+# Access the network.
+net_domain(mrst_plugin_app)
+# Access bluetooth.
+bluetooth_domain(mrst_plugin_app)
+# Read from /data/local/tmp or /data/data/com.android.shell.
+allow mrst_plugin_app shell_data_file:dir search;
+allow mrst_plugin_app shell_data_file:file { open getattr read };
+
+# ASEC
+allow mrst_plugin_app asec_apk_file:dir create_dir_perms;
+allow mrst_plugin_app asec_apk_file:file create_file_perms;
+
+# Access to /data/media.
+allow mrst_plugin_app media_rw_data_file:dir create_dir_perms;
+allow mrst_plugin_app media_rw_data_file:file create_file_perms;
+
+# Write to /cache.
+allow mrst_plugin_app cache_file:dir create_dir_perms;
+allow mrst_plugin_app cache_file:file create_file_perms;
+
+# Direct access to vold-mounted storage under /mnt/media_rw
+# This is a performance optimization that allows platform apps to bypass the FUSE layer
+allow mrst_plugin_app mnt_media_rw_file:dir r_dir_perms;
+allow mrst_plugin_app vfat:dir create_dir_perms;
+allow mrst_plugin_app vfat:file create_file_perms;
+
+allow mrst_plugin_app drmserver_service:service_manager find;
+allow mrst_plugin_app mediaserver_service:service_manager find;
+allow mrst_plugin_app persistent_data_block_service:service_manager find;
+allow mrst_plugin_app radio_service:service_manager find;
+allow mrst_plugin_app surfaceflinger_service:service_manager find;
+allow mrst_plugin_app app_api_service:service_manager find;
+allow mrst_plugin_app system_api_service:service_manager find;
+
+# P160415-05796 / happened by framework code, any installed apk searchs out system_service / 6.0.1_0008
+allow mrst_plugin_app system_service:service_manager find;
+
+### platformappdomain to include SEC platform rules.
+platform_app_domain(mrst_plugin_app)
+
+#changeBySEA typeattribute mrst_plugin_app trusteddomain;
+#changeBySEA typeattribute mrst_plugin_app trusted_app_domain;
+#changeBySEA typeattribute mrst_plugin_app platformappdomain;
+
+
+###### binding permssions ######
+### appdomain except for untrusted_app, its typeof domains and shell
+binder_call({ appdomain -fixmo_app -good_app -untrusted_app -shell }, mrst_plugin_app)
+binder_call(mrst_plugin_app, { appdomain -fixmo_app -good_app -untrusted_app -shell })
+
+### mrst main applicatoins
+binder_call(mrst_untrusted_app, mrst_plugin_app)
+binder_call(mrst_plugin_app, mrst_untrusted_app)
+
+### carrier_app of jpn
+binder_call(carrier_app, mrst_plugin_app)
+binder_call(mrst_plugin_app, carrier_app)
+
+### sec_untrusted_app : media/shared and etc.
+binder_call(sec_untrusted_app, mrst_plugin_app)
+binder_call(mrst_plugin_app, sec_untrusted_app)
+
+# avc:  denied  { find } for service=multiwindow_facade scontext=u:r:mrst_plugin_app:s0:c512,c768 tcontext=u:object_r:system_service:s0 tclass=service_manager
+

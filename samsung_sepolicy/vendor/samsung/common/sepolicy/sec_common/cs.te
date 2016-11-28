@@ -1,0 +1,43 @@
+#
+# cs
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type cs, domain;
+type cs_exec, exec_type, file_type;
+# for B2C users
+typeattribute cs trusteddomain;
+typeattribute cs system_domain;
+
+init_daemon_domain(cs)
+mobicore_use(cs)
+r_dir_file(cs, firmware)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow cs qseecom_device:chr_file rw_file_perms;
+
+########## file_type
+allow cs cs_socket:dir w_dir_perms;
+allow cs cs_socket:sock_file create_file_perms;
+allow cs efs_file:dir r_dir_perms;
+allow cs efs_file:file r_file_perms;
+allow cs system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow cs system_data_file:file create_file_perms;
+allow cs system_data_file:file r_file_perms;
+
+########## androd-m-preview: denials ########
+allow cs prov_efs_file:dir r_dir_perms;
+allow cs prov_efs_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

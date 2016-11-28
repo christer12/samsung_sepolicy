@@ -1,0 +1,24 @@
+# create new domain atcmdsrv
+type atcmdsrv, domain;
+type atcmdsrv_exec, exec_type, file_type;
+
+# process atcmdsrv is for phone, atcmdsrv-aponly is for tablet
+# both these two processes will be labeled to atcmdsrv.
+init_daemon_domain(atcmdsrv)
+
+allow atcmdsrv atcmdsrv_tmpfs:file create_file_perms;
+#SEC removed: allow atcmdsrv default_prop:property_service set;
+allow atcmdsrv atcmdsrv_device:chr_file create_file_perms;
+allow atcmdsrv diag:unix_dgram_socket unix_dgram_socket_perms;
+allow atcmdsrv init:unix_stream_socket unix_stream_socket_perms;
+allow atcmdsrv nvm_device:chr_file create_file_perms;
+allow atcmdsrv property_socket:sock_file create_file_perms;
+allow atcmdsrv self:capability setuid;
+allow atcmdsrv system_prop:property_service set;
+allow atcmdsrv tmpfs:dir create_dir_perms;
+allow atcmdsrv tmpfs:sock_file create_file_perms;
+allow atcmdsrv self:process execmem;
+allow atcmdsrv eeh_device:chr_file create_file_perms;
+allow atcmdsrv dump_log_data_file:file create_file_perms;
+allow atcmdsrv dump_log_data_file:dir create_dir_perms;
+

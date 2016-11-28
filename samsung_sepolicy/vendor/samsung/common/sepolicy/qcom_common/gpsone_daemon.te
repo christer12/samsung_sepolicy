@@ -1,0 +1,17 @@
+# gpsone_daemon
+
+
+allow gpsone_daemon qmuxd:unix_stream_socket connectto;
+allow gpsone_daemon qmux_gps_socket:sock_file create_file_perms;
+
+allow gpsone_daemon self:socket *;
+
+allow gpsone_daemon gps_data_file:dir create_dir_perms;
+allow gpsone_daemon gps_data_file:file create_file_perms;
+allow gpsone_daemon qmux_gps_socket:dir w_dir_perms;
+allow gpsone_daemon system_data_file:dir rw_dir_perms;
+allow gpsone_daemon system_data_file:fifo_file create_file_perms;
+
+# for B2C users
+typeattribute gpsone_daemon trusteddomain;
+typeattribute gpsone_daemon device_domain;

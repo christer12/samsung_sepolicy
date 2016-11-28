@@ -1,0 +1,66 @@
+# create new domain eeh
+type eeh, domain;
+type eeh_exec, exec_type, file_type;
+
+init_daemon_domain(eeh)
+
+#SEC changed: allow eeh eeh_device:chr_file create_file_perms;
+allow eeh eeh_device:chr_file rw_file_perms;
+allow eeh diag:unix_dgram_socket unix_dgram_socket_perms;
+allow eeh eeh_tmpfs:file create_file_perms;
+allow eeh self:capability { setuid setgid chown dac_override ipc_lock };
+allow eeh self:process execmem;
+allow eeh system_data_file:dir create_dir_perms;
+allow eeh tmpfs:dir create_dir_perms;
+allow eeh tmpfs:sock_file create_file_perms;
+allow eeh tmpfs:fifo_file create_file_perms;
+allow eeh init:unix_stream_socket unix_stream_socket_perms;
+allow eeh property_socket:sock_file create_file_perms;
+allow eeh shell_exec:file { read execute open execute_no_trans };
+allow eeh ctl_default_prop:property_service set;
+allow eeh system_data_file:dir create_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow eeh system_data_file:file create_file_perms;
+allow eeh system_data_file:file r_file_perms;
+
+allow eeh system_file:file execute_no_trans;
+allow eeh fuse:dir create_dir_perms;
+allow eeh fuse:file create_file_perms;
+allow eeh marvelltel_device:chr_file create_file_perms;
+allow eeh sysfs_wake_lock:file create_file_perms;
+#SEC changed: allow eeh block_device:dir create_dir_perms;
+allow eeh block_device:dir r_dir_perms;
+allow eeh sysfs:file create_file_perms;
+allow eeh tel_data_file:file create_file_perms;
+allow eeh tel_data_file:dir create_dir_perms;
+
+# access to /NVM
+#SEC removed: allow eeh nvm_block_device:blk_file create_file_perms;
+#SEC changed: allow eeh nvm_device:chr_file create_file_perms;
+allow eeh nvm_device:chr_file rw_file_perms;
+allow eeh nvm_data_file:dir create_dir_perms;
+allow eeh nvm_data_file:file create_file_perms;
+
+allow eeh atcmdsrv_tmpfs:file create_file_perms;
+allow eeh eeh_tmpfs:file create_file_perms;
+allow eeh init:unix_stream_socket unix_stream_socket_perms;
+allow eeh init_tmpfs:file create_file_perms;
+allow eeh marvelltel_device:chr_file create_file_perms;
+allow eeh marvelltel_tmpfs:file create_file_perms;
+#SEC removed: allow eeh mrd1_block_device:blk_file create_file_perms;
+#SEC removed: allow eeh mrd_block_device:blk_file create_file_perms;
+allow eeh nvm_device:chr_file create_file_perms;
+allow eeh property_socket:sock_file create_file_perms;
+#allow eeh system_data_file:dir create_dir_perms;
+#allow eeh system_data_file:file create_file_perms;
+allow eeh system_prop:property_service set;
+#SEC removed: allow eeh teecsstdca_device:chr_file { read write ioctl open };
+allow eeh tmpfs:dir create_dir_perms;
+#SEC removed: allow eeh nvm_block_device:dir create_dir_perms;
+#SEC removed: allow eeh nvm_block_device:blk_file create_file_perms;
+#SEC removed: allow eeh radio_block_device:blk_file create_file_perms;
+#SEC removed: allow eeh boot_block_device:blk_file create_file_perms;
+#SEC removed: allow eeh cploader_block_device:blk_file create_file_perms;
+

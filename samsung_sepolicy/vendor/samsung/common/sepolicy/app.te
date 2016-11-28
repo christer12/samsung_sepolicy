@@ -1,0 +1,477 @@
+#
+# appdomain
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+allow appdomain bluetooth:unix_stream_socket create_socket_perms;
+#changeBySEA allow appdomain { domain -containerdomain -fixmo_app -good_app}:dir { open read search getattr };
+#changeBySEA allow appdomain { domain -containerdomain -fixmo_app -good_app}:{ file lnk_file } { open read getattr };
+
+#neverallow by Google:(domain init:binder call;) 
+#neverallow Google CTS : allow { appdomain -cts_appdomain } init:binder { call transfer };
+
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain }  init:unix_stream_socket { connectto getattr getopt read write };
+#changeBySEAallow appdomain init:unix_stream_socket { getattr getopt read write };
+
+#Conflict with Good requirements
+#changeBySEA allow { appdomain -good_app } rild:unix_stream_socket connectto;
+
+#neverallow by Google: (neverallow { appdomain -bluetooth } self:capability2 *;)
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -untrusteddomain -cts_appdomain }  self:capability2 syslog;
+#neverallow by Google: allow appdomain self:netlink_socket create;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } self:netlink_socket create;
+allow appdomain self:packet_socket create;
+#Conflict with Good requirements
+allow { appdomain -good_app } untrusteddomain:process ptrace;
+
+
+########## fs_type
+allow appdomain sysfs_app_writable:file rw_file_perms;
+
+########## dev_type
+#changeBySEA allow appdomain dev_type:lnk_file read;
+#changeBySEA allow appdomain dev_type:dir r_dir_perms;
+allow appdomain genlock_device:chr_file rw_file_perms;
+allow appdomain input_device:chr_file rw_file_perms;
+#neverallow by Google:  allow appdomain socket_device:sock_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } socket_device:sock_file rw_file_perms;
+allow appdomain tun_device:chr_file rw_file_perms;
+allow appdomain usbaccessory_device:chr_file rw_file_perms;
+allow appdomain usb_bus_device:chr_file rw_file_perms;
+allow appdomain usb_device:chr_file rw_file_perms;
+allow appdomain zero_device:chr_file rw_file_perms;
+
+########## file_type
+allow appdomain anr_data_file:file r_file_perms;
+allow appdomain anr_data_file:dir ra_dir_perms;
+allow appdomain apk_data_file:lnk_file read;
+#Conflict with Good requirements
+allow { appdomain -good_app } app_data_file:file execute;
+
+#changeBySEA allow appdomain app_efs_file:dir r_dir_perms;
+#changeBySEA allow appdomain app_efs_file:file r_file_perms;
+# typealias system_data_file / P160412-00320 / only FOTA problem to M OS: Neverallow permission after FOTA
+# allow appdomain app_library_file:dir { execmod setattr r_dir_perms };
+allow appdomain app_library_file:dir { execmod r_dir_perms };
+allow appdomain app_library_file:dir { r_dir_perms };
+#neverallow Google CTS-android-m-preview:neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow appdomain app_library_file:file { rx_file_perms execmod setattr};
+# typealias system_data_file / P160412-00320 / only FOTA problem to M OS: Neverallow permission after FOTA
+# allow appdomain app_library_file:file { rx_file_perms setattr};
+allow appdomain app_library_file:file rx_file_perms;
+allow appdomain app_library_file:lnk_file read;
+allow appdomain library_file_type:file rx_file_perms;
+
+#Conflict with good requirements
+#changeBySEA: this is only app_data_file and AOSP has the rule app_data_file allow { appdomain -good_app } app_public_data_type:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow isolated_app app_data_file:file open
+#allow { appdomain -good_app } app_public_data_type:notdevfile_class_set create_file_perms;
+#changeBySEA: this is only app_data_file and AOSP has the ruleallow { appdomain -good_app -isolated_app } app_public_data_type:notdevfile_class_set create_file_perms;
+#changeBySEA: this is only app_data_file and AOSP has the ruleallow isolated_app app_public_data_type:notdevfile_class_set { create rename setattr unlink getattr ioctl lock };
+
+#Conflict with good requirements
+#changeBySEA:allow { appdomain -good_app } asec_apk_file:dir create_dir_perms;
+allow { appdomain -good_app } asec_apk_file:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow { appdomain -good_app } asec_apk_file:file { execmod create_file_perms x_file_perms };
+#changeBySEA: allow { appdomain -good_app } asec_apk_file:file { create_file_perms x_file_perms };
+allow { appdomain -good_app } asec_apk_file:file { r_file_perms x_file_perms };
+
+allow { appdomain -good_app } asec_public_file:file { execute execmod };
+
+allow appdomain cache_backup_file:dir rw_dir_perms;
+allow appdomain cache_file:dir create_dir_perms;
+allow appdomain cache_file:file create_file_perms;
+allow appdomain dalvikcache_data_file:dir r_dir_perms;
+allow appdomain dalvikcache_data_file:lnk_file read;
+#Conflict with good requirements
+allow { appdomain -untrusteddomain -shell -good_app } sec_efs_file:dir r_dir_perms;
+allow { appdomain -untrusteddomain -shell -good_app } sec_efs_file:file r_file_perms;
+
+#neverallow by Google: allow appdomain efs_file:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } efs_file:dir r_dir_perms;
+#Conflict with good requirements
+#changeBySEA:allow { appdomain -good_app } efs_file:dir { open getattr search ioctl };
+
+#neverallow by Google: allow appdomain efs_file:file r_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } efs_file:file r_file_perms;
+#Conflict with good requirements
+#changeBySEA:allow { appdomain -good_app } efs_file:file { getattr open ioctl lock };
+
+allow appdomain exec_type:file r_file_perms;
+#Conflict with good requirements
+#changeBySEA:allow { appdomain -good_app } imei_efs_file:file r_file_perms;
+#changeBySEA:allow { appdomain -good_app } imei_efs_file:dir r_dir_perms;
+allow { appdomain -untrusteddomain -shell -good_app } imei_efs_file:file r_file_perms;
+allow { appdomain -untrusteddomain -shell -good_app } imei_efs_file:dir r_dir_perms;
+
+allow appdomain init_tmpfs:file read;
+allow appdomain lptcp_data_file:sock_file rw_file_perms;
+allow { appdomain -good_app } media_rw_data_file:dir create_dir_perms;
+allow { appdomain -good_app } media_rw_data_file:file { create_file_perms execute };
+#Conflict with good requirements
+allow { appdomain -good_app } obb_apk_file:dir create_dir_perms;
+allow { appdomain -good_app } obb_apk_file:file create_file_perms;
+allow { appdomain -good_app } radio_data_file:dir rw_dir_perms;
+allow { appdomain -good_app } radio_data_file:file rw_file_perms;
+
+#neverallow by Google: allow appdomain shell_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } shell_data_file:dir create_dir_perms;
+#Conflict with good requirements
+#changeBySEA:allow { appdomain -good_app } shell_data_file:dir { r_dir_perms rmdir write add_name remove_name };
+allow { appdomain -good_app } shell_data_file:dir r_dir_perms;
+
+#neverallow by Google: allow appdomain shell_data_file:lnk_file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } shell_data_file:lnk_file create_file_perms;
+#Conflict with good requirements
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#allow { appdomain -good_app } shell_data_file:lnk_file { r_file_perms write };
+#changeBySEA:allow { appdomain -good_app } shell_data_file:lnk_file write;
+allow { appdomain -good_app } shell_data_file:file r_file_perms;
+
+allow appdomain system_app_data_file:file r_file_perms;
+#changeBySEA replace by library_file_type :allow appdomain system_library_file:file rx_file_perms;
+allow appdomain tmpfs_file_type:file { read write };
+#changeBySEA not clear operation:allow appdomain tombstone_data_file:dir r_dir_perms;
+#changeBySEA not clear operation:allow appdomain tombstone_data_file:file r_file_perms;
+allow { appdomain -untrusteddomain -shell -good_app }  tombstone_data_file:dir r_dir_perms;
+allow { appdomain -untrusteddomain -shell -good_app }  tombstone_data_file:file r_file_perms;
+
+
+########## etc_type
+#changeBySEA not clear operation: allow appdomain node:{ udp_socket tcp_socket rawip_socket } node_bind;
+#neverallow by Google: allow { appdomain -untrusteddomain -shell } csc_prop:property_service set;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -untrusteddomain -shell -cts_appdomain } csc_prop:property_service set;
+allow { appdomain -isolated_app } { apaservice_service jackservice_service writingbuddymanager_service }:service_manager find;
+
+
+########## known issue.
+
+# read access
+#Conflict with good requirements
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow { appdomain -good_app -untrusted_app } { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow { appdomain -good_app -untrusted_app } { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow { appdomain -good_app } { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:dir_file_class_set getattr;
+#changeBySEA allow { appdomain -good_app } { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file}:dir_file_class_set getattr;
+#changeBySEA allow { appdomain -good_app } vold_data_file:{ chr_file blk_file } getattr;
+
+#changeBySEA allow { appdomain -good_app } { fs_type -proc -sysfs -selinuxfs -rootfs -container_file_type }:dir r_dir_perms;
+#changeBySEA allow { appdomain -good_app } { fs_type -proc -sysfs -selinuxfs -rootfs -container_file_type }:dir_file_class_set getattr;
+
+# Remove execute permission to untrusteddomain to satisfy assertion that domain cannot execute type it can write
+#neverallow by Google: allow appdomain shell_data_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -cts_appdomain } shell_data_file:file create_file_perms;
+#Conflict with good requirements
+allow { appdomain -good_app } shell_data_file:file { r_file_perms write };
+allow { appdomain -untrusteddomain -good_app } shell_data_file:file x_file_perms;
+
+# more perms
+#neverallow by Google: allow { appdomain -untrustedappdomain -shell } self:netlink_kobject_uevent_socket *;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -untrusteddomain -shell -cts_appdomain } self:netlink_kobject_uevent_socket *;
+allow { appdomain -untrusteddomain -shell } system:tcp_socket { getattr read write };
+#neverallow by Google: allow { appdomain -untrustedappdomain -shell } system_data_file:dir create_dir_perms;
+#neverallow by Google: allow { appdomain -untrustedappdomain -shell } system_data_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -untrusteddomain -shell -cts_appdomain } system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -untrusteddomain -shell -cts_appdomain } system_data_file:file create_file_perms;
+allow { appdomain -untrusteddomain -shell } video_device:chr_file rw_file_perms;
+
+# Needed to close the zygote socket, which involves getopt / getattr 
+# This should be deleted after b/12061011 is fixed
+allow appdomain zygote:unix_stream_socket { getopt getattr }; 
+
+#personal_page_app
+#Conflict with good requirements
+#changeBySEA allow { appdomain -good_app } personal_page_file:dir create_dir_perms;
+#changeBySEA allow { appdomain -good_app } personal_page_file:file create_file_perms;
+allow { appdomain -good_app } personal_page_file:dir create_dir_perms;
+allow { appdomain -good_app } personal_page_file:file create_file_perms;
+
+
+#For samsung account
+
+#neverallow Google CTS-android-m-preview:neverallow isolated_app gpu_device:chr_file { { { getattr open read ioctl lock } { open append write } } execute }
+#allow appdomain powervr_device:chr_file rw_file_perms;
+
+# sysfs control for music.. used by google
+allow appdomain sysfs_music_power_writable:file rw_file_perms;
+# XXX need to find out sysfs labeling problem
+#neverallow by Google: allow { appdomain -untrustedappdomain -shell }  sysfs:file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -untrustedappdomain -shell -cts_appdomain }  sysfs:file rw_file_perms;
+
+### from NSA
+# Communicate with system.
+#changeBySEA duplicated with aosp: allow appdomain system:fifo_file rw_file_perms;
+#changeBySEA duplicated with aosp: allow appdomain system:unix_stream_socket { read write setopt };
+#changeBySEA duplicated with aosp: binder_call(appdomain, system)
+# Communicate with surfaceflinger.
+#changeBySEA duplicated with aosp: allow appdomain surfaceflinger:unix_stream_socket { read write setopt };
+#changeBySEA duplicated with aosp: binder_call(appdomain, surfaceflinger)
+# Read/write data files created by the platform apps if they
+# were passed to the app via binder or local IPC.  Do not allow open.
+#changeBySEA duplicated with aosp: allow appdomain platform_app_data_file:file { getattr read write };
+
+# Appdomain interaction with isolated apps
+#Conflict with good requirements
+#changeBySEA r_dir_file( { appdomain -good_app }, isolated_app)
+#changeBySEA use netdomain: unix_socket_connect(appdomain, dnsproxyd, netd)
+# Allow applications to communicate with drmserver over binder
+#Conflict with good requirements
+#changeBySEA duplicated with aosp: binder_call( { appdomain -good_app }, drmserver)
+
+# Allow applications to communicate with mediaserver over binder
+#changeBySEA duplicated with aosp: binder_call(appdomain, mediaserver)
+
+# Allow applications to make outbound tcp connections to any port
+#changeBySEA duplicated with aosp: allow appdomain port_type:tcp_socket name_connect;
+
+
+# Allow apps to see changes to the routing table.
+#changeBySEA duplicated with aosp: allow appdomain self:netlink_route_socket {
+#    read
+#    bind
+#    create
+#    nlmsg_read
+#    ioctl
+#    getattr
+#    setattr
+#    getopt
+#    setopt
+#    shutdown
+#};
+
+# Allow apps to use rawip sockets. This is needed for apps which execute
+# /system/bin/ping, for example.
+#changeBySEA duplicated with aosp: allow appdomain self:rawip_socket create_socket_perms;
+
+# shell/system_app and dumpResetReason in android_os_Debug, /system/bin/resetreason
+#changeBySEA allow appdomain reset_reason_service_file:file rw_file_perms;
+
+# untrusted_app : com.sec.musicstudio, com.sonosaurus, com.rhism.guitarism
+# platform_app : com.samsung.android.sdk.professionalaudio.sample.simpleclient
+allow appdomain jack_socket:dir rw_dir_perms;
+allow appdomain jack_socket:sock_file create_file_perms;
+allow appdomain { apaservice jackservice }:unix_dgram_socket sendto;
+unix_socket_connect(appdomain, jack, jackservice)
+
+# Access SDcard.
+#changeBySEA allow { appdomain -good_app } sdcard_type:dir create_dir_perms;
+#changeBySEA allow { appdomain -good_app } sdcard_type:file create_file_perms;
+allow { appdomain -good_app } sdcard_type:dir r_dir_perms;
+allow { appdomain -good_app } sdcard_type:file r_file_perms;
+
+
+###### SEC_SEforAndroid start : Conflict with good requirements ######
+# import from /external/sepolicy/app.te
+
+# Communication with other apps via fifos
+allow { appdomain -good_app } { appdomain -good_app }:fifo_file rw_file_perms;
+
+# App sandbox file accesses.
+allow { appdomain -isolated_app -good_app } app_data_file:dir create_dir_perms;
+allow { appdomain -isolated_app -good_app } app_data_file:notdevfile_class_set create_file_perms;
+
+# Execute the shell or other system executables.
+allow { appdomain -good_app } shell_exec:file rx_file_perms;
+
+allow { appdomain -good_app } shell_data_file:file { write getattr };
+
+# Use the Binder.
+#Conflict with good requirements
+binder_use({ appdomain -good_app })
+# Perform binder IPC to binder services.
+binder_call({ appdomain -good_app }, binderservicedomain)
+# Perform binder IPC to other apps.
+binder_call({ appdomain -good_app -mrst_plugin_app }, { appdomain -good_app -mrst_plugin_app })
+
+# Already connected, unnamed sockets being passed over some other IPC
+# hence no sock_file or connectto permission. This appears to be how
+# Chrome works, may need to be updated as more apps using isolated services
+# are examined.
+allow { appdomain -good_app } { appdomain -good_app }:unix_stream_socket { getopt getattr read write shutdown };
+
+# Read/write visible storage
+allow { appdomain -good_app } fuse:dir create_dir_perms;
+allow { appdomain -good_app } fuse:file create_file_perms;
+
+# Access OBBs (vfat images) mounted by vold (b/17633509)
+# File write access allowed for FDs returned through Storage Access Framework
+allow { appdomain -good_app } vfat:dir create_dir_perms;
+allow { appdomain -good_app } vfat:file create_file_perms;
+
+###### SEC_SEforAndroid end : Conflict with good requirements ######
+
+allow appdomain tty_device:chr_file rw_file_perms;
+
+
+# omr_file access through FD transaction, SEPF_SECMOBILE_6.0.1_0011
+# P160521-00293, FD Passing of Binder transaction failed from android.process.media(sec_untrusted_app)  to com.verizon.messaging.vzmsgs(untrusted_app)
+# FD target: /omr/VZW/res/media/audio/notifications/Verizon Alert.ogg, u:object_r:omr_file:s0
+# avc:  denied  { read } for  pid=23484 comm="Binder_A" path=/omr/VZW/res/media/audio/notifications/Verizon Alert.ogg dev="sda24" ino=18 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:omr_file:s0 tclass=file permissive=0
+# process: comm="Binder_A" exe="/system/bin/app_process64" subj=u:r:sec_untrusted_app:s0:c512,c768 key=(null) proctitle="android.process.media
+# P160519-00170, FD Passing of Binder transaction failed from android.process.media(sec_untrusted_app) to com.citi.citimobile(untrusted_app)
+# avc:  denied  { read } for  pid=20294 comm="Binder_5" path="/omr/VZW/res/media/audio/ringtones/Verizon_Airwaves_1.ogg" dev="sda24" ino=20 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:omr_file:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0011
+# allow to read omr_file if the app has FD.
+allow appdomain omr_file:file { read };
+
+
+############ knox_common #############
+########## type and macro.
+binder_call(appdomain, tlc_server)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+#Conflict with good requirements
+allow { appdomain -good_app } container_app_data_backend:dir create_dir_perms;
+allow { appdomain -good_app } container_app_data_backend:file create_file_perms;
+
+########## androd-m-preview: denials ########
+allow appdomain log_device:chr_file w_file_perms;
+
+########## etc_type
+allow { appdomain -isolated_app } tlc_server_service:service_manager find;
+########## known issue.
+
+### knox_dar_shared_device should be accessed by all of appdomain.
+allow appdomain knox_dar_shared_device:chr_file { open read write ioctl };
+
+# fix build error - nsa 4.4 upgrade
+# allow appdomain dev_type:dir_file_class_set getattr;
+
+#neverallow Google CTS-android-m-preview:neverallow isolated_app gpu_device:chr_file { { { getattr open read ioctl lock } { open append write } } execute }
+#allow appdomain { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device  }:dir_file_class_set getattr;
+#changeBySEA allow { appdomain - isolated_app } { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device  }:dir_file_class_set getattr;
+#changeBySEA allow isolated_app { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device  -gpu_device }:dir_file_class_set getattr;
+#changeBySEA allow isolated_app gpu_device: { dir blk_file file lnk_file sock_file fifo_file } getattr;
+
+#changeBySEA allow {appdomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#changeBySEA allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:dir r_dir_perms;
+#changeBySEA allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:dir r_dir_perms;
+#changeBySEA allow {appdomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } r_file_perms;
+#changeBySEA allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:{ file lnk_file } r_file_perms;
+#changeBySEA allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:{ file lnk_file } r_file_perms;
+
+### from NSA
+# Use the Binder.
+#changeBySEA allow {appdomain -knox_system_app -knox_untrusted_app -gad_untrusted_app -good_app } {appdomain -knox_system_app -good_app }:binder { call transfer };
+#changeBySEA allow {appdomain -knox_system_app -knox_untrusted_app -gad_untrusted_app -good_app } {appdomain -knox_system_app -good_app }:binder transfer;
+#changeBySEA allow {appdomain -knox_system_app -knox_untrusted_app -gad_untrusted_app -good_app } {appdomain -knox_system_app -good_app }:fd use;
+#changeBySEA allow knox_untrusted_app {appdomain -knox_system_app -gad_untrusted_app -good_app }:binder { call transfer };
+#changeBySEA allow knox_untrusted_app {appdomain -knox_system_app -gad_untrusted_app -good_app }:binder transfer;
+#changeBySEA allow knox_untrusted_app {appdomain -knox_system_app -gad_untrusted_app -good_app }:fd use;
+#changeBySEA allow gad_untrusted_app {appdomain -knox_system_app -knox_untrusted_app }:binder { call transfer };
+#changeBySEA allow gad_untrusted_app {appdomain -knox_system_app -knox_untrusted_app }:binder transfer;
+#changeBySEA allow gad_untrusted_app {appdomain -knox_system_app -knox_untrusted_app }:fd use;
+#changeBySEA allow knox_system_app {appdomain -untrusted_app -good_app }:binder { call transfer };
+#changeBySEA allow {appdomain -untrusted_app -good_app } knox_system_app:binder transfer;
+#changeBySEA allow knox_system_app {appdomain -untrusted_app -good_app }:fd use;
+#changeBySEA allow {appdomain -untrusted_app -good_app } knox_system_app:binder { call transfer };
+#changeBySEA allow knox_system_app {appdomain -untrusted_app -good_app }:binder transfer;
+#changeBySEA allow {appdomain -untrusted_app -good_app } knox_system_app:fd use;
+
+############ qcom_common #############
+########## type and macro.
+r_dir_file(system_app, firmware)
+
+########## self and domain_type
+allow appdomain mpdecision:unix_stream_socket connectto;
+
+########## fs_type
+########## dev_type
+
+#neverallow Google CTS-android-m-preview:neverallow isolated_app gpu_device:chr_file { { { getattr open read ioctl lock } { open append write } } execute }
+#allow appdomain kgsl_device:chr_file { rw_file_perms execute };
+allow { appdomain -isolated_app } kgsl_device:chr_file { rw_file_perms execute };
+
+########## file_type
+#Conflict with good requirements
+#changeBySEA allow { appdomain -good_app } carrier_file:file r_file_perms;
+#changeBySEA allow { appdomain -good_app } carrier_file:dir r_dir_perms;
+allow { appdomain -shell -good_app } carrier_file:file r_file_perms;
+allow { appdomain -shell -good_app } carrier_file:dir r_dir_perms;
+
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+#neverallow by Google: allow { appdomain -shell } graphics_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { appdomain -shell -cts_appdomain } graphics_device:chr_file rw_file_perms;
+#Conflict with good requirements
+allow { appdomain -shell -good_app } m2m1shot_device:chr_file rw_file_perms;
+allow { appdomain -untrusteddomain -good_app } ump_device:sock_file r_file_perms;
+allow appdomain ump_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+########## androd-m-preview: denials ########
+
+
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402396726.237:214): avc:  denied  { add_name } for  pid=2567 comm="BluetoothAdapte" name="btsnoop_hci.log.old" dev="mmcblk0p25" ino=522263 #scontext=u:r:bluetooth:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396726.237:214): avc:  denied  { remove_name } for  pid=2567 comm="BluetoothAdapte" name="btsnoop_hci.log" dev="mmcblk0p25" ino=522299 #scontext=u:r:bluetooth:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396726.237:214): avc:  denied  { rename } for  pid=2567 comm="BluetoothAdapte" name="btsnoop_hci.log" dev="mmcblk0p25" ino=522299 #scontext=u:r:bluetooth:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396726.237:214): avc:  denied  { unlink } for  pid=2567 comm="BluetoothAdapte" name="btsnoop_hci.log.old" dev="mmcblk0p25" ino=522263 #scontext=u:r:bluetooth:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396726.237:214): avc:  denied  { write } for  pid=2567 comm="BluetoothAdapte" name="data" dev="mmcblk0p25" ino=522243 scontext=u:r:bluetooth:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396726.247:215): avc:  denied  { create } for  pid=2567 comm="BluetoothAdapte" name="btsnoop_hci.log" scontext=u:r:bluetooth:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396726.247:215): avc:  denied  { write open } for  pid=2567 comm="BluetoothAdapte" name="btsnoop_hci.log" dev="mmcblk0p25" ino=522259 #scontext=u:r:bluetooth:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#from CTS testing
+#type=1400 msg=audit(1402394448.121:264): avc:  denied  { create } for  pid=26494 comm="sh" name="1402394443719" scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402394448.121:264): avc:  denied  { write } for  pid=26494 comm="sh" name="0" dev="mmcblk0p25" ino=522241 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402394448.211:265): avc:  denied  { remove_name } for  pid=26501 comm="rm" name="1402394443719" dev="mmcblk0p25" ino=522300 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402394448.211:265): avc:  denied  { unlink } for  pid=26501 comm="rm" name="1402394443719" dev="mmcblk0p25" ino=522300 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { add_name } for  pid=2378 comm="sh" name="1402396718760" scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { create } for  pid=2378 comm="sh" name="1402396718760" scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { write } for  pid=2378 comm="sh" name="0" dev="mmcblk0p25" ino=522241 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.357:211): avc:  denied  { write } for  pid=2378 comm="sh" name="1402396718760" dev="mmcblk0p25" ino=522259 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1402396723.577:212): avc:  denied  { remove_name } for  pid=2405 comm="rm" name="1402396718760" dev="mmcblk0p25" ino=522259 scontext=u:r:shell:s0 #tcontext=u:object_r:media_rw_data_file:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { write } for  pid=5391 comm="ndroid.settings" name="react_lock" dev="mmcblk0p12" ino=80 scontext=u:r:knox_system_app:s0:c2 #tcontext=u:object_r:efs_file:s0 tclass=file
+# avc:  denied  { setattr } for  pid=5391 comm="ndroid.settings" name="react_lock" dev="mmcblk0p12" ino=80 scontext=u:r:knox_system_app:s0:c2 #tcontext=u:object_r:efs_file:s0 tclass=file
+# avc:  denied  { write } for  pid=2576 comm="resetreason" name="RR.p" dev="mmcblk0p21" ino=262241 scontext=u:r:shell:s0 tcontext=u:object_r:system_data_file:s0 tclass=file SEPF_SM-N910C_4.4.4_0018
+# avc:  denied  { execute } for  pid=26543 comm=4173796E635461736B202331 path="/data/data/com.visionobjects.resourcemanager/VODB/5.1.0.62/lib/libvoim.so" dev="mmcblk0p25" ino=792944 scontext=u:r:platform_app:s0 tcontext=u:object_r:app_data_file:s0 tclass=file VE=SEPF_SM-N900S_4.4.2_0007_M
+# avc:  denied  { execute } for  pid=24786 comm="ndroid.archiver" name=4F7665722074686520486F72697A6F6E2E6D7033 dev="sdcardfs" ino=523276 scontext=u:r:s_untrusted_app:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=0
+
+## lpTcpController
+# avc:  denied  { write } for  pid=15359 comm="Thread-1647" name="lptcpSocket" dev="mmcblk0p27" ino=524296 scontext=u:r:platform_app:s0 tcontext=u:object_r:lptcp_data_file:s0 tclass=sock_file SEPF_SM-N910F_4.4.4_A019
+# avc:  denied  { write } for  pid=16082 comm="Chrome_DevTools" name="lptcpSocket" dev="mmcblk0p27" ino=524296 scontext=u:r:release_app:s0 tcontext=u:object_r:lptcp_data_file:s0 tclass=sock_file SEPF_SM-N910F_4.4.4_A019
+# avc:  denied  { write } for  pid=17078 comm="Thread-1888" name="lptcpSocket" dev="mmcblk0p27" ino=524296 scontext=u:r:policyloader_app:s0 tcontext=u:object_r:lptcp_data_file:s0 tclass=sock_file SEPF_SM-N910F_4.4.4_A019
+# avc:  denied  { write } for  pid=17495 comm="Thread-1939" name="lptcpSocket" dev="mmcblk0p27" ino=524296 scontext=u:r:system_app:s0 tcontext=u:object_r:lptcp_data_file:s0 tclass=sock_file SEPF_SM-N910F_4.4.4_A019
+
+#from Kids Mode
+# avc:  denied  { set } for property=csc.country_code scontext=u:r:radio:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=csc.countryiso_code scontext=u:r:radio:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=csc.sales_code scontext=u:r:radio:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+
+# jack_socket related perms
+# avc:  denied  { write } for  pid=10217 comm="le.simpleclient" name="jack" dev="tmpfs" ino=5399 scontext=u:r:platform_app:s0 tcontext=u:object_r:jack_socket:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=10217 comm="le.simpleclient" name="jack_com.samsung.android.sdk.professionalaudio.sample.simpleclient_1_1038_0" scontext=u:r:platform_app:s0 tcontext=u:object_r:jack_socket:s0 tclass=dir permissive=1
+# avc:  denied  { remove_name } for  pid=10600 comm="le.simpleclient" name="jack_com.samsung.android.sdk.professionalaudio.sample.simpleclient_1_1038_0" dev="tmpfs" ino=49408 scontext=u:r:platform_app:s0 tcontext=u:object_r:jack_socket:s0 tclass=dir permissive=1
+# avc:  denied  { connectto } for  pid=10087 comm="rhism.guitarism" path="/dev/socket/jack/jack_default_1038_0" scontext=u:r:untrusted_app:s0 tcontext=u:r:jackservice:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { connectto } for  pid=10256 comm="com.sonosaurus" path="/dev/socket/jack/jack_default_1038_0" scontext=u:r:untrusted_app:s0 tcontext=u:r:jackservice:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { create } for  pid=9329 comm="le.simpleclient" name="jack_com.samsung.android.sdk.professionalaudio.sample.simpleclient_1_1038_0" scontext=u:r:platform_app:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=1
+# avc:  denied  { create } for  pid=10087 comm="rhism.guitarism" name="jack_com.rhism.guitarism_1_1038_0" scontext=u:r:untrusted_app:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=1
+# avc:  denied  { setattr } for  pid=2175 comm="m.netmarble.rav" name="arm" dev="mmcblk0p21" ino=3120 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:apk_data_file:s0 tclass=dir
+# avc:  denied  { find } for service=writingbuddymanagerservice scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:writingbuddymanager_service:s0 tclass=service_manager 
+# avc:  denied  { find } for service=com.samsung.android.jam.IAPAService scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:apaservice_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=com.samsung.android.jam.IAPAService scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:apaservice_service:s0 tclass=service_manager
+# avc:  denied  { call } for  pid=6982 comm=4173796E635461736B202333 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:tlc_server:s0 tclass=binder
+# avc:  denied  { find } for service=CCM scontext=u:r:untrusted_app tcontext=u:object_r:tlc_server_service:s0 tclass=service_manager
+# avc:  denied  { write } for  pid=5594 comm="Binder_4" name="Camera" dev="sdcardfs" ino=20 scontext=u:r:sec_untrusted_app:s0:c512,c768 tcontext=u:object_r:vfat:s0 tclass=dir
+
+

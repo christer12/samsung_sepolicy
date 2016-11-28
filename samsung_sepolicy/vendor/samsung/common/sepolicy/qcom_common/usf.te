@@ -1,0 +1,10 @@
+# Policy for usf daemons
+
+# Data files and persist storage
+allow usf usf_data_file:dir create_dir_perms;
+allow usf usf_data_file:{ fifo_file file sock_file } create_file_perms;
+allow usf usf_data_file:lnk_file create_file_perms;
+
+# avc:  denied  { read } for  pid=746 comm="usf_proximity" name="cmd" dev="sda23" ino=1310791 scontext=u:r:usf:s0 tcontext=u:object_r:usf_data_file:s0 tclass=fifo_file permissive=1
+# avc:  denied  { open } for  pid=746 comm="usf_proximity" path="/data/usf/proximity/cmd" dev="sda23" ino=1310791 scontext=u:r:usf:s0 tcontext=u:object_r:usf_data_file:s0 tclass=fifo_file permissive=1
+

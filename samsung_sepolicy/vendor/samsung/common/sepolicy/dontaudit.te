@@ -1,0 +1,213 @@
+### domain ###
+# Su is not on user builds
+dontaudit domain su_exec:file *;
+### domain ###
+dontaudit domain irm_media_data_file:dir create_dir_perms;
+dontaudit domain irm_media_data_file:{ file lnk_file } create_file_perms;
+### domain ###
+dontaudit domain  { frp_block_device hw_random_device kmem_device keystore_data_file vold_data_file rfs_data_file }:dir_file_class_set getattr;
+
+########### appdomain ###########
+### appdomain ###
+# P150806-00331 : Apps try to setattr apk_data_file that makes sluggish issue.
+#changeBySEA_0115 need to check only untrusted_app : 
+dontaudit appdomain apk_data_file:dir setattr;
+dontaudit appdomain apk_data_file:file setattr;
+
+
+### good_app ###
+#### dontaudit rules for good_app
+dontaudit good_app app_data_file:file getattr;
+dontaudit good_app app_data_file:dir search;
+dontaudit good_app knox_untrusted_app:binder call;
+dontaudit knox_untrusted_app good_app:binder { transfer call };
+dontaudit good_app untrusted_app:binder { transfer call };
+dontaudit good_app untrusted_app:fd use;
+dontaudit untrusted_app good_app:binder { call };
+dontaudit untrusted_app good_app_data_file:dir create_dir_perms;
+dontaudit untrusted_app good_app_data_file:file create_file_perms;
+dontaudit untrusted_app good_app:dir search;
+dontaudit untrusted_app good_app:file { read getattr open };
+dontaudit good_app shell_exec:file getattr;
+dontaudit good_app shell_data_file:file write;
+dontaudit trustonicpartner_app good_app_data_file:file create_file_perms;
+dontaudit trustonicpartner_app good_app_data_file:dir create_dir_perms;
+# From John White's emails "denials are related to some of the GD SDK device integrity detection / root detection code." and "its not something Im worried about for our current Good Agent"
+# This is not need for first version of Good-knox integration. 
+# Can revisit later in second version
+dontaudit good_app domain:dir r_dir_perms;
+dontaudit good_app domain:file r_file_perms;
+
+
+### policyloader_app ###
+# [ZERO Refined Policy] Security policy updates > Check for updates > denial from curent policy loader 
+dontaudit policyloader_app property_socket:sock_file write;
+
+### system_app system_app.te ###
+# dontaudit from MtpApplication. MtpApplication enumerates /data directory. /data/rfs doesn't need to enumerate.
+dontaudit system_app rfs_data_file:dir getattr;
+
+# every booting denial from UEventObserver
+dontaudit system_app self:capability net_admin;
+# avc:  denied  { net_admin } for  pid=9157 comm="UEventObserver" capability=12  scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=capability permissive=1 SEPF_SAMSUNG-SM-G925A_5.0.2_0002
+
+dontaudit system_app self:capability net_raw;
+# com.sec.imsservice(sj76.kim@samsung.com/CP System) avc:  denied  { net_raw } for  pid=6963 comm="Thread-144" capability=13  scontext=u:r:system_app:s0 tcontext=u:r:system_app:s0 tclass=capability permissive=1 SEPF_SAMSUNG-SM-G925A_5.0.2_0002
+
+
+### untrusteddomain ###
+dontaudit untrusteddomain debugfs:file read;
+dontaudit untrusteddomain hw_random_device:chr_file getattr;
+dontaudit untrusteddomain isolated_app_tmpfs:file write;
+dontaudit untrusteddomain kmem_device:chr_file getattr;
+
+#Neverallow case P151229-05602 
+dontaudit untrusteddomain self:netlink_tcpdiag_socket create;
+dontaudit untrusteddomain setupwizard_prop:property_service set;
+dontaudit untrusteddomain csc_prop:property_service set;
+
+# dontaudit internal SDCard execute access. need to allow it back in prod branch.
+dontaudit untrusteddomain sdcard_internal:file execute;
+
+# dontaudit chmod tmpfs directory, /storage/emulated
+# com.infinit.wostore.ui, com.flyingottersoftware.mega and etc
+dontaudit untrusted_app tmpfs:dir setattr;
+
+# MLS denial
+#changeBySEA_0115 need to check : dontaudit untrusteddomain app_data_file:dir search;
+dontaudit untrusteddomain { domain -appdomain }:lnk_file read;
+dontaudit untrusteddomain { domain -containerdomain -fixmo_app -good_app }:dir { search getattr read };
+dontaudit untrusteddomain { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } getattr;
+
+### untrusteddomain ###
+#changeBySEA_0115 need to check and move to auditfilter :
+dontaudit untrusteddomain properties_device:file execute;
+dontaudit untrusteddomain property_socket:sock_file write;
+dontaudit untrusteddomain self:capability net_raw;
+
+
+########### non-appdomain ###########
+### adbd ###
+# Dont audit adb pull on audit logs
+dontaudit adbd audit_log:file *;
+dontaudit adbd audit_log:dir *;
+
+### auditd ###
+dontaudit auditd self:capability fsetid;
+
+### debuggerd ###
+dontaudit debuggerd init:process ptrace;
+dontaudit debuggerd keystore:process ptrace;
+
+### kernel ###
+# check LGT model :
+dontaudit kernel shell:process noatsecure;
+
+### neverallow of system_server ###
+dontaudit system_server security_file:{ dir file } relabelfrom;
+
+### BSP/bsp_qcom_v2/bsp/common/cnd.te ###
+dontaudit { domain -appdomain } zygote:unix_dgram_socket getopt;
+
+### BSP/bsp_qcom_v2/bsp/common/domain.te ###
+dontaudit domain kernel:system module_request;
+
+### BSP/bsp_qcom_v2/bsp/common/domain.te ###
+#don't audit /proc/<pid>/stat denials
+dontaudit dpmservice_app domain:dir r_dir_perms;
+
+### BSP/bsp_qcom_v2/bsp/common/location.te ###
+dontaudit location domain:dir r_dir_perms;
+
+### BSP/bsp_qcom_v2/bsp/common/netd.te ###
+dontaudit netd self:capability sys_module;
+
+### BSP/bsp_qcom_v2/bsp/common/rild.te ###
+dontaudit rild domain:dir r_dir_perms;
+
+### BSP/bsp_qcom_v2/bsp/common/seempd.te ###
+dontaudit seempd domain:dir r_dir_perms;
+
+### BSP/bsp_qcom_v2/bsp/common/sensors.te ###
+dontaudit sensors self:capability { fsetid net_raw };
+# denial every booting, avc:  denied  { net_raw } for  pid=729 comm="sensors.qcom" capability=13  scontext=u:r:sensors:s0 tcontext=u:r:sensors:s0 tclass=capability permissive=0 SEPF_SECMOBILE_6.0.1_0003
+
+########### would be replaced by audit_filter_table at next os ###########
+
+### daemon_app_process ###
+### it's due to readGmsProperty code.
+## changeBySEA_0115 need to check and move to auditfilter :
+dontaudit daemon_app_process property_socket:sock_file write;
+dontaudit daemon_app_process setupwizard_prop:property_service set;
+dontaudit daemon_app_process system_prop:property_service set;
+dontaudit daemon_app_process csc_prop:property_service set;
+dontaudit daemon_app_process system_prop:property_service set;
+
+### ffu ###
+#temporary solution requested by System Memory R&D 
+#changeBySEA_0115 move to auditfilter : 
+dontaudit ffu self:capability sys_rawio;
+
+
+### healthd ###
+#neverallow allow healthd self:capability mknod;
+#changeBySEA_0115 moved to auditfilter : 
+dontaudit healthd self:capability mknod;
+#type=1400 audit(1420611076.090:13): avc:  denied  { mknod } for  pid=1970 comm="healthd" capability=27  scontext=u:r:healthd:s0 tcontext=u:r:healthd:s0 tclass=capability permissive=1
+
+
+
+########### need to remove unnecessary rule at next os ###########
+### carrier_app ###
+#changeBySEA_0115 disable : 
+dontaudit carrier_app container_app:dir { getattr search };
+### platform_app ###
+#changeBySEA_0115 disable : 
+dontaudit platform_app container_app_data_backend:dir search;
+### shell runas.te ###
+#changeBySEA_0115 disable : 
+dontaudit shell domain:dir r_dir_perms;
+#changeBySEA_0115 disable : 
+dontaudit shell domain:file r_file_perms;
+#changeBySEA_0115 disable : 
+dontaudit shell self:capability { sys_ptrace kill };
+### shell shell.te ###
+# Shell should never have setenforce ability
+#changeBySEA_0115 disable : 
+dontaudit shell kernel:security setenforce;
+# Shell should not be able to access selinuxfs
+#changeBySEA_0115 disable : 
+dontaudit shell selinuxfs:file { read write open getattr };
+#changeBySEA_0115 disable : 
+dontaudit shell selinuxfs:dir search;
+# Shell should never be able to override dac controls
+# Su won't always be there
+userdebug_or_eng(`
+#changeBySEA_0115 disable : 
+dontaudit shell su:process *;
+')
+# Shell shouldn't be getting the audit logs
+#changeBySEA_0115 disable : 
+dontaudit shell audit_log:file *;
+# Shell should never be getting dmesg
+#changeBySEA_0115 disable : 
+dontaudit shell kernel:system { syslog_read syslog_mod };
+# Shell should not be overriding DAC controls
+#changeBySEA_0115 disable : 
+dontaudit shell self:capability *;
+#changeBySEA_0115 disable : 
+dontaudit shell self:capability2 *;
+
+########### already disabled ###########
+### SharedPref Issue ###
+#dontaudit untrusted_app app_data_file:dir search;
+#dontaudit platform_app platform_app_data_file:dir search;
+#dontaudit until analysing unlabeled issue(file has normal contexts but denial log was occurred
+#dontaudit { system_app platform_app } unlabeled:file getattr;
+# avc:  denied  { getattr } for  pid=24129 comm="Thread-1631" path="/data/user/100/com.sec.android.inputmethod/app_SwiftKey/tmp" dev="ecryptfs" ino=66404 scontext=u:r:system_app:s0:c2 tcontext=u:object_r:unlabeled:s0 tclass=file permissive=0
+# avc:  denied  { getattr } for  pid=22548 comm="Binder_2" path="/data/user/100/com.samsung.android.email.provider/databases/EmailProvider.db-journal" dev="ecryptfs" ino=1865 scontext=u:r:platform_app:s0:c2 tcontext=u:object_r:unlabeled:s0 tclass=file permissive=0
+# dontaudit filtered_untrusted_app sysfs:file { setattr write };
+#changeBySEA : dontaudit vpn_untrusted_app system_data_file:dir setattr;
+
+
+

@@ -1,0 +1,15 @@
+# mm-pp-daemon
+
+unix_socket_connect(mm-pp-daemon, property, init)
+
+allow mm-pp-daemon diag_device:chr_file r_file_perms;
+allow mm-pp-daemon graphics_device:dir r_dir_perms;
+allow mm-pp-daemon graphics_device:chr_file rw_file_perms;
+allow mm-pp-daemon servicemanager:binder call;
+allow mm-pp-daemon sysfs:file write;
+allow mm-pp-daemon sysfs_ss_writable:file rw_file_perms;
+allow mm-pp-daemon system_prop:property_service set;
+
+# for B2C users
+typeattribute mm-pp-daemon trusteddomain;
+typeattribute mm-pp-daemon device_domain;

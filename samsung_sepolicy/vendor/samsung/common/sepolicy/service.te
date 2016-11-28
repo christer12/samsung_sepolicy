@@ -1,0 +1,53 @@
+############ aosp and sec_common #############
+
+type system_service, system_server_service, service_manager_type;
+
+# com.android.server.aod.AODManagerService
+type aod_manager_service, system_server_service, service_manager_type;
+
+type apaservice_service,               service_manager_type;
+type bauthserver_service,              service_manager_type;
+type bintvoutservice_service,          service_manager_type;
+type ese_service,                      service_manager_type;
+type ipm_service,                      service_manager_type;
+
+# iris daemon service(com.samsung.android.camera.iris.IIrisDaemon)
+type irisd_service,                    service_manager_type;
+
+type jackservice_service,              service_manager_type;
+type otp_server_service,               service_manager_type;
+type platform_app_service,             service_manager_type;
+type smartfaceservice_service, app_api_service, system_server_service, service_manager_type;
+type sensorhubservice_service,         service_manager_type;
+type tlc_server_service,               service_manager_type;
+type wlandutservice_service,           service_manager_type;
+type writingbuddymanager_service,      service_manager_type;
+############ knox_common #############
+
+############ qcom_common #############
+type adsprpcd_service,                 service_manager_type;
+
+############ carrier_common #############
+type dmb_service,                      service_manager_type;
+type tbased_service,                   service_manager_type;
+
+############ carrier_jpn
+# Fullseg / Oneseg
+type oneseg_mw_service,                service_manager_type;
+type dtvserver_service,                service_manager_type;
+type mmb_mw_service,                   service_manager_type;
+
+# Absolute anti-theft
+type abt_persistence_service, app_api_service, system_server_service, service_manager_type;
+
+# TG request(seunghyup.baik, CP team) by email / iris service starting from Grace / NO LOG 
+# temporary keeping both iris_service and irisservice_service
+type iris_service, app_api_service, system_server_service, service_manager_type;
+type irisservice_service, app_api_service, system_server_service, service_manager_type;
+
+## Service name "MSCS" change to "DisplaySolution"
+type displaysolution_service, system_api_service, system_server_service, service_manager_type;
+
+
+
+

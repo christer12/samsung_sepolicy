@@ -1,0 +1,7 @@
+#============= location ==============
+allow location permission_service:service_manager find;
+
+
+############ avc_log #############
+# MSM8937 A7MVELTE avc:  denied  { find } for service=permission scontext=u:r:location:s0 tcontext=u:object_r:permission_service:s0 tclass=service_manager
+

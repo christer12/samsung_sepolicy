@@ -1,0 +1,4 @@
+typealias tee alias qseecomd;
+typealias tee_exec alias qseecomd_exec;
+
+

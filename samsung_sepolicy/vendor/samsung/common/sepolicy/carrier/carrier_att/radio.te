@@ -1,0 +1,10 @@
+#
+# radio
+#
+
+# CIQ FEATURE
+allow radio diagandroid_app:unix_stream_socket connectto;
+
+############ avc_log #############
+# avc:  denied  { connectto } for  pid=1472 comm="m.android.phone" path=00636F6D2E6361727269657269712E69716167656E74 scontext=u:r:radio:s0 tcontext=u:r:system_app:s0 tclass=unix_stream_socket Enterprise Policy
+

@@ -1,0 +1,22 @@
+#
+# argosd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+type argosd, domain;
+type argosd_exec, exec_type, file_type;
+init_daemon_domain(argosd)
+
+typeattribute argosd mlstrustedsubject;
+# for B2C users
+typeattribute argosd trusteddomain;
+# temporary permissive to gather the log.
+# permissive argosd;
+
+########## dev_type
+allow argosd radio_device:chr_file rw_file_perms;
+
+# avc:  denied  { read write } for  pid=2941 comm="argosd" name="network_throughput" dev="tmpfs" ino=8249 scontext=u:r:argosd:s0 tcontext=u:object_r:radio_device:s0 tclass=chr_file
+# avc:  denied  { open } for  pid=2941 comm="argosd" path="/dev/network_throughput" dev="tmpfs" ino=8249 scontext=u:r:argosd:s0 tcontext=u:object_r:radio_device:s0 tclass=chr_file

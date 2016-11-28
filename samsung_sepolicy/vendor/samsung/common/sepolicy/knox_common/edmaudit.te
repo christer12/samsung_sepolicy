@@ -1,0 +1,16 @@
+# edmaudit
+type edmaudit, domain;
+type edmaudit_exec, exec_type, file_type;
+init_daemon_domain(edmaudit)
+
+allow edmaudit kernel:system syslog_read;
+allow edmaudit self:capability { setuid setgid };
+allow edmaudit self:capability2 syslog;
+allow edmaudit servicemanager:binder call;
+allow edmaudit system:binder call;
+
+typeattribute edmaudit trusteddomain;
+typeattribute edmaudit system_domain;
+
+########## androd-m-preview: denials ########
+allow edmaudit system_service:service_manager find;

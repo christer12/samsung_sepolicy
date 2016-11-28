@@ -1,0 +1,157 @@
+#
+# Debuggerd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute debuggerd trusteddomain;
+#typeattribute debuggerd system_domain;
+# temporary permissive to gather the log.
+# permissive debuggerd;
+
+access_kmsg(debuggerd)
+binder_call(debuggerd, system_server)
+binder_call(debuggerd, servicemanager)
+domain_auto_trans(debuggerd, dumpstate_exec, dumpstate)
+dumplog_create(debuggerd)
+unix_socket_connect(debuggerd, vold, vold)
+
+
+########## self and domain_type
+allow debuggerd { domain -containerdomain -fixmo_app -good_app }:lnk_file r_file_perms;
+allow debuggerd container_app_data_backend:dir search;
+allow debuggerd container_app:lnk_file read;
+allow debuggerd container_app:process getattr;
+allow debuggerd domain:process getattr;
+allow debuggerd init:unix_stream_socket connectto;
+allow debuggerd kernel:system module_request;
+#allow debuggerd logwrapper:unix_dgram_socket sendto;
+allow debuggerd self:capability { fsetid setuid net_raw sys_resource setgid net_admin sys_module };
+allow debuggerd self:netlink_route_socket { write getattr setopt read bind create nlmsg_read };
+allow debuggerd self:rawip_socket *;
+allow debuggerd self:udp_socket *;
+allow debuggerd system:unix_stream_socket connectto;
+allow debuggerd wpa:lnk_file read;
+allow debuggerd wpa:unix_dgram_socket sendto;
+
+########## fs_type
+allow debuggerd cgroup:dir create_dir_perms;
+allow debuggerd debugfs:file r_file_perms;
+allow debuggerd debugfs:dir r_dir_perms;
+allow debuggerd firmware:dir r_dir_perms;
+allow debuggerd firmware:file r_file_perms;
+allow debuggerd proc:file write;
+allow debuggerd qtaguid_proc:file r_file_perms;
+allow debuggerd sdcard_external:dir r_dir_perms;
+allow debuggerd sdcard_external:file r_file_perms;
+allow debuggerd sdcard_internal:dir r_dir_perms;
+allow debuggerd sdcard_internal:file r_file_perms;
+allow debuggerd selinuxfs:dir { read search } ;
+allow debuggerd selinuxfs:file { getattr open read };
+allow debuggerd sysfs:file w_file_perms;
+allow debuggerd sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+#changeBySEA allow debuggerd reset_reason_service_file:file create_file_perms;
+allow debuggerd tty_device:chr_file rw_file_perms;
+allow debuggerd usb_device:dir r_dir_perms;
+
+########## file_type
+allow debuggerd app_data_file:dir create_dir_perms;
+allow debuggerd app_data_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow debuggerd app_library_file:file rx_file_perms;
+allow debuggerd shell_exec:file rx_file_perms;
+allow debuggerd shell_data_file:dir r_dir_perms;
+allow debuggerd shell_data_file:file r_file_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+allow debuggerd su_exec:file r_file_perms;
+allow debuggerd system_app_data_file:file { w_file_perms setattr };
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow debuggerd system_data_file:file create_file_perms;
+allow debuggerd system_data_file:file r_file_perms;
+
+allow debuggerd system_data_file:sock_file w_file_perms;
+allow debuggerd system_file:file x_file_perms;
+allow debuggerd tima_dump_exec:file rx_file_perms;
+allow debuggerd vdc_exec:file x_file_perms;
+allow debuggerd wifi_data_file:dir rw_dir_perms;
+allow debuggerd wifi_data_file:sock_file create_file_perms;
+allow debuggerd wpa_socket:dir w_dir_perms;
+allow debuggerd wpa_socket:sock_file w_file_perms;
+allow debuggerd wpa_socket:sock_file create_file_perms;
+
+
+########## etc_type
+allow debuggerd node:rawip_socket node_bind;
+
+########## known issue.
+
+#r_dir_file(debuggerd, file_type)
+# replacing r_dir_file macro and removing container related access
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow debuggerd { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow debuggerd { file_type -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow debuggerd { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#changeBySEA allow debuggerd { file_type -trstdomain_no_read_file -vold_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+allow debuggerd { shell_data_file app_data_file }:file r_file_perms;
+
+# For dumpstate tima_dump_log
+allow debuggerd qseecom_device:chr_file rw_file_perms;
+allow dumpstate qseecom_device:chr_file { read write ioctl open };
+
+
+########## androd-m-preview: denials ########
+allow debuggerd log_device:chr_file w_file_perms;
+allow debuggerd proc_avc_msg:file write;
+
+#changeBySEA transition RR.p file
+#changeBySEA type_transition debuggerd users_system_data_file:file reset_reason_service_file "RR.p";
+#changeBySEA allow debuggerd users_system_data_file:dir { ra_dir_perms create setattr };
+#changeBySEA allow debuggerd reset_reason_service_file:file create_file_perms;
+allow debuggerd users_system_data_file:dir create_dir_perms;
+allow debuggerd users_system_data_file:file create_file_perms;
+
+# system s/w requested to trigger ramdump mode.
+allow debuggerd proc_sysrq:file rw_file_perms;
+
+
+# No.41 property_set("sys.reset_reason", "P|NT") when system_server crash
+# hero2graceltexx/hero2gracelte:6.0.1/G935FXXE1APED/SEPF_SECMOBILE_6.0.1_0012
+# avc:  denied  { set } for property=sys.reset_reason scontext=u:r:debuggerd:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+set_prop(debuggerd, etc_debug_prop)
+
+
+
+############ avc_log #############
+#from CTS testing
+# avc:  denied  { setattr } for  pid=21927 comm="resetreason" name="RR.p" dev="mmcblk0p26" ino=913992 scontext=u:r:debuggerd:s0 tcontext=u:object_r:reset_reason_service_file:s0 tclass=file SEPF_SAMSUNG-SM-N910A_4.4.4_0018
+# avc:  denied  { getattr } for  pid=31315 comm="ps" scontext=u:r:debuggerd:s0 tcontext=u:r:shell:s0 tclass=process SEPF_SAMSUNG-SM-#N900A_4.4.2_0016
+# avc:  denied  { call } for  pid=31372 comm="tima_dump_log" scontext=u:r:debuggerd:s0 tcontext=u:r:servicemanager:s0 tclass=binder #SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { call } for  pid=31372 comm="tima_dump_log" scontext=u:r:debuggerd:s0 tcontext=u:r:system_server:s0 tclass=binder #SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { add_name } for  pid=31400 comm="wpa_cli" name="wpa_ctrl_31400-1" scontext=u:r:debuggerd:s0 #tcontext=u:object_r:wpa_socket:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { create } for  pid=31400 comm="wpa_cli" name="wpa_ctrl_31400-1" scontext=u:r:debuggerd:s0 #tcontext=u:object_r:wpa_socket:s0 tclass=sock_file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { setattr } for  pid=31400 comm="wpa_cli" name="wpa_ctrl_31400-1" dev="mmcblk0p25" ino=261177 #scontext=u:r:debuggerd:s0 tcontext=u:object_r:wpa_socket:s0 tclass=sock_file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { remove_name } for  pid=31400 comm="wpa_cli" name="wpa_ctrl_31400-1" dev="mmcblk0p25" ino=261177 #scontext=u:r:debuggerd:s0 tcontext=u:object_r:wpa_socket:s0 tclass=dir SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { unlink } for  pid=31400 comm="wpa_cli" name="wpa_ctrl_31400-1" dev="mmcblk0p25" ino=261177 scontext=u:r:debuggerd:s0 tcontext=u:object_r:wpa_socket:s0 tclass=sock_file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { search } for  pid=7916 comm="df" name="usb-ffs" dev="tmpfs" ino=9100 scontext=u:r:debuggerd:s0 tcontext=u:object_r:usb_device:s0 tclass=dir SEPF_SAMSUNG-SM-N910A_4.4.4_0018
+# avc:  denied  { use } for  pid=23860 comm="dumpstate" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=381497 scontext=u:r:debuggerd:s0 tcontext=u:r:platform_app:s0 tclass=fd SEPF_SM-N910T_4.4.4_A018
+# avc:  denied  { write } for  pid=23860 comm="dumpstate" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=381497 scontext=u:r:debuggerd:s0 tcontext=u:object_r:platform_app_tmpfs:s0 tclass=file SEPF_SM-N910T_4.4.4_A018
+# avc:  denied  { use } for  pid=23860 comm="dumpstate" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=384744 scontext=u:r:debuggerd:s0 tcontext=u:r:untrusted_app:s0 tclass=fd SEPF_SM-N910T_4.4.4_A018
+# avc:  denied  { write } for  pid=23860 comm="dumpstate" path=2F6465762F6173686D656D202864656C6574656429 dev="tmpfs" ino=384744 scontext=u:r:debuggerd:s0 tcontext=u:object_r:untrusted_app_tmpfs:s0 tclass=file SEPF_SM-N910T_4.4.4_A018
+# avc:  denied  { write } for  pid=23860 comm="dumpstate" path=2F6465762F6173686D656D2F4469736361726461626C654D656D6F7279416C6C6F6361746F72202864656C6574656429 dev="tmpfs" ino=433870 scontext=u:r:debuggerd:s0 tcontext=u:object_r:isolated_app_tmpfs:s0 tclass=file SEPF_SM-N910T_4.4.4_A018
+# avc:  denied  { ptrace } for  pid=327 comm="debuggerd" scontext=u:r:debuggerd:s0 tcontext=u:r:init:s0 tclass=process
+# avc:  denied  { ptrace } for  pid=467 comm="debuggerd64" scontext=u:r:debuggerd:s0 tcontext=u:r:keystore:s0 tclass=process permissive=0 SEPF_SM-N916S_5.0.1_0002
+# avc:  denied  { write } for  pid=3089 comm="debuggerd" name="avc_msg" dev="proc" ino=4026543170 scontext=u:r:debuggerd:s0 tcontext=u:object_r:proc_avc_msg:s0 tclass=file permissive=0
+# avc:  denied  { create } for  pid=7722 comm="resetreason" name="RR.p" scontext=u:r:debuggerd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=7722 comm="resetreason" path="/data/system/users/service/data/RR.p" dev="sda21" ino=1114197 scontext=u:r:debuggerd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { setattr } for  pid=7722 comm="resetreason" name="RR.p" dev="sda21" ino=1114197 scontext=u:r:debuggerd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# date=2016/01/12;scontext=debuggerd;tcontext=shell_data_file:tclass=dir permission=search;mls="MATCH";category="/";model="SM-G935F";os="6.0.1";build="PAA";comm="debuggerd64";exe="/system/bin/debuggerd64";path="-";dev="dm-1";name="tmp";proctitle="/system/bin/debuggerd64";syscall="56";ioctlcmd(hex)="0";uid="0";permissive="0";
+
+
+

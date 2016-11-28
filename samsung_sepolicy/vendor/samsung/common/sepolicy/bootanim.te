@@ -1,0 +1,75 @@
+#
+# bootanim
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+#init_daemon_domain(bootanim)
+binder_call(bootanim, surfaceflinger)
+binder_call(bootanim, servicemanager)
+binder_use(bootanim)
+#unix_socket_connect(bootanim, property, init)
+set_prop(bootanim, audio_prop)
+set_prop(bootanim, boot_prop)
+set_prop(bootanim, system_prop)
+
+# for B2C users
+typeattribute bootanim trusteddomain;
+#typeattribute bootanim system_domain;
+# temporary permissive to gather the log.
+# permissive bootanim;
+
+########## self and domain_type
+allow bootanim surfaceflinger:fd use;
+
+########## fs_type
+allow bootanim sysfs:file write;
+allow bootanim sysfs_sec:dir rw_dir_perms;
+allow bootanim sysfs_sec:{ file lnk_file } rw_file_perms;
+allow bootanim sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+########## file_type
+allow bootanim carrier_efs_file:dir r_dir_perms;
+allow bootanim carrier_efs_file:file r_file_perms;
+allow bootanim efs_file:dir r_dir_perms;
+allow bootanim efs_file:file r_file_perms;
+allow bootanim imei_efs_file:dir r_dir_perms;
+allow bootanim imei_efs_file:file r_file_perms;
+allow bootanim system_data_file:dir r_dir_perms;
+allow bootanim system_data_file:file r_file_perms;
+
+########## etc_type
+allow bootanim audio_prop:property_service set;
+allow bootanim boot_prop:property_service set;
+allow bootanim system_prop:property_service set;
+
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow bootanim pvrsync_device:chr_file rw_file_perms;
+allow bootanim ump_device:chr_file rw_file_perms;
+allow bootanim ump_device:sock_file r_file_perms;
+allow bootanim graphics_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+########## androd-m-preview: denials ########
+allow bootanim mediaserver_service:service_manager find;
+allow bootanim log_device:chr_file rw_file_perms;
+
+
+# OMC_v3 bootanim reads /omr resources.
+allow bootanim omr_file:dir r_dir_perms;
+allow bootanim omr_file:file r_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { set } for property=persist.audio.allsoundmute scontext=u:r:bootanim:s0 tcontext=u:object_r:audio_prop:s0 tclass=property_service
+

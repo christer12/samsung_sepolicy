@@ -1,0 +1,5 @@
+
+# TMO Carrier app domain
+user=_app seinfo=tmosimlock name=com.tmobile.simlock domain=filtered_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=tmosimlock name=com.metro.simlock domain=filtered_untrusted_app type=app_data_file levelFrom=user
+

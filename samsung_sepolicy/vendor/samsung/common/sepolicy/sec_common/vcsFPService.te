@@ -1,0 +1,89 @@
+#
+# vcsFPService
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type vcsFPService, domain;
+type vcsFPService_exec, exec_type, file_type;
+# for B2C users
+typeattribute vcsFPService trusteddomain;
+typeattribute vcsFPService system_domain;
+
+init_daemon_domain(vcsFPService)
+unix_socket_connect(vcsFPService, property, init)
+########## self and domain_type
+allow vcsFPService container_app:fd use;
+allow vcsFPService mobicoredaemon:unix_stream_socket connectto;
+allow vcsFPService self:capability { kill dac_override };
+allow vcsFPService system_app:process signull;
+
+########## fs_type
+allow vcsFPService firmware:dir r_dir_perms;
+allow vcsFPService firmware:file r_file_perms;
+allow vcsFPService sdcard_external:file  rw_file_perms ;
+
+########## dev_type
+allow vcsFPService console_device:chr_file w_file_perms;
+allow vcsFPService input_device:chr_file rw_file_perms;
+allow vcsFPService kmsg_device:chr_file r_file_perms;
+allow vcsFPService mobicore-user_device:chr_file rw_file_perms;
+allow vcsFPService tty_device:chr_file rw_file_perms;
+allow vcsFPService uhid_device:chr_file rw_file_perms;
+allow vcsFPService validity_device:dir rw_dir_perms;
+allow vcsFPService validity_device:{ file fifo_file chr_file } create_file_perms;
+allow vcsFPService vfsspi_device:chr_file rw_file_perms;
+
+########## file_type
+allow vcsFPService dumplog_data_file:dir create_dir_perms;
+allow vcsFPService dumplog_data_file:file create_file_perms;
+allow vcsFPService shell_exec:file rx_file_perms;
+allow vcsFPService system_data_file:dir create_dir_perms;
+allow vcsFPService system_data_file:fifo_file create_file_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow vcsFPService system_data_file:file create_file_perms;
+allow vcsFPService system_data_file:file r_file_perms;
+
+allow vcsFPService system_file:file x_file_perms;
+
+########## androd-m-preview: denials ########
+##allow vcsFPService system_data_file:file create_file_perms;
+allow vcsFPService system_data_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+
+# transition /data/validity from system_data_file to vcsFPService_data_file
+allow vcsFPService system_data_file:dir ra_dir_perms;
+type_transition vcsFPService system_data_file:dir vcsFPService_data_file "validity";
+allow vcsFPService vcsFPService_data_file:dir create_dir_perms;
+allow vcsFPService vcsFPService_data_file:file create_file_perms;
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow vcsFPService qseecom_device:chr_file  rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow vcsFPService s5p_smem_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+#avc:  denied  { write } for  pid=328 comm="vcsFPService" name="log" dev="mmcblk0p26" ino=523269 scontext=u:r:vcsFPService:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_0001
+#avc:  denied  { create } for  pid=358 comm="vcsFPService" name="validity" scontext=u:r:vcsFPService:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_0001
+

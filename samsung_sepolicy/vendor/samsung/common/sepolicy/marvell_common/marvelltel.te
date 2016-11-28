@@ -1,0 +1,25 @@
+
+
+## SEC added
+allow marvelltel bin_nv_data_efs_file:file rw_file_perms;
+allow marvelltel block_device:dir r_dir_perms;
+allow marvelltel bootblk_device:blk_file r_file_perms;
+allow marvelltel efs_file:dir r_dir_perms;
+allow marvelltel efs_file:file r_file_perms;
+allow marvelltel emmcblk_device:blk_file r_file_perms;
+allow marvelltel marvelltel_tmpfs:file rw_file_perms;
+allow marvelltel media_rw_data_file:dir r_dir_perms;
+allow marvelltel media_rw_data_file:file r_file_perms;
+allow marvelltel cploader_block_device:blk_file r_file_perms;
+allow marvelltel rild_prop:property_service set;
+allow marvelltel sysfs_battery_supply:file setattr;
+allow marvelltel sysfs_devices_system_cpu:file w_file_perms;
+allow marvelltel tz_device:chr_file rw_file_perms;
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=2700 comm="cploader" name="block" dev="tmpfs" ino=8120 scontext=u:r:marvelltel:s0 tcontext=u:object_r:block_device:s0 tclass=dir permissive=0
+# avc:  denied  { search } for  pid=2678 comm="cploader" name="/" dev="mmcblk0p6" ino=2 scontext=u:r:marvelltel:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0
+# avc:  denied  { search } for  pid=2655 comm="cploader" name="/" dev="sdcardfs" ino=128541 scontext=u:r:marvelltel:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { read } for  pid=2655 comm="cploader" name="CP_RF_LWG.bin" dev="sdcardfs" ino=130177 scontext=u:r:marvelltel:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { open } for  pid=2655 comm="cploader" path="/mnt/shell/emulated/0/CP/CP_RF_LWG.bin" dev="sdcardfs" ino=130177 scontext=u:r:marvelltel:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=1 SEPF_SM-G361F_5.1_0011
+

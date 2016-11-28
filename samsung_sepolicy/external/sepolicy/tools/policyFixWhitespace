@@ -1,0 +1,17 @@
+#!/bin/bash
+
+if [[ ! -f "$@" ]]; then
+	echo Usage: policyFixWhitespace POLICY_FILE
+	exit 1
+fi
+
+#whitespace patterns to fix on allow rule lines:
+  # {,} always followed/preceded by exactly 1 space
+  # - always followed by zero spaces
+  # repeated spaces replaced with a single space
+cat "$@" |sed -r -e '/^ *allow / s|\{ *|\{ |g' \
+		-e '/^ *allow / s| *\}| \}|g' \
+		-e '/^ *allow .*-/ s| *- +| -|g' \
+		-e '/^ *(allow|type|typeattribute|attribute) / s|  +| |g' \
+		-e '/^ *allow[^{]* -/ s| [^ ]+ - *[^ :]*| {& }|g'
+

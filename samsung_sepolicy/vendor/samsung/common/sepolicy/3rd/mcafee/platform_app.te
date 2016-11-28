@@ -1,0 +1,10 @@
+#
+# Copyright 2015 McAfee, Inc. All rights reserved.
+#
+
+# scanner framework (for installer scan) specific policies
+allow platform_app mcafee_data_file:dir r_dir_perms;
+allow platform_app mcafee_mcs_file:dir r_dir_perms;
+allow platform_app mcafee_mcs_file:file r_file_perms;
+allow platform_app mcafee_mcsfs_xm_file:dir r_dir_perms;
+allow platform_app mcafee_mcsfs_xm_file:file r_file_perms;

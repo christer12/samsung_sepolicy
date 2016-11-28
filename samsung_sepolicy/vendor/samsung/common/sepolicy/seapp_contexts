@@ -1,0 +1,237 @@
+# Input selectors: 
+#	isSystemServer (boolean)
+#	user (string)
+#	seinfo (string)
+#	name (string)
+#	sebool (string)
+# isSystemServer=true can only be used once.
+# An unspecified isSystemServer defaults to false.
+# An unspecified string selector will match any value.
+# A user string selector that ends in * will perform a prefix match.
+# user=_app will match any regular app UID.
+# user=_isolated will match any isolated service UID.
+# All specified input selectors in an entry must match (i.e. logical AND).
+# Matching is case-insensitive.
+# Precedence rules:
+# 	  (1) isSystemServer=true before isSystemServer=false.
+#	  (2) Specified user= string before unspecified user= string.
+#	  (3) Fixed user= string before user= prefix (i.e. ending in *).
+#	  (4) Longer user= prefix before shorter user= prefix. 
+#	  (5) Specified seinfo= string before unspecified seinfo= string.
+#	  (6) Specified name= string before unspecified name= string.
+#	  (7) Specified sebool= string before unspecified sebool= string.
+#
+# Outputs:
+#	domain (string)
+#	type (string)
+#	levelFrom (string; one of none, all, app, or user)
+#	level (string)
+#	sdcard (string) 
+#	sdcardSuffix (string) (Requires sdcard option to be set)
+# Only entries that specify domain= will be used for app process labeling.
+# Only entries that specify type= will be used for app directory labeling.
+# levelFrom=user is only supported for _app or _isolated UIDs.
+# levelFrom=app or levelFrom=all is only supported for _app UIDs.
+# sdcard is used to specify the path to mountpoint redirection for the sdcard.
+# sdcardSuffix is used to specify a special suffix to the sdcard mount point redirection.
+#   underscore is a reserved symbol.
+#     anything else is just joined to the end.
+#
+
+#############
+# sec_common
+#
+user=drm seinfo=platform name=com.sec.android.SamsungDrmProvider domain=platform_app type=platform_app_data_file levelFrom=user
+user=smartcard seinfo=platform domain=platform_app type=platform_app_data_file levelFrom=user
+#user=system seinfo=platform name=com.sec.android.app.sysscope domain=syscope_app type=system_app_data_file levelFrom=sysapp
+
+# shared_app
+user=_app seinfo=shared domain=sec_untrusted_app type=app_data_file levelFrom=user
+
+# release_app : P150207-04404 com.samsung.android.app.memo to allow the knoxclipboard access.
+user=_app seinfo=release name=com.samsung.android.app.memo domain=sec_untrusted_app type=app_data_file levelFrom=user
+
+# release_app : P160112-01905 com.android.mms to allow the knoxclipboard access.
+user=_app seinfo=release name=com.android.mms domain=sec_untrusted_app type=app_data_file levelFrom=user
+
+# media_app : android.process.media
+user=_app seinfo=media domain=sec_untrusted_app type=app_data_file levelFrom=user
+
+# com.samsung.android.communicationservice
+user=msgcom seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# SendHelpMessage (com.sec.android.app.safetyassurance)
+user=sendhelpmsg seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# CMHProvider
+user=cmhservice seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# System group Access
+user=_app seinfo=platform name=com.samsung.aasaservice domain=sysaccess_platform_app type=aasa_app_data_file levelFrom=user
+# ASF FileShare
+user=asf_fileshare seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# ASF MediaShare
+user=asf_mediashare seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# com.samsung.android.beaconmanager
+user=bcmgr seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# Cloud Gateway
+user=cloudgateway seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# Samsung Cloud Service
+user=samsungcloud seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# IntelligenceService, com.samsung.android.intelligenceservice2
+user=intelligenceservice seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# enhanced_features, com.samsung.android.coreapps
+user=enhanced_features seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# com.samsung.android.sm.devicesecurity
+user=smds seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# Samsung Location SDK
+user=nsflp seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# WeChat Free Wi-Fi 
+user=wechatwifiservice seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+# Samsung fresco com.samsung.fresco.logging
+user=fresco seinfo=platform domain=platform_app type=app_data_file levelFrom=user
+
+############# 
+# Payment
+# Samsung Pay app/Payment Framework app get a domain of platform_app and type of platform_app_data_file
+user=_app seinfo=spay domain=platform_app type=platform_app_data_file levelFrom=user
+user=spay seinfo=spay domain=platform_app type=platform_app_data_file
+user=system seinfo=spay domain=platform_app type=platform_app_data_file
+
+#############
+# Samsung presigned apps including third party apps
+#
+
+user=_app seinfo=samsung name=com.sec.android.mimage.photoretouching domain=sec_untrusted_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=samsung domain=samsung_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=samsung name=com.sec.android.app.samsungapps domain=samsung_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=samsung name=com.vlingo.midas domain=samsung_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=samsung name=tv.peel.samsung.app domain=samsung_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=samsung name=tv.peel.samsung.widget domain=samsung_app type=app_data_file levelFrom=user
+
+
+#############
+# Knox
+#
+
+user=system seinfo=platform name=com.sec.knox.containeragent domain=knox_system_app type=system_app_data_file
+user=system seinfo=platform name=com.policydm domain=policyloader_app type=policyloader_app_data_file
+#changeBySEA: user=_isolated seinfo=container domain=container_app type=container_app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=container domain=container_app type=container_app_data_file levelFrom=user
+
+# Knox special 3rd party apps (need container ipc)
+#changeBySEA: user=_app seinfo=caccard name=com.baimobile.android.pcsclite.service domain=knox_untrusted_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=keyboard domain=knox_untrusted_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=knox_untrusted name=com.centrify.mdm.samsung domain=knox_untrusted_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=knox_untrusted name=com.samsung.knoxemm.mdm domain=knox_untrusted_app type=app_data_file levelFrom=user
+#changeBySEA: user=_app seinfo=untrusted name=com.android.vending* domain=knox_untrusted_app type=app_data_file
+#changeBySEA: user=_app seinfo=untrusted name=com.google.android.googlequicksearchbox* domain=knox_untrusted_app type=app_data_file
+#changeBySEA: user=_app seinfo=untrusted name=com.google.process.gapps* domain=knox_untrusted_app type=app_data_file
+#changeBySEA: user=_app seinfo=untrusted name=com.google.android.inputmethod* domain=knox_untrusted_app type=app_data_file
+#changeBySEA: user=_app seinfo=untrusted name=com.google.android.marvin.talkback* domain=knox_untrusted_app type=app_data_file
+
+#FIXMO
+#changeBySEA: user=_app seinfo=fixmo domain=fixmo_app type=fixmo_app_data_file levelFrom=user
+
+#Trustonic partners
+user=_app seinfo=trustonicpartner domain=trustonicpartner_app type=app_data_file levelFrom=user
+user=_app seinfo=good_trustonicpartner domain=trustonicpartner_app type=app_data_file levelFrom=user
+
+#UMC agent
+user=_app seinfo=umcjsagent domain=umcagent_app type=app_data_file levelFrom=user
+
+#Samsung Untrusted App
+user=_app seinfo=samsung name=com.samsung.android.voicewakeup domain=sec_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=samsung name=com.vlingo.midas domain=sec_untrusted_app type=app_data_file levelFrom=user
+
+# AASA
+user=_app seinfo=aasa_platform domain=aasa_platform_app type=app_data_file levelFrom=user
+
+
+#############
+# 3rd Party app domain
+#
+
+#changeBySEA: user=_app seinfo=untrusted name=com.google.android.gms* domain=knox_untrusted_app type=app_data_file
+
+# vpn untrusted app
+#changeBySEA: user=_app seinfo=vpn_untrusted name=net.juniper.junos.pulse.android* domain=vpn_untrusted_app type=app_data_file levelFrom=user
+
+# vmware
+user=_app seinfo=vmware domain=vmware_app type=app_data_file levelFrom=user
+
+# filtered_untrusted_app
+user=_app seinfo=filtered_untrusted name=com.expway.embmsserver* domain=filtered_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=filtered_untrusted name=com.jio.emiddleware domain=filtered_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=Reliance_Jio domain=filtered_untrusted_app type=app_data_file levelFrom=user
+
+# SPR Vowifi
+user=_app seinfo=spr_ext name=com.kineto.smartwifi domain=filtered_untrusted_app type=app_data_file levelFrom=user
+# Smart DMB
+user=_app seinfo=trusted_dmb name=com.omnitel* domain=filtered_untrusted_app type=app_data_file levelFrom=user
+# ResourceManager
+user=_app seinfo=filtered_untrusted name=com.visionobjects.resourcemanager domain=filtered_untrusted_app type=filtered_app_data_file levelFrom=user
+user=_app seinfo=filtered_untrusted name=com.myscript.atk.rmc.service.sample domain=filtered_untrusted_app type=filtered_app_data_file levelFrom=user
+# jp.co.fsi.fs1seg
+user=_app seinfo=filtered_untrusted name=jp.co.fsi.* domain=filtered_untrusted_app type=filtered_app_data_file levelFrom=user
+# com.kddi.android.evc
+user=_app seinfo=filtered_untrusted name=com.kddi.android.evc domain=filtered_untrusted_app type=app_data_file levelFrom=user
+# com.kddi.test.enhancedvoicecallpftest
+user=_app seinfo=filtered_untrusted name=com.kddi.test.enhancedvoicecallpftest domain=filtered_untrusted_app type=app_data_file levelFrom=user
+
+#############
+# carrier app domain
+#
+
+# Sprint
+user=_app seinfo=sprintitson domain=itsonclient_app type=itsonapp_data_file levelFrom=user
+user=itson seinfo=sprintitson domain=itsonclient_app type=itsonapp_data_file levelFrom=user
+user=sprintitson seinfo=sprintitson domain=itsonclient_app type=itsonapp_data_file levelFrom=user
+
+# CMCC Carrier app domain
+user=_app seinfo=mmphone domain=carrier_app type=app_data_file levelFrom=user
+
+# ATT
+#user=system seinfo=platform name=diagandroid.iqd domain=diagandroid_app type=system_app_data_file levelFrom=sysapp
+
+#set untrusted_app even though it has system uid.
+user=system seinfo=default domain=untrusted_app type=app_data_file levelFrom=user
+
+# com.android.defcontainer for KNOX SDCARD
+user=_app seinfo=platform name=com.android.defcontainer domain=platform_app type=app_data_file
+
+# obdm
+user=_app seinfo=vzw_untrusted domain=vzwfiltered_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=xcal_untrusted domain=vzwfiltered_untrusted_app type=app_data_file levelFrom=user
+
+#############
+# mRST application
+user=_app seinfo=Ahranta domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.ahranta.android.arc.core.samsung domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=communitake domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.communitake.safeservice domain=mrst_plugin_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.communitake.remotecontrolservice.samsung domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=koino domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=net.koino.anysupport.addon domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=logmein domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.lmi.samsung.rescuesecurity.signed domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=platform name=com.rsupport.rs.activity.rsupport domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.rsupport.rsperm.aa.a3th domain=mrst_plugin_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.rsupport.rsperm.aa.second domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=soti domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.honeywellaidc.remotemastermind.samsung* domain=mrst_plugin_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=net.soti.mobicontrol.samsung* domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=teamviewer domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.teamviewer.quicksupport.addon.samsung domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+user=_app seinfo=wisemo domain=mrst_untrusted_app type=app_data_file levelFrom=user
+user=_app seinfo=platform name=com.wisemo.rcbridge.samsung1 domain=mrst_plugin_app type=app_data_file levelFrom=user
+
+### BLOCKED APP
+user=system seinfo=platform name=com.android.power domain=blocked_app type=system_app_data_file
+user=system seinfo=platform name=com.android.sms domain=blocked_app type=system_app_data_file
+user=_app seinfo=platform name=com.android.power domain=blocked_app type=app_data_file
+user=_app seinfo=platform name=com.android.sms domain=blocked_app type=app_data_file

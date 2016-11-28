@@ -1,0 +1,65 @@
+#
+# DMM-daemon
+#
+# Diag device interface daemon
+# Daemon to be interfaced with XCAL-Mobile in order to collect Diagnostic information, Android Log cat and PCAP(TCP/IP) in VoWiFi and VoLTE Testing for Verizon
+# related app: com.innowireless.xcal.mobile4g
+# Contact: sangbae.shin@samsung.com CP system , jaehong.kim@innowireless.co.kr
+#
+
+############ aosp and sec_common #############jaehong.kim@innowireless.co.kr
+########## type and macro.
+type DMM-daemon, domain, mlstrustedsubject;
+type DMM-daemon_exec, exec_type, file_type;
+
+init_daemon_domain(DMM-daemon)
+
+#to collect denials
+#permissive DMM-daemon;
+
+########## self and domain_type
+allow DMM-daemon self:capability { setuid setgid net_raw dac_override };
+allow DMM-daemon self:capability2 { syslog };
+
+########## fs_type
+########## dev_type
+allow DMM-daemon diag_device:chr_file rw_file_perms;
+
+########## file_type
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#allow DMM-daemon app_data_file:{ file lnk_file } r_file_perms;
+allow DMM-daemon app_data_file:file r_file_perms;
+
+allow DMM-daemon shell_exec:file rx_file_perms;
+allow DMM-daemon system_file:file execute_no_trans;
+allow DMM-daemon media_rw_data_file:dir create_dir_perms;
+allow DMM-daemon media_rw_data_file:file create_file_perms;
+allow DMM-daemon zygote_exec:{ file lnk_file } r_file_perms;
+
+############ qcom_common #############
+########## type and macro.
+qmux_socket(DMM-daemon)
+
+########## etc_type
+########## known issue.
+############ avc_log #############
+#avc:  denied  { execute } for  pid=3128 comm="dmm_v2" name="sh" dev="sda18" ino=873 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { read open } for  pid=3128 comm="dmm_v2" path="/system/bin/sh" dev="sda18" ino=873 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { execute_no_trans } for  pid=3128 comm="dmm_v2" path="/system/bin/sh" dev="sda18" ino=873 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { execute_no_trans } for  pid=3128 comm="sh" path="/system/bin/toolbox" dev="sda18" ino=894 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { read } for  pid=3163 comm="dmm_v2" name="lib" dev="sda21" ino=262516 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:app_data_file:s0 tclass=lnk_file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { execute } for  pid=3163 comm="dmm_v2" path="/data/app/com.innowireless.xcal.mobile4g-1/lib/arm/libDM-Dci.so" dev="sda21" ino=327714 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:apk_data_file:s0 tclass=file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { dac_override } for  pid=3163 comm="dmm_v2" capability=1  scontext=u:r:DMM-daemon:s0 tcontext=u:r:DMM-daemon:s0 tclass=capability permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { read write } for  pid=3163 comm="dmm_v2" name="diag" dev="tmpfs" ino=8685 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { open } for  pid=3163 comm="dmm_v2" path="/dev/diag" dev="tmpfs" ino=8685 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { ioctl } for  pid=3163 comm="dmm_v2" path="/dev/diag" dev="tmpfs" ino=8685 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { getattr } for  pid=3163 comm="dmm_v2" path="/dev/diag" dev="tmpfs" ino=8685 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:diag_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925V_5.0.2_0007
+#avc:  denied  { write } for  pid=3186 comm="dmm_v2" name="qmux_radio" dev="tmpfs" ino=9003 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:qmuxd_socket:s0 tclass=dir permissive=1 SEPF_SM-G920V_5.0.2_0011
+#avc:  denied  { add_name } for  pid=3186 comm="dmm_v2" name=716D75785F636C69656E745F736F636B657420202033313438 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:qmuxd_socket:s0 tclass=dir permissive=1 SEPF_SM-G920V_5.0.2_0011
+#avc:  denied  { create } for  pid=3186 comm="dmm_v2" name=716D75785F636C69656E745F736F636B657420202033313438 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:qmuxd_socket:s0 tclass=sock_file permissive=1 SEPF_SM-G920V_5.0.2_0011
+#avc:  denied  { setattr } for  pid=3186 comm="dmm_v2" name=716D75785F636C69656E745F736F636B657420202033313438 dev="tmpfs" ino=51937 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:qmuxd_socket:s0 tclass=sock_file permissive=1 SEPF_SM-G920V_5.0.2_0011
+#avc:  denied  { write } for  pid=3186 comm="dmm_v2" name="qmux_connect_socket" dev="tmpfs" ino=19565 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:qmuxd_socket:s0 tclass=sock_file permissive=1 SEPF_SM-G920V_5.0.2_0011
+#avc:  denied  { connectto } for  pid=3186 comm="dmm_v2" path="/dev/socket/qmux_radio/qmux_connect_socket" scontext=u:r:DMM-daemon:s0 tcontext=u:r:qmuxd:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G920V_5.0.2_0011
+# avc:  denied  { read } for  pid=13466 comm="am" name="app_process" dev="sda18" ino=681 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:zygote_exec:s0 tclass=lnk_file permissive=1
+# avc:  denied  { getattr } for  pid=13466 comm="am" path="/system/bin/app_process64" dev="sda18" ino=683 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:zygote_exec:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=13466 comm="am" path="/system/bin/app_process64" dev="sda18" ino=683 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:zygote_exec:s0 tclass=file permissive=1

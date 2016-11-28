@@ -1,0 +1,39 @@
+#
+#  ss_diagknight_daemon
+#
+
+type ss_diagknight_daemon, domain;
+type ss_diagknight_daemon_exec, exec_type, file_type;
+
+init_daemon_domain(ss_diagknight_daemon)
+
+#============= ss_diagknight_daemon ==============
+allow ss_diagknight_daemon dumplog_data_file:dir rw_dir_perms;
+allow ss_diagknight_daemon dumplog_data_file:file create_file_perms;
+allow ss_diagknight_daemon init:unix_stream_socket connectto;
+allow ss_diagknight_daemon property_socket:sock_file w_file_perms;
+allow ss_diagknight_daemon radio_prop:property_service set;
+allow ss_diagknight_daemon self:capability setuid;
+allow ss_diagknight_daemon smd_device:chr_file rw_file_perms;
+allow ss_diagknight_daemon mhi_device:chr_file rw_file_perms;
+allow ss_diagknight_daemon self:capability dac_override;
+
+############ avc_log #############
+# test from diagknight
+#audit(1388617530.770:12): avc:  denied  { setuid } for  pid=460 comm="diag_knight" capability=7  scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:r:ss_diagknight_daemon:s0 tclass=capability
+#audit(1388617530.820:13): avc:  denied  { read write } for  pid=460 comm="diag_knight" name="smd4" dev="tmpfs" ino=3789 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:smd_device:s0 tclass=chr_file
+#audit(1388617530.820:13): avc:  denied  { open } for  pid=460 comm="diag_knight" name="smd4" dev="tmpfs" ino=3789 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:smd_device:s0 tclass=chr_file
+#audit(1415858356.328:297): avc:  denied  { write } for  pid=460 comm="diag_knight" name="log" dev="mmcblk0p26" ino=655361 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir
+#audit(1415858356.328:297): avc:  denied  { add_name } for  pid=460 comm="diag_knight" name="knightBuff.tmp" scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir
+#audit(1415858356.328:297): avc:  denied  { create } for  pid=460 comm="diag_knight" name="knightBuff.tmp" scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file
+#audit(1415858356.328:297): avc:  denied  { write open } for  pid=460 comm="diag_knight" name="knightBuff.tmp" dev="mmcblk0p26" ino=655661 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file
+#audit(1415858356.328:298): avc:  denied  { setattr } for  pid=460 comm="diag_knight" name="knightBuff.tmp" dev="mmcblk0p26" ino=655661 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file
+#audit(1415858356.328:299): avc:  denied  { write } for  pid=460 comm="diag_knight" name="property_service" dev="tmpfs" ino=11010 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+#audit(1415858356.328:299): avc:  denied  { connectto } for  pid=460 comm="diag_knight" path="/dev/socket/property_service" scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+#avc:  denied  { set } for property=ril.dmlog.completed scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:radio_prop:s0 tclass=property_service
+#audit(1415858367.488:300): avc:  denied  { write } for  pid=460 comm="diag_knight" name="knightBuff.tmp" dev="mmcblk0p26" ino=655661 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file
+#audit(1415858367.488:300): avc:  denied  { open } for  pid=460 comm="diag_knight" name="knightBuff.tmp" dev="mmcblk0p26" ino=655661 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file
+#audit(1417594264.591:574): item=0 name="/dev/mhi_pipe_46" inode=13461 dev=00:0c mode=020600 ouid=0 ogid=0 rdev=da:17 obj=u:object_r:mhi_device:s0 nametype=NORMAL
+#audit(1417594267.581:576): avc:  denied  { dac_override } for  pid=12225 comm="diag_knight" capability=1  scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:r:ss_diagknight_daemon:s0 tclass=capability permissive=1
+#audit(1417594267.581:576): avc:  denied  { read write } for  pid=12225 comm="diag_knight" name="mhi_pipe_46" dev="tmpfs" ino=13461 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:mhi_device:s0 tclass=chr_file 
+#audit(1417594267.581:576): avc:  denied  { open } for  pid=12225 comm="diag_knight" path="/dev/mhi_pipe_46" dev="tmpfs" ino=13461 scontext=u:r:ss_diagknight_daemon:s0 tcontext=u:object_r:mhi_device:s0 tclass=chr_file 

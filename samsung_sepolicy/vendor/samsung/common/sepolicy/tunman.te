@@ -1,0 +1,48 @@
+type tunman, domain, mlstrustedsubject;
+type tunman_exec, exec_type, file_type;
+
+init_daemon_domain(tunman)
+net_domain(tunman)
+
+# Allows connections to /dev/socket/tunman
+unix_socket_connect(untrusted_app, tunman, tunman)
+
+# Allows us to set 'tunman.protocol' property
+unix_socket_connect(tunman, property, init)
+#allow tunman default_prop:property_service set; # not allowed
+allow tunman tunman_prop:property_service set;
+
+# Allows us to talk to netd
+unix_socket_connect(tunman, netd, netd)
+
+# Parsing "packages.xml" (auth)
+allow tunman system_data_file:file { open read };
+
+# Multiple instance detection (fs lock)
+allow tunman shell_data_file:dir { search write add_name };
+allow tunman shell_data_file:file { create open read write lock };
+
+# TUN management
+allow tunman self:capability { net_admin net_raw dac_override };
+allow tunman tun_device:chr_file rw_file_perms;
+allow tunman self:tun_socket create_socket_perms;
+
+# Allows Max to use the fd received from Tunman
+allow untrusted_app tunman:fd use;
+
+# Needed for protect() implementation
+allow tunman untrusted_app:fd use;
+allow tunman untrusted_app:{ tcp_socket udp_socket } { read write };
+
+# Needed for socket re-tagging
+allow tunman qtaguid_proc:file { open write };
+
+# Executing /system/bin/{ip,iptables}
+allow tunman system_file:file execute_no_trans;
+
+# Allows reading /data/misc/net/rt_tables , used by "ip" command
+allow tunman net_data_file:dir { search };
+allow tunman net_data_file:file { getattr open read };
+
+# Changing ip rules (using "ip" command)
+allow tunman self:netlink_route_socket nlmsg_write;

@@ -1,0 +1,40 @@
+#
+# clatd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute clatd trusteddomain;
+#typeattribute clatd system_domain;
+# temporary permissive to gather the log.
+# permissive clatd;
+
+#from NSA
+init_daemon_domain(clatd)
+
+########## self and domain_type
+allow clatd kernel:system module_request;
+allow clatd self:capability { net_admin setgid setuid dac_override };
+
+
+########## fs_type
+allow clatd cgroup:dir { create add_name };
+allow clatd proc:file rw_file_perms;
+allow clatd proc:dir rw_dir_perms;
+allow clatd proc_net:file w_file_perms;
+
+########## androd-m-preview: denials ########
+allow clatd log_device:chr_file w_file_perms;
+
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { module_request } for  pid=1476 comm="clatd" kmod="netdev-null" scontext=u:r:clatd:s0 tcontext=u:r:kernel:s0 tclass=system
+
+
+

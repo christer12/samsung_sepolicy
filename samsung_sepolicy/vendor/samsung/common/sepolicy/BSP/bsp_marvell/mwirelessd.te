@@ -1,0 +1,35 @@
+# create new domain mwirelessd
+type mwirelessd, domain;
+type mwirelessd_exec, exec_type, file_type;
+
+init_daemon_domain(mwirelessd)
+
+allow mwirelessd init:unix_stream_socket unix_stream_socket_perms;
+allow mwirelessd property_socket:sock_file create_file_perms;
+allow mwirelessd self:capability { setuid setgid sys_module };
+allow mwirelessd shell_exec:file { read execute open execute_no_trans };
+allow mwirelessd sysfs:file write;
+allow mwirelessd system_data_file:dir create_dir_perms;
+allow mwirelessd system_data_file:sock_file create_file_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mwirelessd system_data_file:file create_file_perms;
+allow mwirelessd system_data_file:file r_file_perms;
+
+allow mwirelessd system_prop:property_service set;
+allow mwirelessd wireless_data_file:dir create_dir_perms;
+allow mwirelessd wireless_data_file:file create_file_perms;
+allow mwirelessd wireless_data_file:sock_file create_file_perms;
+allow mwirelessd nfc_device:chr_file create_file_perms;
+allow mwirelessd bluetooth_device:chr_file create_file_perms;
+allow mwirelessd nvm_data_file:dir create_dir_perms;
+allow mwirelessd nvm_data_file:file create_file_perms;
+allow mwirelessd port:tcp_socket tcp_socket_perms;
+
+allow mwirelessd self:tcp_socket tcp_socket_perms;
+allow mwirelessd system_file:file execute_no_trans;
+allow mwirelessd mwireless_device:chr_file create_file_perms;
+allow mwirelessd dump_log_data_file:file create_file_perms;
+allow mwirelessd dump_log_data_file:dir create_dir_perms;
+

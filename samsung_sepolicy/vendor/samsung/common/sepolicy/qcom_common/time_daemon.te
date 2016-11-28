@@ -1,0 +1,30 @@
+# time_daemon
+
+
+access_logcat(time_daemon)
+
+allow time_daemon log_device:chr_file ioctl;
+allow time_daemon clock_device:chr_file r_file_perms;
+allow time_daemon time_data_file:dir create_dir_perms;
+allow time_daemon time_data_file:file create_file_perms;
+allow time_daemon self:socket *;
+allow time_daemon alarm_device:chr_file w_file_perms;
+allow time_daemon self:capability { setuid setgid sys_time };
+
+allow time_daemon system_data_file:dir rw_dir_perms;
+
+# Allow to access the dev="proc" from nsa 4.4 policy update
+allow time_daemon platformappdomain:dir r_dir_perms;
+allow time_daemon platformappdomain:file r_file_perms;
+
+# for B2C users
+typeattribute time_daemon trusteddomain;
+typeattribute time_daemon device_domain;
+
+typeattribute time_daemon mlstrustedsubject;
+
+############ avc_log #############
+#  avc:  denied  { sys_time } for  pid=585 comm="time_daemon" capability=25  scontext=u:r:time_daemon:s0 tcontext=u:r:time_daemon:s0 tclass=capability permissive=1 SEPF_luckyqlte-usa-vzw_5.1.1_0035
+# MLS avc:  denied  { connectto } for  pid=7699 comm="omm.timeservice" path=0074696D655F67656E6F6666 scontext=u:r:system_app:s0:c523 tcontext=u:r:time_daemon:s0 tclass=unix_stream_socket permissive=0
+
+

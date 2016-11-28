@@ -1,0 +1,10 @@
+# grant the additional permission to load_g_cali_data
+
+type load_g_cali_data, domain;
+type load_g_cali_data_exec, exec_type, file_type;
+
+init_daemon_domain(load_g_cali_data)
+
+allow load_g_cali_data shell_exec:file r_file_perms;
+allow load_g_cali_data nvm_data_file:dir create_dir_perms;
+

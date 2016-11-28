@@ -1,0 +1,40 @@
+#
+# ddexe
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type ddexe, domain;
+type ddexe_exec, exec_type, file_type;
+# for B2C users
+typeattribute ddexe trusteddomain;
+typeattribute ddexe system_domain;
+
+init_daemon_domain(ddexe)
+
+########## self and domain_type
+allow ddexe self:capability { setuid dac_override };
+
+########## fs_type
+########## dev_type
+allow ddexe device:file r_file_perms;
+allow ddexe usb_serial_device:chr_file rw_file_perms;
+
+########## file_type
+allow ddexe system_data_file:dir rw_dir_perms;
+allow ddexe system_data_file:sock_file create_file_perms;
+
+
+########## etc_type
+allow ddexe radio_prop:property_service set;
+
+########## known issue.
+
+########## androd-m-preview: denials ########
+allow ddexe app_efs_file:dir r_dir_perms;
+allow ddexe app_efs_file:file r_file_perms;
+allow ddexe efs_file:dir r_dir_perms;
+
+############ avc_log #############
+# avc:  denied  { set } for property=ril.serialnumber scontext=u:r:ddexe:s0 tcontext=u:object_r:radio_prop:s0 tclass=property_service
+

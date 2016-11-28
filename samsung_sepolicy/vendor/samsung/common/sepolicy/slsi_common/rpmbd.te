@@ -1,0 +1,35 @@
+#
+# rpmbd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type rpmbd, domain;
+type rpmbd_exec, exec_type, file_type;
+
+init_daemon_domain(rpmbd)
+
+
+########## self and domain_type
+allow rpmbd self:capability dac_override;
+
+########## fs_type
+########## dev_type
+allow rpmbd emmcblk_device:blk_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+# create sock into /data/app/rpmbd
+allow rpmbd apk_data_file:dir { ra_dir_perms remove_name };
+type_transition rpmbd apk_data_file:sock_file rpmbd_socket "rpmbd";
+allow rpmbd rpmbd_socket:sock_file create_file_perms;
+
+############ avc_log #############
+# avc:  denied  { dac_override } for  pid=1977 comm="rpmbd" capability=1  scontext=u:r:rpmbd:s0 tcontext=u:r:rpmbd:s0 tclass=capability permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { write } for  pid=1977 comm="rpmbd" name="app" dev="mmcblk0p23" ino=65541 scontext=u:r:rpmbd:s0 tcontext=u:object_r:apk_data_file:s0 tclass=dir permissive=1 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { create } for  pid=7622 comm="rpmbd" name="rpmbd" scontext=u:r:rpmbd:s0 tcontext=u:object_r:apk_data_file:s0 tclass=sock_file permissive=0 SEPF_JOSHUA_6.0_0001
+# avc:  denied  { read write } for  pid=11162 comm="rpmbd" name="sdb" dev="tmpfs" ino=12485 scontext=u:r:rpmbd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { open } for  pid=11162 comm="rpmbd" path="/dev/block/sdb" dev="tmpfs" ino=12485 scontext=u:r:rpmbd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+

@@ -1,0 +1,60 @@
+############ LGT #############
+
+type mwlan_vpncored, domain;
+
+domain_auto_trans(init, mwlan_helper_exec, mwlan_vpncored)
+
+net_domain(mwlan_vpncored)
+binder_use(mwlan_vpncored)
+allow mwlan_vpncored shell_exec:file rx_file_perms;
+allow mwlan_vpncored system_file:file x_file_perms;
+
+set_prop(mwlan_vpncored, debug_prop)
+set_prop(mwlan_vpncored, net_radio_prop)
+set_prop(mwlan_vpncored, dhcp_prop)
+set_prop(mwlan_vpncored, system_prop)
+
+allow mwlan_vpncored self:capability {net_admin net_raw net_bind_service};
+allow mwlan_vpncored {system_app_data_file system_data_file}:dir create_dir_perms;
+#neverallow Google-android-5.0.2_r1 : allow mwlan_vpncored {system_app_data_file system_data_file}:file {create_file_perms x_file_perms};
+allow mwlan_vpncored system_app_data_file:file create_file_perms;
+allow mwlan_vpncored system_data_file:file r_file_perms;
+allow mwlan_vpncored self:process execmem;
+allow mwlan_vpncored system_app:fd {use};
+allow mwlan_vpncored system_app:fifo_file {rw_file_perms};
+allow mwlan_vpncored {system_app_data_file system_data_file}:sock_file create_file_perms;
+allow mwlan_vpncored shell_data_file:dir create_dir_perms;
+allow mwlan_vpncored shell_data_file:file create_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow mwlan_vpncored shell_data_file:file rx_file_perms;
+allow mwlan_vpncored mwlan_aarp_device:chr_file rw_file_perms;
+allow mwlan_vpncored mwlan_ipsecdrvtl_device:chr_file rw_file_perms;
+
+# Samsung internal (rild)
+allow mwlan_vpncored radio_data_file:dir search;
+allow mwlan_vpncored radio_data_file:file { read getattr open };
+allow mwlan_vpncored rild:unix_stream_socket connectto;
+allow mwlan_vpncored sysfs_wake_lock:file { read write open };
+
+# /proc/pid/cmdline
+allow mwlan_vpncored { domain -containerdomain -fixmo_app -good_app }:dir { open read search getattr };
+allow mwlan_vpncored { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } { open read getattr };
+
+allow mwlan_vpncored radio_service:service_manager find;
+
+############ avc_log #############
+# avc:  denied  { search } for  pid=14909 comm="vpncored" name="radio" dev="mmcblk0p26" ino=131082 scontext=u:r:mwlan_vpncored:s0 tcontext=u:object_r:radio_data_file:s0 tclass=dir
+# avc:  denied  { read } for  pid=14909 comm="vpncored" name="kmem6" dev="mmcblk0p26" ino=131141 scontext=u:r:mwlan_vpncored:s0 tcontext=u:object_r:radio_data_file:s0 tclass=file
+# avc:  denied  { open } for  pid=14909 comm="vpncored" name="kmem6" dev="mmcblk0p26" ino=131141 scontext=u:r:mwlan_vpncored:s0 tcontext=u:object_r:radio_data_file:s0 tclass=file
+# arch=40000028 syscall=322 per=800000 success=yes exit=9 a0=ffffff9c a1=b6cd0fb9 a2=20000 a3=0 items=1 ppid=1 pid=14909 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="vpncored" exe="/data/data/com.lguplus.common.wificm.mwlan/files/vpncored" subj=u:r:mwlan_vpncored:s0 key=(null)
+# cwd="/data/data/com.lguplus.common.wificm.mwlan/files"
+# item=0 name="/data/misc/radio/kmem6" inode=131141 dev=b3:1a mode=0100655 ouid=1001 ogid=1001 rdev=00:00 obj=u:object_r:radio_data_file:s0
+# avc:  denied  { getattr } for  pid=14909 comm="vpncored" path="/data/misc/radio/kmem6" dev="mmcblk0p26" ino=131141 scontext=u:r:mwlan_vpncored:s0 tcontext=u:object_r:radio_data_file:s0 tclass=file
+# arch=40000028 syscall=197 per=800000 success=yes exit=0 a0=9 a1=bec439e0 a2=bec43a64 a3=4 items=0 ppid=1 pid=14909 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="vpncored" exe="/data/data/com.lguplus.common.wificm.mwlan/files/vpncored" subj=u:r:mwlan_vpncored:s0 key=(null)
+# avc:  denied  { connectto } for  pid=14924 comm="vpncored" path=004D756C7469636C69656E74 scontext=u:r:mwlan_vpncored:s0 tcontext=u:r:s_rild:s0 tclass=unix_stream_socket
+# arch=40000028 syscall=283 per=800000 success=yes exit=0 a0=d a1=b670564c a2=e a3=b6ef2624 items=0 ppid=1 pid=14924 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="vpncored" exe="/data/data/com.lguplus.common.wificm.mwlan/files/vpncored" subj=u:r:mwlan_vpncored:s0 key=(null)
+# saddr=0100004D756C7469636C69656E74
+# avc:  denied  { read write } for  pid=14936 comm="vpncored" name="wake_lock" dev="sysfs" ino=62 scontext=u:r:mwlan_vpncored:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file
+# avc:  denied  { open } for  pid=14936 comm="vpncored" name="wake_lock" dev="sysfs" ino=62 scontext=u:r:mwlan_vpncored:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file
+# arch=40000028 syscall=322 per=800000 success=yes exit=17 a0=ffffff9c a1=b6c16f5a a2=20002 a3=0 items=1 ppid=1 pid=14936 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="vpncored" exe="/data/data/com.lguplus.common.wificm.mwlan/files/vpncored" subj=u:r:mwlan_vpncored:s0 key=(null)
+# cwd="/data/data/com.lguplus.common.wificm.mwlan/files"
+# item=0 name="/sys/power/wake_lock" inode=62 dev=00:0c mode=0100660 ouid=1001 ogid=1000 rdev=00:00 obj=u:object_r:sysfs_wake_lock:s0

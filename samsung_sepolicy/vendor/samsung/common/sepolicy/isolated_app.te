@@ -1,0 +1,75 @@
+#
+# isolated_app
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+# isolated_app is not trusted - review by SC team
+# typeattribute isolated_app trusteddomain;
+# typeattribute isolated_app trusted_app_domain;
+
+########## self and domain_type
+#neverallow by Google:(domain init:binder call;)  allow isolated_app init:binder call;
+#allow isolated_app init:binder call;
+#violate neverallow rule
+
+allow isolated_app init:unix_stream_socket { read write getattr getopt };
+allow isolated_app untrusteddomain:unix_stream_socket shutdown;
+allow isolated_app vold:fd use;
+allow isolated_app zygote:unix_stream_socket getattr; 
+
+########## fs_type
+allow isolated_app sdcard_internal:file rw_file_perms;
+
+########## dev_type
+########## file_type
+allow isolated_app appdomain:unix_stream_socket { getattr getopt };
+allow isolated_app dalvikcache_data_file:file execute;
+allow isolated_app dumplog_data_file:file rw_file_perms;
+allow isolated_app init_tmpfs:file read;
+allow isolated_app isolated_app_tmpfs:file write;
+allow isolated_app platform_app_data_file:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow isolated_app app_data_file:file open 
+#allow isolated_app platform_app_data_file:file r_file_perms;
+allow isolated_app platform_app_data_file:file { getattr ioctl lock };
+allow isolated_app system_app_data_file:dir search;
+
+#neverallow by Google: allow isolated_app property_socket:sock_file w_file_perms;
+#allow isolated_app property_socket:sock_file w_file_perms;
+#changeBySEA:allow isolated_app tombstone_data_file:dir r_dir_perms; 
+#changeBySEA:allow isolated_app tombstone_data_file:file r_file_perms; 
+
+########## etc_type
+
+########## known issue.
+#from NSA
+allow isolated_app appdomain:unix_stream_socket { read write };
+allow isolated_app apk_data_file:dir getattr;
+allow isolated_app init:unix_stream_socket { read write getattr getopt };
+allow isolated_app init_tmpfs:file read;
+
+# AWS
+allow isolated_app system_file:file execmod;
+allow isolated_app app_data_file:file execute;
+
+# allow ioctl
+allow isolated_app appdomain:unix_stream_socket ioctl;
+#changeBySEA : not allowed by gogole, allow isolated_app self:udp_socket { 0x8927 0x8b1b };
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=4608 comm="Binder_9" path="/data/log/DumpsysOther_G929FXXE0AOI2-2015-09-09_15:51:01.txt.tmp" dev="sda18" ino=523096 scontext=u:r:isolated_app:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0 
+# avc:  denied  { search } for  pid=10937 comm=".android.cts.os" name="com.android.settings" dev="sda18" ino=459012 scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:object_r:system_app_data_file:s0 tclass=dir permissive=0 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { ioctl } for  pid=5682 comm="Binder_1" path="socket:[34299]" dev="sockfs" ino=34299 ioctlcmd=7704 scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:r:platform_app:s0:c512,c768 tclass=unix_stream_socket permissive=0
+# arch=40000028 syscall=54 per=8 success=no exit=-13 a0=15 a1=7704 a2=0 a3=f3a36138 items=0 ppid=872 pid=5682 auid=4294967295 uid=99000 gid=99000 euid=99000 suid=99000 fsuid=99000 egid=99000 sgid=99000 fsgid=99000 tty=(none) ses=4294967295 comm="Binder_1" exe="/system/bin/app_process32" subj=u:r:isolated_app:s0:c512,c768 key=(null)
+# proctitle="com.sec.android.app.sbrowser:sandboxed_process0"
+# avc:  denied  { ioctl } for  pid=16038 comm="Binder_2" path="socket:[83826]" dev="sockfs" ino=83826 ioctlcmd=7704 scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:r:platform_app:s0:c512,c768 tclass=unix_stream_socket permissive=0
+# audit(1450782437.301:850): arch=40000028 syscall=54 per=8 success=no exit=-13 a0=14 a1=7704 a2=0 a3=f3ec1138 items=0 ppid=4613 pid=16038 auid=4294967295 uid=99000 gid=99000 euid=99000 suid=99000 fsuid=99000 egid=99000 sgid=99000 fsgid=99000 tty=(none) 
+# ses=4294967295 comm="Binder_2" exe="/system/bin/app_process32" subj=u:r:isolated_app:s0:c512,c768 key=(null)
+# proctitle="com.sec.android.app.sbrowser:sandboxed_process0"proctitle="com.sec.android.app.sbrowser:sandboxed_process0"
+# avc:  denied  { ioctl } for  pid=20643 comm="Binder_2" path="socket:[116427]" dev="sockfs" ino=116427 ioctlcmd=7704 scontext=u:r:isolated_app:s0:c512,c768 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=unix_stream_socket permissive=0
+# arch=40000028 syscall=54 per=8 success=no exit=-13 a0=13 a1=7704 a2=0 a3=f38b5138 items=0 ppid=3198 pid=20643 auid=4294967295 uid=99000 gid=99000 euid=99000 suid=99000 fsuid=99000 egid=99000 sgid=99000 fsgid=99000 tty=(none) ses=4294967295 comm="Binder_2" exe="/system/bin/app_process32" subj=u:r:isolated_app:s0:c512,c768 key=(null)
+# proctitle="com.android.chrome:sandboxed_process0"
+
+

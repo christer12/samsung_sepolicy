@@ -1,0 +1,6 @@
+
+# for B2C users
+typeattribute diag trusteddomain;
+typeattribute diag device_domain;
+
+

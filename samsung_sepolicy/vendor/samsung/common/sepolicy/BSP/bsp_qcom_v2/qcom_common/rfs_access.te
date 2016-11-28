@@ -1,0 +1,5 @@
+# rfs_access
+# for B2C users
+typeattribute rfs_access trusteddomain;
+typeattribute rfs_access device_domain;
+

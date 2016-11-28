@@ -1,0 +1,40 @@
+#
+# dm_verity_signature_checker
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type dm_verity_signature_checker, domain;
+type dm_verity_signature_checker_exec, exec_type, file_type;
+
+init_daemon_domain_rootfs(dm_verity_signature_checker)
+recovery_daemon_domain(dm_verity_signature_checker)
+
+########## self and domain_type
+allow dm_verity_signature_checker init:fifo_file read;
+allow dm_verity_signature_checker recovery:fd use;
+allow dm_verity_signature_checker recovery:fifo_file read;
+
+########## fs_type
+allow dm_verity_signature_checker tmpfs:file w_file_perms;
+
+########## dev_type
+allow dm_verity_signature_checker dm_device:chr_file { read write };
+allow dm_verity_signature_checker emmcblk_device:blk_file { read write };
+allow dm_verity_signature_checker system_block_device:blk_file read;
+allow dm_verity_signature_checker input_device:chr_file { read write };
+allow dm_verity_signature_checker tty_device:chr_file { read write };
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read } for  pid=2838 comm="dm_verity_signa" path="pipe:[5300]" dev="pipefs" ino=5300 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:r:init:s0 tclass=fifo_file permissive=1
+# avc:  denied  { read write } for  pid=2838 comm="dm_verity_signa" path="/dev/device-mapper" dev="tmpfs" ino=3629 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:object_r:dm_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=2838 comm="dm_verity_signa" path="/dev/block/sda15" dev="tmpfs" ino=3408 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { use } for  pid=2861 comm="dm_verity_signa" path="pipe:[9467]" dev="pipefs" ino=9467 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:r:recovery:s0 tclass=fd permissive=1
+# avc:  denied  { read } for  pid=2861 comm="dm_verity_signa" path="pipe:[9467]" dev="pipefs" ino=9467 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:r:recovery:s0 tclass=fifo_file permissive=1
+# avc:  denied  { append } for  pid=2861 comm="dm_verity_signa" path="/tmp/recovery.log" dev="tmpfs" ino=3236 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:object_r:tmpfs:s0 tclass=file permissive=1
+# avc:  denied  { read write } for  pid=2861 comm="dm_verity_signa" path="/dev/tty0" dev="tmpfs" ino=8132 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:object_r:tty_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=2861 comm="dm_verity_signa" path="/dev/input/event13" dev="tmpfs" ino=10352 scontext=u:r:dm_verity_signature_checker:s0 tcontext=u:object_r:input_device:s0 tclass=chr_file permissive=1

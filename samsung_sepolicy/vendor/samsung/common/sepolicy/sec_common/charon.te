@@ -1,0 +1,60 @@
+#
+# charon
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type charon, domain;
+type charon_exec, exec_type, file_type;
+# for B2C users
+typeattribute charon trusteddomain;
+typeattribute charon system_domain;
+
+binder_call(charon, servicemanager)
+binder_call(charon, keystore)
+init_daemon_domain(charon)
+unix_socket_rw(charon, init)
+unix_socket_rw(charon, netd)
+
+########## self and domain_type
+allow charon self:capability { net_admin setuid net_bind_service };
+allow charon kernel:system module_request;
+
+########## fs_type
+allow charon cgroup:dir create_dir_perms;
+allow charon cgroup:file create_file_perms;
+allow charon proc:dir rw_dir_perms;
+allow charon proc:file rw_file_perms;
+allow charon proc_net:dir rw_dir_perms;
+allow charon proc_net:file rw_file_perms;
+
+########## dev_type
+allow charon tun_device:chr_file rw_file_perms;
+
+########## file_type
+allow charon dnsproxyd_socket:sock_file rw_file_perms;
+allow charon ppp_system_file:dir r_dir_perms;
+allow charon ppp_system_file:file rx_file_perms;
+allow charon property_socket:sock_file rw_file_perms;
+allow charon vpn_data_file:dir create_dir_perms;
+allow charon vpn_data_file:notdevfile_class_set create_file_perms;
+
+########## etc_type
+allow charon keystore:keystore_key { get sign verify };
+allow charon keystore_service:service_manager find;
+allow charon node:{ tcp_socket udp_socket } node_bind;
+allow charon port:{ tcp_socket udp_socket } name_bind;
+allow charon vpn_prop:property_service set;
+
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { get } for  scontext=u:r:charon:s0 tcontext=u:r:keystore:s0 tclass=keystore_key
+# avc:  denied  { sign } for  scontext=u:r:charon:s0 tcontext=u:r:keystore:s0 tclass=keystore_key
+# avc:  denied  { write } for  pid=23155 comm="charon" name="xfrm_acq_expires" dev="proc" ino=907479 scontext=u:r:charon:s0 tcontext=u:object_r:proc_net:s0 tclass=file permissive=0 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { module_request } for  pid=8374 comm="charon" kmod="authenc(hmac(sha1),cbc(aes))" scontext=u:r:charon:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+# avc:  denied  { set } for property=vpn.status scontext=u:r:charon:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc:  denied  { find } for service=android.security.keystore scontext=u:r:charon:s0 tcontext=u:object_r:keystore_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=android.security.keystore scontext=u:r:charon:s0 tcontext=u:object_r:keystore_service:s0 tclass=service_manager
+

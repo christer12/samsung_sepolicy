@@ -1,0 +1,2 @@
+# for /mnt/asec/
+allow asec_apk_file rootfs:filesystem associate;

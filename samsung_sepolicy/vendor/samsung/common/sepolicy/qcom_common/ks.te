@@ -1,0 +1,52 @@
+# ks
+#unix_socket_connect(ks, property, init)
+set_prop(ks, rild_prop)
+
+allow ks dw_mmc_device:dir ra_dir_perms;
+allow ks dw_mmc_device:lnk_file r_file_perms;
+allow ks efsks:fd use;
+allow ks firmware:file r_file_perms;
+allow ks init:unix_stream_socket connectto;
+allow ks m9kefsblk_device:blk_file rw_file_perms;
+allow ks emmcblk_device:blk_file rw_file_perms;
+allow ks modem_device:blk_file rw_file_perms;
+allow ks modem_device:lnk_file r_file_perms;
+allow ks modemstblk_device:blk_file w_file_perms;
+allow ks property_socket:sock_file w_file_perms;
+allow ks qcks:fd use;
+allow ks radio_device:chr_file rw_file_perms;
+allow ks rild_prop:property_service set;
+allow ks sdcard_type:file r_file_perms;
+allow ks self:capability { dac_override chown sys_boot };
+allow ks self:capability2 block_suspend;
+allow ks system_file:file x_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow ks system_data_file:file rw_file_perms;
+allow ks system_data_file:file r_file_perms;
+allow ks sysfs:file rw_file_perms;
+allow ks sysfs_ss_writable:file rw_file_perms;
+allow ks shell_exec:file rx_file_perms;
+allow ks tombstones_data_file:file create_file_perms;
+allow ks tombstones_data_file:dir ra_dir_perms;
+allow ks tombstone_data_file:dir r_dir_perms;
+allow ks usb_device:chr_file rw_file_perms;
+
+# Qualcomm's kickstart search block device dir
+# below rules shoud be allowed to boot up modem successfully.
+allow ks block_device:dir ra_dir_perms;
+allow ks block_device:lnk_file r_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow ks block_device:blk_file w_file_perms;
+
+# for B2C users
+typeattribute ks trusteddomain;
+typeattribute ks device_domain;
+
+## J GED
+allow ks sysfs_wake_lock:file ra_file_perms;
+
+############ qcmdm #############
+allow ks radio_device:chr_file r_file_perms;
+
+# avc:  denied  { sys_boot } for  pid=3425 comm="ks" capability=22  scontext=u:r:mdm_helper:s0 tcontext=u:r:mdm_helper:s0 tclass=capability permissive=0
+# syscall=142 success=no exit=-1 a0=fee1dead a1=28121969 a2=a1b2c3d4 a3=555d15bbf0 items=0 ppid=3066 ppcomm=mdm_helper pid=3425 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="ks" exe="/system/bin/ks" subj=u:r:mdm_helper:s0 key=(null)
+

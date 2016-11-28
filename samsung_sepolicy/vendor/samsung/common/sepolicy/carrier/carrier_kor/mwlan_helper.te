@@ -1,0 +1,12 @@
+
+############ LGT #############
+
+type mwlan_helper, domain;
+type mwlan_helper_exec, exec_type, file_type;
+
+domain_auto_trans(kernel, mwlan_helper_exec, mwlan_helper)
+
+allow mwlan_helper mwlan_aarp_device:chr_file create_file_perms;
+allow mwlan_helper mwlan_ipsecdrvtl_device:chr_file create_file_perms;
+allow mwlan_helper self:capability {chown sys_module};
+allow mwlan_helper kernel:key {search};

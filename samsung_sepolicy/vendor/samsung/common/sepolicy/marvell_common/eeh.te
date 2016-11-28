@@ -1,0 +1,34 @@
+
+
+## SEC added
+typeattribute eeh trusteddomain;
+typeattribute eeh device_domain;
+
+allow eeh bin_nv_data_efs_file:dir create_dir_perms;
+allow eeh bin_nv_data_efs_file:file create_file_perms;
+allow eeh bootblk_device:blk_file r_file_perms;
+allow eeh cploader_block_device:blk_file r_file_perms;
+allow eeh efs_file:dir r_dir_perms;
+allow eeh emmcblk_device:blk_file r_file_perms;
+allow eeh media_rw_data_file:dir create_dir_perms;
+allow eeh media_rw_data_file:file create_file_perms;
+allow eeh tz_device:chr_file rw_file_perms;
+allow eeh dumplog_data_file:dir create_dir_perms;
+allow eeh dumplog_data_file:file create_file_perms;
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=3004 comm="EehTask" name="log" dev="mmcblk0p18" ino=128525 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=3004 comm="EehTask" name="modem_dump" scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3004 comm="EehTask" name="modem_dump" scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3004 comm="EehTask" name="1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar" scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=3004 comm="EehTask" path="/data/log/modem_dump/1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar" dev="mmcblk0p18" ino=129593 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=8778 comm="gzip" name="1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar" dev="mmcblk0p18" ino=129593 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { getattr } for  pid=8778 comm="gzip" path="/data/log/modem_dump/1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar" dev="mmcblk0p18" ino=129593 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { remove_name } for  pid=3004 comm="EehTask" name="1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar" dev="mmcblk0p18" ino=129593 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { unlink } for  pid=3004 comm="EehTask" name="1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar" dev="mmcblk0p18" ino=129593 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { getattr } for  pid=8860 comm="chown" path="/data/log/modem_dump/1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar.gz" dev="mmcblk0p18" ino=129805 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=8860 comm="chown" name="modem_dump" dev="mmcblk0p18" ino=129473 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { open } for  pid=8860 comm="chown" path="/data/log/modem_dump" dev="mmcblk0p18" ino=129473 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { setattr } for  pid=8860 comm="chown" name="1_modem_dump_G361FXXU0AOE1_Assert_0_REPRIMEVELTE_EUR_OPEN_LWG_DS_LWG_platform_mcu_.._.._.._SS_common_ssipc_src_svc_sipc.c_L_866_2015-5-4-7-11-15.tar.gz" dev="mmcblk0p18" ino=129805 scontext=u:r:eeh:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=3033 comm="EehTask" name="mmcblk0boot0" dev="tmpfs" ino=9539 scontext=u:r:eeh:s0 tcontext=u:object_r:bootblk_device:s0 tclass=blk_file permissive=0
+# avc:  denied  { search } for  pid=3067 comm="EehTask" name="/" dev="mmcblk0p6" ino=2 scontext=u:r:eeh:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0

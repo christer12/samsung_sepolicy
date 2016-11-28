@@ -1,0 +1,6 @@
+# for wpa_supplicant
+allow netd kernel:system module_request;
+allow netd self:capability { sys_module fsetid };
+allow netd imsc:fd use;
+allow netd imsc:tcp_socket tcp_socket_perms;
+

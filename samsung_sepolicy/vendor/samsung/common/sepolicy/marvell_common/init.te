@@ -1,0 +1,6 @@
+
+#neverallow init { file_type fs_type }:file execute_no_trans
+#allow init dumpsys_exec:file execute_no_trans;
+
+# service dumpall /system/bin/dumpall.sh : temporary allow
+# avc:  denied  { execute_no_trans } for  pid=5533 comm="dumpall.sh" path="/system/bin/dumpsys" dev="mmcblk0p15" ino=610 scontext=u:r:init:s0 tcontext=u:object_r:dumpsys_exec:s0 tclass=file permissive=0 SEPF_SM-G361F_5.1_0011

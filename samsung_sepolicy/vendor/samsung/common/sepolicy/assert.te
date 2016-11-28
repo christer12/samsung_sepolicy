@@ -1,0 +1,101 @@
+# Asserions that should always hold
+
+## to check testZygote
+neverallow zygote runas_exec:file getattr;
+
+
+##### Not include the container neverallow rules ####
+# Never allow shell or untrusteddomain to access container files
+#neverallow untrusteddomain { container_file_type -container_app_data_backend }:file_class_set ~getattr;
+
+# Never allow shell or untrusteddomain to binder/ipc to container_app
+#neverallow untrusteddomain container_app:ipc_class_set *;
+#neverallow { untrusteddomain - knox_untrusted_app } container_app:binder *;
+
+# Never allow container_app to binder/ipc to container_app
+#neverallow container_app untrusteddomain:ipc_class_set *;
+#neverallow container_app { untrusteddomain - knox_untrusted_app }:binder *;
+
+# Never container_app to access the data created by untrusted file
+#neverallow containerdomain { untrusteddomain - knox_untrusted_app }:file_class_set *;
+
+# Container apps should have only sys_nice capabilities
+#neverallow container_app self:capability ~{ sys_nice net_admin };
+#neverallow container_app self:capability2 ~block_suspend;
+
+# XXX This is for containerized media serverice
+# we need to split the domain to a container service
+# and container app domain.
+#neverallow container_app kernel:system ~module_request;
+
+# container apps and untrusted apps should
+# never change the mac controls
+#AOSP rule allow appdomain kernel:security compute_av violate the following policy 
+#neverallow { container_app untrusteddomain } kernel:security *;
+
+# things tagged with container_service_secure_type should
+# only be accessable by that service
+#neverallow { domain - container_service -unconfineddomain -recovery } container_service_secure_type:file_class_set ~getattr;
+
+# Never allow appdomain access of container
+#neverallow { appdomain -knox_system_app -syscope_app } { container_file_type container_service_secure_type -container_app_data_backend }:file_class_set ~getattr;
+##### Not include the container neverallow rules ####
+
+#Need to re-enable it later
+#neverallow  appdomain dev_type:{ dir notdevfile_class_set chr_file } mounton;
+
+# Prevent Rooting via Motochopper [13 Apr 2013, updated by haeil.hyun]
+neverallow shell graphics_device:chr_file { read write open };
+neverallow shell kernel:process setsched;
+neverallow shell labeledfs:filesystem remount;
+neverallow shell system_file:dir { write remove_name add_name };
+neverallow shell system_file:file { write create setattr unlink };
+neverallow shell system_file:lnk_file create;
+neverallow shell self:capability { sys_admin };
+
+build_aosp_neverallow(`
+# Never Allow rules for FIXMO
+### file type control
+neverallow { untrusteddomain -carrier_app samsung_app vmware_app good_app } fixmo_app_data_file:dir_file_class_set ~getattr;
+neverallow { untrusteddomain -carrier_app samsung_app vmware_app good_app } fixmo_app_data_file:{ socket_class_set unpriv_socket_class_set ipc_class_set } *;
+#AOSP rule allow domain unlabeled:notdevfile_class_set { create_file_perms relabelfrom } violate the unlabeled policy 
+#unlabeled is removed
+neverallow fixmo_app { untrusted_type container_file_type container_service_secure_type good_app_data_file }:file_class_set ~getattr;
+#AOSP rule allow domain unlabeled:dir { create_dir_perms relabelfrom } violate the unlabeled policy 
+#unlabeled is removed
+neverallow fixmo_app { untrusted_type container_file_type container_service_secure_type good_app_data_file }:dir ~{ search getattr };
+neverallow fixmo_app { untrusted_type container_file_type container_service_secure_type unlabeled good_app_data_file }:{ socket_class_set unpriv_socket_class_set ipc_class_set} *;
+### domain type control
+neverallow fixmo_app { untrusteddomain -carrier_app containerdomain samsung_app vmware_app good_app }:dir ~{ getattr search };
+neverallow fixmo_app { untrusteddomain -carrier_app containerdomain samsung_app vmware_app good_app }:file_class_set ~getattr;
+neverallow fixmo_app { untrusteddomain -carrier_app containerdomain samsung_app vmware_app good_app }:{ socket_class_set unpriv_socket_class_set ipc_class_set} *;
+#neverallow { untrusteddomain -carrier_app samsung_app vmware_app good_app } fixmo_app:{ dir_file_class_set socket_class_set unpriv_socket_class_set #ipc_class_set} *;
+neverallow { untrusteddomain -carrier_app -knox_untrusted_app containerdomain samsung_app vmware_app good_app } fixmo_app:binder *;
+neverallow fixmo_app { untrusteddomain -carrier_app -knox_untrusted_app containerdomain samsung_app vmware_app good_app }:binder *;
+neverallow fixmo_app self:capability ~sys_nice;
+neverallow fixmo_app self:capability2 ~block_suspend;
+neverallow fixmo_app kernel:system ~module_request;
+neverallow fixmo_app kernel:security *;
+# Never Allow rules for GOOD
+### file type control
+neverallow { untrusteddomain -carrier_app -gad_untrusted_app samsung_app vmware_app fixmo_app } good_app_data_file:dir_file_class_set ~getattr;
+neverallow { untrusteddomain -carrier_app -gad_untrusted_app samsung_app vmware_app fixmo_app } good_app_data_file:{ socket_class_set unpriv_socket_class_set ipc_class_set } *;
+#neverallow good_app { untrusted_type container_file_type container_service_secure_type fixmo_app_data_file }:file_class_set ~getattr;
+neverallow good_app { untrusted_type container_file_type container_service_secure_type fixmo_app_data_file }:file_class_set ~getattr;
+#neverallow good_app { untrusted_type container_file_type container_service_secure_type fixmo_app_data_file }:dir ~{ search getattr };
+neverallow good_app { untrusted_type container_file_type container_service_secure_type fixmo_app_data_file }:dir ~{ search getattr };
+neverallow good_app { untrusted_type -gad_untrusted_app container_file_type container_service_secure_type unlabeled fixmo_app_data_file }:{ socket_class_set unpriv_socket_class_set ipc_class_set} *;
+### domain type control
+neverallow good_app { untrusteddomain -carrier_app  -gad_untrusted_app containerdomain samsung_app vmware_app fixmo_app }:dir ~{ getattr search };
+neverallow good_app { untrusteddomain -carrier_app  -gad_untrusted_app containerdomain samsung_app vmware_app fixmo_app }:file_class_set ~getattr;
+neverallow good_app { untrusteddomain -carrier_app  -gad_untrusted_app containerdomain samsung_app vmware_app fixmo_app }:{ socket_class_set unpriv_socket_class_set ipc_class_set} *;
+#neverallow { untrusteddomain -carrier_app -trustonicpartner_app -itsonclient_app -filtered_untrusted_app -gad_untrusted_app -samsung_app vmware_app //#fixmo_app } good_app:{ dir_file_class_set socket_class_set unpriv_socket_class_set ipc_class_set} *;
+neverallow { untrusteddomain -carrier_app -knox_untrusted_app -gad_untrusted_app containerdomain samsung_app vmware_app fixmo_app } good_app:binder *;
+neverallow good_app { untrusteddomain -carrier_app -knox_untrusted_app -gad_untrusted_app containerdomain samsung_app vmware_app fixmo_app }:binder *;
+neverallow good_app self:capability ~sys_nice;
+neverallow good_app self:capability2 ~block_suspend;
+neverallow good_app kernel:system ~module_request;
+neverallow good_app kernel:security *;
+')
+
+

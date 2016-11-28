@@ -1,0 +1,2 @@
+typealias location alias location-mq;
+typealias location_exec alias location-mq_exec;

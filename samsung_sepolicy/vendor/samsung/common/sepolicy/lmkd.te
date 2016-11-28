@@ -1,0 +1,44 @@
+# 
+# lmkd
+
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute lmkd trusteddomain;
+typeattribute lmkd system_domain;
+typeattribute lmkd mlstrustedsubject;
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+#neverallow Google CTS-android-5.0.2_r1 : allow lmkd system_library_file:file execute;
+
+########## etc_type
+# booting denial
+allow lmkd sysfs:file write;
+allow lmkd sysfs_ss_writable:file rw_file_perms;
+
+########## known issue.
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+allow lmkd { good_app fixmo_app }:dir rw_dir_perms;
+allow lmkd { good_app fixmo_app }:file rw_file_perms;
+
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc: denied { write } for name="minfree" dev="sysfs" ino=5256 scontext=u:r:lmkd:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+# item=0 name="/sys/module/lowmemorykiller/parameters/minfree" inode=5256 dev=00:0c mode=0100220 ouid=0 ogid=1000 rdev=00:00 obj=u:object_r:sysfs:s0
+# avc:  denied  { execute } for  pid=176 comm="lmkd" path="/system/lib/libsigchain.so" dev="mmcblk0p16" ino=1371 scontext=u:r:lmkd:s0 tcontext=u:object_r:system_library_file:s0 tclass=file
+# avc:  denied  { search } for  pid=248 comm="lmkd" name="4191" dev="proc" ino=42363 scontext=u:r:lmkd:s0 tcontext=u:r:fixmo_app:s0 tclass=dir
+# avc:  denied  { write } for  pid=248 comm="lmkd" name="oom_score_adj" dev="proc" ino=41730 scontext=u:r:lmkd:s0 tcontext=u:r:fixmo_app:s0 tclass=file
+# avc:  denied  { open } for  pid=248 comm="lmkd" name="oom_score_adj" dev="proc" ino=41730 scontext=u:r:lmkd:s0 tcontext=u:r:fixmo_app:s0 tclass=file
+
+

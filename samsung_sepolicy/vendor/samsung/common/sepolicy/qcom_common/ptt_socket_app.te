@@ -1,0 +1,41 @@
+# ptt_socket_app
+# This file implements the Netlink Proxy Server. It listens for MAC SW
+# messages generated from a test script(Perl/Python) at a remote host,
+# over a TCP/IP connection and translates them into the corresponding
+# Netlink messages to be sent to the HDD/MAC SW.
+
+type ptt_socket_app, domain;
+type ptt_socket_app_exec, exec_type, file_type;
+init_daemon_domain(ptt_socket_app)
+
+allow ptt_socket_app self:capability { setgid setuid net_admin net_raw dac_override dac_read_search };
+
+# Diag_LSM_Init
+allow ptt_socket_app diag_device:chr_file r_file_perms;
+
+# retrieve_nv_file and open as rw mode
+# /persist/WCN1314_qcom_wlan_nv.bin, /etc/firmware/wlan/qcom_wlan_nv.bin
+allow ptt_socket_app rootfs:lnk_file r_file_perms;
+allow ptt_socket_app persist_data_file:dir rw_dir_perms;
+allow ptt_socket_app persist_data_file:file rw_file_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow ptt_socket_app system_file:dir rw_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow ptt_socket_app system_file:file rw_file_perms;
+allow ptt_socket_app system_file:dir r_dir_perms;
+allow ptt_socket_app system_file:file r_file_perms;
+
+# for B2C users
+typeattribute ptt_socket_app trusteddomain;
+typeattribute ptt_socket_app system_domain;
+
+# temporary permissive to gather the log.
+# permissive ptt_socket_app;
+
+set_prop(ptt_socket_app, wifi_prop)
+
+## avc_log
+# avc:  denied  { dac_override } for  pid=11467 comm="ptt_socket_app" capability=1  scontext=u:r:ptt_socket_app:s0 tcontext=u:r:ptt_socket_app:s0 tclass=capability SEPF_SM-T365_4.4.4_0026
+# avc:  denied  { net_raw } for  pid=11467 comm="ptt_socket_app" capability=13  scontext=u:r:ptt_socket_app:s0 tcontext=u:r:ptt_socket_app:s0 tclass=capability SEPF_SM-T365_4.4.4_0026
+# avc:  denied  { set } for property=wifi.change_nv_owner scontext=u:r:ptt_socket_app:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# wifi.change_nv_owner -> wifi. u:object_r:wifi_prop:s0
+

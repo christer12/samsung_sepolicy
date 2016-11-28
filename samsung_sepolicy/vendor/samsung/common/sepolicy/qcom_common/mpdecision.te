@@ -1,0 +1,49 @@
+# mpdecision
+
+
+allow mpdecision self:capability { net_admin chown fsetid dac_override };
+allow mpdecision self:netlink_kobject_uevent_socket { read bind create setopt };
+
+allow mpdecision device:dir rw_dir_perms;
+allow mpdecision cpu_dma_latency_device:chr_file w_file_perms;
+allow mpdecision device:sock_file create_file_perms;
+allow mpdecision kernel:process setsched;
+allow mpdecision mediaserver:file rw_file_perms;
+allow mpdecision mediaserver:dir rw_dir_perms;
+allow mpdecision mpdecision_socket:dir rw_dir_perms;
+allow mpdecision mpdecision_socket:sock_file create_file_perms;
+allow mpdecision socket_device:dir rw_dir_perms;
+allow mpdecision socket_device:sock_file create_file_perms;
+allow mpdecision sysfs:file rw_file_perms;
+allow mpdecision sysfs_ss_writable:file rw_file_perms;
+allow mpdecision system:dir rw_dir_perms;
+allow mpdecision system:file rw_file_perms;
+allow mpdecision system_data_file:dir rw_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mpdecision system_data_file:file create_file_perms;
+allow mpdecision system_data_file:file r_file_perms;
+allow mpdecision system_app:dir r_dir_perms;
+allow mpdecision thermald:unix_stream_socket connectto;
+allow mpdecision labeledfs:dir r_dir_perms;
+allow mpdecision mediaserver:dir r_dir_perms;
+
+# Allow to access the dev="proc" from nsa 4.4 policy update
+allow mpdecision system:dir r_dir_perms;
+allow mpdecision system:file r_file_perms;
+
+# for B2C users
+typeattribute mpdecision trusteddomain;
+typeattribute mpdecision device_domain;
+
+
+## from J GED
+allow mpdecision sysfs_mpdecision:file r_file_perms;
+allow mpdecision sysfs_rqstats:dir search;
+allow mpdecision sysfs_thermal:dir search;
+
+
+#audit(46844.142:59): avc:  denied  { search } for  pid=2083 comm="mpdecision" name="rq-stats" dev="sysfs" ino=20304 scontext=u:r:mpdecision:s0 tcontext=u:object_r:sysfs_rqstats:s0 tclass=dir
+#audit(46844.142:60): avc:  denied  { search } for  pid=2120 comm="mpdecision" name="msm_thermal" dev="sysfs" ino=5187 scontext=u:r:mpdecision:s0 tcontext=u:object_r:sysfs_thermal:s0 tclass=dir
+#audit(46844.142:60): avc:  denied  { read } for  pid=2120 comm="mpdecision" name="cpus_offlined" dev="sysfs" ino=15957 scontext=u:r:mpdecision:s0 tcontext=u:object_r:sysfs_mpdecision:s0 tclass=file
+#audit(46844.142:60): avc:  denied  { open } for  pid=2120 comm="mpdecision" name="cpus_offlined" dev="sysfs" ino=15957 scontext=u:r:mpdecision:s0 tcontext=u:object_r:sysfs_mpdecision:s0 tclass=file
+

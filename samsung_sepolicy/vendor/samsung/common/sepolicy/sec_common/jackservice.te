@@ -1,0 +1,74 @@
+#
+# jackservice
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# jackservice
+type jackservice, domain;
+type jackservice_exec, exec_type, file_type;
+# for B2C users
+typeattribute jackservice trusteddomain;
+typeattribute jackservice system_domain;
+typeattribute jackservice mlstrustedsubject;
+
+binder_use(jackservice)
+binder_call(jackservice, mediaserver)
+binder_call(jackservice, { untrusted_app platform_app })
+binder_call({ untrusted_app platform_app }, jackservice)
+init_daemon_domain(jackservice)
+unix_socket_rw(jackservice, init)
+
+########## self and domain_type
+allow jackservice apaservice:unix_stream_socket connectto;
+allow jackservice kernel:system module_request;
+allow jackservice radio:fd use;
+allow jackservice self:binder { transfer call };
+allow jackservice self:capability { setuid setgid kill };
+allow jackservice system_app:fd use;
+allow jackservice untrusteddomain:fd use;
+allow jackservice untrusteddomain:unix_stream_socket connectto;
+
+########## fs_type
+allow jackservice cgroup:dir { create add_name };
+allow jackservice sdcard_type:dir create_dir_perms;
+allow jackservice sdcard_type:file create_file_perms;
+allow jackservice sysfs:file write;
+allow jackservice sysfs_ss_writable:file write;
+
+########## dev_type
+allow jackservice audio_device:chr_file rw_file_perms;
+allow jackservice audio_device:dir search;
+
+########## file_type
+allow jackservice androidshmservice_exec:file rx_file_perms;
+allow jackservice apaservice_exec:file rx_file_perms;
+allow jackservice app_data_file:file rw_file_perms;
+allow jackservice app_library_file:dir search;
+allow jackservice efs_file:dir r_dir_perms;
+allow jackservice efs_file:file r_file_perms;
+allow jackservice jack_data_file:dir create_dir_perms;
+allow jackservice jack_data_file:{ file sock_file } create_file_perms;
+allow jackservice jack_socket:dir rw_dir_perms;
+allow jackservice jack_socket:sock_file create_file_perms;
+allow jackservice media_rw_data_file:dir create_dir_perms;
+allow jackservice media_rw_data_file:file create_file_perms;
+allow jackservice system_data_file:dir create_dir_perms;
+allow jackservice system_data_file:sock_file create_file_perms;
+allow jackservice system_file:file { rx_file_perms execmod };
+
+########## etc_type
+allow jackservice jackservice_service:service_manager { add find };
+allow jackservice mediaserver_service:service_manager find;
+allow jackservice permission_service:service_manager find;
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { add } for service=com.samsung.android.jam.IJackService scontext=u:r:jackservice:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+# avc:  denied  { connectto } for  pid=8919 comm="jackd" path="/dev/socket/jack/jack_com.sec.musicstudioSolClient_1038_0" scontext=u:r:jackservice:s0 tcontext=u:r:untrusted_app:s0 tclass=unix_stream_socket
+# avc:  denied  { find } for service=media.audio_flinger scontext=u:r:jackservice:s0 tcontext=u:object_r:mediaserver_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=com.samsung.android.jam.IAndroidShm scontext=u:r:jackservice:s0 tcontext=u:object_r:jackservice_service:s0 tclass=service_manager
+# avc:  denied  { execmod } for  pid=544 comm="jackservice" path="/system/lib/libsthmb.so" dev="sda20" ino=2423 scontext=u:r:jackservice:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+
+

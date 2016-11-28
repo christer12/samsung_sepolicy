@@ -1,0 +1,4 @@
+
+#============= kiesexe ==============
+allow kiesexe untrusteddomain:dir search;
+allow kiesexe untrusteddomain:file { read getattr };

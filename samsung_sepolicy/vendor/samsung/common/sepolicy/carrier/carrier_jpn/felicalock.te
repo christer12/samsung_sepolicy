@@ -1,0 +1,76 @@
+
+# nfc subsystem
+
+# <FeliCaLock01>
+#neverallow Google-android-5.0.2_r1 : allow felicalock efs_file:file { read open write getattr ioctl create unlink setattr};
+
+# <FeliCaLock03>
+#allow felicalock device:chr_file { open write getattr };
+allow felicalock nfcfelica_device:chr_file rw_file_perms;
+allow felicalock felica_device:chr_file rw_file_perms;
+
+
+# <FeliCaLock04>
+allow felicalock surfaceflinger:unix_stream_socket { setopt read };
+allow felicalock surfaceflinger:binder { transfer };
+
+# <FeliCaLock05>
+#allow felicalock pvrsync_device:chr_file { read write open };
+
+#neverallow Google-android-5.0.2_r1 : allow felicalock efs_file:dir { write add_name remove_name };
+
+#allow felicalock fimg2d_video_device:chr_file { read write open ioctl };
+allow felicalock system:unix_stream_socket { setopt read };
+#neverallow Google-android-5.0.2_r1 : allow felicalock system_data_file:dir { write read open add_name create setattr getattr };
+
+#Add Felica 20130221
+allow felicalock felica_data_file:file create_file_perms;
+allow felicalock felica_data_file:notdevfile_class_set create_file_perms;
+
+allow felicalock dumplog_data_file:file w_file_perms;
+
+########## androd-m : denials ########
+allow felicalock activity_service:service_manager find;
+allow felicalock connectivity_service:service_manager find;
+allow felicalock display_service:service_manager find;
+allow felicalock network_management_service:service_manager find;
+allow felicalock radio_service:service_manager find;
+allow felicalock registry_service:service_manager find;
+allow felicalock statusbar_service:service_manager find;
+allow felicalock system_service:service_manager find;
+allow felicalock nfc_service:service_manager find;
+allow felicalock surfaceflinger_service:service_manager find;
+allow felicalock graphicsstats_service:service_manager find;
+allow felicalock accessibility_service:service_manager find;
+allow felicalock input_method_service:service_manager find;
+allow felicalock content_service:service_manager find;
+allow felicalock trust_service:service_manager find;
+allow felicalock audio_service:service_manager find;
+allow felicalock notification_service:service_manager find;
+allow felicalock efs_file:dir search;
+
+
+# for B2C users
+#changeBySEA : typeattribute felicalock trusteddomain;
+#changeBySEA : typeattribute felicalock trusted_app_domain;
+
+############ avc_log #############
+#avc:  denied  { find } for service=knox_timakeystore_policy scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:system_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=activity scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:activity_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=display scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:display_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=network_management scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:network_management_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=connectivity scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:connectivity_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=telephony.registry scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:registry_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=isub scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:radio_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=statusbar scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:statusbar_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=nfc scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:nfc_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=SurfaceFlinger scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:surfaceflinger_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=graphicsstats scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:graphicsstats_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=accessibility scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:accessibility_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=input_method scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:input_method_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=content scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:content_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=trust scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:trust_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=audio scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:audio_service:s0 tclass=service_manager
+#avc:  denied  { find } for service=notification scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:notification_service:s0 tclass=service_manager
+#avc:  denied  { search } for  pid=13873 comm="sung.felicalock" name="/" dev="sda3" ino=2 scontext=u:r:felicalock:s0:c512,c768 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0 
+

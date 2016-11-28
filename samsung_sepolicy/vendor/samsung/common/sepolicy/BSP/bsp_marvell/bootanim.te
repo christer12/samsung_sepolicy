@@ -1,0 +1,10 @@
+# grant additional permissions to bootanim
+#SEC changed: allow bootanim mrvlgpu_device:chr_file create_file_perms;
+allow bootanim mrvlgpu_device:chr_file rw_file_perms;
+#SEC changed: allow bootanim graphics_device:dir create_dir_perms;
+allow bootanim graphics_device:dir r_dir_perms;
+#SEC changed: allow bootanim sysfs:file create_file_perms;
+allow bootanim sysfs:file rw_file_perms;
+#SEC changed: allow bootanim property_socket:sock_file create_file_perms;
+allow bootanim property_socket:sock_file rw_file_perms;
+

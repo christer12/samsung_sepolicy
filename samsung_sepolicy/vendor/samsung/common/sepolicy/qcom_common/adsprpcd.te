@@ -1,0 +1,8 @@
+# adsprpcd
+
+# rules
+allow adsprpcd adsprpc_device:chr_file r_file_perms;
+
+allow adsprpcd adsprpcd_service:service_manager add;
+
+

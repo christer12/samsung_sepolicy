@@ -1,0 +1,6 @@
+
+# KOR Carrier app domain
+user=_app seinfo=tbaseplatform domain=carrier_app type=app_data_file levelFrom=user
+
+# LGU
+user=system seinfo=lguiwlan domain=system_app type=system_app_data_file

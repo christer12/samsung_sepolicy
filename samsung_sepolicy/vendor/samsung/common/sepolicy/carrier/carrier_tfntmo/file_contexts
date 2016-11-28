@@ -1,0 +1,3 @@
+
+/system/bin/tsdaemon            u:object_r:tsdaemon_exec:s0
+

@@ -1,0 +1,13 @@
+# qrngd
+
+type qrngd, domain;
+type qrngd_exec, exec_type, file_type;
+init_daemon_domain(qrngd)
+
+#neverallow Google CTS-android-5.0.2_r1 : allow qrngd hw_random_device:chr_file r_file_perms;
+allow qrngd random_device:chr_file rw_file_perms;
+allow qrngd self:capability { setuid setgid sys_admin };
+
+# for B2C users
+typeattribute qrngd trusteddomain;
+typeattribute qrngd device_domain;

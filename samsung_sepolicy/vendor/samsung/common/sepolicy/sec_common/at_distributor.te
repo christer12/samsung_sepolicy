@@ -1,0 +1,149 @@
+#
+# at_distributor
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type at_distributor, domain, mlstrustedsubject;
+type at_distributor_exec, exec_type, file_type;
+# for B2C users
+typeattribute at_distributor trusteddomain;
+typeattribute at_distributor system_domain;
+
+access_kmsg(at_distributor)
+binder_use(at_distributor)
+binder_call(at_distributor, binderservicedomain)
+binder_call(at_distributor, bintvoutservice)
+binder_call(at_distributor, nfc)
+binder_call(at_distributor, radio)
+binder_call(at_distributor, sensorhubservice)
+binder_call(at_distributor, servicemanager)
+binder_call(at_distributor, syscope_app)
+dumplog_create(at_distributor)
+init_daemon_domain(at_distributor)
+#unix_socket_connect(at_distributor, property, init)
+set_prop(at_distributor, rild_prop)
+mobicore_use(at_distributor)
+
+########## self and domain_type
+allow at_distributor rild:unix_stream_socket connectto;
+allow at_distributor sec-ril:unix_stream_socket connectto;
+#neverallow Google CTS-android-5.0.2_r1 : remove sys_ptrace, allow at_distributor self:capability { sys_ptrace dac_override setuid fowner chown fsetid };
+allow at_distributor self:capability { dac_override setuid fowner chown fsetid };
+
+allow at_distributor self:netlink_route_socket { write getattr setopt read bind create nlmsg_read };
+allow at_distributor servicemanager:binder call;
+
+########## fs_type
+allow at_distributor cgroup:dir create_dir_perms;
+allow at_distributor cgroup:file create_file_perms;
+allow at_distributor firmware:dir r_dir_perms;
+allow at_distributor firmware:file r_file_perms;
+allow at_distributor sysfs:file w_file_perms;
+allow at_distributor sysfs_ss_writable:file rw_file_perms;
+allow at_distributor sysfs_sec:file { rw_file_perms setattr };
+
+########## dev_type
+allow at_distributor alarm_device:chr_file rw_file_perms;
+allow at_distributor ashmem_device:chr_file x_file_perms;
+
+allow at_distributor console_device:chr_file write;
+# avc:  denied  { write } for  pid=398 comm="at_distributor" name="ttyHSL0" dev="tmpfs" ino=8173 scontext=u:r:at_distributor:s0 tcontext=u:object_r:console_device:s0 tclass=chr_file permissive=1
+
+allow at_distributor emmcblk_device:blk_file rw_file_perms;
+
+########## file_type
+allow at_distributor app_efs_file:dir create_dir_perms;
+allow at_distributor app_efs_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow at_distributor at_distributor_tmpfs:file execute;
+allow at_distributor carrier_efs_file:dir create_dir_perms;
+allow at_distributor carrier_efs_file:file create_file_perms;
+allow at_distributor efs_file:dir create_dir_perms;
+allow at_distributor efs_file:file create_file_perms;
+allow at_distributor imei_efs_file:dir create_dir_perms;
+allow at_distributor imei_efs_file:file create_file_perms;
+allow at_distributor radio_data_file:dir rw_dir_perms;
+allow at_distributor radio_data_file:file create_file_perms;
+allow at_distributor sec_efs_file:dir create_dir_perms;
+allow at_distributor sec_efs_file:file create_file_perms;
+allow at_distributor shell_exec:file rx_file_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+#allow at_distributor su_exec:file rx_file_perms;
+allow at_distributor su_exec:file r_file_perms;
+
+allow at_distributor system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow at_distributor system_data_file:file create_file_perms;
+allow at_distributor system_data_file:file r_file_perms;
+
+allow at_distributor system_file:file x_file_perms;
+allow at_distributor zygote_exec:file { r_file_perms x_file_perms };
+
+########## etc_type
+allow at_distributor rild_prop:property_service set;
+
+########## known issue.
+#r_dir_file(at_distributor, file_type)
+# replacing r_dir_file macro and removing container related access
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow at_distributor { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow at_distributor { file_type -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow at_distributor { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#allow at_distributor { file_type -trstdomain_no_read_file -vold_data_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#changeBySEA allow at_distributor { file_type -trstdomain_no_read_file -vold_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+allow at_distributor { shell_data_file app_data_file }:file r_file_perms;
+
+# Allow /sys/power/wake_lock from nsa 4.4 policy update
+allow at_distributor sysfs_wake_lock:file rw_file_perms;
+
+# ui barcode display 
+allow at_distributor block_device:dir r_dir_perms;
+
+
+############ qcom_common #############
+########## type and macro.
+binder_call(at_distributor, system_app)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow at_distributor radio_device:chr_file rw_file_perms;
+allow at_distributor qseecom_device:chr_file rw_file_perms;
+allow at_distributor ssipc_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+allow at_distributor adbd:dir r_dir_perms;
+
+########## fs_type
+########## dev_type
+allow at_distributor uart_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+########## androd-m-preview: denials ########
+allow at_distributor ddexe:unix_stream_socket connectto;
+allow at_distributor system_data_file:sock_file rw_file_perms;
+
+
+############ avc_log #############
+#  denied  { execute } for  pid=23186 comm="Compiler" dev="tmpfs" ino=255335 scontext=u:r:at_distributor:s0 tcontext=u:object_r:at_d
+# avc:  denied  { execute } for  pid=7330 comm="app_process" path="/data/dalvik-cache/arm/system@framework@boot.oat" dev="mmcblk0p26" ino=917510 scontext=u:r:at_distributor:s0 tcontext=u:object_r:dalvikcache_data_file:s0 tclass=file SEPF_SM-G900S_5.0_A001
+# avc:  denied  { setattr } for  pid=2997 comm="at_distributor" name="uart_sel" dev="sysfs" ino=11856 scontext=u:r:at_distributor:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=1
+# avc:  denied  { search } for  pid=3149 comm="at_distributor" name="block" dev="tmpfs" ino=5583 scontext=u:r:at_distributor:s0 tcontext=u:object_r:block_device:s0 tclass=dir permissive=0 SEPF_SM-G925V_5.0.2_0003
+# avc:  denied  { read write } for  pid=892 comm="at_distributor" name="sda7" dev="tmpfs" ino=2649 scontext=u:r:at_distributor:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=0
+# avc:  denied  { write } for  pid=3029 comm="at_distributor" name="umts_calibcmd" dev="tmpfs" ino=2693 scontext=u:r:at_distributor:s0 tcontext=u:object_r:ssipc_device:s0 tclass=chr_file SEPF_SECMOBILE_6.0.1_0003
+

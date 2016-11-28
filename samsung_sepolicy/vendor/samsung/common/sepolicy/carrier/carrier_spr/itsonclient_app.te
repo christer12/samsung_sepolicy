@@ -1,0 +1,69 @@
+#
+# Sprint ItsOn
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+typeof itsonclient_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias itsonclient_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias itsonclient_app_tmpfs;
+
+#platform_app_domain(itsonclient_app)
+
+########## self and domain_type
+allow itsonclient_app zygote:binder { call transfer };
+#neverallow Google CTS-android-5.0.2_r1 : allow itsonclient_app self:{ socket netlink_socket } *;
+# appdomain: relax netlink_socket neverallow rule, REf: https://android.googlesource.com/platform/external/sepolicy/+/d31936f89c49bc5c54b84bd5095f3c417da14935 
+allow itsonclient_app self:{ socket netlink_socket } *;
+
+allow itsonclient_app self:udp_socket { create setopt bind node_bind getattr connect write getopt read };
+
+########## fs_type
+########## dev_type
+########## file_type
+allow itsonclient_app itsonapp_data_file:dir create_dir_perms;
+allow itsonclient_app itsonapp_data_file:notdevfile_class_set create_file_perms;
+allow itsonclient_app itsonapp_data_file:file { create_file_perms execute };
+allow itsonclient_app sprintitson_file:dir create_dir_perms;
+allow itsonclient_app sprintitson_file:notdevfile_class_set create_file_perms;
+allow itsonclient_app sprintitson_file:file { create_file_perms execute };
+
+########## etc_type
+allow itsonclient_app port:tcp_socket { name_connect name_bind };
+
+########## known issue.
+
+#allow system_app self:netlink_socket *;
+#violate neverallow rule
+#allow shell sprintitson_file:dir { write remove_name };
+#allow shell sprintitson_file:file { getattr link unlink rename };
+
+#Policy from itson vendor.
+# Allow system to read apk to dex it
+r_dir_file(system_server, sprintitson_file)
+r_dir_file(system_app, sprintitson_file)
+r_dir_file(dex2oat, sprintitson_file)
+
+# This is for the client to load its data other app to load itson-oem.jar
+r_dir_file(untrusted_app, sprintitson_file)
+r_dir_file(radio, sprintitson_file)
+
+# Allow app to create/read/write to the local socket
+allow itsonclient_app itson_socket:file create_file_perms;
+allow itsonclient_app itson_socket:dir rw_dir_perms;
+allow itsonclient_app itson_socket:sock_file create_file_perms;
+
+# Allow other app to see the socket and connect to it
+r_dir_file(untrusted_app, itson_socket)
+unix_socket_connect(untrusted_app, itson, itsonclient_app)
+unix_socket_send(untrusted_app, itson, itsonclient_app)
+
+############ avc_log #############
+#avc:  denied  { write } for  pid=2170 comm="Thread-92" name="itson" dev="tmpfs" ino=10253 scontext=u:r:itsonclient_app:s0 tcontext=u:object_r:socket_device:s0 tclass=dir
+#audit(1416964424.911:219): arch=40000028 syscall=282 per=800000 success=no exit=-13 a0=22 a1=b3b23914 a2=6e a3=b6f73cd8 items=1 ppid=491 pid=2170 auid=4294967295 uid=4002 gid=4002 euid=4002 suid=4002 fsuid=4002 egid=4002 sgid=4002 fsgid=4002 tty=(none) ses=4294967295 comm="Thread-92" exe="/system/bin/app_process32" subj=u:r:itsonclient_app:s0 key=(null)
+#audit(1416964424.911:219): saddr=01002F6465762F736F636B65742F6974736F6E2F6E6F746966790
+#audit(1416964424.911:219): item=0 name=(null) inode=10253 dev=00:0b mode=042771 ouid=4002 ogid=4002 rdev=00:00 obj=u:object_r:socket_device:s0
+
+
+
+

@@ -1,0 +1,26 @@
+
+unix_socket_connect(appdomain, mpctl, perfd)
+
+#P150222-00403 
+allow perfd mediaserver:dir r_dir_perms;
+allow perfd mediaserver:file r_file_perms;
+
+# JPN denials
+allow perfd domain:dir search;
+allow perfd domain:file { open read };
+
+allow perfd trusteddomain:process signull;
+
+############ avc_log #############
+# avc:  denied  { connectto } for  pid=5730 comm="amsung.mdmtest2" path="/data/misc/perfd/mpctl" scontext=u:r:s_untrusted_app:s0 tcontext=u:r:perfd:s0 tclass=unix_stream_socket permissive=0 SEPF_SM-P355_5.0.2_0003
+# avc:  denied  { search } for  pid=1991 comm="perfd" name="276" dev="proc" ino=76287 scontext=u:r:perfd:s0 tcontext=u:r:mediaserver:s0 tclass=dir permissive=0 SEPF_SM-T355_5.0.2_0008
+# avc:  denied  { search } for  pid=3673 comm="perfd" name="330" dev="proc" ino=133438 scontext=u:r:perfd:s0 tcontext=u:r:oneseg_mw:s0 tclass=dir permissive=1 SEPF_SM-J500F_5.0.2_0011
+# avc:  denied  { read } for  pid=3673 comm="perfd" name="status" dev="proc" ino=133439 scontext=u:r:perfd:s0 tcontext=u:r:oneseg_mw:s0 tclass=file permissive=1 SEPF_SM-J500F_5.0.2_0011
+# avc:  denied  { open } for  pid=3673 comm="perfd" path="/proc/330/status" dev="proc" ino=133439 scontext=u:r:perfd:s0 tcontext=u:r:oneseg_mw:s0 tclass=file permissive=1 SEPF_SM-J500F_5.0.2_0011
+# avc:  denied  { kill } for  pid=5085 comm="perfd" capability=5  scontext=u:r:perfd:s0 tcontext=u:r:perfd:s0 tclass=capability permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { signull } for  pid=4012 comm="perfd" scontext=u:r:perfd:s0 tcontext=u:r:mediaserver:s0 tclass=process permissive=0
+# avc:  denied  { signull } for  pid=4473 comm="perfd" scontext=u:r:perfd:s0 tcontext=u:r:system_server:s0 tclass=process permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0002
+# avc:  denied  { signull } for  pid=4372 comm="perfd" scontext=u:r:perfd:s0 tcontext=u:r:surfaceflinger:s0 tclass=process permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# date=2016/01/05;scontext=perfd;tcontext=oneseg_mw:tclass=process permission=signull;mls="MATCH";category="/";model="SGH-N611";os="6.0.1";build="OL3";comm="perfd";exe="/system/vendor/bin/perfd";path="-";dev="-";name="-";proctitle="/system/vendor/bin/perfd";syscall="129";ioctlcmd(hex)="0";uid="0";permissive="0";
+
+

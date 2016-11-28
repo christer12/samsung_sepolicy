@@ -1,0 +1,20 @@
+
+# SEC added
+# codecIPC_server
+#
+############ aosp and sec_common #############
+########## type and macro.
+
+binder_use(codecIPC_server)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+allow codecIPC_server codecIPC_server_service:service_manager add; 
+########## known issue.
+
+
+############ avc_log #############
+

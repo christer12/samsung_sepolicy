@@ -1,0 +1,38 @@
+#
+# sysmon
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# sysmon
+type sysmon, domain;
+type sysmon_exec, exec_type, file_type;
+# for B2C users
+typeattribute sysmon trusteddomain;
+typeattribute sysmon system_domain;
+typeattribute sysmon mlstrustedsubject;
+
+init_daemon_domain(sysmon)
+
+########## self and domain_type
+allow sysmon init:dir r_dir_perms;
+allow sysmon init:file r_file_perms;
+allow sysmon kernel:dir r_dir_perms;
+allow sysmon kernel:file r_file_perms;
+allow sysmon kernel:system syslog_read;
+allow sysmon self:capability { fowner chown fsetid dac_override sys_admin };
+allow sysmon self:capability2 syslog;
+
+########## androd-m-preview: denials ########
+allow sysmon dumplog_data_file:dir r_dir_perms;
+
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

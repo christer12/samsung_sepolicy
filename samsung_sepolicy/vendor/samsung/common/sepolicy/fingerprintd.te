@@ -1,0 +1,41 @@
+#============= fingerprintd ==============
+mobicore_use(fingerprintd)
+dumplog_create(fingerprintd)
+
+allow fingerprintd s5p_smem_device:chr_file rw_file_perms;
+allow fingerprintd vfsspi_device:chr_file rw_file_perms;
+#P151117-03109
+allow fingerprintd devpts:chr_file rw_file_perms;
+
+### not allowed allow fingerprintd system_data_file:dir { write create add_name };
+###allow fingerprintd system_data_file:file { write create open };
+# avc:  denied  { open } for  pid=10298 comm=504F5349582074696D65722031 path="/data/biometrics/meta/calib.dat" dev="sda18" ino=589843 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:system_data_file:s0
+
+### M denial
+type_transition fingerprintd system_data_file:dir fido_data_file ".fido";
+allow fingerprintd fido_data_file:dir create_dir_perms;
+allow fingerprintd fido_data_file:file create_file_perms;
+
+# common folder for daemon and special domain(system UID app).
+# i.e: data/fpSnrTest log.
+# currently only allow read operation for system UID app.
+type shared_data_file, data_file_type, file_type;
+typeattribute shared_data_file trstdomain_no_read_file;
+typeattribute shared_data_file trstdomain_no_write_file;
+
+# common resouce(SynSnsrTest.log) with system app(Factory app)
+type_transition fingerprintd system_data_file:dir shared_data_file "fpSnrTest";
+allow fingerprintd shared_data_file:dir create_dir_perms;
+allow fingerprintd shared_data_file:file create_file_perms;
+
+allow system_app shared_data_file:file r_file_perms;
+
+##### avc_msg ###
+# avc:  denied  { connectto } for  pid=3175 comm="fingerprintd" path=006D636461656D6F6E scontext=u:r:fingerprintd:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { read write } for  pid=3175 comm="fingerprintd" name="mobicore-user" dev="tmpfs" ino=3488 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { read write } for  pid=3175 comm="fingerprintd" name="vfsspi" dev="tmpfs" ino=3261 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:vfsspi_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { read write } for  pid=3175 comm="fingerprintd" name="s5p-smem" dev="tmpfs" ino=3427 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:s5p_smem_device:s0 tclass=chr_file permissive=1 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { create } for  pid=3186 comm="fingerprintd" name=".fido" scontext=u:r:fingerprintd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=0
+# avc:  denied  { write } for  pid=14692 comm="dumpsys" path="/data/log/DumpsysAll_G930W8VLU0AOKC-2015-11-19_14:58:30.txt.tmp" dev="dm-0" ino=131104 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0
+# avc:  denied  { read write } for  pid=19972 comm="dumpsys" path="/dev/pts/1" dev="devpts" ino=4 scontext=u:r:fingerprintd:s0 tcontext=u:object_r:devpts:s0 tclass=chr_file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001
+

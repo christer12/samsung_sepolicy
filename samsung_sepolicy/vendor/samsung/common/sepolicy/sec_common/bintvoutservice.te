@@ -1,0 +1,63 @@
+#
+# bintvoutservice
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type bintvoutservice, domain;
+type bintvoutservice_exec, exec_type, file_type;
+# for B2C users
+typeattribute bintvoutservice trusteddomain;
+typeattribute bintvoutservice system_domain;
+
+binder_use(bintvoutservice)
+binder_call(bintvoutservice, surfaceflinger)
+dumplog_create(bintvoutservice)
+init_daemon_domain(bintvoutservice)
+
+########## self and domain_type
+allow bintvoutservice at_distributor:fd use;
+allow bintvoutservice init:unix_stream_socket { connectto read write };
+allow bintvoutservice radio:fd use;
+allow bintvoutservice surfaceflinger:fd use;
+allow bintvoutservice system_app:fd use;
+allow bintvoutservice system_app:fifo_file w_file_perms;
+
+########## fs_type
+allow bintvoutservice sdcard_type:file w_file_perms;
+allow bintvoutservice sysfs:file w_file_perms;
+allow bintvoutservice sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow bintvoutservice graphics_device:dir create_dir_perms;
+allow bintvoutservice graphics_device:chr_file rw_file_perms;
+
+########## file_type
+allow bintvoutservice platform_app_data_file:file w_file_perms;
+
+########## etc_type
+allow bintvoutservice bintvoutservice_service:service_manager { add find };
+allow bintvoutservice surfaceflinger_service:service_manager find;
+
+########## known issue.
+# for CTS
+allow bintvoutservice app_data_file:file write;
+allow bintvoutservice untrusteddomain:fd use;
+
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow bintvoutservice hpd_device:chr_file rw_file_perms;
+allow bintvoutservice ump_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { add } for service=TvoutService_C scontext=u:r:bintvoutservice:s0 tcontext=u:object_r:default_android_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=SurfaceFlinger scontext=u:r:bintvoutservice:s0 tcontext=u:object_r:surfaceflinger_service:s0 tclass=service_manager
+

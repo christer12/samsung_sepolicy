@@ -1,0 +1,50 @@
+#
+# wcnss_service
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+unix_socket_connect(wcnss_service, property, init)
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+allow wcnss_service wifi_data_file:dir rw_dir_perms;
+allow wcnss_service wifi_data_file:file { rw_file_perms setattr };
+########## etc_type
+########## known issue.
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+allow wcnss_service sysfs_msmuart_file:file write;
+
+########## dev_type
+allow wcnss_service wifi_device:chr_file rw_file_perms;
+allow wcnss_service serial_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+## J GED denials
+#audit(46768.864:19): avc:  denied  { write } for  pid=229 comm="wcnss_service" name="WCNSS_qcom_cfg.ini" dev="mmcblk0p28" ino=342749 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=file
+#audit(46768.864:19): avc:  denied  { open } for  pid=229 comm="wcnss_service" name="WCNSS_qcom_cfg.ini" dev="mmcblk0p28" ino=342749 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=file
+#audit(46768.864:19): arch=40000028 syscall=322 per=800000 success=yes exit=4 a0=ffffff9c a1=b6fb4269 a2=20241 a3=1b0 items=1 ppid=1 pid=229 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294audit(46768.864:19):  cwd="/"
+#audit(46768.864:19): item=0 name="/data/misc/wifi/WCNSS_qcom_cfg.ini" inode=342749 dev=b3:1c mode=0100600 ouid=1000 ogid=1010 rdev=00:00 obj=u:object_r:wifi_data_file:s0
+#audit(46768.874:20): avc:  denied  { setattr } for  pid=229 comm="wcnss_service" name="WCNSS_qcom_cfg.ini" dev="mmcblk0p28" ino=342749 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=file
+#audit(46768.874:20): arch=40000028 syscall=348 per=800000 success=yes exit=0 a0=ffffff9c a1=b6fb4269 a2=bef458c8 a3=0 items=1 ppid=1 pid=229 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=429audit(46768.874:20):  cwd="/"
+#audit(46768.874:20): item=0 name="/data/misc/wifi/WCNSS_qcom_cfg.ini" inode=342749 dev=b3:1c mode=0100600 ouid=1000 ogid=1010 rdev=00:00 obj=u:object_r:wifi_data_file:s0
+#audit(46768.874:22): avc:  denied  { write } for  pid=229 comm="wcnss_service" name="property_service" dev="tmpfs" ino=5596 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+#audit(46768.874:22): avc:  denied  { connectto } for  pid=229 comm="wcnss_service" path="/dev/socket/property_service" scontext=u:r:wcnss_service:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+#audit(46768.874:22): arch=40000028 syscall=283 per=800000 success=yes exit=0 a0=5 a1=bef457f4 a2=1f a3=b6f5e774 items=1 ppid=1 pid=229 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=429496729audit(46768.874:22): saddr=01002F6465762F736F636B65742F70726F70657274795F7365727669636500
+#audit(46768.874:22): item=0 name=(null) inode=5596 dev=00:0b mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:property_socket:s0
+# avc:  denied  { write } for  pid=312 comm="wcnss_service" name="wifi" dev="mmcblk0p26" ino=392464 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:wifi_data_file:s0 tclass=dir SEPF_SM-G900F_5.0_0001
+# MSM8992, philippelte avc:  denied  { write } for  pid=3112 comm="wcnss_filter" name="debug_mask" dev="sysfs" ino=6908 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:sysfs_msmuart_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=11138 comm="wcnss_filter" name="ttyHS0" dev="tmpfs" ino=10493 scontext=u:r:wcnss_service:s0 tcontext=u:object_r:serial_device:s0 tclass=chr_file permissive=0
+
+

@@ -1,0 +1,9 @@
+type nvitemd, domain;
+type nvitemd_exec, exec_type, file_type;
+
+init_daemon_domain(nvitemd)
+
+allow nvitemd spipe_device:chr_file { open read write };
+allow nvitemd block_device:dir { search };
+#SEC remove: allow nvitemd nv_mmcblk_device:blk_file { open read write ioctl };
+allow nvitemd nvitemd:capability { dac_override };

@@ -1,0 +1,12 @@
+# felicaDD add start
+# JPN Felica Temporary Workaround
+allow nfc nfcfelica_device:chr_file rw_file_perms;
+allow nfc nfcfelica_device:chr_file { ioctl };
+allow nfc device:lnk_file { read };
+
+# JPN FeliCa Factory Test app
+allow nfc felica_device:chr_file w_file_perms;
+allow nfc media_rw_data_file:file x_file_perms;
+allow nfc nfc_data_file:file x_file_perms;
+
+# felicaDD add end

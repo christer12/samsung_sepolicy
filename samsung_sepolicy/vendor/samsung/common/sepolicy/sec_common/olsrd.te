@@ -1,0 +1,65 @@
+#
+# OLSRD SERVICE requested by SUNGHEE LEE(sh2011.lee@samsung.com, Convergence R&D Group)
+# this service support multi-hop network by IPv4 forwarding at Oxygen network
+#
+
+############ aosp and sec_common #############
+type olsrd, domain;
+type olsrd_exec, exec_type, file_type;
+
+#permissive olsrd;
+
+init_daemon_domain(olsrd)
+
+########## type and macro.
+type_transition olsrd system_data_file:file proc_info_file "olsrd.lock";
+
+########## self and domain_type
+allow olsrd self:capability { net_admin net_raw net_bind_service };
+allow olsrd self:netlink_socket { create bind read };
+allow olsrd kernel:system module_request;
+
+########## fs_type
+allow olsrd proc_net:file write;
+
+########## dev_type
+########## file_type
+allow olsrd shell_exec:file rx_file_perms;
+allow olsrd system_data_file:dir create_dir_perms;
+allow olsrd proc_info_file:file create_file_perms;
+#neverallow Google CTS-android-m-preview:neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow olsrd system_data_file:file create_file_perms;
+allow olsrd system_data_file:file r_file_perms;
+allow olsrd system_file:file rx_file_perms;
+
+########## etc_type
+allow olsrd node:tcp_socket node_bind;
+allow olsrd node:udp_socket node_bind;
+allow olsrd port:tcp_socket name_bind;
+allow olsrd port:udp_socket name_bind;
+
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { node_bind } for  pid=16532 comm="olsrd" src=60699 scontext=u:r:olsrd:s0 tcontext=u:object_r:node:s0 tclass=udp_socket permissive=1
+# avc:  denied  { name_bind } for  pid=16532 comm="olsrd" src=1978 scontext=u:r:olsrd:s0 tcontext=u:object_r:port:s0 tclass=tcp_socket permissive=1
+# avc:  denied  { node_bind } for  pid=16532 comm="olsrd" src=1978 scontext=u:r:olsrd:s0 tcontext=u:object_r:node:s0 tclass=tcp_socket permissive=1
+# avc:  denied  { write } for  pid=16532 comm="olsrd" name="local" dev="sda16" ino=520194 scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { add_name } for  pid=16532 comm="olsrd" name="olsrd.lock" scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=16532 comm="olsrd" name="olsrd.lock" scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write open } for  pid=16532 comm="olsrd" path="/data/local/olsrd.lock" dev="sda16" ino=520235 scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { lock } for  pid=16532 comm="olsrd" path="/data/local/olsrd.lock" dev="sda16" ino=520235 scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { create } for  pid=14331 comm="olsrd" scontext=u:r:olsrd:s0 tcontext=u:r:olsrd:s0 tclass=netlink_socket permissive=0
+# avc:  denied  { execute_no_trans } for  pid=16533 comm="sh" path="/system/bin/iptables" dev="sda13" ino=641 scontext=u:r:olsrd:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+# avc:  denied  { net_raw } for  pid=16532 comm="olsrd" capability=13  scontext=u:r:olsrd:s0 tcontext=u:r:olsrd:s0 tclass=capability permissive=1
+# avc:  denied  { net_admin } for  pid=16532 comm="olsrd" capability=12  scontext=u:r:olsrd:s0 tcontext=u:r:olsrd:s0 tclass=capability permissive=1
+# avc:  denied  { write } for  pid=16532 comm="olsrd" name="ip_forward" dev="proc" ino=116167 scontext=u:r:olsrd:s0 tcontext=u:object_r:proc_net:s0 tclass=file permissive=1
+# avc:  denied  { name_bind } for  pid=11322 comm="olsrd" src=698 scontext=u:r:olsrd:s0 tcontext=u:object_r:port:s0 tclass=udp_socket permissive=1
+# avc:  denied  { net_bind_service } for  pid=11322 comm="olsrd" capability=10  scontext=u:r:olsrd:s0 tcontext=u:r:olsrd:s0 tclass=capability permissive=1
+# avc:  denied  { bind } for  pid=14761 comm="olsrd" scontext=u:r:olsrd:s0 tcontext=u:r:olsrd:s0 tclass=netlink_socket permissive=1
+# avc:  denied  { read } for  pid=14761 comm="olsrd" scontext=u:r:olsrd:s0 tcontext=u:r:olsrd:s0 tclass=netlink_socket permissive=1
+# avc:  denied  { module_request } for  pid=7721 comm="olsrd" kmod="personality-8" scontext=u:r:olsrd:s0 tcontext=u:r:kernel:s0 tclass=system permissive=1
+# avc:  denied  { create } for  pid=7721 comm="olsrd" name="olsrd.lock" scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=7721 comm="olsrd" path="/data/local/olsrd.lock" dev="sda17" ino=66461 scontext=u:r:olsrd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file permissive=1
+
+

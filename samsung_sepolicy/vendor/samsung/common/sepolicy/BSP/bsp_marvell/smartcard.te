@@ -1,0 +1,6 @@
+# for smartcard
+#SEC removed: type smartcard, domain;
+#SEC removed: permissive smartcard;
+
+#SEC removed: app_domain(smartcard)
+

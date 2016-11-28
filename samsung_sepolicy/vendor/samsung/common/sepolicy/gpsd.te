@@ -1,0 +1,60 @@
+#
+# gpsd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute gpsd trusteddomain;
+typeattribute gpsd system_domain;
+typeattribute gpsd mlstrustedsubject;
+
+# use property
+unix_socket_connect(gpsd, property, init)
+
+# connectto rild
+unix_socket_connect(gpsd, rild, rild)
+
+# allow binder IPC and binder call system service
+binder_use(gpsd)
+binder_call(gpsd, system_server)
+
+########## self and domain_type
+# to open raw socket and bind to rmnet1.
+
+#neverallow Google CTS-android-m-preview:neverallow gpsd self:capability *
+#allow gpsd self:capability { net_admin net_raw };
+
+allow gpsd system:unix_stream_socket { read write setopt };
+
+########## fs_type
+allow gpsd sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+allow gpsd uart_device:chr_file rw_file_perms;
+
+########## file_type
+allow gpsd app_data_file:dir rw_dir_perms;
+allow gpsd app_data_file:file create_file_perms;
+allow gpsd shell_exec:file rx_file_perms;
+allow gpsd system_data_file:dir create_dir_perms;
+allow gpsd system_data_file:dir rw_dir_perms;
+allow gpsd system_data_file:fifo_file create_file_perms;
+allow gpsd system_data_file:fifo_file rw_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow gpsd system_data_file:file create_file_perms;
+allow gpsd system_data_file:file r_file_perms;
+#allow gpsd system_data_file:file rw_file_perms;
+allow gpsd system_file:file x_file_perms;
+
+########## etc_type
+allow gpsd sensorservice_service:service_manager find;
+# avc:  denied  { find } for service=sensorservice scontext=u:r:gpsd:s0 tcontext=u:object_r:sensorservice_service:s0 tclass=service_manager
+
+########## known issue.
+
+############ avc_log #############
+## open rawsocket and binding rmnet1
+# avc:  denied  { net_raw } for  pid=3126 comm="gpsd" capability=13  scontext=u:r:gpsd:s0 tcontext=u:r:gpsd:s0 tclass=capability permissive=1
+# avc:  denied  { net_admin } for  pid=3125 comm="gpsd" capability=12  scontext=u:r:gpsd:s0 tcontext=u:r:gpsd:s0 tclass=capability permissive=0
+

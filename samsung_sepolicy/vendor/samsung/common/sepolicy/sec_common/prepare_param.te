@@ -1,0 +1,49 @@
+#
+# prepare_param
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type prepare_param, domain;
+type prepare_param_sh_file, exec_type, file_type;
+domain_auto_trans(init, prepare_param_sh_file, prepare_param)
+
+########## self and domain_type
+allow prepare_param self:capability { fowner chown fsetid dac_override };
+
+########## fs_type
+########## dev_type
+allow prepare_param block_device:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow prepare_param block_device:{ file lnk_file blk_file } create_file_perms;
+allow prepare_param block_device:{ file lnk_file } create_file_perms;
+
+allow prepare_param dw_mmc_device:dir ra_dir_perms; 
+allow prepare_param dw_mmc_device:file_class_set r_file_perms;
+allow prepare_param emmcblk_device:blk_file create_file_perms;
+allow prepare_param emmcblk_device:dir create_dir_perms;
+allow prepare_param paramblk_device:blk_file create_file_perms;
+allow prepare_param paramblk_device:dir create_dir_perms;
+
+########## file_type
+allow prepare_param prepare_param_sh_file:file { entrypoint r_file_perms };
+allow prepare_param shell_exec:file r_file_perms;
+allow prepare_param system_file:file rx_file_perms;
+
+########## etc_type
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow prepare_param emmcblk_device:blk_file create_file_perms;
+allow prepare_param padblk_device:blk_file create_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+

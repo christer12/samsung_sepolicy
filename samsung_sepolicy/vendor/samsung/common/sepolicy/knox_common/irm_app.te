@@ -1,0 +1,71 @@
+############ knox_common #############
+
+########## type and macro.
+typeof irm_app, untrusted_app;
+type irm_media_data_file, file_type, data_file_type;
+
+typeattribute irm_media_data_file trstdomain_no_read_file;
+typeattribute irm_media_data_file trstdomain_no_write_file;
+
+#app_domain(irm_app)
+#net_domain(irm_app)
+#permissive irm_app;
+
+########## self and domain_type
+allow irm_app self:{ tcp_socket udp_socket netlink_route_socket } create_socket_perms;
+
+########## fs_type
+########## dev_type
+########## file_type
+allow irm_app irm_media_data_file:dir create_dir_perms;
+allow irm_app irm_media_data_file:{ file lnk_file sock_file } create_file_perms;
+#allow irm_app irm_media_data_file:file x_file_perms;
+
+########## etc_type
+########## known issue.
+
+
+########## irm_platform_app ##########
+type irm_platform_app, domain;
+app_domain(irm_platform_app)
+# Access the network.
+net_domain(irm_platform_app)
+# Access bluetooth.
+bluetooth_domain(irm_platform_app)
+
+platform_app_domain(irm_platform_app)
+typeattribute irm_platform_app trusteddomain;
+typeattribute irm_platform_app trusted_app_domain;
+#changeBySEA : typeattribute irm_platform_app commonplatformappdomain;
+
+# Read from /data/local/tmp or /data/data/com.android.shell.
+allow irm_platform_app shell_data_file:dir search;
+allow irm_platform_app shell_data_file:file { open getattr read };
+
+# Access to /data/media.
+allow irm_platform_app media_rw_data_file:dir create_dir_perms;
+allow irm_platform_app media_rw_data_file:file create_file_perms;
+allow irm_platform_app container_app_data_backend:dir create_dir_perms;
+allow irm_platform_app container_app_data_backend:file create_file_perms;
+
+# Write to /cache.
+allow irm_platform_app cache_file:dir create_dir_perms;
+allow irm_platform_app cache_file:file create_file_perms;
+
+#process
+allow { irm_platform_app platform_app } { irm_platform_app platform_app }:process *;
+
+allow platform_app irm_platform_app_tmpfs:file write;
+allow irm_platform_app platform_app_tmpfs:file write;
+allow irm_platform_app irm_platform_app_tmpfs:file write;
+
+allow irm_platform_app platform_app_service:service_manager add;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow irm_platform_app app_data_file:file execmod;
+
+allow irm_platform_app irm_media_data_file:dir create_dir_perms;
+allow irm_platform_app irm_media_data_file:{ file lnk_file sock_file } create_file_perms;
+
+############ avc_log #############

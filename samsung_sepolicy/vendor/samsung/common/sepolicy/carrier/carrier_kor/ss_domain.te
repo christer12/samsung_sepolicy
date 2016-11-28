@@ -1,0 +1,17 @@
+# for cts v2
+####### violation of Google-android-5.0.2_r1 #######
+#carrier.te
+#typeattribute carrier_app trusteddomain;
+#typeattribute carrier_app trusted_app_domain;
+
+#mwlan_vpncored.te
+#allow mwlan_vpncored {system_app_data_file system_data_file}:file x_file_perms;
+#allow mwlan_vpncored shell_data_file:file rx_file_perms;
+
+#rmt_storage.te
+#allow rmt_storage block_device:blk_file rw_file_perms;
+
+#tbased.te
+#allow tbased system_data_file:file x_file_perms;
+#allow tbased platform_app_data_file:file x_file_perms;
+

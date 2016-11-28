@@ -1,0 +1,6 @@
+
+binder_call(dumpsys, dmb)
+
+############ SKT #############
+binder_call(dumpsys, tbased)
+

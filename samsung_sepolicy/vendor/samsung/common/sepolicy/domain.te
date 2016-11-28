@@ -1,0 +1,185 @@
+#
+# all domain
+# 
+
+############ aosp and sec_common #############
+########## type and macro.
+typeattribute init trstdomain_no_access_subject;
+typeattribute kernel trstdomain_no_access_subject;
+typeattribute container_app trstdomain_no_access_subject;
+typeattribute container_service trstdomain_no_access_subject;
+typeattribute mrst_plugin_app trstdomain_no_access_subject;
+typeattribute undefined_service trstdomain_no_access_subject;
+typeattribute untrusted_app trstdomain_no_access_subject;
+typeattribute fixmo_app trstdomain_no_access_subject;
+typeattribute good_app trstdomain_no_access_subject;
+typeattribute shell trstdomain_no_access_subject;
+typeattribute zygote trstdomain_no_access_subject;
+typeattribute adbd trstdomain_no_access_subject;
+#typeattribute system_server trstdomain_no_access_subject;
+
+
+#changeBySEA
+#changeBySEA allow domain { domain -containerdomain -fixmo_app -good_app }:file r_file_perms;
+#changeBySEA allow domain { domain fs_type dev_type file_type 
+#                     -containerdomain -fixmo_app -good_app
+#                     -trstdomain_no_read_fs
+#                     -trstappdomain_no_rw_device -trstdomain_no_rw_device
+#                     -trstappdomain_no_read_file -trstdomain_no_read_file
+#                     -app_data_type -efs_type -sdcard_type
+#                  }:dir { search open read getattr };
+
+### allow read access for directory and getattr for file.
+allow domain domain:process getattr;
+allow domain domain:dir { search open read getattr };
+allow domain { fs_type dev_type file_type
+                     -sdcard_type
+                     -efs_type -keystore_data_file -vold_data_file -rfs_data_file
+                     -app_data_type
+                  } :dir { search open read getattr };
+allow domain domain:{ file lnk_file } { open read getattr };
+allow domain { fs_type dev_type file_type
+                     -sdcard_type
+                     -gpu_device
+                     -frp_block_device
+                     -hw_random_device -kmem_device
+                     -keystore_data_file -vold_data_file -rfs_data_file
+                     -runas_exec
+                  }:dir_file_class_set getattr;
+
+#changeBySEA : need to care
+# allow domain  exec_type:file rx_file_perms;
+
+# dumpsys
+allow { domain -appdomain -recovery } dumplog_data_file:file write;
+
+########## self and domain_type
+#changeBySEA allow domain at_distributor:fd use;
+#changeBySEA allow { domain - containerdomain -fixmo_app -good_app } appdomain:fifo_file rw_file_perms;
+allow domain dumpstate:fifo_file { write getattr };
+#neverallow by Google: allow domain self:capability sys_nice;
+#neverallow Google CTS-android-5.0.2_r1 : allow { domain -cts_domain } self:capability sys_nice;
+allow domain self:process execmem;
+
+########## fs_type
+#changeBySEA r_dir_file(domain, { fs_type -trstdomain_no_read_fs -trstdomain_no_read_fs -proc_security -proc_sysrq -sdcard_type })
+#changeBySEA allow { domain -untrusteddomain } devpts:chr_file { read write };
+#neverallow by Google: allow domain tmpfs:file execute;
+#neverallow Google CTS-android-5.0.2_r1 : allow { domain -cts_domain } tmpfs:file execute;
+allow domain sysfs_android_usb:file { open read };
+
+########## dev_type
+allow domain log_device:chr_file r_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow isolated_app gpu_device:chr_file { { { getattr open read ioctl lock } { open append write } } execute }
+#allow domain powervr_device:chr_file rw_file_perms;
+#changeBySEA allow domain prop_device:file r_file_perms;
+#changeBySEA move to samsung/app.te allow { domain - container_app - knox_untrusted_app -fixmo_app -good_app } tty_device:chr_file rw_file_perms;
+
+
+########## file_type
+#neverallow Google CTS-android-5.0.2_r1 : allow { domain -fixmo_app -good_app } shell_data_file:file write;
+#changeBySEA allow { domain -fixmo_app -good_app -recovery } shell_data_file:file write;
+
+allow { domain -untrusteddomain -shell -adbd -unlabeled } system_fifo:fifo_file rw_file_perms;
+#changeBySEA allow domain system_library_file:dir r_dir_perms;
+#neverallow by Google: (kernel { file_type fs_type -rootfs }:file { entrypoint execute_no_trans };)
+#allow domain system_library_file:file { rx_file_perms execmod };
+#neverallow Google CTS-android-5.0.2_r1 : allow { domain -kernel } system_library_file:file { rx_file_perms execmod };
+
+allow domain system_library_file:lnk_file r_file_perms;
+
+########## etc_type
+########## known issue.
+# Must allow existing rootfs DAC perms for everyone, including shell
+# Since this is a ramdisk/mounted ro, it should be read-only
+#changeBySEA dup with aosp/domain.te : allow domain rootfs:file r_file_perms;
+
+# Box app (knox untrusted app) need access to random devices as well
+#changeBySEA dup with aosp/domain.te : allow domain {random_device urandom_device }:chr_file rw_file_perms;
+
+# denials after domain transition of dumpstate
+allow domain dumpstate:unix_stream_socket { ioctl read write getattr bind connect accept getopt setopt connectto };
+allow domain dumpstate:fd use;
+
+# System library file accesses from system_file aosp/domain.te
+#changeBySEA dup with aosp/domain.te : allow domain system_library_file:dir r_dir_perms;
+#changeBySEA dup with aosp/domain.te : allow domain system_library_file:file r_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow domain system_library_file:file execute;
+#changeBySEA dup with aosp/domain.te : allow domain system_library_file:lnk_file r_file_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow domain domain:{ shm sem msg msgq } *
+#allow domain self:ipc_class_set *;
+allow domain self:ipc *;
+
+#neverallow Google CTS-android-m-preview: neverallow domain domain:{ shm sem msg msgq } *
+#allow domain self:msg *;
+
+# Privilege escalation in kernel ring buffer CVE-2016-0728
+#allow domain self:key *;
+
+#neverallow by Google:  allow domain self:socket_class_set *;
+#changeBySEA mm_qcamerad si-4935: allow domain self:{ socket rawip_socket packet_socket key_socket appletalk_socket tun_socket unpriv_socket_class_set netlink_route_socket netlink_selinux_socket }  *;
+allow { domain -mm_qcamerad -undefined_service } self:{ socket rawip_socket packet_socket key_socket appletalk_socket tun_socket unpriv_socket_class_set netlink_route_socket netlink_selinux_socket }  *;
+allow mm-qcamerad self:{ socket rawip_socket packet_socket key_socket appletalk_socket tun_socket netlink_route_socket netlink_selinux_socket udp_socket unix_stream_socket unix_dgram_socket }  *;
+
+#neverallow by Google: (neverallow self ptrace, init, keystore, netd, app to noneapp, noatsecure for lmkd )
+#neverallow Google CTS-android-m-preview: neverallow zygote ~{ appdomain system_server }:process dyntransition
+#allow { domain -init -keystore -netd -logd -lmkd -kernel } self:process *;
+
+#neverallow Google CTS-android-m-preview: neverallow domain toolbox:process dyntransition
+#neverallow Google CTS-android-m-preview: neverallow domain sgdisk:process dyntransition
+#neverallow Google CTS-android-m-preview: neverallow domain blkid:process dyntransition
+#neverallow Google CTS-android-m-preview: neverallow domain blkid_untrusted:process dyntransition
+#neverallow Google CTS-android-m-preview: neverallow domain fsck:process dyntransition
+#neverallow Google CTS-android-m-preview: neverallow domain fsck_untrusted:process dyntransition
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold } fsck_untrusted:process transition
+#neverallow perfprofd domain:process ptrace
+#allow { domain -init -keystore -netd -logd -lmkd -kernel -zygote } self:process *;
+allow { domain -init -keystore -netd -logd -lmkd -kernel -zygote -toolbox -sgdisk -blkid -blkid_untrusted -fsck -fsck_untrusted userdebug_or_eng(`-perfprofd') -shell -undefined_service } self:process *;
+userdebug_or_eng(`
+allow perfprofd self:process ~ptrace;
+')
+allow shell self:process ~{ transition dyntransition };
+#neverallow { domain -init } toolbox:process transition
+allow { sgdisk blkid blkid_untrusted fsck fsck_untrusted } self:process ~{ dyntransition transition };
+#allow { blkid blkid_untrusted fsck } self:process transition ;
+allow { toolbox fsck_untrusted blkid blkid_untrusted fsck } self:process ~{ dyntransition transition };
+
+allow zygote self:process ~dyntransition;
+allow { keystore netd logd } self:process ~ptrace;
+allow init self:process ~{ ptrace transition dyntransition };
+allow lmkd self:process ~noatsecure;
+
+#changeBySEA allow containerdomain { appdomain - untrusteddomain}:fifo_file rw_file_perms;
+#changeBySEA need to check : allow domain time_daemon:unix_stream_socket connectto;
+allow { domain -untrusteddomain -shell -adbd -unlabeled -undefined_service } time_daemon:unix_stream_socket connectto;
+
+allow domain debug_interface_proxy:unix_stream_socket connectto;
+allow domain pvrsync_device:chr_file rw_file_perms;
+
+# Just re-write to make it one-line sentence for #ignoretypeofrule tag
+neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod; #ignoretypeofrule
+
+# Allow video access for all domain 
+allow domain fimg2d_video_device:chr_file rw_file_perms;
+
+# logging by dumpsys application
+allow { domain -recovery -appdomain -adbd -shell -undefined_service } system_app:fd use;
+allow { domain -recovery -appdomain -adbd -shell -undefined_service } media_rw_data_file:file w_file_perms;
+
+############ android m #############
+# access /storage/emulated tmpfs
+allow domain tmpfs:lnk_file r_file_perms;
+
+############ avc_log #############
+#avc:  denied  { read } for  pid=3715 comm="exyrngd" name="hw_random" dev="tmpfs" ino=7494 scontext=u:r:exyrngd:s0 tcontext=u:object_r:hw_random_device:s0 #tclass=chr_file SEPF_SM-G900H_5.0_0001
+#avc:  denied  { open } for  pid=3715 comm="exyrngd" path="/dev/hw_random" dev="tmpfs" ino=7494 scontext=u:r:exyrngd:s0 tcontext=u:object_r:hw_random_device:s0 #tclass=chr_file SEPF_SM-G900H_5.0_0001
+#arch=40000028 syscall=322 per=800000 success=yes exit=3 a0=ffffff9c a1=be958750 a2=20000 a3=0 items=1 ppid=1 pid=3715 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 #egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) 
+#comm="exyrngd" exe="/system/bin/exyrngd" subj=u:r:exyrngd:s0 key=(null)
+#cwd="/"
+#item=0 name="/dev/hw_random" inode=7494 dev=00:0d mode=020440 ouid=0 ogid=1000 rdev=0a:b7 obj=u:object_r:hw_random_device:s0
+# avc:  denied  { connectto } for  pid=15055 comm=4173796E635461736B202331 path="/dev/socket/msockets/dip_cmd" scontext=u:r:s_untrusted_app:s0 tcontext=u:r:debug_interface_proxy:s0 tclass=unix_stream_socket
+# avc:  denied  { read } for  pid=10959 comm="pool-11-thread-" name="sdcard" dev="tmpfs" ino=5805 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:tmpfs:s0 tclass=lnk_file permissive=1
+# avc:  denied  { use } for  pid=25513 comm="dumpsys" path="/storage/emulated/0/ACT_LOGS/GooglePlayStore_2015-11-02-12-57-40/act_dumpsys_dumpstate.txt" dev="sdcardfs" ino=327840 scontext=u:r:fingerprintd:s0 tcontext=u:r:system_app:s0 tclass=fd permissive=0 SEPF_SM-G920F_6.0_0001
+# avc:  denied  { append } for  pid=25513 comm="dumpsys" path="/storage/emulated/0/ACT_LOGS/GooglePlayStore_2015-11-02-12-57-40/act_dumpsys_dumpstate.txt" dev="sdcardfs" ino=327840 scontext=u:r:gatekeeperd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=file permissive=0 SEPF_SM-G920F_6.0_0001
+# avc:  denied  { read } for  pid=21771 comm="Thread-1633" name="exe" dev="proc" ino=143449 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:init:s0 tclass=lnk_file permissive=0

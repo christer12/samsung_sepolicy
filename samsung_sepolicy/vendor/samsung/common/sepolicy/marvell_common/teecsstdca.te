@@ -1,0 +1,14 @@
+
+
+## SEC added
+allow teecsstdca self:capability { setuid ipc_lock setgid };
+allow teecsstdca tz_device:chr_file rw_file_perms;
+
+
+## avc_log
+# avc:  denied  { setgid } for  pid=2553 comm="teec_sstd_ca" capability=6  scontext=u:r:teecsstdca:s0 tcontext=u:r:teecsstdca:s0 tclass=capability permissive=1
+# avc:  denied  { setuid } for  pid=2553 comm="teec_sstd_ca" capability=7  scontext=u:r:teecsstdca:s0 tcontext=u:r:teecsstdca:s0 tclass=capability permissive=1
+# avc:  denied  { read write } for  pid=2553 comm="teec_sstd_ca" name="tzdd" dev="tmpfs" ino=1383 scontext=u:r:teecsstdca:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=2553 comm="teec_sstd_ca" path="/dev/tzdd" dev="tmpfs" ino=1383 scontext=u:r:teecsstdca:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ioctl } for  pid=2553 comm="teec_sstd_ca" path="/dev/tzdd" dev="tmpfs" ino=1383 scontext=u:r:teecsstdca:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { ipc_lock } for  pid=2553 comm="teec_sstd_ca" capability=14  scontext=u:r:teecsstdca:s0 tcontext=u:r:teecsstdca:s0 tclass=capability permissive=1

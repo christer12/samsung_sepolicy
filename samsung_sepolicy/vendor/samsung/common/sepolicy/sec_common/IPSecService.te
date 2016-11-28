@@ -1,0 +1,37 @@
+#
+# IPSecService
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# mdnsd
+type IPSecService, domain;
+type IPSecService_exec, exec_type, file_type;
+# for B2C users
+typeattribute IPSecService trusteddomain;
+typeattribute IPSecService system_domain;
+
+typeattribute IPSecService mlstrustedsubject;
+
+init_daemon_domain(IPSecService)
+
+########## self and domain_type
+allow IPSecService self:capability { net_admin dac_override };
+allow IPSecService kernel:system module_request;
+
+########## fs_type
+########## dev_type
+allow IPSecService socket_device:dir w_dir_perms;
+allow IPSecService ipsec_socket:sock_file create_file_perms;
+allow IPSecService socket_device:sock_file create_file_perms;
+
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { dac_override } for  pid=537 comm="IPSecService" capability=1  scontext=u:r:IPSecService:s0 tcontext=u:r:IPSecService:s0 tclass=capability item=1 name="/data/log/IPSecKeys_20140703_163126.txt" inode=392479 dev=b3:1b mode=0100600 ouid=0 ogid=1000 rdev=00:00 obj=u:object_r:dumplog_data_file:s0
+# avc:  denied  { module_request } for  pid=4186 comm="IPSecService" kmod="authenc(hmac(sha1),ecb(cipher_null))" scontext=u:r:IPSecService:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+

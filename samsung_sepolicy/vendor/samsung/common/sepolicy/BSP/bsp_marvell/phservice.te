@@ -1,0 +1,28 @@
+# create the new domain phservice
+type phservice, domain;
+type phservice_exec, exec_type, file_type;
+
+init_daemon_domain(phservice)
+
+allow phservice servicemanager:binder { transfer call };
+allow phservice shell_exec:file { read execute open execute_no_trans };
+allow phservice sysfs:file create_file_perms;
+allow phservice sysfs_devices_system_cpu:file create_file_perms;
+allow phservice dumpstate:fd use;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow phservice system_data_file:file create_file_perms;
+allow phservice system_data_file:file r_file_perms;
+
+allow phservice system_server:binder call;
+allow phservice dumpstate:unix_stream_socket unix_stream_socket_perms;
+allow phservice shell:fd use;
+allow phservice shell:fifo_file create_file_perms;
+allow phservice app_data_file:file create_file_perms;
+allow phservice untrusted_app:fd use;
+allow phservice fuse:file create_file_perms;
+#SEC removed: allow phservice system_server_service:service_manager { add find list};
+allow phservice dump_log_data_file:file create_file_perms;
+allow phservice dump_log_data_file:dir create_dir_perms;
+

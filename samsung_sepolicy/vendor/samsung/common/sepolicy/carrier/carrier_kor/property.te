@@ -1,0 +1,10 @@
+#
+# property
+#
+
+############ carrier_kor #############
+############ SKT #############
+type sktdrm_prop, property_type; 
+
+############ LGT #############
+type ctl_mwlan_vpncored_prop, property_type;

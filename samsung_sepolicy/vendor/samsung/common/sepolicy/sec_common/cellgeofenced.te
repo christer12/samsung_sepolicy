@@ -1,0 +1,30 @@
+#
+# cellgeofenced
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type cellgeofenced, domain;
+type cellgeofenced_exec, exec_type, file_type;
+# for B2C users
+typeattribute cellgeofenced trusteddomain;
+typeattribute cellgeofenced system_domain;
+
+init_daemon_domain(cellgeofenced)
+unix_socket_rw(cellgeofenced, rild)
+
+########## self and domain_type
+########## fs_type
+allow cellgeofenced sysfs:dir rw_dir_perms;
+allow cellgeofenced sysfs:file rw_file_perms;
+allow cellgeofenced sysfs_ss_writable:file rw_file_perms;
+allow cellgeofenced sysfs_wake_lock:file rw_file_perms;
+
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+

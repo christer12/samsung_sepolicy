@@ -1,0 +1,5 @@
+unix_socket_connect(system_server, itson, itsonclient_app)
+unix_socket_send(system_server, itson, itsonclient_app)
+
+allow system sprintitson_file:file x_file_perms;
+

@@ -1,0 +1,5 @@
+allow mobexdaemon system_app:unix_stream_socket connectto;
+allow mobexdaemon system_data_file:file getattr;
+allow mobexdaemon system_file:file x_file_perms;
+allow mobexdaemon sdcard_internal:file create_file_perms;
+allow mobexdaemon shell_exec:file rx_file_perms;

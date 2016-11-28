@@ -1,0 +1,74 @@
+#
+# daemon_app_process
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type daemon_app_process, domain;
+app_domain(daemon_app_process)
+net_domain(daemon_app_process)
+
+# AT+PRECONFG=0,0 : hardware/ril/atd/commandimplementation/PRECONFG.c
+# am broadcast -a com.samsung.intent.action.CSC_MODEM_SETTING --es MODE COMPARE_VERIFY_MODEM
+# am broadcast -a com.samsung.intent.action.CSC_COMPARE 
+domain_auto_trans(at_distributor, zygote_exec, daemon_app_process)
+
+# am startservice -a com.sec.intent.action.START_BCSERVICE
+domain_auto_trans(connfwexe, zygote_exec, daemon_app_process)
+
+# void TuiServer::tlcProcessCmd(uint32_t commandId) : am startservice com.trustonic.tuiservice/.TuiService
+domain_auto_trans(mobicoredaemon, zygote_exec, daemon_app_process)
+
+domain_auto_trans(sec-ril, zygote_exec, daemon_app_process)
+
+## denial from am dumpheap pid# /data/log/vold_xx.hprof in DiskUtil::getHeapDump
+domain_auto_trans(vold, zygote_exec, daemon_app_process)
+
+### DMM-daemon
+domain_auto_trans(DMM-daemon, zygote_exec, daemon_app_process)
+
+#unix_socket_connect(daemon_app_process, property, init)
+
+#rild AT+LVOFLOCK=1,0
+domain_auto_trans(rild, zygote_exec, daemon_app_process)
+
+########## self and domain_type
+allow daemon_app_process { at_distributor connfwexe mobicoredaemon sec-ril vold DMM-daemon rild }:fd use;
+allow daemon_app_process init:unix_stream_socket connectto;
+
+########## fs_type
+########## dev_type
+allow daemon_app_process mobicore-user_device:chr_file write;
+
+########## file_type
+#neverallow Google CTS-android-m-preview:neverallow { domain -init -zygote -installd -dex2oat } dalvikcache_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow daemon_app_process dalvikcache_data_file:file write;
+
+########## etc_type
+########## known issue.
+allow daemon_app_process { activity_service system_service }:service_manager find;
+
+
+### AT+PRECONFG=0,0
+allow daemon_app_process { at_distributor connfwexe mobicoredaemon sec-ril vold DMM-daemon rild }:unix_stream_socket rw_socket_perms;
+allow daemon_app_process sysfs_wake_lock:file write;
+allow daemon_app_process uart_device:chr_file rw_file_perms;
+allow daemon_app_process { at_distributor connfwexe mobicoredaemon sec-ril vold DMM-daemon rild }:fifo_file rw_file_perms;
+
+### TUI
+allow daemon_app_process mobicoredaemon:netlink_socket rw_socket_perms;
+allow daemon_app_process mobicore_device:chr_file rw_file_perms;
+allow daemon_app_process tui_device:chr_file r_file_perms;
+
+### vold : am dumpheap 12521 /data/log/vold.log
+allow daemon_app_process dumplog_data_file:dir rw_dir_perms;
+allow daemon_app_process dumplog_data_file:file create_file_perms;
+
+############ avc_log #############
+#avc:  denied  { write } for  pid=10940 comm="app_process" path="/dev/mobicore-user" dev="tmpfs" ino=4663 scontext=u:r:daemon_app_process:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file permissive=0
+# arch=c00000b7 syscall=221 success=yes exit=0 a0=7f9e91c328 a1=7f9e945108 a2=7f9e9540c8 a3=8 items=0 ppid=3121 ppcomm=at_distributor pid=10941 auid=4294967295 uid=1001 gid=1001 euid=1001 suid=1001 fsuid=1001 egid=1001 sgid=1001 fsgid=1001 ses=4294967295 tty=(none) comm="app_process" exe="/system/bin/app_process64" subj=u:r:daemon_app_process:s0 key=(null)
+# avc:  denied  { read write } for  pid=9555 comm="app_process" path="/dev/mobicore" dev="tmpfs" ino=17055 scontext=u:r:daemon_app_process:s0 tcontext=u:object_r:mobicore_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read write } for  pid=9555 comm="app_process" path="socket:[4229]" dev="sockfs" ino=4229 scontext=u:r:daemon_app_process:s0 tcontext=u:r:mobicoredaemon:s0 tclass=netlink_socket permissive=1
+# avc:  denied  { read } for  pid=9555 comm="app_process" path="/dev/t-base-tui" dev="tmpfs" ino=17058 scontext=u:r:daemon_app_process:s0 tcontext=u:object_r:tui_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { execute } for  pid=13466 comm="am" name="app_process64" dev="sda18" ino=683 scontext=u:r:DMM-daemon:s0 tcontext=u:object_r:zygote_exec:s0 tclass=file permissive=1
+# avc:  denied  { find } for service=activity scontext=u:r:daemon_app_process:s0 tcontext=u:object_r:activity_service:s0 tclass=service_manager

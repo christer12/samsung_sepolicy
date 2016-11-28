@@ -1,0 +1,33 @@
+# efsks
+type efsks, domain;
+type efsks_exec, exec_type, file_type;
+init_daemon_domain(efsks)
+
+domain_auto_trans(efsks, ks_exec, ks)
+
+# Allow rules
+allow efsks block_device:dir ra_dir_perms;
+allow efsks dw_mmc_device:dir ra_dir_perms;
+allow efsks dw_mmc_device:lnk_file r_file_perms;
+allow efsks ks_exec:file rx_file_perms;
+allow efsks m9kefsblk_device:blk_file w_file_perms;
+allow efsks emmcblk_device:blk_file w_file_perms;
+allow efsks modem_device:dir search;
+allow efsks modem_device:lnk_file r_file_perms;
+allow efsks qcks:fd use;
+allow efsks radio_device:chr_file rw_file_perms;
+allow efsks self:capability dac_override;
+allow efsks shell_exec:file rx_file_perms;
+allow efsks sysfs:file w_file_perms;
+allow efsks system_file:file execute_no_trans;
+allow efsks tombstone_data_file:dir r_dir_perms;
+allow efsks tombstones_data_file:dir r_dir_perms;
+allow efsks usb_device:chr_file rwx_file_perms;
+
+# for B2C users
+typeattribute efsks trusteddomain;
+typeattribute efsks device_domain;
+
+############ slsi_common #############
+allow efsks mdm_device:chr_file r_file_perms;
+

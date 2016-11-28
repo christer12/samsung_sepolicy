@@ -1,0 +1,7 @@
+#============= adbd ==============
+allow adbd mfescand_exec:file r_file_perms;
+allow adbd powerctl_prop:property_service set;
+
+# add felica
+#changeBySEA need to check : allow adbd app_data_file:dir create_dir_perms;
+#changeBySEA need to check : allow adbd app_data_file:file create_file_perms;

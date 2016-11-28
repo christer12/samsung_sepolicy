@@ -1,0 +1,15 @@
+# wiperiface
+type wiperiface, domain;
+type wiperiface_exec, exec_type, file_type;
+init_daemon_domain(wiperiface)
+
+allow wiperiface qmux_gps_socket:dir create_dir_perms;
+allow wiperiface qmux_gps_socket:sock_file create_file_perms;
+allow wiperiface qmuxd:unix_stream_socket connectto;
+allow wiperiface self:socket *;
+allow wiperiface system_data_file:dir create_dir_perms;
+allow wiperiface system_data_file:fifo_file create_file_perms;
+
+# for B2C users
+typeattribute wiperiface trusteddomain;
+typeattribute wiperiface device_domain;

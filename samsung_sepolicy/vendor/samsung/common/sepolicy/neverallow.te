@@ -1,0 +1,24 @@
+
+#/dev/
+#Samsung neverallow domain device:chr_file { write };
+
+#/dev/block/
+#Samsung neverallow domain block_device:blk_file { write };
+
+#/dev/socket
+#Samsung neverallow domain socket_device:sock_file { write };
+
+#/proc/
+#Samsung neverallow domain proc:file { write };
+
+#/sys/
+#Samsung neverallow domain sysfs:file { write };
+
+#/data/
+#Samsung neverallow domain system_data_file:file { write };
+
+#/efs/
+#Samsung neverallow domain efs_file:file { write };
+
+#/app_data_type/
+

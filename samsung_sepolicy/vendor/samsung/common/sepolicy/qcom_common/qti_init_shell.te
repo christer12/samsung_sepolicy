@@ -1,0 +1,104 @@
+#
+# qti_init_shell
+#
+
+userdebug_or_eng(`
+  #support Auto testing
+  domain_auto_trans(qti_init_shell, su_exec, su)
+')
+
+############ aosp and sec_common #############
+########## type and macro.
+qmux_socket(qti_init_shell)
+
+########## self and domain_type
+########## fs_type
+allow qti_init_shell cgroup:dir create_dir_perms;
+allow qti_init_shell cgroup:file create_file_perms;
+
+allow qti_init_shell sysfs:dir write;
+# avc:  denied  { write } for  pid=502 comm="sh" name="parameters" dev="sysfs" ino=22232 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs:s0 tclass=dir permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+allow qti_init_shell sysfs_devices_system_cpu:file setattr;
+# avc:  denied  { setattr } for  pid=5232 comm="chown" name="scaling_max_freq" dev="sysfs" ino=10897 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=file permissive=1
+
+allow qti_init_shell sysfs_devices_system_cpu:dir rw_dir_perms;
+#avc:  denied  { write } for  pid=2991 comm="sh" name="cpufreq" dev="sysfs" ino=39177 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_devices_system_cpu:s0 tclass=dir permissive=0 SEPF_SECMOBILE_6.0.1_0002
+
+allow qti_init_shell sysfs_sec:file setattr;
+# avc:  denied  { setattr } for  pid=5008 comm="chown" name="drop_caches" dev="sysfs" ino=21635 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=1
+# item=0 name="/sys/devices/virtual/sec/sec_misc/drop_caches" inode=21635 dev=00:0c mode=0100664 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs_sec:s0
+
+allow qti_init_shell sysfs_ss_writable:file { write open setattr };
+# avc:  denied  { setattr } for  pid=5242 comm="chown" name="reset_enabled" dev="sysfs" ino=6796 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_ss_writable:s0 tclass=file permissive=1
+# item=0 name="/sys/module/qpnp_power_on/parameters/reset_enabled" inode=6796 dev=00:0c mode=0100644 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs_ss_writable:s0
+# avc:  denied  { write } for  pid=502 comm="sh" name="rndis_transports" dev="sysfs" ino=48763 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_ss_writable:s0 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+# avc:  denied  { open } for  pid=502 comm="sh" path="/sys/devices/virtual/android_usb/android0/f_rndis_qc/rndis_transports" dev="sysfs" ino=48763 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_ss_writable:s0 tclass=file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+
+########## dev_type
+allow qti_init_shell device:dir create_dir_perms;
+allow qti_init_shell device:file create_file_perms;
+#  avc:  denied  { write } for  pid=551 comm="sh" name="/" dev="tmpfs" ino=16175 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=0
+
+
+allow qti_init_shell kmsg_device:chr_file { write open };
+# avc:  denied  { open } for  pid=378 comm="sh" name="kmsg" dev="tmpfs" ino=7281 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=1
+
+allow qti_init_shell usf_device:chr_file setattr;
+#  avc:  denied  { setattr } for  pid=5080 comm="chown" name="usf1" dev="tmpfs" ino=7897 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:usf_device:s0 tclass=chr_file permissive=1
+# item=0 name="/dev/usf1" inode=7897 dev=00:0b mode=020600 ouid=0 ogid=0 rdev=0a:41 obj=u:object_r:usf_device:s0
+
+########## file_type
+allow qti_init_shell bluetooth_efs_file:dir r_dir_perms;
+allow qti_init_shell bluetooth_efs_file:file r_file_perms;
+allow qti_init_shell btnvtool_exec:file rx_file_perms;
+allow qti_init_shell persist_bluetooth_file:dir rw_dir_perms;
+allow qti_init_shell persist_bluetooth_file:file create_file_perms;
+allow qti_init_shell persist_data_file:dir rw_dir_perms;
+allow qti_init_shell persist_data_file:file create_file_perms;
+# avc:  denied  { create } for  pid=346 comm="btnvtool" name=".bt_nv.bin" scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:persist_data_file:s0 tclass=file permissive=1
+# avc:  denied  { read write open } for  pid=346 comm="btnvtool" name=".bt_nv.bin" dev="mmcblk0p21" ino=19 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:persist_data_file:s0 tclass=file permissive=1
+
+allow qti_init_shell sec-sh_exec:file { read open };
+# avc:  denied  { read } for  pid=378 comm="sh" name="init.sec.boot.sh" dev="mmcblk0p23" ino=1062 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sec-sh_exec:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=378 comm="sh" name="init.sec.boot.sh" dev="mmcblk0p23" ino=1062 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sec-sh_exec:s0 tclass=file permissive=1
+
+
+########## etc_type
+
+allow qti_init_shell ctl_default_prop:property_service set;
+# avc:  denied  { set } for property=ctl.at_distributor scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:ctl_default_prop:s0 tclass=property_service
+
+allow qti_init_shell digitalpen_prop:property_service set;
+# avc:  denied  { set } for property=qc.sdk.us.digitalpen scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:digitalpen_prop:s0 tclass=property_service
+
+allow qti_init_shell media_prop:property_service set;
+
+########## known issue.
+
+# MSM8976 T719 P160302-01178 /system/etc/init.qcom.post_boot.sh
+allow qti_init_shell hwui_prop:property_service set;
+allow qti_init_shell sysfs_sec:file rw_file_perms;
+# avc:  denied  { write } for  pid=3193 comm="sh" name="enable_core_wear_levelling" dev="sysfs" ino=23197 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=0
+# avc:  denied  { set } for property=hwui.texture_cache_size scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# avc: denied { open } for pid=5536 comm="sh" path="/sys/devices/virtual/sec/switch/attached_dev" dev="sysfs" ino=35762 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=1  
+# avc:  denied  { read } for  pid=4352 comm="sh" name="attached_dev" dev="sysfs" ino=15821 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0008 
+
+
+
+############ avc_log #############
+# avc:  denied  { write } for  pid=3291 comm="hci_qcomm_init" name="qmux_bluetooth" dev="tmpfs" ino=12219 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:qmuxd_socket:s0 tclass=dir permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { search } for  pid=9941 comm="hci_qcomm_init" name="bluetooth" dev="mmcblk0p13" ino=21 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:bluetooth_efs_file:s0 tclass=dir permissive=0
+# arch=40000028 syscall=322 per=800008 success=no exit=-13 a0=ffffff9c a1=bee07664 a2=20000 a3=0 items=0 ppid=9940 ppcomm=sh pid=9941 auid=4294967295 uid=1002 gid=1002 euid=1002 suid=1002 fsuid=1002 egid=1002 sgid=1002 fsgid=1002 ses=4294967295 tty=(none) comm="hci_qcomm_init" exe="/system/bin/hci_qcomm_init" subj=u:r:qti_init_shell:s0 key=(null)
+# proctitle=2F73797374656D2F62696E2F6863695F71636F6D6D5F696E6974002D65002D500031
+# avc:  denied  { create } for  pid=3413 comm="mkdir" name="native" scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:cgroup:s0 tclass=dir permissive=0
+# arch=40000028 syscall=323 per=800008 success=no exit=-13 a0=ffffff9c a1=bef759a0 a2=1c0 a3=0 items=0 ppid=3211 ppcomm=sh pid=3413 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 ses=4294967295 tty=(none) comm="mkdir" exe="/system/bin/toybox" subj=u:r:qti_init_shell:s0 key=(null)
+# proctitle=6D6B646972002F6465762F63707563746C2F6E6174697665 mkdir/dev/cpuctl/native
+# A9XPRO(MSM8976) avc:  denied  { execute } for  pid=485 comm="sh" name="btnvtool" dev="mmcblk0p36" ino=344 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:btnvtool_exec:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0003
+# A9XPRO(MSM8976) avc:  denied  { set } for property=media.msm8956hw scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:media_prop:s0 tclass=property_service
+# A9XPRO(MSM8976) avc:  denied  { set } for property=media.settings.xml scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:media_prop:s0 tclass=property_service
+# A9XPRO(MSM8976) avc:  denied  { set } for property=alarm_boot scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:default_prop:s0 tclass=property_service
+# MSM8937 A7MVELTE avc:  denied  { read } for  pid=4338 comm="hci_qcomm_init" name=".bt_nv.bin" dev="mmcblk0p22" ino=34 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:persist_bluetooth_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0004
+# MSM8937 A7MVELTE avc:  denied  { open } for  pid=4338 comm="hci_qcomm_init" path="/persist/bluetooth/.bt_nv.bin" dev="mmcblk0p22" ino=34 scontext=u:r:qti_init_shell:s0 tcontext=u:object_r:persist_bluetooth_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0004
+

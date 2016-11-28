@@ -1,0 +1,66 @@
+# qseecomd
+
+
+allow qseecomd init:unix_stream_socket connectto;
+allow qseecomd property_socket:sock_file w_file_perms;
+allow qseecomd system_prop:property_service set;
+
+allow qseecomd apk_data_file:dir create_dir_perms;
+allow qseecomd apk_data_file:file create_file_perms;
+allow qseecomd block_device:dir rw_dir_perms;
+allow qseecomd mmcblk0rpmb_device:blk_file rw_file_perms;
+allow qseecomd drm_efs_file:dir create_dir_perms;
+allow qseecomd drm_efs_file:file create_file_perms;
+allow qseecomd efs_file:dir create_dir_perms;
+allow qseecomd efs_file:file create_file_perms;
+allow qseecomd qseecom_device:chr_file rw_file_perms;
+allow qseecomd self:capability { chown setuid setgid sys_rawio dac_override sys_admin };
+allow qseecomd sg_device:chr_file rw_file_perms;
+allow qseecomd smem_log_device:chr_file write;
+allow qseecomd ssdblk_device:blk_file rw_file_perms;
+allow qseecomd emmcblk_device:blk_file rw_file_perms;
+allow qseecomd shell_data_file:dir create_dir_perms;
+allow qseecomd shell_data_file:file create_file_perms;
+allow qseecomd system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow qseecomd system_data_file:file create_file_perms;
+allow qseecomd system_data_file:file r_file_perms;
+allow qseecomd efs_file:file create_file_perms;
+
+# for B2C users
+typeattribute qseecomd trusteddomain;
+typeattribute qseecomd device_domain;
+
+## J GED
+allow qseecomd qseecom_device:chr_file rw_file_perms;
+allow qseecomd device:dir r_dir_perms;
+
+# transition /data/validity from system_data_file to vcsFPService_data_file
+allow qseecomd system_data_file:dir ra_dir_perms;
+type_transition qseecomd system_data_file:dir vcsFPService_data_file "validity";
+allow qseecomd vcsFPService_data_file:dir create_dir_perms;
+allow qseecomd vcsFPService_data_file:file create_file_perms;
+
+# transition /data/misc/sshdcpapp from system_data_file to data_qsee_file
+allow qseecomd system_data_file:dir ra_dir_perms;
+type_transition qseecomd system_data_file:dir data_qsee_file "sshdcpapp";
+allow qseecomd data_qsee_file:dir create_dir_perms;
+allow qseecomd data_qsee_file:file create_file_perms;
+
+#audit(46768.854:17): avc:  denied  { read write } for  pid=245 comm="qseecomd" name="qseecom" dev="tmpfs" ino=4957 scontext=u:r:qseecomd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file
+#audit(46768.854:17): avc:  denied  { open } for  pid=245 comm="qseecomd" name="qseecom" dev="tmpfs" ino=4957 scontext=u:r:qseecomd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file
+#audit(46768.854:17): arch=40000028 syscall=322 per=800000 success=yes exit=4 a0=ffffff9c a1=b6eda688 a2=20002 a3=0 items=1 ppid=227 pid=245 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294audit(46768.854:17):  cwd="/"
+#audit(46768.854:17): item=0 name="/dev/qseecom" inode=4957 dev=00:0b mode=020660 ouid=1000 ogid=1026 rdev=f1:00 obj=u:object_r:qseecom_device:s0
+#audit(46768.854:18): avc:  denied  { ioctl } for  pid=245 comm="qseecomd" path="/dev/qseecom" dev="tmpfs" ino=4957 scontext=u:r:qseecomd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file
+#audit(46768.854:18): arch=40000028 syscall=54 per=800000 success=yes exit=0 a0=4 a1=c004970a a2=bed17990 a3=bed17980 items=0 ppid=227 pid=245 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=42audit(46768.794:13): arch=40000028 syscall=327 per=800000 success=yes exit=0 a0=ffffff9c a1=b6fb4269 a2=bef45910 a3=0 items=1 ppid=1 pid=229 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=429audit(46768.794:13):  cwd="/"
+#/dev/sg[0-9]* : add qseecom_device
+#audit(1390662410.309:15): avc:  denied  { open } for  pid=464 comm="qseecomd" path="/dev/sg8" dev="tmpfs" ino=12021 scontext=u:r:tee:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+#audit(1390662410.309:16): avc:  denied  { ioctl } for  pid=464 comm="qseecomd" path="/dev/sg8" dev="tmpfs" ino=12021 scontext=u:r:tee:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+#audit(1390662410.309:17): avc:  denied  { write } for  pid=464 comm="qseecomd" name="sg2" dev="tmpfs" ino=11951 scontext=u:r:tee:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+#audit(1390662410.309:12): avc:  denied  { read } for  pid=464 comm="qseecomd" name="/" dev="tmpfs" ino=2175 scontext=u:r:tee:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+#audit(1390662410.309:13): avc:  denied  { open } for  pid=464 comm="qseecomd" path="/dev" dev="tmpfs" ino=2175 scontext=u:r:tee:s0 tcontext=u:object_r:device:s0 tclass=dir permissive=1
+#audit(1390742692.249:20): avc:  denied  { sys_admin } for  pid=464 comm="qseecomd" capability=21  scontext=u:r:tee:s0 tcontext=u:r:tee:s0 tclass=capability permissive=0
+#avc:  denied  { chown } for  pid=416 comm="qseecomd" capability=0  scontext=u:r:qseecomd:s0 tcontext=u:r:qseecomd:s0 tclass=capability permissive=0 SEPF_SM-N916S_5.0.2_0002
+# avc:  denied  { write } for  pid=505 comm="qseecomd" name="smem_log" dev="tmpfs" ino=15638 scontext=u:r:tee:s0 tcontext=u:object_r:smem_log_device:s0 tclass=chr_file permissive=1 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+

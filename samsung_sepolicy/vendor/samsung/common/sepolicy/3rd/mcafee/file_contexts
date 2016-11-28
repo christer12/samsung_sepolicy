@@ -1,0 +1,15 @@
+#
+# Copyright 2015 McAfee, Inc. All rights reserved.
+#
+
+# McAfee scanner daemon
+/dev/socket/mfescand u:object_r:mfescand_socket:s0
+/system/bin/mfescand u:object_r:mfescand_exec:s0
+
+# McAfee directories/files
+/system/etc/mcafee(/.*)? u:object_r:mcafee_conf_file:s0
+/data/misc/mcafee(/.*)? u:object_r:mcafee_data_file:s0
+/data/misc/mcafee/mcs(/.*)? u:object_r:mcafee_mcs_file:s0
+/data/misc/mcafee/mcs/mcs.fs/xm(/.*)? u:object_r:mcafee_mcsfs_xm_file:s0
+/data/misc/mcafee/mfescand/temp(/.*)? u:object_r:mcafee_temp_file:s0
+

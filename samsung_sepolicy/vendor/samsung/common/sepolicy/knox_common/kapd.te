@@ -1,0 +1,49 @@
+#
+# Rules for kap related domain and files
+#
+############ knox_common #############
+########## type and macro.
+type kapd, domain;
+type kapd_exec, exec_type, file_type;
+
+domain_trans(init, rootfs, kapd)
+
+########## self and domain_type
+allow kapd kernel:system syslog_read;
+allow kapd self:capability dac_override;
+
+########## fs_type
+########## dev_type
+allow kapd block_device:dir r_dir_perms;
+allow kapd emmcblk_device:blk_file rw_file_perms;
+allow kapd kmsg_device:chr_file rw_file_perms;
+allow kapd knox_kap_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow kapd mmcblk0_device:blk_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { syslog_read } for  pid=12166 comm="knox_changer" scontext=u:r:kapd:s0 tcontext=u:r:kernel:s0 tclass=system permissive=1
+# avc:  denied  { read write } for  pid=14147 comm="knox_changer" name="kmsg" dev="tmpfs" ino=11377 scontext=u:r:kapd:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file per missive=1
+# avc:  denied  { read write } for  pid=12166 comm="knox_changer" name="mmcblk0" dev="tmpfs" ino=11596 scontext=u:r:kapd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# avc:  denied  { open } for  pid=12166 comm="knox_changer" path="/dev/block/mmcblk0" dev="tmpfs" ino=11596 scontext=u:r:kapd:s0 tcontext=u:object_r:emmcblk_device:s0 tclass=blk_file permissive=1
+# item=0 name="/dev/block/mmcblk0" inode=11596 dev=00:0c mode=060600 ouid=0 ogid=0 rdev=b3:00 
+# avc:  denied  { dac_override } for  pid=12166 comm="knox_changer" capability=1  scontext=u:r:kapd:s0 tcontext=u:r:kapd:s0 tclass=capability permissive=1
+# avc:  denied  { read } for  pid=12166 comm="knox_changer" name="knox_kap" dev="tmpfs" ino=11381 scontext=u:r:kapd:s0 tcontext=u:object_r:knox_kap_device:s0 tclass=chr_file
+# avc:  denied  { dac_override } for  pid=14147 comm="knox_changer" capability=1  scontext=u:r:kapd:s0 tcontext=u:r:kapd:s0 tclass=capability permissive=1
+# TR LTE avc:  denied  { read write } for  pid=10499 comm="knox_changer" name="mmcblk0" dev="tmpfs" ino=12619 scontext=u:r:kapd:s0 tcontext=u:object_r:mmc_block_device:s0 tclass=blk_file permissive=0 SEPF_SM-N910F_5.0.1_0002
+# item=0 name="/dev/block/mmcblk0" inode=12619 dev=00:0c mode=060600 ouid=0 ogid=0 rdev=b3:00 obj=u:object_r:mmc_block_device:s0 nametype=NORMAL
+
+

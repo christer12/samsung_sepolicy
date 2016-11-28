@@ -1,0 +1,220 @@
+#
+# epmd
+# 
+
+############ knox_common #############
+########## type and macro.
+# moved into s_samsung.te for cts_v0,v1
+#type epmd, domain, mlstrustedsubject;
+type epmd_exec, exec_type, file_type;
+# permissive epmd;
+# for B2C users
+typeattribute epmd trusteddomain;
+typeattribute epmd system_domain;
+
+container_trusted_agent(epmd)
+domain_auto_trans(epmd, dumpstate_exec, dumpstate)
+dumplog_create(epmd)
+# moved into s_samsung.te for cts_v0,v1
+#init_daemon_domain(epmd)
+mobicore_use(epmd)
+
+########## self and domain_type
+allow epmd container_app:fd use;
+# remove container : search /proc
+allow epmd domain:dir { read search open getattr };
+allow epmd domain:{ file lnk_file } { read getattr open };
+allow epmd domain:process { signal sigkill };
+#neverallow Google CTS-android-5.0.2_r1 : remove sys_ptrace
+allow epmd kernel:system module_request;
+allow epmd self:capability { chown dac_override fowner fsetid sys_admin sys_boot sys_resource setuid net_raw setgid kill ipc_lock };
+allow epmd self:capability2 syslog;
+
+########## fs_type
+allow epmd firmware:dir r_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow epmd firmware:file rw_file_perms;
+allow epmd firmware:file r_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 :allow epmd labeledfs:filesystem { mount unmount };
+allow epmd sdcard_type:dir rw_dir_perms;
+allow epmd sdcard_type:file unlink;
+allow epmd sdcard_type:filesystem { mount remount unmount };
+
+########## dev_type
+allow epmd block_device:dir r_dir_perms;
+allow epmd block_device:file r_file_perms;
+allow epmd knox_dar_device:chr_file rw_file_perms;
+allow epmd knox_dar_shared_device:chr_file rw_file_perms;
+
+########## file_type
+allow epmd asec_apk_file:dir { create_dir_perms mounton relabelto };
+allow epmd asec_apk_file:file { create_file_perms relabelto };
+allow epmd asec_apk_file:lnk_file relabelto;
+allow epmd container_app_data_backend:dir { create_dir_perms relabelfrom relabelto };
+allow epmd container_app_data_backend:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow epmd knox_clipboard_file:dir create_dir_perms;
+allow epmd knox_clipboard_file:{ file lnk_file } create_file_perms;
+allow epmd media_rw_data_file:dir { create_dir_perms mounton relabelfrom relabelto };
+allow epmd media_rw_data_file:{ file lnk_file } { create_file_perms relabelfrom relabelto };
+allow epmd system_app_data_file:dir { create_dir_perms relabelto relabelfrom };
+allow epmd system_app_data_file:file { create_file_perms relabelfrom relabelto };
+allow epmd system_data_file:dir  { create_dir_perms mounton };
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow epmd system_data_file:file create_file_perms;
+allow epmd system_data_file:file r_file_perms;
+allow epmd users_system_data_file:dir create_dir_perms;
+allow epmd users_system_data_file:file create_file_perms;
+
+########## etc_type
+########## known issue.
+# when remove container : read app_data_type and unlink
+allow epmd { app_data_type system_data_file }:dir { rw_dir_perms rmdir };
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow epmd { app_data_type system_data_file }:file { getattr unlink };
+allow epmd app_data_type:file { getattr unlink };
+allow epmd system_data_file:file getattr;
+allow epmd { app_data_type system_data_file }:lnk_file { getattr unlink };
+
+# booting denials
+#neverallow Google CTS-android-5.0.2_r1 :allow epmd labeledfs:filesystem mount;
+allow epmd system_data_file:dir mounton;
+
+# encrypted device -> create container -> add_key(syscall 309) error at mounting encryptfs
+allow epmd init:key write;
+allow epmd kernel:key *;
+
+# to support writeData of ApplicationPolicy, copyFile() API of RCPManagerService
+allow epmd container_system_file:dir create_dir_perms;
+allow epmd container_system_file:file create_file_perms;
+
+# "move to knox" : select a file from sdcard
+allow epmd sdcard_type:dir create_dir_perms;
+allow epmd sdcard_type:file create_file_perms;
+
+# from vold rules.
+allow epmd media_rw_data_file:dir mounton;
+#neverallow Google CTS-android-5.0.2_r1 :allow epmd labeledfs:filesystem relabelfrom;
+
+# from vold rules for KNOX 2.0
+allow epmd container_app:fd use;
+allow epmd container_app_data_file:filesystem { relabelfrom relabelto mount unmount };
+allow epmd container_app_data_file:lnk_file create_file_perms;
+allow epmd container_app_sdcard_file:filesystem { relabelfrom relabelto mount unmount };
+allow epmd container_app_sdcard_file:lnk_file create_file_perms;
+allow epmd container_app_data_backend:dir mounton;
+allow epmd container_app_data_backend:lnk_file create_file_perms;
+
+# form vold of nsa rules for KNOX 2.0
+allow epmd rootfs:dir mounton;
+allow epmd sdcard_type:dir mounton;
+allow epmd tmpfs:dir mounton;
+allow epmd system_data_file:dir { create rw_dir_perms mounton };
+
+# restorecon by addding category to encryptfs
+# container_app_backend(/data/knox/data/xxx/), media_rw_data_file(/mnt/shell/emulated/xxx/) and all app data.
+allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :dir { relabelfrom relabelto };
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :{ file lnk_file } { relabelfrom relabelto getattr unlink };
+allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :lnk_file { relabelfrom relabelto getattr unlink };
+allow epmd { container_app_data_backend media_rw_data_file app_data_type } :file { relabelfrom relabelto getattr unlink };
+allow epmd system_data_file :file { relabelto getattr };
+
+# create/remove container for each app data in EcryptFS's source and target(/data/knox/data/xxx and /data/user/xxx)
+allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :dir { rw_dir_perms rmdir };
+#allow epmd { container_app_data_backend media_rw_data_file system_data_file app_data_type } :{ file lnk_file } { getattr unlink };
+allow epmd app_data_type:dir create_dir_perms;
+
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#allow epmd app_data_type:{ file lnk_file } create_file_perms;
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+allow epmd { app_data_type -shell_data_file -app_data_file }:{ file lnk_file } create_file_perms;
+allow epmd shell_data_file:file create_file_perms;
+allow epmd { shell_data_file app_data_file }:lnk_file { create rename setattr unlink getattr open ioctl lock open append write };
+
+# from vold and PLM priviate mode
+allow epmd efs_file:dir r_dir_perms;
+allow epmd km_fips_prop:property_service set;
+#unix_socket_connect(epmd, property, init)
+#neverallow Google CTS-android-5.0.2_r1 : remove set_prop(epmd), add unix_socket_connect
+#unix_socket_connect(epmd, property, init)
+set_prop(epmd, km_fips_prop)
+
+allow epmd rootfs:dir mounton;
+
+# Personal Page
+allow epmd personal_page_file:dir create_dir_perms;
+allow epmd personal_page_file:file create_file_perms;
+
+# IRM
+allow epmd irm_media_data_file:{ dir file lnk_file } { relabelfrom relabelto };
+allow epmd irm_media_data_file:dir { rw_dir_perms rmdir };
+allow epmd irm_media_data_file:{ file lnk_file } create_file_perms;
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow epmd qseecom_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { sys_admin } for  pid=324 comm="epmd" capability=21  scontext=u:r:epmd:s0 tcontext=u:r:epmd:s0 tclass=capability
+# avc:  denied  { dac_override } for  pid=324 comm="epmd" capability=1  scontext=u:r:epmd:s0 tcontext=u:r:epmd:s0 tclass=capability
+# avc:  denied  { search } for  pid=495 comm="epmd" name="3229" dev="proc" ino=27385 scontext=u:r:epmd:s0 tcontext=u:r:system_app:s0:c3 tclass=dir
+# avc:  denied  { read } for  pid=495 comm="epmd" name="cmdline" dev="proc" ino=27402 scontext=u:r:epmd:s0 tcontext=u:r:system_app:s0:c3 tclass=file
+# avc:  denied  { mounton } for  pid=324 comm="epmd" path="/data/user/100" dev="mmcblk0p26" ino=1048589 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { mount } for  pid=324 comm="epmd" name="/" item=0 name="/data/user/100" dev="ecryptfs" ino=918796 scontext=u:r:epmd:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# avc:  denied  { unmount } for  pid=471 comm="epmd" scontext=u:r:epmd:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem item=0 name="/data/user/100" inode=918913 dev=00:1c mode=040771 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:container_app_data_backend:s0:c2
+# avc:  denied  { getattr } for  pid=7742 comm="epmd" path="/mnt/shell/emulated" dev="sdcardfs" ino=1179652 scontext=u:r:epmd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+# item=0 name="/mnt/shell/emulated/" inode=1179652 dev=00:18 mode=040771 ouid=0 ogid=1028 rdev=00:00 obj=u:object_r:media_rw_data_file:s0
+# avc:  denied  { write } for  pid=7742 comm="epmd" name="/" dev="sdcardfs" ino=1179652 scontext=u:r:epmd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+# avc:  denied  { add_name } for  pid=7742 comm="epmd" name="101" scontext=u:r:epmd:s0 tcontext=u:object_r:media_rw_data_file:s0 tclass=dir
+# item=0 name="/mnt/shell/emulated/" inode=1179652 dev=00:18 mode=040771 ouid=0 ogid=1028 rdev=00:00 obj=u:object_r:media_rw_data_file:s0
+# avc:  denied  { open } for  pid=7742 comm="epmd" path="/data/user/101/com.sec.knox.bridge/files/ClipboardSandbox/to/11577951923947_300_183" dev="ecryptfs" ino=1050096 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0:c3 tclass=dir
+# avc:  denied  { open } for  pid=413 comm="epmd" path="/data/system/users/100/100.xml" dev="mmcblk0p26" ino=919489 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { open } for  pid=7742 comm="epmd" path="/data/clipboard/11577951923947_300_183" dev="mmcblk0p26" ino=1441823 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { read } for  pid=495 comm="epmd" name="EN.FWbriPqsI7Zad-Zxf2WV5V5lByAs47liA0zDt7GqUjvL2eRF-chLMFlcKE--" dev="mmcblk0p26" ino=918818 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0:c2 tclass=dir
+# item=0 name="/data/knox/data/100/EN.FWbriPqsI7Zad-Zxf2WV5V5lByAs47liA0zDt7GqUjvL2eRF-chLMFlcKE--" inode=918818 dev=b3:1a mode=040751 ouid=10001000 ogid=10001000 rdev=00:00 obj=u:object_r:system_app_data_file:s0:c2
+# avc:  denied  { write } for  pid=495 comm="epmd" name="EN.FWbriPqsI7Zad-Zxf2WV5V5lByAs47liA0zDt7GqUjvL2eRF-chLMFlcKE--" dev="mmcblk0p26" ino=918818 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0:c2 tclass=dir
+# avc:  denied  { remove_name } for  pid=495 comm="epmd" name="EN.FWbriPqsI7Zad-Zxf2WV5V5lByAs47liA0zD3XmnAA6mwJRmwqB0ReJGL---" dev="mmcblk0p26" ino=918819 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0:c2 tclass=dir
+# item=0 name="/data/knox/data/100/EN.FWbriPqsI7Zad-Zxf2WV5V5lByAs47liA0zDt7GqUjvL2eRF-chLMFlcKE--/" inode=918818 dev=b3:1a mode=040751 ouid=10001000 ogid=10001000 rdev=00:00 obj=u:object_r:system_app_data_file:s0:c2
+# avc:  denied  { rmdir } for  pid=495 comm="epmd" name="EN.FWbriPqsI7Zad-Zxf2WV5V5lByAs47liA0zDt7GqUjvL2eRF-chLMFlcKE--" dev="mmcblk0p26" ino=918818 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0:c2 tclass=dir
+## relabel clips.info file
+# avc:  denied  { fowner } for  pid=495 comm="epmd" capability=3  scontext=u:r:epmd:s0 tcontext=u:r:epmd:s0 tclass=capability
+# avc:  denied  { relabelfrom } for  pid=495 comm="epmd" name="clips.info" dev="ecryptfs" ino=1048901 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file
+# avc:  denied  { relabelto } for  pid=495 comm="epmd" name="clips.info" dev="ecryptfs" ino=1048901 scontext=u:r:epmd:s0 tcontext=u:object_r:system_app_data_file:s0:c2 tclass=file
+# item=0 name="/data/user/100/com.sec.knox.bridge/files/ClipboardSandbox/from/clips.info" inode=1048901 dev=00:1a mode=0100700 ouid=10001000 ogid=10001000 rdev=00:00 obj=u:object_r:system_app_data_file:s0
+# remove container
+# avc:  denied  { write } for  pid=471 comm="epmd" name="EN.FXbSs2quWd.fvUYuxiQBHt9JGY.NzPeeBIDLcTE-4FJ2uxojBkYpdftFvYaIC7hzcMYrxhv-NafIyaQ-" dev="mmcblk0p26" ino=919163 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0:c2 tclass=dir
+# avc:  denied  { remove_name } for  pid=471 comm="epmd" name="EN.FWbSs2quWd.fvUYuxiQBHt9JGY.NzPeeBIDLelJ0L2gA7wFLWbRtYt2VfU--" dev="mmcblk0p26" ino=919164 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0:c2 tclass=dir
+# item=0 name="/data/knox/data/100/EN.FXbSs2quWd.fvUYuxiQBHt9JGY.NzPeeBIDLcTE-4FJ2uxojBkYpdftFvYaIC7hzcMYrxhv-NafIyaQ-/" inode=919163 dev=b3:1a mode=040751 ouid=10001000 ogid=10001000 rdev=00:00 obj=u:object_r:system_data_file:s0:c2
+# avc:  denied  { write } for  pid=471 comm="epmd" name="user" dev="mmcblk0p26" ino=1048580 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { remove_name } for  pid=471 comm="epmd" name="100" dev="mmcblk0p26" ino=1048589 scontext=u:r:epmd:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# item=0 name="/data/user/" inode=1048580 dev=b3:1a mode=040711 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:system_data_file:s0
+# item=1 name="/data/user/100" inode=1048589 dev=b3:1a mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:system_data_file:s0
+# mobicore use
+# avc:  denied  { connectto } for  pid=2943 comm="epmd" path=006D636461656D6F6E scontext=u:r:epmd:s0 tcontext=u:r:mobicoredaemon:s0 tclass=unix_stream_socket SEPF_SM-N910C_4.4.4_A019
+# avc:  denied  { write } for  pid=2943 comm="epmd" name="mobicore-user" dev="tmpfs" ino=4393 scontext=u:r:epmd:s0 tcontext=u:object_r:mobicore-user_device:s0 tclass=chr_file
+# from vold and PLM priviate mode
+# avc:  denied  { mounton } for  pid=446 comm="epmd" path="/storage/Private" dev="rootfs" ino=11409 scontext=u:r:epmd:s0 tcontext=u:object_r:rootfs:s0 tclass=dir
+# avc:  denied  { mount } for  pid=446 comm="epmd" name="/" dev="ecryptfs" ino=524293 scontext=u:r:epmd:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# avc:  denied  { set } for property=rw.km_fips_status scontext=u:r:epmd:s0 tcontext=u:object_r:km_fips_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=446 comm="epmd" name="property_service" dev="tmpfs" ino=12897 scontext=u:r:epmd:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+# avc:  denied  { connectto } for  pid=446 comm="epmd" path="/dev/socket/property_service" scontext=u:r:epmd:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+# avc:  denied  { create } for  pid=534 comm="epmd" name="100" scontext=u:r:epmd:s0 tcontext=u:object_r:sdcard_internal:s0 tclass=dir SEPF_SM-N900V_4.4.4_0026
+# avc:  denied  { write } for  pid=324 comm="epmd" name="qseecom" dev="tmpfs" ino=12507 scontext=u:r:epmd:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file
+# TB L OS avc:  denied  { syslog } for  pid=645 comm="logcat" capability=34  scontext=u:r:epmd:s0 tcontext=u:r:epmd:s0 tclass=capability2 permissive=0
+# audit(1419847551.989:14263): avc:  denied  { sigkill } for  pid=3047 comm="epmd" scontext=u:r:epmd:s0 tcontext=u:r:media_app:s0 tclass=process permissive=0
+# audit(1425381413.203:229): avc:  denied  { module_request } for  pid=591 comm="epmd" kmod="ecb(aes)-all" scontext=u:r:epmd:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0 
+# avc:  denied  { write } for  pid=529 comm="epmd" name="100" dev="mmcblk0p26" ino=916014 scontext=u:r:epmd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=dir
+# avc:  denied  { add_name } for  pid=3221 comm="epmd" name="VFEKEK_100" scontext=u:r:epmd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { create } for  pid=3221 comm="epmd" name="VFEKEK_100" scontext=u:r:epmd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3221 comm="epmd" path="/data/system/users/100/VFEKEK_100" dev="sda21" ino=525032 scontext=u:r:epmd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# item=0 name="/data/system/users/100/VFEKEK_100" inode=916014 dev=b3:1a mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:users_system_data_file:s0
+# item=0 name="/data/system/users/100/ccstatus_100" inode=916014 dev=b3:1a mode=040700 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:users_system_data_file:s0
+# avc:  denied  { getattr } for  pid=525 comm="epmd" path="/proc/78/fd/0" dev="proc" ino=247896 scontext=u:r:epmd:s0 tcontext=u:r:kernel:s0 tclass=dir SEPF_SM-T535_5.0.2_0011
+# avc:  denied  { search } for  pid=2508 comm="vold" scontext=u:r:vold:s0 tcontext=u:r:kernel:s0 tclass=key permissive=0 SEPF_SM-G361F_5.1_0011
+# avc:  denied  { relabelto } for  pid=3190 comm="vold" name=".irm" dev="ecryptfs" ino=130970 scontext=u:r:vold:s0 tcontext=u:object_r:irm_media_data_file:s0 tclass=dir permissive=0

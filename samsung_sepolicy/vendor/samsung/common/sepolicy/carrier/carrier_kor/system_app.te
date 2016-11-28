@@ -1,0 +1,7 @@
+
+############ LGT #############
+allow system_app ctl_mwlan_vpncored_prop:property_service set;
+allow system_app {system_app_data_file system_data_file}:sock_file {read write};
+allow system_app mwlan_vpncored:unix_stream_socket {connectto};
+allow system_app mwlan_helper_exec:file r_file_perms;
+set_prop(system_app, ctl_mwlan_vpncored_prop)

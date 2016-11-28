@@ -1,0 +1,8 @@
+
+
+allow qseeproxy dumplog_data_file:file write;
+
+# avc:  denied  { write } for  pid=26288 comm="dumpsys" path="/data/log/DumpsysAll_G935AUCU0AOKC-2015-11-23_10:32:55.txt.tmp" dev="sda23" ino=1048642 scontext=u:r:qseeproxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+
+

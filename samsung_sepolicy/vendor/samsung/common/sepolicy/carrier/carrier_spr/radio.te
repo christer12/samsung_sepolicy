@@ -1,0 +1,9 @@
+allow radio carrier_file:dir r_dir_perms;
+allow radio carrier_file:file r_file_perms;
+allow radio sprintitson_file:dir r_dir_perms;
+allow radio sprintitson_file:file rx_file_perms;
+
+
+## avc_log : AOSP/B2C
+# avc:  denied  { read } for  pid=1416 comm="m.android.phone" name="itson-oem.jar" dev="mmcblk0p26" ino=22 scontext=u:r:radio:s0 tcontext=u:object_r:sprintitson_file:s0 tclass=file
+# avc:  denied  { open } for  pid=1416 comm="m.android.phone" path="/carrier/itson/resources/itson-oem.jar" dev="mmcblk0p26" ino=22 scontext=u:r:radio:s0 tcontext=u:object_r:sprintitson_file:s0 tclass=file

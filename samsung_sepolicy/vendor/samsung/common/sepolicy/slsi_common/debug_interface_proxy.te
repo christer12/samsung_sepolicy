@@ -1,0 +1,98 @@
+#
+# debug_interface_proxy
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+type debug_interface_proxy, domain;
+type debug_interface_proxy_exec, exec_type, file_type;
+init_daemon_domain(debug_interface_proxy)
+#unix_socket_connect(debug_interface_proxy, property, init)
+set_prop(debug_interface_proxy, system_prop)
+
+# for B2C users
+typeattribute debug_interface_proxy trusteddomain;
+typeattribute debug_interface_proxy mlstrustedsubject;
+# temporary permissive to gather the log.
+# permissive debug_interface_proxy;
+
+########## self and domain_type
+allow debug_interface_proxy { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+allow debug_interface_proxy { domain -containerdomain -fixmo_app -good_app }:{ file lnk_file } r_file_perms;
+
+########## dev_type
+allow debug_interface_proxy mif_device:chr_file rw_file_perms;
+
+########## file_type
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow debug_interface_proxy { file_type -trstdomain_no_read_file }:dir r_dir_perms;
+#changeBySEA allow debug_interface_proxy { file_type -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow debug_interface_proxy { file_type -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#neverallow { domain -appdomain -installd -uncrypt } app_data_file:lnk_file read
+#changeBySEA allow debug_interface_proxy { file_type -trstdomain_no_read_file -vold_data_file -shell_data_file -app_data_file }:{ file lnk_file } r_file_perms;
+allow debug_interface_proxy { shell_data_file app_data_file}:file r_file_perms;
+
+allow debug_interface_proxy dumplog_data_file:dir create_dir_perms;
+allow debug_interface_proxy dumplog_data_file:file create_file_perms;
+allow debug_interface_proxy system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow debug_interface_proxy system_data_file:file create_file_perms;
+allow debug_interface_proxy system_data_file:file r_file_perms;
+allow debug_interface_proxy system_file:file execute_no_trans;
+allow debug_interface_proxy msockets_socket:dir w_dir_perms;
+allow debug_interface_proxy msockets_socket:sock_file create_file_perms;
+allow debug_interface_proxy sdcard_external:dir create_dir_perms;
+allow debug_interface_proxy sdcard_external:file create_file_perms;
+
+########## etc_type
+allow debug_interface_proxy system_prop:property_service set;
+
+########## known issue.
+# type transition to use its own data region.
+allow debug_interface_proxy system_data_file:dir ra_dir_perms;
+type_transition debug_interface_proxy system_data_file:dir debug_interface_data_file "dipconfs";
+allow debug_interface_proxy debug_interface_data_file:dir create_dir_perms;
+allow debug_interface_proxy debug_interface_data_file:file create_file_perms;
+
+# se.ericsson.modemtoolbox app
+allow untrusted_app debug_interface_proxy:unix_stream_socket connectto;
+
+
+# avc:  denied  { set } for property=dev.silentlog.on scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=2946 comm="debug_interface" name="/" dev="mmcblk0p21" ino=2 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { add_name } for  pid=2946 comm="debug_interface" name="dipconfs" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { create } for  pid=2946 comm="debug_interface" name="dipconfs" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { setattr } for  pid=2946 comm="debug_interface" name="dipconfs" dev="mmcblk0p21" ino=130820 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { read } for  pid=2946 comm="debug_interface" name="dipconfs" dev="mmcblk0p21" ino=130820 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { open } for  pid=2946 comm="debug_interface" path="/data/dipconfs" dev="mmcblk0p21" ino=130820 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=dir
+# avc:  denied  { create } for  pid=2946 comm="debug_interface" name="Default.conf" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { write open } for  pid=2946 comm="debug_interface" path="/data/dipconfs/Default.conf" dev="mmcblk0p21" ino=130821 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# avc:  denied  { write } for  pid=2946 comm="debug_interface" name="property_service" dev="tmpfs" ino=6961 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+# avc:  denied  { connectto } for  pid=2946 comm="debug_interface" path="/dev/socket/property_service" scontext=u:r:debug_interface_proxy:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+# avc:  denied  { write } for  pid=2946 comm="debug_interface" name="msockets" dev="tmpfs" ino=6954 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:msockets_socket:s0 tclass=dir
+# avc:  denied  { add_name } for  pid=2946 comm="debug_interface" name="dip_cmd" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:msockets_socket:s0 tclass=dir
+# avc:  denied  { create } for  pid=2946 comm="debug_interface" name="dip_cmd" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:msockets_socket:s0 tclass=sock_file
+# avc:  denied  { write } for  pid=2993 comm="debug_interface" name="modem_status" dev="tmpfs" ino=7020 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:msockets_socket:s0 tclass=sock_file
+# avc:  denied  { write } for  pid=2946 comm="debug_interface" name="modem_AT_RMM" dev="tmpfs" ino=4651 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:msockets_socket:s0 tclass=sock_file
+# avc:  denied  { connectto } for  pid=2946 comm="debug_interface" path="/dev/socket/msockets/modem_AT_RMM" scontext=u:r:debug_interface_proxy:s0 tcontext=u:r:mmd:s0 tclass=unix_stream_socket
+# avc:  denied  { setattr } for  pid=2998 comm="mld" name="old" dev="mmcblk0p21" ino=392478 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir SEPF_SM-N910C_5.0_0001
+# avc:  denied  { unlink } for  pid=3015 comm="rm" name="2014-11-27_20h42m43s_app.meta.mldlog.00000.mldz.log" dev="mmcblk0p21" ino=392480 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { rename } for  pid=3034 comm="mv" name="2014-11-27_20h44m31s_radio.meta.mldlog.00000.mldz.log" dev="mmcblk0p21" ino=392484 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { create } for  pid=2997 comm="mld" name="2014-11-27_20h45m44s_radio.meta.mldlog.00000.mldz.log" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { unlink } for  pid=12207 comm="rm" name="2014-11-27_20h44m31s_app.meta.mldlog.00000.mldz.log" dev="mmcblk0p21" ino=392483 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { rename } for  pid=12218 comm="mv" name="2014-11-27_20h45m44s_app.meta.mldlog.00000.mldz.log" dev="mmcblk0p21" ino=392481 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { create } for  pid=29093 comm="mld" name="2014-11-27_20h44m31s_app.meta.mldlog.00000.mldz.log" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { execute_no_trans } for  pid=29092 comm="debug_interface" path="/system/bin/mld" dev="mmcblk0p18" ino=674 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_file:s0 tclass=file SEPF_SM-N910C_5.0_0001
+# avc:  denied  { execute_no_trans } for  pid=2943 comm="sh" path="/system/bin/toolbox" dev="mmcblk0p18" ino=1109 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_file:s0 tclass=file
+# avc:  denied  { write } for  pid=2872 comm="debug_interface" name="/" dev="sdcardfs" ino=1 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:vfat:s0 tclass=dir
+# avc:  denied  { create } for  pid=2889 comm="debug_interface" name="modem_trace" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:vfat:s0 tclass=dir 
+# avc:  denied  { create } for  pid=3017 comm="debug_interface" name="dipconfs" scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:debug_interface_data_file:s0 tclass=dir
+# avc:  denied  { write } for  pid=3060 comm="debug_interface" path="/data/dipconfs/Default.conf" dev="mmcblk0p21" ino=196614 scontext=u:r:debug_interface_proxy:s0 tcontext=u:object_r:system_data_file:s0 tclass=file SEPF_SM-N910C_6.0_0002
+# avc:  denied  { connectto } for  pid=11415 comm=4173796E635461736B202331 path="/dev/socket/msockets/dip_cmd" scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:debug_interface_proxy:s0 tclass=unix_stream_socket SEPF_SM-N910C_6.0_0002
+
+
+

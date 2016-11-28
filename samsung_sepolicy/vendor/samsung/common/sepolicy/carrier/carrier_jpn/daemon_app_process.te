@@ -1,0 +1,27 @@
+#
+# daemon_app_process
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+# for mfdp
+domain_auto_trans(mfdp, zygote_exec, daemon_app_process)
+
+########## self and domain_type
+allow daemon_app_process mfdp:fd use;
+allow daemon_app_process mfdp:unix_stream_socket rw_socket_perms;
+allow daemon_app_process mfdp:fifo_file rw_file_perms;
+
+########## fs_type
+########## dev_type
+allow daemon_app_process felicashell_device:chr_file rw_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=7766 comm="app_process" path="/dev/felica_int_poll" dev="tmpfs" ino=10809 scontext=u:r:daemon_app_process:s0 tcontext=u:object_r:felicashell_device:s0 tclass=chr_file
+
+

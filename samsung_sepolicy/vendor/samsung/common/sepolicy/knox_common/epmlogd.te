@@ -1,0 +1,31 @@
+#
+# epmlogd daemon
+#
+############ knox_common #############
+########## type and macro.
+type epmlogd, mlstrustedsubject, domain;
+type epmlogd_exec, exec_type, file_type;
+
+init_daemon_domain(epmlogd)
+
+########## file_type
+allow epmlogd dumplog_data_file:dir create_dir_perms;
+allow epmlogd dumplog_data_file:file create_file_perms;
+allow epmlogd users_system_data_file:dir r_dir_perms;
+allow epmlogd users_system_data_file:file r_file_perms;
+
+##### M_denial
+allow epmlogd logcat_exec:file rx_file_perms;
+allow epmlogd shell_exec:file rx_file_perms;
+
+############ avc_log #############
+# avc:  denied  { read } for  pid=3157 comm="epmlogd" name="personalist.xml" dev="sda18" ino=262484 scontext=u:r:epmlogd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=3157 comm="epmlogd" path="/data/system/users/0/personalist.xml" dev="sda18" ino=262484 scontext=u:r:epmlogd:s0 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3157 comm="epmlogd" name="epm.log" dev="sda18" ino=590500 scontext=u:r:epmlogd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { open } for  pid=3157 comm="epmlogd" path="/data/log/epm.log" dev="sda18" ino=590500 scontext=u:r:epmlogd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { write } for  pid=3157 comm="epmlogd" name="log" dev="sda18" ino=589826 scontext=u:r:epmlogd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { remove_name } for  pid=3157 comm="epmlogd" name="epm_success" dev="sda18" ino=590542 scontext=u:r:epmlogd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { unlink } for  pid=3157 comm="epmlogd" name="epm_success" dev="sda18" ino=590542 scontext=u:r:epmlogd:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=1
+# avc:  denied  { execute } for  pid=3361 comm="epmlogd" name="sh" dev="sda15" ino=712 scontext=u:r:epmlogd:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+# avc:  denied  { read open } for  pid=3361 comm="epmlogd" path="/system/bin/sh" dev="sda15" ino=712 scontext=u:r:epmlogd:s0 tcontext=u:object_r:shell_exec:s0 tclass=file permissive=1
+

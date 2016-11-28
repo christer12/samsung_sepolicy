@@ -1,0 +1,55 @@
+#
+# Auditd
+#
+
+
+
+########## type and macro.
+# auditd - Audit event daemon
+type auditd, domain;
+type auditd_exec, exec_type, file_type;
+
+# permissive auditd;
+############  knox_common #############
+init_daemon_domain(auditd)
+file_type_auto_trans(auditd, system_data_file, audit_log)
+binder_call(auditd, servicemanager)
+binder_call(auditd, system_server)
+
+########## self and domain_type
+allow auditd init:unix_stream_socket connectto;
+allow auditd kernel:system syslog_read;
+allow auditd self:capability { audit_control setuid setgid };
+allow auditd self:capability2 syslog;
+allow auditd self:netlink_audit_socket { write create nlmsg_write read getopt };
+
+########## fs_type
+allow auditd cgroup:dir { create add_name };
+
+########## dev_type
+########## file_type
+allow auditd property_socket:sock_file w_file_perms;
+allow auditd security_file:file r_file_perms;
+allow auditd security_file:dir r_dir_perms;
+allow auditd system_data_file:dir { r_dir_perms remove_name };
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow auditd system_data_file:file { r_file_perms unlink };
+allow auditd system_data_file:file r_file_perms;
+
+########## etc_type
+allow auditd denial_prop:property_service { set };
+
+########## known issue.
+# To add sepolicy level (H=B2B, L=B2C) info to audit denial logs
+allow auditd selinuxfs:dir search;
+allow auditd selinuxfs:file { read open };
+
+########## androd-m-preview: denials ########
+allow auditd log_device:chr_file rw_file_perms;
+allow auditd log_device:dir r_dir_perms;
+
+############ avc_log #############
+# avc:  denied  { call } for  pid=5297 comm="auditd" scontext=u:r:auditd:s0 tcontext=u:r:system_server:s0 tclass=binder SEPF_SM-T817P_5.1.1_0024
+# avc:  denied  { getopt } for  pid=3909 comm="auditd" scontext=u:r:auditd:s0 tcontext=u:r:auditd:s0 tclass=netlink_audit_socket permissive=1
+
+

@@ -1,0 +1,76 @@
+#
+# IMSD (IMS Deamon)
+#
+# IMSD is a deamon which provides IMS service to application based on SIP (Session Initiation Protocol).
+# It supports SIP packet processing and RTP stream for VoIP.
+#
+# Contact: yoonsung.nam
+#
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+type imsd, domain;
+type imsd_exec, exec_type, file_type;
+
+init_daemon_domain(imsd)
+
+typeattribute imsd trusteddomain;
+
+binder_call(imsd, mediaserver)
+
+
+########## self and domain_type
+allow imsd kernel:system module_request;
+allow imsd netd:unix_stream_socket connectto;
+allow imsd node:{ tcp_socket udp_socket } node_bind;
+allow imsd port:tcp_socket name_connect;
+allow imsd port:{ tcp_socket udp_socket } name_bind;
+allow imsd rild:unix_stream_socket connectto;
+allow imsd self:capability { dac_override setuid net_raw net_admin };
+allow imsd servicemanager:binder call;
+allow imsd system_app:binder call;
+
+########## fs_type
+allow imsd sysfs_wake_lock:file rw_file_perms;
+
+########## dev_type
+
+########## file_type
+allow imsd dnsproxyd_socket:sock_file write;
+allow imsd dumplog_data_file:dir ra_dir_perms;
+allow imsd dumplog_data_file:sock_file create_file_perms;
+allow imsd fwmarkd_socket:sock_file write;
+allow imsd imsd_socket:sock_file create_file_perms;
+allow imsd media_rw_data_file:dir create_dir_perms;
+allow imsd media_rw_data_file:file create_file_perms;
+allow imsd shell_data_file:dir search;
+allow imsd system_file:file execmod;
+
+########## etc_type
+allow imsd system_prop:property_service set;
+########## known issue.
+
+##### M_denial
+allow imsd system_app_service:service_manager find;
+allow imsd mediaserver_service:service_manager find;
+
+
+############ avc_log #############
+# avc:  denied  { setuid } for  pid=3103 comm="imsd" capability=7  scontext=u:r:empty_service:s0 tcontext=u:r:empty_service:s0 tclass=capability permissive=1
+# avc:  denied  { write } for  pid=3103 comm="imsd" name="dnsproxyd" dev="tmpfs" ino=5418 scontext=u:r:empty_service:s0 tcontext=u:object_r:dnsproxyd_socket:s0 tclass=sock_file permissive=1
+# avc:  denied  { name_bind } for  pid=3103 comm="imsd" src=5060 scontext=u:r:empty_service:s0 tcontext=u:object_r:port:s0 tclass=udp_socket permissive=1
+# avc:  denied  { node_bind } for  pid=3103 comm="imsd" src=5060 scontext=u:r:empty_service:s0 tcontext=u:object_r:node:s0 tclass=udp_socket permissive=1
+# avc:  denied  { remove_name } for  pid=3103 comm="imsd" name="imsd" dev="sda17" ino=458761 scontext=u:r:empty_service:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=dir permissive=1
+# avc:  denied  { unlink } for  pid=3103 comm="imsd" name="imsd" dev="sda17" ino=458761 scontext=u:r:empty_service:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { create } for  pid=3103 comm="imsd" name="imsd" scontext=u:r:empty_service:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=sock_file permissive=1
+# avc:  denied  { connectto } for  pid=3226 comm="imsd" path="/dev/socket/fwmarkd" scontext=u:r:empty_service:s0 tcontext=u:r:netd:s0 tclass=unix_stream_socket permissive=1
+# avc:  denied  { net_admin } for  pid=3221 comm="imsd" capability=12  scontext=u:r:empty_service:s0 tcontext=u:r:empty_service:s0 tclass=capability permissive=1
+# avc:  denied  { module_request } for  pid=3221 comm="imsd" kmod="authenc(hmac(sha1),cbc(aes))" scontext=u:r:empty_service:s0 tcontext=u:r:kernel:s0 tclass=system permissive=1
+# avc:  denied  { net_raw } for  pid=3226 comm="imsd" capability=13  scontext=u:r:empty_service:s0 tcontext=u:r:empty_service:s0 tclass=capability permissive=1
+# avc:  denied  { write } for  pid=9991 comm="StackIF-Rx" name="imsd" dev="tmpfs" ino=2675 scontext=u:r:system_app:s0 tcontext=u:object_r:socket_device:s0 tclass=sock_file permissive=1
+# avc:  denied  { find } for service=SveService scontext=u:r:imsd:s0 tcontext=u:object_r:system_app_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=media.audio_policy scontext=u:r:imsd:s0 tcontext=u:object_r:mediaserver_service:s0 tclass=service_manager
+# avc:  denied  { execmod } for  pid=13078 comm="imsd" path="/system/lib/libsec-ims.so" dev="mmcblk0p19" ino=1491 scontext=u:r:imsd:s0 tcontext=u:object_r:system_file:s0 tclass=file
+# avc:  denied  { set } for property=persist.sys.e911.gcf scontext=u:r:imsd:s0 tcontext=u:object_r:system_prop:s0 tclass=property_service
+

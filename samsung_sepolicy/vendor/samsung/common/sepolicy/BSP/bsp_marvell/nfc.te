@@ -1,0 +1,15 @@
+# addtional permissions for nfc
+allow nfc mned:unix_stream_socket unix_stream_socket_perms;
+allow nfc mwirelessd:unix_stream_socket unix_stream_socket_perms;
+
+# relabel /data/nfc/* to specific label
+allow nfc nfc_data_file:dir create_dir_perms;
+allow nfc nfc_data_file:sock_file create_file_perms;
+allow nfc nfc_data_file:file create_file_perms;
+
+allow nfc nfc_device:chr_file create_file_perms;
+allow nfc wireless_data_file:sock_file create_file_perms;
+allow nfc wireless_data_file:dir create_dir_perms;
+allow nfc dump_log_data_file:file create_file_perms;
+allow nfc dump_log_data_file:dir create_dir_perms;
+

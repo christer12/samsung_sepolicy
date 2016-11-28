@@ -1,0 +1,37 @@
+#for mediaserver
+allow mediaserver audio_data_file:dir create_dir_perms;
+allow mediaserver audio_data_file:sock_file create_file_perms;
+allow mediaserver uio_device:chr_file create_file_perms;
+
+# access to /data/
+#allow mediaserver system_data_file:file create_file_perms;
+allow mediaserver system_data_file:dir create_dir_perms;
+
+# relabel mediaserver_device
+allow mediaserver mediaserver_device:chr_file create_file_perms;
+allow mediaserver nvm_data_file:file create_file_perms;
+allow mediaserver nvm_data_file:dir create_dir_perms;
+
+allow mediaserver phservice:binder call;
+allow mediaserver system_prop:property_service set;
+
+#SEC changed: allow mediaserver mrvlgpu_device:chr_file create_file_perms;
+allow mediaserver mrvlgpu_device:chr_file rw_file_perms;
+#SEC changed: allow mediaserver graphics_device:dir create_dir_perms;
+allow mediaserver graphics_device:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview:
+#neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow mediaserver system_data_file:file create_file_perms;
+allow mediaserver system_data_file:file r_file_perms;
+
+allow mediaserver debugfs:file create_file_perms;
+allow mediaserver FMRadiod:binder transfer;
+#SEC removed: allow mediaserver nvm_block_device:blk_file create_file_perms;
+allow mediaserver debugfs:file create_file_perms;
+allow mediaserver dump_log_data_file:dir create_dir_perms;
+allow mediaserver dump_log_data_file:file create_file_perms;
+
+# Streaming.Media
+allow mediaserver mediaserver_service:service_manager add;
+

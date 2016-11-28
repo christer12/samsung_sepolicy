@@ -1,0 +1,23 @@
+# secstarter
+
+type secstarter, domain;
+type secstarter_exec, exec_type, file_type;
+init_daemon_domain(secstarter)
+
+#unix_socket_connect(secstarter, property, init)
+set_prop(secstarter, vpn_prop)
+
+# allow rules
+allow secstarter app_data_file:dir rw_dir_perms;
+allow secstarter app_data_file:file r_file_perms;
+allow secstarter system_data_file:dir w_dir_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -system_server -system_app -init -installd } system_data_file:file { append create link unlink relabelfrom rename setattr write }
+#allow secstarter system_data_file:file create_file_perms;
+allow secstarter system_data_file:file r_file_perms;
+allow secstarter system_data_file:fifo_file create_file_perms;
+allow secstarter system_data_file:sock_file create_file_perms;
+allow secstarter vpn_prop:property_service set;
+
+# for B2C users
+typeattribute secstarter trusteddomain;
+typeattribute secstarter device_domain;

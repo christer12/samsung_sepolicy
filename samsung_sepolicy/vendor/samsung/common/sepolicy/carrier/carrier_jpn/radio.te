@@ -1,0 +1,7 @@
+#============= radio ==============
+allow radio platform_app_data_file:file open;
+allow radio wifi_efs_file:file r_file_perms;
+allow radio self:rawip_socket read;
+allow radio insthk_exec:file x_file_perms;
+
+

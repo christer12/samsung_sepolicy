@@ -1,0 +1,21 @@
+# ATFWD-daemon
+
+typealias atfwd alias ATFWD-daemon;
+typealias atfwd_exec alias  ATFWD-daemon_exec;
+#type ATFWD-daemon, domain;
+#type ATFWD-daemon_exec, exec_type, file_type;
+
+#init_daemon_domain(ATFWD-daemon)
+binder_use(ATFWD-daemon)
+
+allow ATFWD-daemon init:unix_stream_socket connectto;
+allow ATFWD-daemon qmuxd:unix_stream_socket connectto;
+
+allow ATFWD-daemon ctl_default_prop:property_service set;
+allow ATFWD-daemon property_socket:sock_file w_file_perms;
+allow ATFWD-daemon qmux_radio_socket:dir w_dir_perms;
+allow ATFWD-daemon qmux_radio_socket:sock_file create_file_perms;
+
+# for B2C users
+typeattribute ATFWD-daemon trusteddomain;
+typeattribute ATFWD-daemon device_domain;

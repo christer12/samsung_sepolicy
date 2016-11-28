@@ -1,0 +1,32 @@
+#
+# fsck_untrusted
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+########## self and domain_type
+allow fsck_untrusted self:capability dac_override;
+allow fsck_untrusted vold:netlink_socket { read write };
+allow fsck_untrusted vold:unix_stream_socket { read write };
+
+########## fs_type
+allow fsck_untrusted firmware_file:file r_file_perms;
+# access /proc/stlog
+allow fsck_untrusted proc:file write;
+
+########## dev_type
+allow fsck_untrusted qseecom_device:chr_file { read write };  
+
+########## file_type
+########## etc_type
+########## known issue.
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=1916 comm="fsck_msdos" path="socket:[16599]" dev="sockfs" ino=16599 scontext=u:r:fsck_untrusted:s0 tcontext=u:r:vold:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { read write } for  pid=1916 comm="fsck_msdos" path="socket:[17479]" dev="sockfs" ino=17479 scontext=u:r:fsck_untrusted:s0 tcontext=u:r:vold:s0 tclass=netlink_socket permissive=1 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { dac_override } for  pid=1916 comm="fsck_msdos" capability=1  scontext=u:r:fsck_untrusted:s0 tcontext=u:r:fsck_untrusted:s0 tclass=capability permissive=1 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { write } for  pid=1916 comm="fsck_msdos" name="stlog" dev="proc" ino=4026542638 scontext=u:r:fsck_untrusted:s0 tcontext=u:object_r:proc:s0 tclass=file permissive=1 SEPF_SM-G920S_6.0_0001
+# avc:  denied  { read write } for  pid=9493 comm="fsck.exfat" path="/dev/qseecom" dev="tmpfs" ino=15903 scontext=u:r:fsck_untrusted:s0 tcontext=u:object_r:qseecom_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=31249 comm="fsck_msdos" path="/firmware/image/skmm_ta.mdt" dev="sda15" ino=6002 scontext=u:r:fsck_untrusted:s0 tcontext=u:object_r:firmware_file:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0004
+
+

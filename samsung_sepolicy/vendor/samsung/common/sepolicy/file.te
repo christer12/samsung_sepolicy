@@ -1,0 +1,518 @@
+#
+# file
+#
+
+############ aosp and sec_common #############
+# fs_type
+type anon_inodefs, fs_type;
+type configfs, fs_type;
+
+
+# r_fs_type
+typealias firmware_file alias firmware;
+
+typeattribute firmware r_fs_type;
+typeattribute inotify r_fs_type;
+typeattribute mqueue r_fs_type;
+typeattribute proc r_fs_type;
+typeattribute proc_net r_fs_type;
+
+
+# rw_fs_type
+type ecryptfs, rw_fs_type, fs_type;
+type proc_spd, rw_fs_type, fs_type;
+type pstore, rw_fs_type, fs_type;
+type sysfs_app_writable, rw_fs_type, fs_type, sysfs_type, mlstrustedobject;
+type sysfs_camera_writable, sysfs_type, rw_fs_type, fs_type;
+type sysfs_exynos_writable, rw_fs_type, fs_type, sysfs_type, mlstrustedobject;
+type sysfs_lcd_writable, rw_fs_type, fs_type, sysfs_type, mlstrustedobject;
+type sysfs_mdnie_writable, sysfs_type, rw_fs_type, fs_type;
+type sysfs_mst_writable, sysfs_type, fs_type;
+type sysfs_music_power_writable, rw_fs_type, fs_type, sysfs_type, mlstrustedobject;
+type sysfs_sensor_writable, rw_fs_type, fs_type, sysfs_type;
+## sysfs for sec
+type sysfs_sec, sysfs_type, rw_fs_type, fs_type;
+type sysfs_ss_writable, sysfs_type, rw_fs_type, fs_type;
+type sysfs_led_writable, sysfs_type, rw_fs_type, fs_type;
+type sysfs_tcon_writable, sysfs_type, rw_fs_type, fs_type;
+
+typeof sysfs_android_usb, sysfs_ss_writable;
+typealias proc_sysrq alias sysrq_proc;
+
+typeattribute cgroup rw_fs_type;
+typeattribute devpts rw_fs_type;
+typeattribute pipefs rw_fs_type;
+typeattribute proc_bluetooth_writable rw_fs_type;
+typeattribute qtaguid_proc rw_fs_type;
+typeattribute sdcard_internal rw_fs_type;
+typeattribute sdcard_external  rw_fs_type;
+typeattribute selinuxfs rw_fs_type;
+typeattribute shm rw_fs_type;
+typeattribute sockfs rw_fs_type;
+typeattribute sysfs rw_fs_type;
+typeattribute sysfs_writable rw_fs_type;
+typeattribute sysfs_battery_supply rw_fs_type;
+typeattribute sysfs_bluetooth_writable rw_fs_type;
+typeattribute sysfs_graphics rw_fs_type;
+typeattribute sysfs_nfc_power_writable rw_fs_type;
+typeattribute sysfs_wake_lock rw_fs_type;
+typeattribute sysfs_devices_system_cpu rw_fs_type;
+typeattribute sysrq_proc rw_fs_type;
+typeattribute tmpfs rx_fs_type;
+typeattribute debugfs rw_fs_type;
+
+# rx_fs_type
+typeattribute rootfs rx_fs_type;
+
+# mlstrustedobject of fs
+# PLM issue: [P160506-02077][SM-T807V_NA_MM_VZW]
+# avc:  denied  { write } for  pid=7392 comm=626C756564726F69642077616B652F name="lpm" dev="proc" ino=4026533811 scontext=u:r:bluetooth:s0:c523 tcontext=u:object_r:proc_bluetooth_writable:s0 tclass=file permissive=1
+typeattribute proc_bluetooth_writable mlstrustedobject;
+
+typeattribute sysfs_battery_supply mlstrustedobject;
+typeattribute sysfs_mdnie_writable mlstrustedobject;
+
+
+# File type
+type knox_clipboard_file, file_type, mlstrustedobject;
+typealias lptcp_socket alias lptcp_data_file;
+
+typealias tombstone_data_file alias tombstones_data_file;
+
+typealias system_data_file alias app_library_file;
+
+# app_public_data_type
+#changeBySEA: this is only app_data_file and not used : typeattribute app_data_file app_public_data_type;
+
+# cache_file_type
+typeattribute cache_file cache_file_type;
+typeattribute cache_backup_file cache_file_type;
+
+# data_file_type
+type abt_pers_data_file, file_type, data_file_type;
+type biometrics_data_file, file_type, data_file_type;
+type drm_playready_file, file_type, data_file_type;
+type dumplog_data_file, file_type, data_file_type, mlstrustedobject;
+type eris_data_file, file_type, data_file_type, trstdomain_no_read_file, trstdomain_no_write_file;
+type fido_data_file, file_type, data_file_type, mlstrustedobject;
+type fota_data_file, file_type, data_file_type;
+type iris_data_file, file_type, data_file_type, trstdomain_no_read_file, trstdomain_no_write_file;
+type jack_data_file, file_type, data_file_type;
+type mediaserver_data_file, file_type, data_file_type;
+type obb_apk_file, file_type, data_file_type, mlstrustedobject;
+#type persdata_data_file, file_type, data_file_type;
+type proc_info_file, file_type, data_file_type;
+#changeBySEA type reset_reason_service_file, data_file_type, file_type;
+type rild_data_file, data_file_type, file_type;
+type secure_storage_data_file, file_type, data_file_type;
+type system_sysscope_file, file_type, data_file_type;
+type personal_page_file, file_type, data_file_type, mlstrustedobject;
+# For DCM
+type dcm_data_file, file_type, data_file_type;
+# CAC support
+type smartcard_data_file, file_type, data_file_type, mlstrustedobject;
+type store_app_data_file, file_type, data_file_type;
+type users_system_data_file, file_type, data_file_type, mlstrustedobject;
+type vcsFPService_data_file, data_file_type, file_type;
+type vpnclientd_data_file, file_type, data_file_type;
+type wifiver_data_file, file_type, data_file_type;
+
+typeof filtered_app_data_file, app_data_file;
+
+typealias app_data_file alias platform_media_app_data_file;
+typealias dumplog_data_file alias dump_log_data_file;
+typealias persist_data_file alias persist_file;
+
+#typeattribute persist_data_file data_file_type;
+typeattribute wallpaper_file data_file_type;
+typeattribute data_qsee_file data_file_type;
+
+# efs_type
+type app_efs_file, efs_type, file_type, mlstrustedobject;
+type carrier_efs_file, efs_type, file_type, mlstrustedobject;
+#contents protection key
+type cpk_efs_file, efs_type, file_type;
+type drm_efs_file, efs_type, file_type;
+type efs_gsm_file, efs_type, file_type;
+type imei_efs_file, efs_type, file_type,mlstrustedobject;
+type iss_efs_file, efs_type, file_type;
+type nv_core_efs_file, efs_type, file_type;
+type otadm_efs_file, efs_type, file_type;
+type prov_efs_file, efs_type, file_type;
+type sec_efs_file, efs_type, file_type, mlstrustedobject;
+type wifi_efs_file, efs_type, file_type, mlstrustedobject;
+# For payment efs file
+type pfw_efs_file, efs_type, file_type, mlstrustedobject;
+
+typeattribute bluetooth_efs_file efs_type;
+typeattribute efs_file efs_type;
+
+# exec_type
+type tima_dump_exec, exec_type, file_type;
+
+# library_file_type
+# typealias system_data_file / P160412-00320 / only FOTA problem to M OS: Neverallow permission after FOTA
+#type app_library_file, library_file_type, file_type, mlstrustedobject;
+#type system_library_file, library_file_type, file_type, mlstrustedobject;
+type downfilters_lib_file, library_file_type, file_type, mlstrustedobject;
+
+# log_file_type
+type audit_log, log_file_type, file_type;
+type tima_log, log_file_type, file_type;
+
+# misc_rw_file_type
+type device_firmware_file, file_type;
+type carrier_file, misc_rw_file_type, file_type, mlstrustedobject;
+type omr_file, file_type, trstdomain_no_read_file, trstdomain_no_write_file, mlstrustedobject;
+type sbfs_file, misc_rw_file_type, file_type;
+#type hidden_file, misc_rw_file_type, file_type;
+
+# mlstrustedobject of file
+#changeBySEA dup with aosp : typeattribute asec_apk_file mlstrustedobject;
+typeattribute bluetooth_data_file mlstrustedobject;
+typeattribute bluetooth_efs_file mlstrustedobject;
+typeattribute dumpstate_socket mlstrustedobject;
+#changeBySEA : typeattribute efs_file mlstrustedobject;
+#changeBySEA : typeattribute kernel mlstrustedobject;
+typeattribute knox_dar_shared_device mlstrustedobject;
+#changeBySEA dup with aosp : typeattribute media_rw_data_file mlstrustedobject;
+typeattribute property_socket mlstrustedobject;
+typeattribute sysfs_graphics mlstrustedobject;
+typeattribute sysfs_sec mlstrustedobject;
+typeattribute system_data_file mlstrustedobject;
+#changeBySEA:  typeattribute system_file mlstrustedobject;
+typeattribute tombstone_data_file mlstrustedobject;
+typeattribute usbaccessory_device mlstrustedobject;
+userdebug_or_eng(`
+typeattribute shell mlstrustedsubject;
+typeattribute adbd mlstrustedsubject;
+')
+
+
+# socket_file_type
+type audio_socket, socket_file_type, file_type;
+type cs_socket, socket_file_type, file_type, mlstrustedobject;
+type charon_socket, socket_file_type, file_type;
+type eris_socket, socket_file_type, file_type, trstdomain_no_read_file, trstdomain_no_write_file;
+type frigate_socket, socket_file_type, file_type, mlstrustedobject;
+type imsd_socket, socket_file_type, file_type, mlstrustedobject;
+type ipsec_socket, socket_file_type, file_type, mlstrustedobject;
+type jack_socket, socket_file_type, file_type, mlstrustedobject;
+type msockets_socket, socket_file_type, file_type, mlstrustedobject;
+type mtp_socket, socket_file_type, file_type, mlstrustedobject;
+type qosd_socket, socket_file_type, file_type;
+type radio_socket, socket_file_type, file_type;
+type rpmbd_socket, socket_file_type, file_type;
+type ss_conn_daemon_socket, socket_file_type, file_type, mlstrustedobject;
+type ss_kbservice_daemon_socket, socket_file_type, file_type, mlstrustedobject;
+type tz_socket, socket_file_type, file_type, mlstrustedobject;
+type uibc_socket, socket_file_type, file_type, mlstrustedobject;
+type vpnclientd_socket, socket_file_type, file_type;
+
+#tunman
+type tunman_socket, file_type, mlstrustedobject;
+
+typeattribute adbd_socket socket_file_type;
+typeattribute bluetooth_socket socket_file_type;
+typeattribute dnsproxyd_socket socket_file_type;
+typeattribute gps_socket socket_file_type;
+typeattribute installd_socket socket_file_type;
+typeattribute mdns_socket socket_file_type;
+typeattribute netd_socket socket_file_type;
+typeattribute property_socket socket_file_type;
+typeattribute racoon_socket socket_file_type;
+typeattribute rild_socket socket_file_type;
+typeattribute rild_debug_socket socket_file_type;
+typeattribute system_wpa_socket socket_file_type;
+typeattribute system_ndebug_socket socket_file_type;
+typeattribute vold_socket socket_file_type;
+typeattribute wpa_socket socket_file_type;
+typeattribute zygote_socket socket_file_type;
+typeattribute gps_control misc_rw_file_type;
+typeattribute dumpstate_socket socket_file_type;
+
+
+# security_file_type
+type tima_keystore_file, security_file_type, file_type;
+type otp_data_file, security_file_type, file_type;
+
+# untrusted_type
+typeattribute app_data_file untrusted_type;
+typeattribute shell_data_file untrusted_type;
+
+# mlsselectedobject for dom relation
+typeattribute filtered_app_data_file        mlsselectedobject;
+typeattribute knox_clipboard_file           mlsselectedobject;
+typeattribute system_app_data_file          mlsselectedobject;
+typeattribute serial_device 	        mlsselectedobject;
+
+
+#Rule
+allow file_type ecryptfs:filesystem associate;
+allow configfs sysfs:filesystem associate;
+allow dev_type ecryptfs:filesystem associate;
+allow sdcard_external labeledfs:filesystem associate;
+allow rootfs sysfs:filesystem associate;
+allow sysfs tmpfs:filesystem associate;
+allow system_fifo tmpfs:filesystem associate;
+
+
+############ knox_common #############
+# rw_fs_type
+## proc_avc_msg
+type proc_avc_msg, rw_fs_type, fs_type;
+
+# container_file_type
+type container_app_data_backend, container_file_type, file_type, mlsselectedobject;
+type container_app_data_file, container_file_type, file_type, data_file_type, mlsselectedobject;
+type container_app_sdcard_file, container_file_type, file_type, mlsselectedobject;
+type container_system_file, container_file_type, file_type;
+typeof bbccontainer_app_data_backend, container_app_data_backend;
+typeof security_spota_file, security_file;
+typeattribute bbccontainer_app_data_backend mlstrustedobject;
+
+# socket_file_type
+type epm_socket, socket_file_type, file_type, mlstrustedobject;
+
+
+# Support knox migration from knox 1.0 to knox 2.0
+allow container_app_data_file self:filesystem associate;
+allow container_app_sdcard_file self:filesystem associate;
+# Filesystem accesses.
+allow domain container_app_data_file:filesystem getattr;
+allow domain container_app_sdcard_file:filesystem getattr;
+
+############ qcom_common #############
+# data_file_type
+type time_data_file, data_file_type, file_type;
+
+# socket_file_type
+# conflict with Qcom BSP, type mpctl_socket, socket_file_type, file_type;
+type mpdecision_socket, socket_file_type, file_type;
+# conflict with Qcom BSP, type pps_socket, socket_file_type, file_type;
+#type qmux_audio_socket, socket_file_type, file_type;
+#type qmux_bluetooth_socket, socket_file_type, file_type;
+#type qmux_gps_socket, socket_file_type, file_type;
+#type qmux_radio_socket, socket_file_type, file_type;
+
+
+
+############ slsi_common #############
+type drm_security_system_file, file_type;
+type drm_lib_system_file, file_type;
+type setup_ymc_etc_system_file, file_type;
+
+
+# data_file_type
+type debug_interface_data_file, file_type, data_file_type;
+
+# efs_type
+type bin_nv_data_efs_file, efs_type, file_type;
+type sensor_efs_file, efs_type, file_type;
+
+#Rule
+allow file_type usbfs:filesystem associate;
+allow dev_type usbfs:filesystem associate;
+allow pts_device devpts:filesystem associate;
+
+
+############ bcom_common #############
+# r_fs_type
+typealias firmware_file alias modem_firmware;
+type security_firmware, r_fs_type, fs_type;
+
+##Rule
+allow modem_firmware labeledfs:filesystem associate;
+allow security_firmware labeledfs:filesystem associate;
+allow file_type modem_firmware:filesystem associate;
+allow dev_type modem_firmware:filesystem associate;
+allow file_type security_firmware:filesystem associate;
+allow dev_type security_firmware:filesystem associate;
+
+############ carrier #############
+# for JPN model
+type felica_data_file, file_type, data_file_type, mlstrustedobject;
+
+#/data/mmb/MmbCaCasDrmMw
+type mmb_data_file, file_type, data_file_type, mlstrustedobject;
+type oneseg_data_file, file_type, data_file_type, mlstrustedobject;
+
+# for Sprint model
+type itsonapp_data_file, file_type, data_file_type, mlstrustedobject;
+type sprintitson_file, file_type, data_file_type, mlstrustedobject;
+
+
+############ aosp and sec_common #############
+#### All app private data directories : 
+# app_data_type : only used for the domain which have mlstrustedsubject and privilege, because it includes container app data
+# aosp common
+typeattribute app_data_file app_data_type;
+typeattribute bluetooth_data_file app_data_type;
+typeattribute nfc_data_file app_data_type;
+typeattribute platform_app_data_file app_data_type;
+typeattribute policyloader_app_data_file app_data_type;
+typeattribute radio_data_file app_data_type;
+typeattribute shell_data_file app_data_type;
+typeattribute shell_data_file app_data_type;
+typeattribute system_app_data_file app_data_type;
+# knox
+typeattribute container_app_data_file app_data_type;
+typeattribute fixmo_app_data_file app_data_type;
+typeattribute store_app_data_file app_data_type;
+# carrier
+typeattribute felica_data_file app_data_type;
+typeattribute itsonapp_data_file app_data_type;
+typeattribute mmb_data_file app_data_type;
+typeattribute oneseg_data_file app_data_type;
+# for backward compatiablility
+typeattribute sprintitson_file app_data_type;
+
+#### For the all of type which were copied by typeof app_data_file macro.
+# this will be used on the mlsconstrain rules.
+typeattribute app_data_file app_data_file_type;
+
+############ trstappdomain_no_read_file #############
+typeattribute efs_file trstappdomain_no_read_file;
+
+############ trstappdomain_no_write_file #############
+typeattribute adbd_socket trstappdomain_no_write_file;
+typeattribute apk_data_file trstappdomain_no_write_file;
+typeattribute apk_private_data_file trstappdomain_no_write_file;
+typeattribute apk_private_tmp_file trstappdomain_no_write_file;
+typeattribute apk_tmp_file trstappdomain_no_write_file;
+typeattribute bluetooth_data_file trstappdomain_no_write_file;
+typeattribute dhcp_data_file trstappdomain_no_write_file;
+typeattribute drm_data_file trstappdomain_no_write_file;
+typeattribute efs_file trstappdomain_no_write_file;
+typeattribute gps_data_file trstappdomain_no_write_file;
+typeattribute installd_socket trstappdomain_no_write_file;
+typeattribute property_socket trstappdomain_no_write_file;
+typeattribute rild_socket trstappdomain_no_write_file;
+typeattribute shell_data_file trstappdomain_no_write_file;
+typeattribute socket_device trstappdomain_no_write_file;
+typeattribute systemkeys_data_file trstappdomain_no_write_file;
+typeattribute system_data_file trstappdomain_no_write_file;
+typeattribute vold_socket trstappdomain_no_write_file;
+typeattribute wifi_data_file trstappdomain_no_write_file;
+typeattribute zygote_socket trstappdomain_no_write_file;
+
+############ trstdomain_no_read_file #############
+typeattribute container_app_data_backend trstdomain_no_read_file;
+typeattribute container_app_data_file trstdomain_no_read_file;
+typeattribute container_app_sdcard_file trstdomain_no_read_file;
+typeattribute container_system_file trstdomain_no_read_file;
+# For DCM
+typeattribute dcm_data_file trstdomain_no_read_file;
+typeattribute fixmo_app_data_file trstdomain_no_read_file;
+typeattribute good_app_data_file trstdomain_no_read_file;
+typeattribute keystore_data_file trstdomain_no_read_file;
+typeattribute knox_clipboard_file trstdomain_no_read_file;
+# For SamsungPay FW
+typeattribute pfw_efs_file trstdomain_no_read_file;
+typeattribute runas_exec trstdomain_no_read_file;
+typeattribute unlabeled trstdomain_no_read_file;
+typeattribute vold_data_file trstdomain_no_read_file;
+
+### M added :
+typeattribute app_data_file trstdomain_no_read_file;
+typeattribute biometrics_data_file trstdomain_no_read_file;
+typeattribute bluetooth_data_file trstdomain_no_read_file;
+typeattribute data_qsee_file trstdomain_no_read_file;
+typeattribute dex2oat_exec trstdomain_no_read_file;
+typeattribute efs_file trstdomain_no_read_file;
+typeattribute fido_data_file trstdomain_no_read_file;
+typeattribute fota_data_file trstdomain_no_read_file;
+typeattribute nfc_data_file trstdomain_no_read_file;
+typeattribute rild_data_file trstdomain_no_read_file;
+typeattribute shell_data_file trstdomain_no_read_file;
+typeattribute system_data_file trstdomain_no_read_file;
+typeattribute su_exec trstdomain_no_read_file;
+typeattribute users_system_data_file trstdomain_no_read_file;
+typeattribute keychain_data_file trstdomain_no_read_file;
+typeattribute misc_user_data_file trstdomain_no_read_file;
+typeattribute misc_user_data_file mlsselectedobject;
+typeattribute vcsFPService_data_file trstdomain_no_read_file;
+
+############ trstdomain_no_write_file #############
+typeattribute container_app_data_backend trstdomain_no_write_file;
+typeattribute container_app_data_file trstdomain_no_write_file;
+typeattribute container_app_sdcard_file trstdomain_no_write_file;
+typeattribute container_system_file trstdomain_no_write_file;
+typeattribute dalvikcache_data_file trstdomain_no_write_file;
+# For DCM
+typeattribute dcm_data_file trstdomain_no_write_file;
+typeattribute fixmo_app_data_file trstdomain_no_write_file;
+typeattribute fota_data_file trstdomain_no_write_file;
+typeattribute good_app_data_file trstdomain_no_write_file;
+typeattribute keystore_data_file trstdomain_no_write_file;
+typeattribute knox_clipboard_file trstdomain_no_write_file;
+# Access restriction of nv_data, reqested from CP system(js074.lee)
+typeattribute nv_core_efs_file trstdomain_no_write_file;
+# For SamsungPay FW
+typeattribute pfw_efs_file trstdomain_no_write_file;
+typeattribute property_data_file trstdomain_no_write_file;
+typeattribute runas_exec trstdomain_no_write_file;
+typeattribute security_file trstdomain_no_write_file;
+typeattribute system_file trstdomain_no_write_file;
+typeattribute unlabeled trstdomain_no_write_file;
+typeattribute vold_data_file trstdomain_no_write_file;
+typeattribute wifiver_data_file trstdomain_no_write_file;
+
+### M added :
+typeattribute biometrics_data_file trstdomain_no_write_file;
+typeattribute data_qsee_file trstdomain_no_write_file;
+typeattribute fido_data_file trstdomain_no_write_file;
+typeattribute keychain_data_file trstdomain_no_write_file;
+typeattribute misc_user_data_file trstdomain_no_write_file;
+typeattribute rild_data_file trstdomain_no_write_file;
+typeattribute system_data_file trstdomain_no_write_file;
+typeattribute users_system_data_file trstdomain_no_write_file;
+typeattribute vcsFPService_data_file trstdomain_no_write_file;
+typeattribute zygote_socket trstdomain_no_write_file;
+
+############ trstdomain_no_read_fs #############
+typeattribute debugfs trstdomain_no_read_fs;
+typeattribute proc_security trstdomain_no_read_fs;
+typeattribute proc_sysrq trstdomain_no_read_fs;
+
+############ trstdomain_no_write_fs #############
+typeattribute device trstdomain_no_write_fs;
+typeattribute usermodehelper trstdomain_no_write_fs;
+typeattribute proc_security trstdomain_no_write_fs;
+typeattribute rootfs trstdomain_no_write_fs;
+typeattribute selinuxfs trstdomain_no_write_fs;
+typeattribute sysfs trstdomain_no_write_fs;
+
+
+############ trstdomain_no_read_fs import from zzcts_v4.te #############
+typeattribute sysfs_mst_writable trstdomain_no_read_fs;
+############ trstdomain_no_write_fs #############
+typeattribute sysfs_mst_writable trstdomain_no_write_fs;
+
+#### M added :
+typeattribute device trstdomain_no_read_fs;
+typeattribute proc trstdomain_no_write_fs;
+
+#### BLOCKED APP
+type blocked_app, domain;
+# BLOCKED APP
+dontaudit zygote blocked_app:process dyntransition;
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402361415.541:223): avc:  denied  { associate } for  pid=4646 comm="Thread-45" name="libAppDataSearchExt_armeabi_v7a.v3.so" #scontext=u:object_r:download_file:s0 tcontext=u:object_r:labeledfs:s0 tclass=filesystem SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#type=1400 msg=audit(1398853018.040:21): avc:  denied  { associate } for  pid=345 comm="immvibed" name="tspreq" scontext=u:object_r:system_fifo:s0 #tcontext=u:object_r:tmpfs:s0 tclass=filesystem SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+#audit(1403166192.686:249): avc:  denied  { associate } for  pid=25110 comm="roid.music:main" name="c6bce66c-4ba7-4409-8aee-f82.tmp" scontext=u:object_r:sdcard_external:s0 #tcontext=u:object_r:labeledfs:s0 tclass=filesystem
+# Support knox migration from knox 1.0 to knox 2.0
+# avc:  denied  { associate } for  pid=561 comm="epmd" scontext=u:object_r:container_app_data_file:s0:c1 tcontext=u:object_r:container_app_data_file:s0:c1 tclass=filesystem
+# item=0 name="/knox_data/appdata" inode=6806 dev=00:01 mode=040775 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:rootfs:s0
+# avc:  denied  { associate } for  pid=561 comm="epmd" scontext=u:object_r:container_app_sdcard_file:s0:c1 tcontext=u:object_r:container_app_sdcard_file:s0:c1 tclass=filesystem
+# item=0 name="/knox_data/userdata" inode=6805 dev=00:01 mode=040775 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:rootfs:s0
+# configfs on sysfs avc:  denied  { associate } for  pid=1 comm="init" name="config" dev="sysfs" ino=11492 scontext=u:object_r:configfs:s0 tcontext=u:object_r:sysfs:s0 tclass=filesystem permissive=1 SEPF_JOSHUA_6.0_000
+# knox_clipboard_file :  mlsselectedobject avc:  denied  { getattr } for  pid=3960 comm="Thread-1333" path="/data/clipboard100" dev="mmcblk0p27" ino=720946 scontext=u:r:system_app:s0 tcontext=u:object_r:knox_clipboard_file:s0:c612,c768 tclass=dir permissive=1
+# sysfs_graphics :  mlsselectedobject avc:  denied  { write } for  pid=22759 comm="roid.app.camera" name="csc_cfg" dev="sysfs" ino=15337 scontext=u:r:platform_app:s0:c612,c768 tcontext=u:object_r:sysfs_graphics:s0 tclass=file permissive=1
+# knox_dar_shared_device : mlsselectedobject avc:  denied  { read } for  pid=9821 comm="samsung.sdpdemo" name="dek_req" dev="tmpfs" ino=16459 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:knox_dar_shared_device:s0 tclass=chr_file permissive=0 SEPF_SM-G925F_6.0_0001
+# bluetooth_data_file : mlsselectedobject avc:  denied  { write } for  pid=6010 comm=425420536572766963652043616C6C name="bluedroid" dev="sda18" ino=1703940 scontext=u:r:bluetooth:s0:c522 tcontext=u:object_r:bluetooth_data_file:s0 tclass=dir permissive=0 SEPF_SM-G925L_6.0_0002
+# add mls - avc:  denied  { connectto } for  pid=11415 comm=4173796E635461736B202331 path="/dev/socket/msockets/dip_cmd" scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:debug_interface_proxy:s0 tclass=unix_stream_socket SEPF_SM-N910C_6.0_0002
+# avc:  denied  { execmod } for  pid=10571 comm="monsterstrikeUS" path="/data/app-lib/jp.co.mixi.monsterstrikeUS-1/libmonsterstrike.so" dev="mmcblk0p25" ino=650070 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:app_library_file:s0 tclass=file permissive=0
+

@@ -1,0 +1,22 @@
+# create new domain mrvl_gpsd
+#SEC changed : type mrvl_gpsd, domain;
+typealias gpsd alias mrvl_gpsd;
+type mrvl_gpsd_exec, exec_type, file_type;
+
+#SEC changed : init_daemon_domain(mrvl_gpsd)
+domain_auto_trans(init, mrvl_gpsd_exec, mrvl_gpsd)
+
+allow mrvl_gpsd gps_device:chr_file create_file_perms;
+allow mrvl_gpsd gps_data_file:dir create_dir_perms;
+allow mrvl_gpsd gps_data_file:sock_file create_file_perms;
+allow mrvl_gpsd shell_exec:file { read execute open execute_no_trans };
+allow mrvl_gpsd system_file:file execute_no_trans;
+#SEC changed: allow mrvl_gpsd diag_device:chr_file create_file_perms;
+allow mrvl_gpsd diag_device:chr_file rw_file_perms;
+allow mrvl_gpsd system_server:unix_dgram_socket { sr_socket_perms create_stream_socket_perms};
+allow mrvl_gpsd system_data_file:dir create_dir_perms;
+allow mrvl_gpsd system_data_file:sock_file create_file_perms;
+allow mrvl_gpsd ipc_device:chr_file create_file_perms;
+allow mrvl_gpsd dump_log_data_file:file create_file_perms;
+allow mrvl_gpsd dump_log_data_file:dir create_dir_perms;
+

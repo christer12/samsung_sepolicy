@@ -1,0 +1,4 @@
+# grant addtional permissions to hdcp
+
+allow dhcp kernel:system module_request;
+

@@ -1,0 +1,23 @@
+# for debuggerd
+
+# /dev/__kmsg__
+access_kmsg(debuggerd)
+#write_klog(debuggerd)
+type_transition debuggerd device:chr_file klog_device "__kmsg__";
+allow debuggerd klog_device:chr_file { create open write unlink };
+allow debuggerd device:dir { write add_name remove_name };
+
+allow debuggerd ctl_dumpstate_prop:property_service set;
+allow debuggerd debug_prop:property_service set;
+#SEC removed: allow debuggerd device:dir create_dir_perms;
+#SEC removed: allow debuggerd init:unix_stream_socket unix_stream_socket_perms;
+#SEC removed: allow debuggerd property_socket:sock_file create_file_perms;
+#SEC removed: allow debuggerd shell_data_file:dir create_dir_perms;
+#SEC removed: allow debuggerd shell_data_file:file create_file_perms;
+
+# This is a known issue. We just block it in formal release version. 
+# debuggerd is not one of them.
+# allow debuggerd self:capability mknod;
+# Limit device node creation to these whitelisted domains.
+# 	neverallow { domain -kernel -init -recovery -ueventd -watchdogd -healthd -vold -uncrypt } self:capability mknod;
+

@@ -1,0 +1,4 @@
+
+#============= debuggerd ==============
+allow debuggerd proc:file write;
+allow debuggerd kernel:system module_request;

@@ -1,0 +1,12 @@
+# create new domain pppmodem
+type pppmodem, domain;
+type pppmodem_exec, exec_type, file_type;
+
+init_daemon_domain(pppmodem)
+
+allow pppmodem pppmodem_device:chr_file create_file_perms;
+allow pppmodem self:netlink_kobject_uevent_socket netlink_kobject_uevent_socket_perms;
+allow pppmodem ssipc_device:chr_file create_file_perms;
+allow pppmodem tmpfs:sock_file	create_file_perms;
+allow pppmodem atcmdsrv:unix_stream_socket unix_stream_socket_perms;
+

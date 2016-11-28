@@ -1,0 +1,10 @@
+
+#neverallow Google CTS-android-5.0.2_r1 : allow vold default_prop:property_service set;
+allow vold mmcblk0_device:blk_file r_file_perms;
+allow vold secure_storage:unix_stream_socket connectto;
+allow vold secure_storage_device:sock_file w_file_perms;
+
+
+############ slsi_common #############
+allow vold self:capability ipc_lock;
+

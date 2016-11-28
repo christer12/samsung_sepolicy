@@ -1,0 +1,18 @@
+
+## SEC added ##
+###########################
+# Marvell Device node
+#
+/dev/accelerometer_sensor       u:object_r:sensor_device:s0
+/dev/magnetic_sensor       		u:object_r:sensor_device:s0
+##SEC removed: /dev/block/mmcblk0boot[0-9]     u:object_r:bootblk_device:s0
+/dev/cmsockdev64                u:object_r:gps_device:s0
+/dev/crmdev[0-9]                u:object_r:gps_device:s0
+/dev/proximity_sensor           u:object_r:sensor_device:s0
+/dev/tzdd                       u:object_r:tz_device:s0
+/dev/umts_rfs[0-9]+             u:object_r:ssipc_device:s0
+
+/system/bin/gpslpm_srv          u:object_r:gpslpm_srv_exec:s0
+
+/data/misc/phone(/.*)?	        u:object_r:phone_data_file:s0
+

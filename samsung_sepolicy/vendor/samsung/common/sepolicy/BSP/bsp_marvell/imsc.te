@@ -1,0 +1,43 @@
+# grant additional permission to imsc
+#type imsc, domain;
+#type imsc_exec, exec_type, file_type;
+
+#SEC removed : conflict
+typealias imsd alias imsc;
+typealias imsd_exec alias imsc_exec;
+
+#init_daemon_domain(imsc)
+
+allow imsc pppmodem_device:chr_file create_file_perms;
+allow imsc self:capability { net_raw chown dac_override net_admin };
+allow imsc self:key_socket key_socket_perms;
+allow imsc self:rawip_socket rawip_socket_perms;
+allow imsc self:netlink_route_socket netlink_route_socket_perms;
+allow imsc self:tcp_socket tcp_socket_perms;
+allow imsc self:udp_socket udp_socket_perms;
+allow imsc self:rawip_socket rawip_socket_perms;
+allow imsc system_app_data_file:file create_file_perms;
+allow imsc system_app_data_file:dir create_dir_perms;
+allow imsc node:tcp_socket tcp_socket_perms;
+allow imsc node:udp_socket udp_socket_perms;
+allow imsc port:tcp_socket tcp_socket_perms;
+allow imsc port:udp_socket udp_socket_perms;
+allow imsc shell_exec:file { read execute open execute_no_trans };
+allow imsc socket_device:dir create_dir_perms;
+allow imsc socket_device:sock_file create_file_perms;
+allow imsc system_app_data_file:dir create_dir_perms;
+allow imsc proc_net:file create_file_perms;
+allow imsc fwmarkd_socket:sock_file create_file_perms;         
+allow imsc netd:unix_stream_socket unix_stream_socket_perms;
+allow imsc dump_log_data_file:file create_file_perms;
+allow imsc dump_log_data_file:dir create_dir_perms;
+allow imsc servicemanager:binder call;
+allow imsc net_radio_prop:property_service set;
+allow imsc property_socket:sock_file create_file_perms;
+allow imsc init:unix_stream_socket unix_stream_socket_perms;
+allow imsc mediaserver:binder call;
+
+# the permission for /dev/socket/imsd trans label from socket_device
+# to imsd_socket
+file_type_auto_trans(imsc, socket_device, imsd_socket)
+

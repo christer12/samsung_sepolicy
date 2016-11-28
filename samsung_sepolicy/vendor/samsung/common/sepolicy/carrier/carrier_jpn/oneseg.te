@@ -1,0 +1,41 @@
+#OneSeg start
+
+#domain add
+platform_app_domain(oneseg_apk)
+#changeBySEA : net_domain(oneseg_apk)
+#changeBySEA : bluetooth_domain(oneseg_apk)
+
+#binder add
+binder_service(oneseg_apk)
+binder_use(oneseg_apk)
+binder_call(oneseg_apk, oneseg_mw)
+
+#allow list
+allow oneseg_apk media_rw_data_file:file w_file_perms;
+allow oneseg_apk sdcard_type:file w_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow oneseg_apk device:chr_file r_file_perms;
+#neverallow Google CTS :allow oneseg_apk init:binder { transfer call };
+
+allow oneseg_apk oneseg_data_file:dir create_dir_perms;
+allow oneseg_apk oneseg_data_file:file create_file_perms;
+allow oneseg_apk oneseg_data_file:unix_stream_socket connectto;
+#neverallow Google-android-5.0.2_r1 : allow oneseg_apk system_data_file:sock_file write;
+
+allow oneseg_apk oneseg_mw:unix_stream_socket connectto;
+allow oneseg_apk system:unix_stream_socket { setopt };
+
+allow oneseg_apk video_device:chr_file rw_file_perms;
+#neverallow Google-android-5.0.2_r1 : allow oneseg_apk audio_device:chr_file rw_file_perms;
+
+#allow oneseg_apk fimg2d_video_device:chr_file rw_file_perms;
+
+#allow oneseg_apk pvrsync_device:chr_file rw_file_perms;
+
+#neverallow Google-android-5.0.2_r1 : allow oneseg_apk system_data_file:dir create_dir_perms;
+#neverallow Google-android-5.0.2_r1 : allow oneseg_apk system_data_file:file create_file_perms;
+
+allow oneseg_apk unlabeled:filesystem getattr;
+
+# for B2C users
+#changeBySEA : typeattribute oneseg_apk trusteddomain;
+#changeBySEA : typeattribute oneseg_apk trusted_app_domain;

@@ -1,0 +1,9 @@
+
+allow system shell_prop:property_service set;
+allow system rild:binder call;
+
+############ slsi_common #############
+allow system wallpaper_file:file unlink;
+
+############ LGT #############
+allow system_server mwlan_vpncored:process { sigkill signal };

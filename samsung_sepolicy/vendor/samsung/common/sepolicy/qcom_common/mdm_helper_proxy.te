@@ -1,0 +1,8 @@
+# mdm_helper_proxy
+
+allow mdm_helper_proxy self:capability { dac_read_search dac_override };
+
+
+# temporary permissive to gather the log.
+# permissive mdm_helper_proxy;
+

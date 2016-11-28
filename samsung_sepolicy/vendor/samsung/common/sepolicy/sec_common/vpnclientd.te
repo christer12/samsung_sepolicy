@@ -1,0 +1,78 @@
+#
+# vpnclientd
+# 
+# Provides following functions for Insidesecure vpn
+# - Handle raw socket for IPsec turnneling
+# - Manage iptable to redirect packet in order to encryt it
+# Only ipsecservice needs to communicate with vpnclientd. No other apps.
+# Contact: van_thang.ng, mk58.kim, myeongjin.oh
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# create the vpnclientd domain
+type vpnclientd, domain;
+# Introduce the vpnclientd executable
+type vpnclientd_exec, exec_type, file_type;
+
+# Inherit settings from init_daemon_domain
+init_daemon_domain(vpnclientd)
+#typeattribute vpnclientd mlstrustedsubject;
+
+# Inherit settings from net_domain
+net_domain(vpnclientd)
+
+# vpnclientd needs to communicate with the netd daemon
+unix_socket_connect(vpnclientd, netd, netd)
+
+# Allow system application to communicate with the /dev/socket/vpnclientd
+# UNIX domain socket. IPsecService is a system app.
+unix_socket_connect(system_app, vpnclientd, vpnclientd)
+
+########## self and domain_type
+# vpnclientd needs net_admin and net_raw capabilities for
+# sending ESP packets and manipulating routing tables
+allow vpnclientd self:capability { net_admin net_raw };
+
+# Route manipulation
+allow vpnclientd self:netlink_route_socket nlmsg_write;
+
+# Allow vpnclientd to manipulate TUN/TAP devices
+allow vpnclientd self:tun_socket create_socket_perms;
+
+########## fs_type
+# vpnclientd needs to communicate with the kernel security
+# module via /proc/spd
+allow vpnclientd proc_spd:file rw_file_perms;
+
+########## dev_type
+# Allow vpnclientd to manipulate TUN/TAP devices
+allow vpnclientd tun_device:chr_file rw_file_perms;
+
+########## file_type
+# vpnclientd needs permissions to manipulate files and directories
+# under the private /data/misc/vpnclientd directory
+allow vpnclientd vpnclientd_data_file:file { read create getattr append open };
+allow vpnclientd vpnclientd_data_file:dir { search write add_name };
+allow vpnclientd storage_file:lnk_file r_file_perms;
+allow vpnclientd mnt_user_file:lnk_file r_file_perms;
+
+########## etc_type
+# Bind rawip socket for ESP traffic
+allow vpnclientd node_type:{ rawip_socket } node_bind;
+
+########## known issue.
+#rild socket connection and denials
+unix_socket_connect(vpnclientd, rild, rild)
+allow vpnclientd rild:tun_socket relabelfrom;
+allow vpnclientd sysfs_wake_lock:file rw_file_perms;
+
+
+############ avc_log #############
+# avc:  denied  { connectto } for  pid=25197 comm="vpnclientd" path=004D756C7469636C69656E74 scontext=u:r:vpnclientd:s0 tcontext=u:r:rild:s0 tclass=unix_stream_socket permissive=0
+# avc:  denied  { relabelfrom } for  pid=30721 comm="vpnclientd" scontext=u:r:vpnclientd:s0 tcontext=u:r:rild:s0 tclass=tun_socket permissive=1
+# avc:  denied  { write } for  pid=22537 comm="vpnclientd" name="wake_lock" dev="sysfs" ino=103 scontext=u:r:vpnclientd:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=6262 comm="vpnclientd" name="wake_lock" dev="sysfs" ino=103 scontext=u:r:vpnclientd:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file
+# avc:  denied  { open } for  pid=7305 comm="vpnclientd" path="/sys/power/wake_lock" dev="sysfs" ino=103 scontext=u:r:vpnclientd:s0 tcontext=u:object_r:sysfs_wake_lock:s0 tclass=file permissive=1
+# avc:  denied  { read } for  pid=8788 comm="vpnclientd" name="primary" dev="tmpfs" ino=5044 scontext=u:r:vpnclientd:s0 tcontext=u:object_r:storage_file:s0 tclass=lnk_file permissive=0 SEPF_SM-N920T_6.0_0001
+# avc:  denied  { read } for  pid=4197 comm="vpnclientd" name="primary" dev="tmpfs" ino=24668 scontext=u:r:vpnclientd:s0 tcontext=u:object_r:mnt_user_file:s0 tclass=lnk_file permissive=0

@@ -1,0 +1,57 @@
+#
+# servicemanager
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute servicemanager trusteddomain;
+typeattribute servicemanager mlstrustedsubject;
+#typeattribute servicemanager system_domain;
+# temporary permissive to gather the log.
+#permissive servicemanager;
+
+#unix_socket_connect(servicemanager, property, init)
+set_prop(servicemanager, denial_prop)
+set_prop(servicemanager, system_prop)
+
+########## self and domain_type
+allow servicemanager edmaudit:process getattr;
+
+########## fs_type
+########## dev_type
+allow servicemanager device:file r_file_perms;
+
+########## file_type
+allow servicemanager security_file:file { read open };
+
+########## etc_type
+allow servicemanager system_prop:property_service set;
+allow servicemanager denial_prop:property_service set;
+
+########## known issue.
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+allow servicemanager proc_avc_msg:file rw_file_perms;
+
+########## dev_type
+########## file_type
+allow servicemanager audit_log:file rw_file_perms;
+
+########## etc_type
+########## known issue.
+
+########## androd-m-preview: denials ########
+allow servicemanager log_device:chr_file rw_file_perms;
+allow servicemanager audit_log:dir rw_dir_perms;
+
+############ avc_log #############
+#audit(1388557492.789:250): avc:  denied  { getattr } for  pid=258 comm="servicemanager" scontext=u:r:servicemanager:s0 tcontext=u:r:edmaudit:s0 tclass=process
+#audit(1388557492.789:250): arch=40000028 syscall=3 per=800000 success=yes exit=16 a0=b a1=b6a54000 a2=fff a3=ffffff84 items=0 ppid=1 pid=258 auid=4294967295 uid=1000 gid=1000 euid=1000 suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=(none) ses=4294967295 comm="servicemanager" exe="/system/bin/servicemanager" subj=u:r:servicemanager:s0 key=(null)
+#audit(1388573275.010:15): avc:  denied  { read } for  pid=258 comm="servicemanager" name="sepolicy" dev="mmcblk0p26" ino=131621 scontext=u:r:servicemanager:s0 tcontext=u:object_r:security_file:s0 tclass=file
+#audit(1388573275.010:15): avc:  denied  { open } for  pid=258 comm="servicemanager" name="sepolicy" dev="mmcblk0p26" ino=131621 scontext=u:r:servicemanager:s0 tcontext=u:object_r:security_file:s0 tclass=file
+
+

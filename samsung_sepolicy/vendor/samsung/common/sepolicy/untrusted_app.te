@@ -1,0 +1,688 @@
+#
+# Untrusted appdomain
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+binder_call(untrusteddomain, bintvoutservice)
+binder_call(untrusteddomain, sensorhubservice)
+
+# request for logging process from shin_th(CP System SW).
+dumplog_create(untrusteddomain)
+
+########## self and domain_type
+#changeBySEA need to check :  allow untrusteddomain init:unix_stream_socket setopt;
+#changeBySEA need to check :  allow untrusteddomain kernel:process setsched;
+#changeBySEA need to check :  allow untrusteddomain rild:unix_stream_socket connectto;
+#changeBySEA need to check :  allow untrusteddomain sec-ril:unix_stream_socket connectto;
+
+#allow untrusteddomain self:netlink_kobject_uevent_socket { read bind create setopt };
+#violate neverallow rule
+
+#allow untrusteddomain self:netlink_socket create;
+#violate neverallow rule
+
+allow untrusteddomain self:packet_socket create;
+#changeBySEA dup with aosp : allow untrusteddomain system:tcp_socket { read write };
+#changeBySEA dup with aosp : allow untrusteddomain system:unix_stream_socket { lock shutdown };
+#changeBySEA dup with aosp : allow untrusteddomain zygote:binder call;
+
+########## fs_type
+allow untrusteddomain debugfs:file execute;
+allow untrusteddomain devpts:dir r_dir_perms;
+allow untrusteddomain selinuxfs:dir r_dir_perms;
+allow untrusteddomain selinuxfs:file { getattr open read};
+allow untrusteddomain { sysfs_camera_writable }:file r_file_perms;
+
+
+########## dev_type
+#changeBySEA allow untrusteddomain { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device }:{ blk_file chr_file } getattr;
+#changeBySEA allow untrusteddomain dev_type:lnk_file r_file_perms;
+allow untrusteddomain ovr_device:chr_file r_file_perms;
+allow untrusteddomain qtaguid_device:chr_file r_file_perms;
+
+########## file_type
+#neverallow by Google:  allow untrustedappdomain apk_tmp_file:file rw_file_perms;
+allow untrusteddomain apk_tmp_file:file r_file_perms;
+allow untrusteddomain persist_data_file:dir r_dir_perms;
+allow untrusteddomain platform_media_app_data_file:file r_file_perms;
+allow untrusteddomain system_app_data_file:dir r_dir_perms;
+#changeBySEA not allow: allow untrusteddomain system_app_data_file:file r_file_perms;
+#changeBySEA : import from aosp rule, untrusted_app system_app_data_file:file { read write getattr }
+allow untrusteddomain system_app_data_file:file { read write getattr };
+allow untrusteddomain system_app_data_file:lnk_file read;
+allow untrusteddomain system_data_file:dir r_dir_perms;
+#changeBySEA not allow: allow untrusteddomain system_data_file:file r_file_perms;
+
+
+
+########## etc_type
+allow untrusteddomain platform_app_service:service_manager find;
+
+########## known issue.
+# ORIGINALLY FROM SEPOLICY/NSA OVERRIDING
+#
+
+#changeBySEA not use: typeattribute untrusted_app untrustedappdomain;
+typeattribute untrusted_app untrusteddomain;
+
+#changeBySEA dup with aosp : allow untrusted_app app_data_file:dir { create_dir_perms lock };
+#changeBySEA dup with aosp : allow untrusted_app app_data_file:notdevfile_class_set create_file_perms;
+
+#changeBySEA dup with samsung/app.te : allow untrusteddomain tun_device:chr_file rw_file_perms;
+
+# Internal SDCard rw access.
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_internal:dir create_dir_perms;
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_internal:file create_file_perms;
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_internal:blk_file r_file_perms;
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_internal:chr_file r_file_perms;
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_internal:lnk_file write;
+
+# External SDCard rw access.
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_external:dir create_dir_perms;
+#changeBySEA dup with aosp : allow untrusteddomain sdcard_external:file create_file_perms;
+
+# ASEC
+#changeBySEA dup with aosp : allow untrusteddomain asec_apk_file:dir { getattr };
+#changeBySEA dup with aosp : allow untrusteddomain asec_apk_file:file r_file_perms;
+
+# Create tcp/udp sockets
+#changeBySEA dup with aosp : allow untrusteddomain node_type:{ tcp_socket udp_socket } node_bind;
+#changeBySEA dup with aosp : allow untrusteddomain self:{ tcp_socket udp_socket } { create_socket_perms accept listen };
+# Bind to a particular hostname/address/interface (e.g., localhost) instead of
+# ANY. Normally, apps should not be listening on all interfaces.
+#changeBySEA dup with aosp : allow untrusteddomain port:{ tcp_socket udp_socket } name_bind;
+#
+# ORIGINALLY FROM SEPOLICY/NSA OVERRIDING END
+
+# for Google Apps
+#changeBySEA dup with aosp : allow untrusteddomain devpts:chr_file rw_file_perms;
+#allow untrusteddomain { file_type -container_service_secure_type -container_file_type -fixmo_app_data_file -good_app_data_file }:sock_file rw_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow untrusteddomain { file_type -trstappdomain_no_read_file -trstappdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file -exec_type }:sock_file rw_file_perms;
+#changeBySEA reduced and moved to domain.te : allow untrusteddomain { file_type -trstappdomain_no_read_file -trstappdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file -trstdomain_no_read_file -trstdomain_no_write_file -exec_type -vold_data_file }:sock_file rw_file_perms;
+
+#changeBySEA reduced and moved to domain.te : allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#allow { untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:dir r_dir_perms;
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:dir r_dir_perms;
+#neverallow by Google: allow untrusteddomain { zygote_socket zygote_tmpfs}:file rw_file_perms;
+#neverallow by Google: allow untrusteddomain { zygote_socket zygote_tmpfs}:dir rw_dir_perms;
+#changeBySEA need to check :  allow { untrusteddomain -untrusted_app } { zygote_socket zygote_tmpfs}:file rw_file_perms;
+#changeBySEA need to check :  allow { untrusteddomain -untrusted_app } { zygote_socket zygote_tmpfs}:dir rw_dir_perms;
+
+#For com.osp.app.signin
+#changeBySEA dup with samsung/app.te: allow untrusteddomain app_library_file:dir { read getattr };
+
+# com.samsung.ssd.wolfserver issue
+#changeBySEA need to check :  allow untrusteddomain at_distributor:unix_stream_socket connectto;
+
+# VMware
+allow untrusteddomain kernel:unix_dgram_socket sendto;
+
+# torrent, VMWare, etc
+allow untrusteddomain self:netlink_route_socket *;
+
+# To use Samsung Music Player
+allow untrusteddomain system_file:file execmod;
+
+# To use Group Play
+# neverallow by Google: unix_socket_connect(untrustedappdomain, property, init)
+
+# To Aceess mac.info from dropbox
+allow untrusteddomain wifi_efs_file:file rw_file_perms;
+
+# To access /efs/carrier/ from com.android.mms
+allow untrusted_app carrier_efs_file:dir search;
+allow untrusted_app carrier_efs_file:file { read open };
+allow untrusted_app efs_file:dir search;
+
+#P151225-00575
+allow untrusted_app bluetooth_efs_file:dir r_dir_perms;
+allow untrusted_app bluetooth_efs_file:file r_file_perms;
+ 
+
+# Market apps access 
+# Remove execute permission to satisfy assertion that domain cannot execute type it can write
+allow untrusteddomain asec_apk_file:file r_file_perms;
+allow untrusteddomain platform_app_data_file:file r_file_perms;
+
+# for VZWAPN Service
+#changeBySEA need to check :  allow untrusteddomain platformappdomain:unix_stream_socket connectto;
+
+# To Access Banking apps
+allow untrusteddomain rootfs:file r_file_perms;
+
+# for Alyac
+allow untrusteddomain dhcp_system_file:file r_file_perms;
+allow untrusteddomain ppp_system_file:file r_file_perms;
+
+# UT
+#neverallow by Google: allow untrusteddomain property_socket:sock_file w_file_perms;
+allow untrusteddomain zygote_exec:file rx_file_perms;
+#allow untrusteddomain self:capability net_raw;
+
+# H 4.3 cts issue libcore.java.nio.BufferTest, testDevZeroMapRW ISSUE
+#changeBySEA dup with aosp/domain.te : allow untrustedappdomain zero_device:chr_file rw_file_perms;
+
+# for AWS log server
+#neverallow by Google: allow untrusteddomain camera_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow { untrusteddomain -untrusted_app } camera_device:chr_file rw_file_perms;
+#changeBySEA allow untrusteddomain filtered_google_app:file write;
+allow untrusteddomain kernel:system module_request;
+#changeBySEA need to check : allow untrusteddomain mediaserver:unix_stream_socket connectto;
+allow untrusteddomain node:rawip_socket node_bind;
+#changeBySEA dup with samsung/app.te : allow untrusteddomain tty_device:chr_file rw_file_perms;
+allow untrusteddomain video_device:chr_file rw_file_perms;
+
+# From mobilecare
+allow untrusteddomain self:file x_file_perms;
+allow untrusteddomain bluetooth:unix_stream_socket create_socket_perms;
+allow untrusteddomain devpts:chr_file r_file_perms;
+allow untrusteddomain self:rawip_socket create_socket_perms;
+allow untrusteddomain shell:unix_stream_socket connectto;
+allow untrusteddomain untrusted_app_tmpfs:file w_file_perms;
+allow untrusteddomain shell_data_file:dir w_dir_perms;
+
+# for sidesync
+#allow untrusteddomain graphics_device:chr_file create_file_perms;
+#violate neverallow rule. change to:
+#change start
+#changeBySEA allow { untrusteddomain -isolated_app -shell -untrusted_app } graphics_device:chr_file create_file_perms;
+#changeBySEA allow { isolated_app untrusted_app } graphics_device:chr_file { create setattr getattr open ioctl lock append link unlink rename };
+#change end
+
+# for "whatsapp"
+# The following rule is already covered by app.te: "allow appdomain init:binder { call transfer };"
+#allow untrusteddomain init:binder { transfer call };
+#changeBySEA allow untrusteddomain init:unix_stream_socket setopt;
+
+# for MobileIron
+# neverallow for untrusted_app
+#allow untrusteddomain hw_random_device:chr_file getattr;
+
+# Adjustment according to Google review 08-23-2013
+#changeBySEA dup with aosp/app.te : allow untrusteddomain devpts:chr_file rw_file_perms;
+
+#neverallow by Google:  allow untrustedappdomain socket_device:sock_file rw_file_perms;
+#changeBySEA need to check : allow untrustedappdomain socket_device:sock_file r_file_perms;
+
+#changeBySEA allow untrusteddomain ueventd:dir rw_dir_perms;
+#changeBySEA allow untrusteddomain exec_type:file getattr;
+#neverallow by Google: allow untrustedappdomain { zygote_socket zygote_tmpfs}:dir rw_dir_perms;
+#neverallow by Google: allow untrustedappdomain { zygote_socket zygote_tmpfs}:file_class_set rw_file_perms;
+
+
+#Move the following rules to B2B minimalist
+#if (unconstrained_apps) {
+
+allow untrusteddomain kernel:system { ipc_info };
+#neverallow by Google:  allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:process { signal signull getsched getpgid getcap getattr };
+#changeBySEA allow untrusteddomain { domain -containerdomain -fixmo_app -good_app  }:process { signull getsched getpgid getcap getattr };
+
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:process { signal signull getsched getpgid getcap getattr };
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:process { signal signull getsched getpgid getcap getattr };
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:process { signal signull getsched getpgid getcap getattr };
+
+#changeBySEA need to check : allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:fd use;
+#changeBySEA allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:fd use;
+#changeBySEA allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:fd use;
+#changeBySEA allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:dir r_dir_perms;
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:dir r_dir_perms;
+#changeBySEA allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:file_class_set r_file_perms;
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:file_class_set r_file_perms;
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:file_class_set r_file_perms;
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:file_class_set r_file_perms;
+#changeBySEA need to check : allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:fifo_file rw_file_perms;
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:fifo_file rw_file_perms;
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:fifo_file rw_file_perms;
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:fifo_file rw_file_perms;
+
+#allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:socket_class_set { ioctl read getattr bind connect getopt accept };
+#changeBySEA need to check : allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:{ socket tun_socket unpriv_socket_class_set } { ioctl read getattr bind connect getopt accept };
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:socket_class_set { ioctl read getattr bind connect getopt accept };
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:socket_class_set { ioctl read getattr bind connect getopt accept };
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:socket_class_set { ioctl read getattr bind connect getopt accept };
+
+#neverallow Google CTS-android-m-preview: neverallow domain domain:{ shm sem msg msgq } *
+#allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:ipc_class_set ~{ create destroy setattr };
+#changeBySEA need to check : allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:ipc ~{ create destroy setattr };
+
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:ipc_class_set ~{ create destroy setattr };
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:ipc_class_set ~{ create destroy setattr };
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:ipc_class_set ~{ create destroy setattr };
+
+#changeBySEA allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:key { view read search };
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:key { view read search };
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:key { view read search };
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:key { view read search };
+
+#neverallow Google CTS-android-m-preview: neverallow domain domain:{ shm sem msg msgq } *
+#allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:msg *;
+
+#allow {untrusteddomain -knox_untrusted_app -gad_untrusted_app} { domain -containerdomain -fixmo_app -good_app }:msg *;
+#allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -gad_untrusted_app}:msg *;
+#allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_untrusted_app}:msg *;
+
+
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:fd use;
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:dir r_dir_perms;
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:file_class_set r_file_perms;
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:fifo_file rw_file_perms;
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:socket_class_set { ioctl read getattr bind connect getopt accept };
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:ipc_class_set ~{ create destroy setattr };
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:key { view read search };
+# allow untrusteddomain { domain -containerdomain -fixmo_app -good_app }:msg *;
+
+#changeBySEA allow untrusteddomain  { dev_type -kmem_device }:dir r_dir_perms;
+#allow untrusteddomain { dev_type -kmem_device -hw_random_device }:{ notdevfile_class_set chr_file } r_file_perms;
+#changeBySEA allow untrusteddomain { dev_type -trstappdomain_no_rw_device -trstdomain_no_rw_device -untrustedapp_no_rw_device }:{ notdevfile_class_set chr_file } r_file_perms;
+#changeBySEA allow untrusteddomain  { domain -containerdomain -fixmo_app -good_app }:peer recv;
+
+#allow { untrusteddomain -knox_untrusted_app -gad_untrusted_app } { domain -containerdomain -fixmo_app -good_app -knox_system_app }:binder { call transfer };
+#changeBySEA need to check : allow { untrusteddomain -knox_untrusted_app -gad_untrusted_app } { domain -containerdomain -fixmo_app -good_app -knox_system_app -init }:binder { call transfer };
+
+#changeBySEA allow knox_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_system_app -gad_untrusted_app -init }:binder { call transfer };
+#changeBySEA allow gad_untrusted_app { domain -containerdomain -fixmo_app -good_app -knox_system_app -knox_untrusted_app -init }:binder { call transfer };
+
+#changeBySEA binder_call(knox_untrusted_app, knox_system_app)
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow untrusteddomain { fs_type -proc -sysfs -selinuxfs -rootfs -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_service_secure_type -container_file_type -fixmo_app_data_file -good_app_data_file }:dir r_dir_perms;
+#changeBySEA allow untrusteddomain { fs_type -proc -sysfs -selinuxfs -rootfs -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_service_secure_type -container_file_type -fixmo_app_data_file -good_app_data_file -vold_data_file }:dir r_dir_perms;
+
+#changeBySEA allow untrusteddomain { fs_type -dev_type -proc -sysfs -selinuxfs -rootfs -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_service_secure_type -container_file_type -fixmo_app_data_file -good_app_data_file -debugfs }:notdevfile_class_set r_file_perms;
+
+# Remove duplicate rule
+#allow untrusteddomain { file_type -container_service_secure_type -container_file_type}:file rx_file_perms;
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -log_file_type }:dir r_dir_perms;
+#changeBySEA allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -log_file_type -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -log_file_type }:notdevfile_class_set r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#changeBySEA allow untrusteddomain { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  -log_file_type -vold_data_file -shell_data_file }:notdevfile_class_set r_file_perms;
+#changeBySEA dup with samsung/app.te : allow untrusteddomain shell_data_file: { file sock_file fifo_file } r_file_perms;
+
+#allow untrusteddomain { file_type -efs_file -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_file_type }:file rx_file_perms;
+#allow untrusteddomain { file_type -efs_file -system_file -system_data_file -security_file -knox_clipboard_file -unlabeled -container_file_type -fixmo_app_data_file -good_app_data_file }:file r_file_perms;
+
+#neverallow Google CTS-android-m-preview:neverallow { domain -dumpstate -shell -su } su_exec:file { execute execute_no_trans }
+#allow untrusteddomain { exec_type library_file_type }:file x_file_perms;
+#changeBySEA allow untrusteddomain { exec_type library_file_type -su_exec}:file x_file_perms;
+
+#changeBySEA allow untrusteddomain { dev_type -trstdomain_no_rw_device -trstdomain_no_rw_device }:devfile_class_set getattr;
+
+allow untrusteddomain shell_exec:file execute;
+
+#}
+
+# se.ericsson.modemtoolbox app for logging modem log.
+allow { untrusted_app adbd shell } msockets_socket:dir r_dir_perms;
+allow { untrusted_app adbd shell } msockets_socket:sock_file rw_file_perms;
+
+# mmb.android.MMbTeTestAppAp in carrier_jpn
+allow untrusted_app mmb_mw:unix_stream_socket connectto;
+allow untrusted_app mmb_data_file:sock_file write;
+
+# com.innowireless.xcal.mobile4g
+#changeBySEA need to check : allow untrusted_app DMM-daemon:unix_stream_socket connectto;
+
+# P150521-00805
+#neverallow Google CTS-android-m-preview:neverallow domain { file_type -system_file -system_data_file -apk_data_file -app_data_file -asec_public_file }:file execmod
+#allow untrusted_app untrusted_app_tmpfs:file execmod;
+
+# P151203-07034 olleh apk
+allow untrusteddomain users_system_data_file:file r_file_perms;
+
+
+# Intra-untrusteddomain accesses.
+allow untrusteddomain untrusteddomain:process {
+    sigchld
+    sigkill
+    sigstop
+    signull
+    signal
+    getsched
+    setsched
+    getsession
+    getpgid
+    setpgid
+    getcap
+    setcap
+    getattr
+    setrlimit
+};
+allow untrusteddomain untrusteddomain:fd use;
+allow untrusteddomain untrusteddomain:dir r_dir_perms;
+allow untrusteddomain untrusteddomain:lnk_file r_file_perms;
+allow untrusteddomain untrusteddomain:{ fifo_file file } rw_file_perms;
+allow untrusteddomain untrusteddomain:unix_dgram_socket { create_socket_perms sendto };
+allow untrusteddomain untrusteddomain:unix_stream_socket { create_stream_socket_perms connectto };
+
+# access filtered_app_data_file
+allow untrusteddomain filtered_app_data_file:file rx_file_perms;
+
+
+userdebug_or_eng(`
+
+# access /sys/class/sensors/light_sensor/raw_data/... for testing
+# com.example.reliability
+# avc:  denied  { read } for  pid=6528 comm="ple.reliability" name="raw_data" dev="sysfs" ino=29215 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:sysfs_sensor_writable:s0 tclass=file permissive=0
+allow untrusted_app sysfs_sensor_writable:file r_file_perms;
+
+')
+
+# ioctl
+#changeBySEA : not allowed by gogole, allow untrusted_app self:udp_socket { 0x8927 0x8b1b };
+
+# LDU: Galaxy_Hero_DCT Need the perms
+allow untrusted_app sec_efs_file:dir search;
+allow untrusted_app retailmode_efs_file:file { getattr open read };
+
+## execmod permssion as like P160126-01190 relocation issue at loading library
+allow untrusteddomain app_data_file:file { rx_file_perms execmod }; #ignoretypeofrule
+
+
+
+############ knox_common #############
+########## type and macro.
+########## self and domain_type
+# knoxVpnFdTransfer
+#changeBySEA not allowed : allow untrusted_app system_server:unix_stream_socket connectto;
+
+########## fs_type
+########## dev_type
+########## file_type
+#changeBySEA dup with samsung/app.te: allow untrusted_app container_app_data_backend:dir r_dir_perms;
+
+########## etc_type
+########## known issue.
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+allow untrusteddomain sysfs_battery_supply:file r_file_perms;
+allow untrusteddomain sysfs_usb_supply:file r_file_perms;
+allow untrusteddomain sysfs_graphics:file r_file_perms;
+
+########## dev_type
+allow untrusteddomain system_fifo:fifo_file rw_file_perms;
+
+########## file_type
+########## etc_type
+# for vzw.apnservice
+allow untrusteddomain samsung_app:unix_stream_socket connectto;
+#changeBySEA dup with aosp/untrusted_app.te: allow untrusteddomain app_data_file:file x_file_perms;
+#changeBySEA need to check : allow untrusteddomain mpdecision:unix_stream_socket connectto;
+
+#changeBySEA moved to vzwfiltered_untrusted_app:#Support OBDM_Permissions.apk
+#changeBySEA this is neverallow rule of QCOM. allow untrusteddomain diag_device:chr_file rw_file_perms;
+#changeBySEA moved to vzwfiltered_untrusted_app:allow untrusteddomain qmux_radio_socket:dir create_dir_perms;
+#changeBySEA moved to vzwfiltered_untrusted_app:allow untrusteddomain qmux_radio_socket:sock_file create_file_perms;
+#changeBySEA need to check : allow untrusteddomain qmuxd:unix_stream_socket connectto;
+
+allow untrusteddomain rfs_system_file:dir r_dir_perms;
+allow untrusteddomain rfs_system_file:{ file lnk_file } r_file_perms;
+# avc:  denied  { read } for  pid=18713 comm="IntentService[S" name="hlos" dev="sda20" ino=3871 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:rfs_system_file:s0 tclass=lnk_file permissive=0 SEPF_SAMSUNG-SM-G935A_6.0_0001
+
+
+########## known issue.
+
+############ slsi_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+allow untrusted_app fimg2d_video_device:chr_file { read write ioctl open };
+allow untrusteddomain m2m1shot_device:chr_file rw_file_perms;
+allow untrusteddomain qtaguid_device:chr_file r_file_perms;
+
+########## file_type
+#changeBySEA dup with aosp/untrusted_app.te: allow untrusteddomain app_data_file:file x_file_perms;
+#changeBySEA dup with samsung/app.te: allow untrusteddomain app_library_file:file r_file_perms;
+#changeBySEA dup with samsung/app.te: allow untrusteddomain cache_file:file w_file_perms;
+#changeBySEA dup with samsung/untrusted_app.te: allow untrusteddomain wifi_efs_file:file r_file_perms;
+
+########## etc_type
+########## known issue.
+# for Android Chrome
+#changeBySEA dup with samsung/untrusted_app.te: allow untrusteddomain video_device:chr_file rw_file_perms;
+
+############ filtered untrust app #############
+#
+# filtered_google_app : not use this domain
+#
+#changeBySEA typeof filtered_google_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias filtered_google_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias filtered_google_app_tmpfs;
+
+#neverallow Google CTS-android-5.0.2_r1 : allow filtered_google_app system_data_file:file { unlink rename };
+#neverallow Google CTS-android-5.0.2_r1 : allow filtered_google_app system_data_file:dir { create rmdir };
+#changeBySEA allow filtered_google_app platform_app_data_file:file { unlink rename };
+#changeBySEA allow filtered_google_app untrusted_app:process { getattr sigkill signal ptrace };
+#allow filtered_google_app debugfs:file r_file_perms;
+#changeBySEA allow filtered_google_app container_app_data_backend:file execute;
+#auditallow filtered_google_app container_app_data_backend:file execute;
+#changeBySEA allow filtered_google_app system_app_data_file:file { getattr unlink rename };
+
+
+############ filtered_untrusted_app #############
+# filtered_untrusted_app (3rd party signed untrusted application)
+# whiltelisted app to communicate with internal service.
+#
+typeof filtered_untrusted_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias filtered_untrusted_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias filtered_untrusted_app_tmpfs;
+
+# package com.expway.embmsserver* can communicate with rild
+# SEA Site N.19 a8eltejv/a8elte:6.0.1/A800FXXE1BPE1b
+# package com.jio.emiddleware need to communicate with rild via Multiclient socket.
+allow filtered_untrusted_app rild:unix_stream_socket connectto;
+# avc:  denied  { connectto } for  pid=12020 comm="way.embmsserver" path=Multiclient scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:rild:s0 tclass=unix_stream_socket permissive=0 SEPF_SM-G925K_6.0_0001
+# avc:  denied  { connectto } for  pid=15018 comm="jio.emiddleware" path=Multiclient scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:rild:s0 tclass=unix_stream_socket SEPF_SECMOBILE_6.0.1_0011
+
+
+# DMB service : P151022-00529
+allow filtered_untrusted_app dmb_service:service_manager find;
+# avc:  denied  { find } for service=dmb.DMBFrmwrks scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:dmb_service:s0 tclass=service_manager
+
+
+### jp.co.fsi.fs1seg : access tz_device and dtv server. bind dtvserver and getservice
+# avc:  denied  { find } for service=dtv.server scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:dtvserver_service:s0 tclass=service_manager
+# avc:  denied  { call } for  pid=536 comm="p.co.fsi.fs1seg" scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:dtvserver:s0 tclass=binder permissive=1
+# avc:  denied  { read } for  pid=10608 comm="p.co.fsi.fs1seg" name="tzic" dev="tmpfs" ino=16614 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:tz_device:s0 tclass=chr_file permissive=0
+allow filtered_untrusted_app dtvserver:binder call;
+allow filtered_untrusted_app dtvserver_service:service_manager find;
+allow filtered_untrusted_app tz_device:chr_file rw_file_perms;
+
+## com.kddi.android.evc P160216-02063
+# avc:  denied  { connectto } for  pid=16123 comm="Thread-194" path=00617564696F486F6F6B scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:mediaserver:s0 tclass=unix_stream_socket permissive=0 
+# unix_socket_rw(filtered_untrusted_app, mediaserver)
+allow filtered_untrusted_app mediaserver:unix_stream_socket connectto;
+
+############ vzwfiltered_untrusted_app #############
+# vzwfiltered_untrusted_app (Accuver and WITS obdm application)
+# whiltelisted app to communicate with internal service.
+#
+# P151209-00593 [AVT][OBDM Tool Test Plan] OBDM login PIN Authentication Failure is seen upon entering correct PIN
+#
+typeof vzwfiltered_untrusted_app, untrusted_app;
+
+# proctitle="xcal.mobile4g" packages:com.innowireless.xcal.mobile4g
+# execute dmm daemon with no_trans and connect to dmm_daemon
+allow vzwfiltered_untrusted_app DMM-daemon:unix_stream_socket connectto;
+allow vzwfiltered_untrusted_app DMM-daemon_exec:file rx_file_perms;
+# avc:  denied  { execute } for  pid=9374 comm="xcal.mobile4g" name="dmm_v2" dev="sda20" ino=574 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:DMM-daemon_exec:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { execute_no_trans } for  pid=21516 comm="xcal.mobile4g" path="/system/bin/dmm_v2" dev="sda20" ino=574 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:DMM-daemon_exec:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0002
+# avc:  denied  { connectto } for  pid=21516 comm="dmm_v2" path=00496E6E6F2E444D2E526F75746572 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:DMM-daemon:s0 tclass=unix_stream_socket permissive=1 SEPF_SECMOBILE_6.0.1_0002
+
+# proctitle="com.innowireless.xcal.verizon.router"
+allow vzwfiltered_untrusted_app qmuxd:unix_stream_socket connectto;
+# avc:  denied  { connectto } for  pid=7911 comm=".verizon.router" path="/dev/socket/qmux_radio/qmux_connect_socket" scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:qmuxd:s0 tclass=unix_stream_socket permissive=1 SEPF_SECMOBILE_6.0.1_0002
+
+
+# proctitle=com.wits.monitor, com.wits.obdm_permissions
+allow vzwfiltered_untrusted_app diag_device:chr_file rw_file_perms;
+allow vzwfiltered_untrusted_app qmuxd_socket:dir create_dir_perms;
+allow vzwfiltered_untrusted_app qmuxd_socket:sock_file create_file_perms;
+# avc:  denied  { write } for  pid=16271 comm=4D6F64656D2041757468 name="qmux_radio" dev="tmpfs" ino=16428 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:qmuxd_socket:s0 tclass=dir permissive=0
+
+
+
+############ llk_untrusted_app #############
+# llk_untrusted_app
+#
+typeof llk_untrusted_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias llk_untrusted_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias llk_untrusted_app_tmpfs;
+allow llk_untrusted_app device:fifo_file rw_file_perms;
+allow llk_untrusted_app device:sock_file rw_file_perms;
+
+
+
+############  sec_untrusted_app  #############
+# sec_untrusted_app (samsung signed untrusted application)
+#
+typeof sec_untrusted_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias sec_untrusted_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias sec_untrusted_app_tmpfs;
+
+allow sec_untrusted_app self:netlink_kobject_uevent_socket { read bind create setopt };
+
+# media app for KNOX VPN
+allow sec_untrusted_app system_server:unix_stream_socket connectto;
+
+# contacts
+allow sec_untrusted_app carrier_file:dir r_dir_perms;
+allow sec_untrusted_app carrier_file:file r_file_perms;
+# avc:  denied  { read } for  pid=6043 comm="ndroid.contacts" name="chameleon.xml" dev="sda20" ino=12 scontext=u:r:sec_untrusted_app:s0:c512,c768 tcontext=u:object_r:carrier_file:s0 tclass=file permissive=0
+
+# com.sec.android.mimage.photoretouching
+allow sec_untrusted_app sysfs_mdnie_writable:file rw_file_perms;
+allow sec_untrusted_app system_fifo:fifo_file rw_file_perms;
+
+# P160125-00585 android.process.media
+# strange issue why media app aquired vold'fd at media scanning.
+allow sec_untrusted_app vold:fd use;
+# avc:  denied  { use } for  pid=18562 comm="MediaScannerSer" path="/mnt/knox/default/knox-emulated/100" dev="sdcardfs" ino=655395 scontext=u:r:sec_untrusted_app:s0:c612,c768 tcontext=u:r:vold:s0 tclass=fd permissive=0
+
+# OMC_v3, android.process.media(MediaScannerService) reads /omr resources.
+allow sec_untrusted_app omr_file:dir r_dir_perms;
+allow sec_untrusted_app omr_file:file r_file_perms;
+# avc:  denied  { read } for  pid=5959 comm="MediaScannerSer" name=566572697A6F6E20416C6572742E6F6767 dev="sda23" ino=101 scontext=u:r:sec_untrusted_app:s0:c512,c768 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0010
+# avc:  denied  { open } for  pid=5959 comm="MediaScannerSer" path=2F6F6D722F565A572F7265732F6D656469612F617564696F2F6E6F74696669636174696F6E732F566572697A6F6E20416C6572742E6F6767 dev="sda23" ino=101 scontext=u:r:sec_untrusted_app:s0:c512,c768 tcontext=u:object_r:omr_file:s0 tclass=file permissive=1 SEPF_SECMOBILE_6.0.1_0010
+
+# com.sec.android.app.launcher
+# avc:  denied  { read } for  pid=5172 comm="id.app.launcher" name="window_type" dev="sysfs" ino=31894 scontext=u:r:sec_untrusted_app:s0:c512,c768 tcontext=u:object_r:sysfs_lcd_writable:s0 tclass=file permissive=0
+allow sec_untrusted_app sysfs_lcd_writable:file read;
+
+
+
+############  trustonic partner apps  #############
+# trustonic partner apps : app for t-base SecureOS
+#
+# trustonic partner apps should have same policy with untrusted_app because of carrier app(untrusted_app)'s rule.
+typeof trustonicpartner_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias trustonicpartner_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias trustonicpartner_app_tmpfs;
+allow trustonicpartner_app mobicore-user_device:chr_file rw_file_perms;
+allow trustonicpartner_app mobicoredaemon:unix_stream_socket connectto;
+
+#
+# SDP user 0 
+#
+#
+allow untrusted_app knox_dar_shared_device:chr_file write;
+
+
+############  vpn_untrusted_app  #############
+# vpn_untrusted_app
+#
+#changeBySEA : typeof vpn_untrusted_app, untrusted_app;
+#changeBySEA : typealias untrusted_app_devpts alias vpn_untrusted_app_devpts;
+#changeBySEA : typealias untrusted_app_tmpfs alias vpn_untrusted_app_tmpfs;
+
+
+############  umcagent_app #############
+# UMCJSAgent (umcagent_app)
+#
+typeof umcagent_app, untrusted_app;
+# for DCM
+allow umcagent_app dcm_data_file:dir r_dir_perms;
+allow umcagent_app dcm_data_file:file r_file_perms;
+
+
+########## androd-m-preview: denials ########
+allow untrusteddomain apaservice_service:service_manager find;
+allow untrusteddomain system_app_service:service_manager find;
+allow untrusteddomain system_service:service_manager find;
+allow untrusteddomain commontime_management_service:service_manager find;
+allow untrusteddomain container_system_file:dir getattr;
+allow untrusteddomain default_android_service:service_manager find;
+allow untrusteddomain efsblk_device:blk_file getattr;
+#allow untrusteddomain kernel:security read_policy;
+#allow untrusted_app keystore:keystore_key saw;
+allow untrusteddomain obb_apk_file:file execute;
+allow untrusteddomain samplingprofiler_service:service_manager find;
+allow untrusteddomain servicemanager:service_manager list;
+allow untrusteddomain storage_file:file execute;
+allow untrusteddomain systemblk_device:blk_file getattr;
+allow untrusteddomain userdatablk_device:blk_file getattr;
+allow untrusteddomain healthd_service:service_manager find;
+allow untrusteddomain wallpaper_file:file r_file_perms;
+
+############ avc_log #############
+#from CTS testing
+# avc:  denied  { getattr } for  pid=3808 comm="FinalizerDaemon" path="/data/data/com.android.providers.downloads/cache/#libAppDataSearchExt_armeabi_v7a.v3.so" dev="mmcblk0p25" ino=784889 scontext=u:r:filtered_google_app:s0 tcontext=u:object_r:download_file:s0 tclass=file SEPF_SAMSUNG-SM-#N900A_4.4.2_0016
+# avc:  denied  { read } for  pid=11869 comm="libOVR" name="ovr0" dev="tmpfs" ino=55244 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:device:s0 tclass=chr_file SEPF_SM-N910F_4.4.4_0018 com.oculusvr.vrexperiment
+# avc:  denied  { open } for  pid=29328 comm="SharedPreferenc" name="pref_sbeam.xml" dev="mmcblk0p25" ino=784839 #scontext=u:r:untrusted_app:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.3_0018
+# avc:  denied  { lock } for  pid=8486 comm="atlas_injectOnN" path="/data/data/com.taobao.taobao/files/odex" dev="mmcblk0p27" ino=657 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:app_data_file:s0 tclass=dir
+# avc:  denied  { setattr } for  pid=7384 comm="chmod" name="/" dev=tmpfs ino=1957 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:tmpfs:s0 tclass=dir VE=SEPF_SHV-E250L_4.3_0023_M
+#       item=0 name="/storage/emulated" inode=1957 dev=00:15 mode=040050 ouid=0 ogid=1028 rdev=00:00 obj=u:object_r:tmpfs:s0
+# avc:  denied  { read } for  pid=20780 comm="NetworkLocation" name="mem" dev="debugfs" ino=303350 scontext=u:r:filtered_google_app:s0 tcontext=u:object_r:debugfs:s0 tclass=file SEPF_SM-N910F_4.4.4_A019
+#audit(1403174072.948:224): avc:  denied  { read } for  pid=7917 comm="resourcemanager" name="EN.FWaRG5DpV6i9w-YgQVEJDS9vjGlQ3WjqN9iPc9-OpO58Rt8onYhSD76sJk--" dev="sdcardfs" #ino=131639 scontext=u:r:untrusted_app:s0:c2 tcontext=u:object_r:container_app_data
+# avc:  denied  { write } for  pid=9645 comm="Binder_2" name="m2m1shot_scaler0" dev="tmpfs" ino=4017 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:m2m1shot_device:s0 tclass=chr_file SEPF_SM-N910S_4.4.4_A019
+# avc:  denied  { set } for property=csc.country_code scontext=u:r:untrusted_app:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=csc.countryiso_code scontext=u:r:untrusted_app:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+# avc:  denied  { set } for property=csc.sales_code scontext=u:r:untrusted_app:s0 tcontext=u:object_r:csc_prop:s0 tclass=property_service
+# avc:  denied  { write } for  pid=986 comm="netd" path="socket:[81199]" dev="sockfs" ino=81199 scontext=u:r:netd:s0 tcontext=u:r:trustonicpartner_app:s0 tclass=tcp_socket
+# avc:  denied  { getattr } for  pid=5820 comm="IntentService[S" path="/proc/5458" dev="proc" ino=30684 scontext=u:r:filtered_google_app:s0 tcontext=u:r:knox_system_app:s0:c2 tclass=dir
+# avc:  denied  { read } for  pid=19592 comm=4173796E635461736B202332 name="7349" dev="proc" ino=55553 scontext=u:r:s_untrusted_app:s0:c2 tcontext=u:r:media_app:s0:c3 tclass=dir
+# avc:  denied  { connectto } for  pid=11928 comm="10149" path=knoxVpnFdTransfer scontext=u:r:untrusted_app:s0 tcontext=u:r:system_server:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G925F_5.0.2_0002
+# avc:  denied  { write } for  pid=10785 comm=".MMbTeTestAppAp" name="LOCAL_SOCKET_MMBFCCTLMW_REGIST" dev="sda20" ino=1439013 scontext=u:r:untrusted_app:s0 tcontext=u:object_r:system_data_file:s0 tclass=sock_file permissive=1 SEPF_SGH-N516_5.0.2_0002
+# avc:  denied  { connectto } for  pid=10785 comm=".MMbTeTestAppAp" path="/data/mmb/common/fcctl/LOCAL_SOCKET_MMBFCCTLMW_REGIST" scontext=u:r:untrusted_app:s0 tcontext=u:r:mmb_mw:s0 tclass=unix_stream_socket permissive=1 SEPF_SGH-N516_5.0.2_0002
+# avc:  denied  { rename } for  pid=5332 comm="pool-4-thread-1" name="GmsBackupTransport.backupScheduler.xml" dev="sda20" ino=262824 scontext=u:r:filtered_google_app:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=file permissive=0
+# avc:  denied  { execute } for  pid=27910 comm="supervisor" path="/dev/__properties__" dev="tmpfs" ino=7751 scontext=u:r:knox_untrusted_app:s0 tcontext=u:object_r:properties_device:s0 tclass=file permissive=0
+# avc:  denied  { connectto } for  pid=18046 comm="xcal.mobile4g" path=0046756C6C2E444D2E506F727430 scontext=u:r:untrusted_app:s0 tcontext=u:r:DMM-daemon:s0 tclass=unix_stream_socket permissive=1 SEPF_SM-G925V_5.0.2_0007
+# avc:  denied  { find } for service=batteryproperties scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:healthd_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=com.samsung.android.jam.IAPAService scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:apaservice_service:s0 tclass=service_manager
+# avc:  denied  { find } for service=hermesservice scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:platform_app_service:s0 tclass=service_manager
+#  avc:  denied  { ioctl } for  pid=11335 comm="om.skp.launcher" path="/data/system/users/0/wallpaper" dev="sda23" ino=721141 ioctlcmd=5401 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:wallpaper_file:s0 tclass=file permissive=0
+# arch=40000028 syscall=54 per=8 success=no exit=-13 a0=49 a1=5401 a2=ff9643c0 a3=ff9643b8 items=0 ppid=630 pid=11335 auid=4294967295 uid=10222 gid=10222 euid=10222 suid=10222 fsuid=10222 egid=10222 sgid=10222 fsgid=10222 tty=(none) ses=4294967295 comm="om.skp.launcher" exe="/system/bin/app_process32" subj=u:r:untrusted_app:s0:c512,c768 key=(null)
+# proctitle="com.skp.launcher"
+# avc:  denied  { read write } for  pid=26887 comm="a.sonic4ep2lite" name="tspreq" dev="tmpfs" ino=9225 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:system_fifo:s0 tclass=fifo_file permissive=0 SEPF_SM-G925F_6.0_0001 
+# avc:  denied  { read } for  pid=5365 comm="SceneTriggerMan" name="current_now" dev="sysfs" ino=23933 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=0 SEPF_SM-G925F_6.0_0001
+# avc:  denied  { search } for  pid=18738 comm="com.android.mms" name="carrier" dev="sda3" ino=12 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:carrier_efs_file:s0 tclass=dir permissive=1 SEPF_SM-G925R7_6.0_0002
+# avc:  denied  { read } for  pid=18738 comm="com.android.mms" name="HiddenMenu" dev="sda3" ino=56 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:carrier_efs_file:s0 tclass=file permissive=1 SEPF_SM-G925R7_6.0_0002
+# avc:  denied  { open } for  pid=18738 comm="com.android.mms" path="/efs/carrier/HiddenMenu" dev="sda3" ino=56 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:carrier_efs_file:s0 tclass=file permissive=1 SEPF_SM-G925R7_6.0_0002
+# avc:  denied  { read } for  pid=4868 comm="Binder_F" path="/data/system/users/10/photo.png" dev="sda18" ino=262631 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:users_system_data_file:s0 tclass=file permissive=0
+# avc:  denied  { ioctl } for  pid=14068 comm=474C54687265616420323631 path="socket:[70508]" dev="sockfs" ino=70508 ioctlcmd=8927 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=udp_socket permissive=0
+# arch=40000028 syscall=54 per=8 success=no exit=-13 a0=52 a1=8927 a2=d7f26860 a3=d7f26810 items=0 ppid=3163 pid=14068 auid=4294967295 uid=10169 gid=10169 euid=10169 suid=10169 fsuid=10169 egid=10169 sgid=10169 fsgid=10169 tty=(none) ses=4294967295 comm=474C54687265616420323631 exe="/system/bin/app_process32" subj=u:r:untrusted_app:s0:c512,c768 key=(null)
+# proctitle="com.gameloft.android.ANMP.GloftIAHM"
+# avc:  denied  { ioctl }avc:  denied  { ioctl } for  pid=23786 comm="ChromiumNet" path="socket:[98715]" dev="sockfs" ino=98715 ioctlcmd=8b1b scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=udp_socket permissive=0 SEPF_SECMOBILE_6.0.1_0002
+# arch=c00000b7 syscall=29 success=no exit=-13 a0=31 a1=8b1b a2=7f8f3f08b8 a3=7f8f3f0880 items=0 ppid=3217 pid=23786 auid=4294967295 uid=10072 gid=10072 euid=10072 suid=10072 fsuid=10072 egid=10072 sgid=10072 fsgid=10072 tty=(none) ses=4294967295 comm="ChromiumNet" exe="/system/bin/app_process64" subj=u:r:untrusted_app:s0:c512,c768 key=(null)
+# proctitle="com.google.android.googlequicksearchbox:search"
+# avc:  denied  { search } for  pid=15674 comm="Thread-277" name="bluetooth" dev="sda6" ino=21 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:bluetooth_efs_file:s0 tclass=dir permissive=0 SEPF_SECMOBILE_6.0.1_0002 
+# avc:  denied  { create } for  pid=18550 comm="Thread-1667" scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:r:untrusted_app:s0:c512,c768 tclass=netlink_tcpdiag_socket permissive=0 SEPF_SECMOBILE_6.0.1_0002 
+# date=2016/01/04;scontext=untrusted_app;tcontext=sysfs_camera_writable:tclass=file permission=read;mls="S_CATEGORY";category="c512,c768/";model="SM-G930S";os="6.0.1";build="OLQ";comm="ndroid.app.ocr4";exe="/system/bin/app_process32";path="-";dev="sysfs";name="rear_checkfw_user";proctitle="com.sec.android.app.ocr4";syscall="322";ioctlcmd(hex)="0";uid="10191";permissive="0";
+# date=2016/01/08;scontext=untrusted_app;tcontext=system_app_data_file:tclass=lnk_file permission=read;mls="S_CATEGORY";category="c512,c768/";model="SM-G935S";os="6.0.1";build="PA6";comm="Thread-3517";exe="/system/bin/app_process32";path="-";dev="dm-1";name="lib";proctitle="com.cjenm.sknights";syscall="322";ioctlcmd(hex)="0";uid="10215";permissive="0";
+# avc:  denied  { read } for  pid=12322 comm=72546872656164207468726561642E name="msm_fb_type" dev="sysfs" ino=11174 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:sysfs_graphics:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0005
+# avc:  denied  { read } for  pid=21253 comm="ombosdev.ampere" name="uevent" dev="sysfs" ino=26216 scontext=u:r:untrusted_app:s0:c512,c768 tcontext=u:object_r:sysfs_usb_supply:s0 tclass=file permissive=0 SEPF_SECMOBILE_6.0.1_0008
+
+

@@ -1,0 +1,42 @@
+#
+# dnsmasq
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute dnsmasq trusteddomain;
+#typeattribute dnsmasq system_domain;
+# temporary permissive to gather the log.
+# permissive dnsmasq;
+
+########## self and domain_type
+allow dnsmasq kernel:system module_request;
+allow dnsmasq netd:fifo_file rw_file_perms;
+allow dnsmasq netd: { netlink_kobject_uevent_socket netlink_nflog_socket netlink_route_socket tcp_socket udp_socket  } { read write };
+allow dnsmasq netd:unix_stream_socket { connectto };
+allow dnsmasq netd:unix_dgram_socket { sendto };
+allow dnsmasq self:capability { chown fsetid setgid fowner sys_module };
+allow dnsmasq self: { netlink_route_socket rawip_socket udp_socket packet_socket } create_socket_perms;
+allow dnsmasq self:netlink_route_socket  { create_socket_perms nlmsg_read nlmsg_write } ;
+allow dnsmasq self:tcp_socket { listen setopt create bind };
+
+########## fs_type
+########## dev_type
+########## file_type
+allow dnsmasq netd_socket:sock_file w_file_perms;
+allow dnsmasq shell_exec:file rx_file_perms;
+allow dnsmasq system_file:file x_file_perms;
+
+########## etc_type
+allow dnsmasq node:udp_socket node_bind;
+allow dnsmasq port:tcp_socket { name_connect name_bind };
+allow dnsmasq node:tcp_socket node_bind;
+
+########## known issue.
+
+
+############ avc_log #############
+# audit(1419261369.339:301): avc:  denied  { create } for  pid=18925 comm="dnsmasq" scontext=u:r:dnsmasq:s0 tcontext=u:r:dnsmasq:s0 tclass=packet_socket permissive=0
+# audit(1419686759.779:390): avc:  denied  { nlmsg_write } for  pid=27559 comm="ip" scontext=u:r:dnsmasq:s0 tcontext=u:r:dnsmasq:s0 tclass=netlink_route_socket permissive=0
+

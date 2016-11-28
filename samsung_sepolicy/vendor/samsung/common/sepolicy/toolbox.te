@@ -1,0 +1,24 @@
+#permissive toolbox;
+#allow toolbox dev_type:blk_file getattr;
+allow toolbox container_app_data_backend:dir r_dir_perms;
+allow toolbox labeledfs:filesystem unmount;
+allow toolbox media_rw_data_file:dir r_dir_perms;
+allow toolbox personal_page_file:dir r_dir_perms;
+allow toolbox self:capability sys_admin;
+allow toolbox efsblk_device:blk_file getattr;
+allow toolbox emmcblk_device:blk_file getattr;
+allow toolbox modem_device:blk_file getattr;
+allow toolbox systemblk_device:blk_file getattr;
+allow toolbox userdatablk_device:blk_file getattr;
+allow toolbox cache_block_device:blk_file getattr;
+
+
+# service umount_cpdump /system/bin/umount /cpdump
+# avc:  denied  { unmount } for  pid=3582 comm="umount" scontext=u:r:toolbox:s0 tcontext=u:object_r:tmpfs:s0 tclass=filesystem permissive=1
+allow toolbox tmpfs:filesystem unmount;
+
+
+############ avc_log #############
+
+
+

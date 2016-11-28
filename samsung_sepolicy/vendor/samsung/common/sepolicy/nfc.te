@@ -1,0 +1,89 @@
+#
+# nfc
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute nfc trusteddomain;
+#typeattribute nfc trusted_app_domain;
+# temporary permissive to gather the log.
+# permissive nfc;
+
+binder_use(nfc)
+binder_call(nfc, servicemanager)
+dumplog_create(nfc)
+binder_call(nfc, zygote)
+unix_socket_rw(nfc, init)
+
+########## self and domain_type
+
+#allow nfc init:binder { transfer call };
+#violate neverallow rule. change to:
+#neverallow Google CTS : allow nfc init:binder transfer;
+
+allow nfc init:unix_stream_socket setopt;
+allow nfc system_app:fifo_file w_file_perms;
+
+########## fs_type
+allow nfc sdcard_type:dir create_dir_perms;
+allow nfc sdcard_type:file { getattr link unlink rename };
+allow nfc sdcard_type:file w_file_perms;
+allow nfc sysfs_ss_writable:file rw_file_perms;
+
+########## dev_type
+#allow nfc radio_device:chr_file rw_file_perms;
+#violate neverallow rule. change to:
+allow nfc radio_device:chr_file { { getattr open ioctl lock } { open append } };
+allow nfc uart_device:chr_file rw_file_perms;
+allow nfc sem_device:chr_file rw_file_perms;
+allow nfc serial_device:chr_file rw_file_perms;
+allow nfc sysfs_battery_supply:file rw_file_perms;
+
+########## file_type
+allow nfc app_efs_file:dir r_dir_perms;
+allow nfc app_efs_file:file r_file_perms;
+allow nfc apk_data_file:lnk_file read;
+allow nfc cache_file:file w_file_perms;
+allow nfc init_tmpfs:file read;
+allow nfc platform_app_data_file:file w_file_perms;
+allow nfc property_socket:sock_file w_file_perms;
+#allow nfc system_data_file:dir rw_dir_perms;
+# violate never allow rule. change to
+allow nfc system_data_file:dir r_dir_perms;
+#allow nfc system_data_file:file create_file_perms;
+# violate never allow rule. change to
+allow nfc system_data_file:file r_file_perms;
+
+allow nfc system_file:file execmod;
+# avc:  denied  { execmod } for  pid=4746 comm=4173796E635461736B202331 path="/system/vendor/firmware/libpn547_fw.so" dev="mmcblk0p23" ino=3465 scontext=u:r:nfc:s0 tcontext=u:object_r:system_file:s0 tclass=file permissive=1
+
+
+########## etc_type
+########## known issue.
+#NFC firmware(requested by jhh.seo)
+allow nfc sec_efs_file:dir create_dir_perms;
+allow nfc sec_efs_file:file create_file_perms;
+
+
+########## androd-m-preview: denials ########
+allow nfc efs_file:dir search;
+allow nfc system_service:service_manager find;
+
+
+############ avc_log #############
+#from CTS testing
+#type=1400 msg=audit(1402391363.883:343): avc:  denied  { write } for  pid=18336 comm="onCtsTestRunner" path="/data/data/com.android.cts.stub/cache/CTS_DUMP" dev="mmcblk0p25" #ino=915007 scontext=u:r:nfc:s0 tcontext=u:object_r:platform_app_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { open read write ioctl } for  pid=1693 comm=4173796E635461736B202331 path="/dev/ttyHSL1" dev="tmpfs" ino=12329 scontext=u:r:nfc:s0 tcontext=u:object_r:radio_device:s0 tclass=chr_file
+# avc:  denied  { read } for  pid=9422 comm=4173796E635461736B202333 name="factorymode" dev="mmcblk0p3" ino=42 scontext=u:r:nfc:s0 tcontext=u:object_r:factorymode_factoryapp_efs_file:s0 tclass=file SEPF_SM-G900H_4.4.3_0018
+# avc:  denied  { open } for  pid=9422 comm=4173796E635461736B202333 path="/efs/FactoryApp/factorymode" dev="mmcblk0p3" ino=42 scontext=u:r:nfc:s0 tcontext=u:object_r:factorymode_factoryapp_efs_file:s0 tclass=file SEPF_SM-G900H_4.4.3_0018
+# ZERO JPN avc:  denied  { write } for  pid=20826 comm=4173796E635461736B202331 name="ttySAC0" dev="tmpfs" ino=8601 scontext=u:r:nfc:s0 tcontext=u:object_r:uart_device:s0 tclass=chr_file permissive=0
+# avc:  denied  { read write } for  pid=5598 comm="sem_daemon" name="pn547" dev="tmpfs" ino=3027 scontext=u:r:sem:s0 tcontext=u:object_r:nfc_device:s0 tclass=chr_file permissive=0 SEPF_SM-G9250_5.0.2_0007
+# avc:  denied  { read write } for  pid=5598 comm="sem_daemon" name="pn547" dev="tmpfs" ino=3027 scontext=u:r:sem:s0 tcontext=u:object_r:nfc_device:s0 tclass=chr_file permissive=0 SEPF_SM-G9250_5.0.2_0007
+# avc:  denied  { write } for  pid=9214 comm=4173796E635461736B202335 name="NFC_FW.bin" dev="sda3" ino=62 scontext=u:r:nfc:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=file permissive=0 SEPF_SM-G9208_5.1.1_0015
+# avc:  denied  { write } for  pid=5065 comm=4173796E635461736B202331 name="nfc" dev="sda3" ino=60 scontext=u:r:nfc:s0 tcontext=u:object_r:sec_efs_file:s0 tclass=dir permissive=0 SEPF_SM-G9208_5.1.1_0015
+# avc:  denied  { write } for  pid=5644 comm=4173796E635461736B202331 name="ttyHSL1" dev="tmpfs" ino=1238 scontext=u:r:nfc:s0 tcontext=u:object_r:serial_device:s0 tclass=chr_file permissive=0
+# avc:  denied  { search } for  pid=7592 comm="com.android.nfc" name="/" dev="sda3" ino=2 scontext=u:r:nfc:s0 tcontext=u:object_r:efs_file:s0 tclass=dir permissive=0 SEPF_SM-G925F_6.0_0001
+# sys/class/power_supply/battery/wc_enable avc:  denied  { write } for  pid=11870 comm="xample.jhseonfc" name="wc_enable" dev="sysfs" ino=33730 scontext=u:r:nfc:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=1
+
+

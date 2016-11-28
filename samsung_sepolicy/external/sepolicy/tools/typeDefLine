@@ -1,0 +1,41 @@
+#!/bin/bash
+
+
+err() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+LINEONLY=0
+while getopts "n" opt; do
+  case $opt in
+    n)
+      LINEONLY=1
+      ;;
+    \?)
+      echo "Invalid option: -$OPTARG" >&2
+      exit 1
+      ;;
+    :)
+      echo "Option -$OPTARG requires an argument." >&2
+      exit 1
+      ;;
+  esac
+done
+
+
+shift $(($OPTIND - 1))
+
+FILE="$1"
+TYPE=$(echo $2 | awk '{print $1}')
+
+if [[ ! -f "$FILE" ]] || [[ $# -ne 2 ]]; then
+	err "Usage: typeDefLine (-n) POLICY_FILE TYPE"
+fi
+
+
+if [[ $LINEONLY -eq 1 ]]; then
+	egrep -n "^ *type +$TYPE[, ;]" "$FILE"|cut -d":" -f1
+else
+	egrep -n "^ *type +$TYPE[, ;]" "$FILE"
+fi

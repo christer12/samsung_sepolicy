@@ -1,0 +1,27 @@
+# for servicemanager
+#SEC changed: allow servicemanager init:dir create_dir_perms;
+allow servicemanager init:dir r_dir_perms;
+#SEC changed: allow servicemanager init:file create_file_perms;
+allow servicemanager init:file r_file_perms;
+allow servicemanager init:process getattr;
+
+allow servicemanager FMRadiod:dir create_dir_perms;
+allow servicemanager FMRadiod:file create_file_perms;
+allow servicemanager FMRadiod:process getattr;
+
+allow servicemanager phservice:dir create_dir_perms;
+allow servicemanager phservice:file create_file_perms;
+allow servicemanager phservice:process getattr;
+
+allow servicemanager ctl_dumpstate_prop:property_service set;
+allow servicemanager debug_prop:property_service set;
+allow servicemanager init:unix_stream_socket unix_stream_socket_perms;
+allow servicemanager property_socket:sock_file create_file_perms;
+#SEC removed: allow servicemanager kmsg_device:chr_file create_file_perms;
+
+#SEC removed: allow servicemanager kmsg_device:chr_file create_file_perms;
+allow servicemanager codecIPC_server:dir create_dir_perms;
+allow servicemanager codecIPC_server:file create_file_perms;
+allow servicemanager codecIPC_server:process getattr;
+allow servicemanager dump_log_data_file:file create_file_perms;
+allow servicemanager dump_log_data_file:dir create_dir_perms;

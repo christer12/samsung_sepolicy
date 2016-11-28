@@ -1,0 +1,66 @@
+# rmt_storage
+
+
+# rules
+access_logcat(rmt_storage)
+#neverallow Google CTS-android-5.0.2_r1 : allow rmt_storage block_device:blk_file rw_file_perms;
+allow rmt_storage self:socket { read write };
+allow rmt_storage cgroup:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow rmt_storage kmem_device:chr_file w_file_perms;
+allow rmt_storage block_device:dir r_dir_perms;
+allow rmt_storage block_device:lnk_file r_file_perms;
+allow rmt_storage fscblk_device:blk_file rw_file_perms;
+allow rmt_storage emmcblk_device:blk_file rw_file_perms;
+allow rmt_storage emmcblk_device:lnk_file r_file_perms;
+allow rmt_storage fsg_device:blk_file rw_file_perms;
+allow rmt_storage log_device:chr_file ioctl;
+allow rmt_storage mmcblk0_device:blk_file r_file_perms;
+allow rmt_storage modemstblk_device:blk_file rw_file_perms;
+allow rmt_storage fsg_device:blk_file rw_file_perms;
+allow rmt_storage ssdblk_device:blk_file rw_file_perms;
+
+#neverallow Google CTS-android-5.0.2_r1 : remove sys_rawio, allow rmt_storage self:capability { net_raw setuid sys_rawio setgid dac_override sys_admin setpcap };
+allow rmt_storage self:capability { net_raw setuid setgid dac_override sys_admin setpcap };
+
+allow rmt_storage self:capability2 block_suspend;
+allow rmt_storage self:socket { bind create ioctl setopt };
+allow rmt_storage sysfs:file w_file_perms;
+allow rmt_storage sysfs_ss_writable:file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow rmt_storage kmem_device:chr_file r_file_perms;
+allow rmt_storage fsg_device:lnk_file r_file_perms;
+allow rmt_storage modem_device:lnk_file r_file_perms;
+allow rmt_storage ssdblk_device:lnk_file r_file_perms;
+
+allow rmt_storage efsblk_device:blk_file rw_file_perms;
+allow rmt_storage paramblk_device:blk_file rw_file_perms;
+
+# Allow /sys/power/wake_lock from nsa 4.4 policy update
+allow rmt_storage sysfs_wake_lock:file rw_file_perms;
+
+# for B2C users
+typeattribute rmt_storage trusteddomain;
+typeattribute rmt_storage device_domain;
+
+## from J GED
+unix_socket_connect(rmt_storage, property, init)
+allow rmt_storage smem_log_device:chr_file rw_file_perms;
+
+# set property, storage. prefix to check and sync filesystem access
+# stroage.efs_sync.running
+set_prop(rmt_storage, vold_prop)
+
+# audit(46768.504:5): avc:  denied  { read write } for  pid=193 comm="rmt_storage" name="smem_log" dev="tmpfs" ino=4943 scontext=u:r:rmt_storage:s0 tcontext=u:object_r:smem_log_device:s0 tclass=chr_file
+# audit(46768.504:5): avc:  denied  { open } for  pid=193 comm="rmt_storage" name="smem_log" dev="tmpfs" ino=4943 scontext=u:r:rmt_storage:s0 tcontext=u:object_r:smem_log_device:s0 tclass=chr_file
+# audit(46768.504:5): arch=40000028 syscall=322 per=800000 success=yes exit=3 a0=ffffff9c a1=b6df1de4 a2=20002 a3=0 items=1 ppid=1 pid=193 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rmt_storage" e
+# audit(46768.504:5):  cwd="/"
+# audit(46768.504:5): item=0 name="/dev/smem_log" inode=4943 dev=00:0b mode=020600 ouid=0 ogid=0 rdev=0a:3d obj=u:object_r:smem_log_device:s0
+# audit(46768.504:6): avc:  denied  { ioctl } for  pid=193 comm="rmt_storage" path="/dev/smem_log" dev="tmpfs" ino=4943 scontext=u:r:rmt_storage:s0 tcontext=u:object_r:smem_log_device:s0 tclass=chr_file
+# audit(46768.504:6): arch=40000028 syscall=54 per=800000 success=yes exit=0 a0=3 a1=40043001 a2=2 a3=beb5a7e8 items=0 ppid=1 pid=193 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rmt_storage" exe="/
+# audit(46768.504:7): avc:  denied  { write } for  pid=193 comm="rmt_storage" name="property_service" dev="tmpfs" ino=5596 scontext=u:r:rmt_storage:s0 tcontext=u:object_r:property_socket:s0 tclass=sock_file
+# audit(46768.504:7): avc:  denied  { connectto } for  pid=193 comm="rmt_storage" path="/dev/socket/property_service" scontext=u:r:rmt_storage:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+# audit(46768.504:7): arch=40000028 syscall=283 per=800000 success=yes exit=0 a0=5 a1=beb5a3c4 a2=1f a3=b6f20774 items=1 ppid=1 pid=193 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="rmt_storage" exe=
+# audit(46768.504:7): saddr=01002F6465762F736F636B65742F70726F70657274795F7365727669636500
+# audit(46768.504:7): item=0 name=(null) inode=5596 dev=00:0b mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:property_socket:s0
+
+
+

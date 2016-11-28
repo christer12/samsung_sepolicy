@@ -1,0 +1,29 @@
+#!/bin/bash
+
+
+err() {
+	echo "$@" 1>&2
+	exit 1
+}
+
+if [[ $# -ne 3 ]] || [[ ! -f "$1" ]]; then
+	err "Usage: addAttrToTypeFile POLICY_FILE TYPE NEW_ATTR"
+fi
+
+POLICY="$1"
+TYPE="$2"
+ATTR="$3"
+NUM=$(grep " $TYPE$" /$INSTANCE/types |awk {'print $1'})
+NUM=$(( NUM + 2000 ))
+if [[ $NUM == "" ]];then
+	echo EEEEEEEERRRRRRRROOOOOOOORRRRRRRRRR!!!
+	exit 1
+fi
+
+## LOCK ##
+eval "exec $NUM>/$INSTANCE/locks/$NUM"
+eval "flock $NUM"
+
+# start tallying the attributes applied to each type
+echo -n ", $ATTR" >> /$INSTANCE/types-dir/$TYPE
+echo a >> /$INSTANCE/counter

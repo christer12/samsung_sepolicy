@@ -1,0 +1,15 @@
+# create new domain touch_updater
+
+type touch_updater, domain;
+type touch_updater_exec, exec_type, file_type;
+
+init_daemon_domain(touch_updater)
+
+#SEC changed: allow touch_updater console_device:chr_file create_file_perms;
+allow touch_updater console_device:chr_file rw_file_perms;
+#SEC changed: allow touch_updater i2c_device:chr_file create_file_perms;
+allow touch_updater i2c_device:chr_file rw_file_perms;
+allow touch_updater self:capability dac_override;
+allow touch_updater shell_exec:file read;
+allow touch_updater system_file:file execute_no_trans;
+

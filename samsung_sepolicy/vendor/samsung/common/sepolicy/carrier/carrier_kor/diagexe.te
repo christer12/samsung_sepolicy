@@ -1,0 +1,4 @@
+
+allow diagexe sysfs_sec:dir search;
+
+#audit(1357140505.600:13): avc:  denied  { search } for  pid=2556 comm="diagexe" name="sec" dev="sysfs" ino=2057 scontext=u:r:diagexe:s0 tcontext=u:object_r:sysfs_sec:s0 tclass=dir

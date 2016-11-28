@@ -1,0 +1,46 @@
+# define new device type
+#SEC changed : use alias, type mediaserver_device, dev_type;
+typealias camera_device alias mediaserver_device;
+
+#SEC removed: no need, type system_app_device, dev_type;
+type nvm_device, dev_type;
+#SEC removed: conflict, type diag_device, dev_type;
+type atcmdsrv_device, dev_type;
+type eeh_device, dev_type;
+type pppmodem_device, dev_type;
+type marvelltel_device, dev_type;
+#SEC changed : conflict, use tz_device type teecsstdca_device, dev_type;
+#SEC removed: conflict, type bluetooth_device, dev_type;
+#SEC removed: conflict, type i2c_device, dev_type;
+type wpa_device, dev_type;
+#SEC changed : type mrvlgpu_device, dev_type;
+typealias gpu_device alias mrvlgpu_device;
+type mwireless_device, dev_type;
+type memsic_device, dev_type;
+type geu_device, dev_type;
+type ipc_device, dev_type;
+type vpu_device, dev_type;
+type infor_device, dev_type;
+#SEC_SELinux conflict: type ssipc_device, dev_type;
+
+# new block device
+#SEC changed : use alias, type cploader_block_device, dev_type;
+typealias mmc_block_device alias cploader_block_device;
+## SEC does not use marvell's block device type.
+## SEC removed: type mrd_block_device, dev_type;
+## SEC removed: type mrd1_block_device, dev_type;
+## SEC removed: type mep2_block_device, dev_type;
+## SEC removed: type dtim_block_device, dev_type;
+## SEC removed: type recovery_block_device, dev_type;
+## SEC removed: type bootloader_block_device, dev_type;
+## SEC removed: type boot_block_device, dev_type;
+## SEC removed: type system_block_device, dev_type;
+## SEC removed: type misc_block_device, dev_type;
+## SEC removed: type radio_block_device, dev_type;
+## SEC removed: type nvm_block_device, dev_type;
+## SEC removed: type cache_block_device, dev_type;
+## SEC removed: type userdata_block_device, dev_type;
+## SEC removed: type security_block_device, dev_type;
+## SEC removed: type splash_block_device, dev_type;
+## SEC removed: type fota_block_device, dev_type;
+

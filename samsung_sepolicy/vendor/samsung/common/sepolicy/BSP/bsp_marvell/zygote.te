@@ -1,0 +1,10 @@
+##
+# This file defines Marvell's custom sepolicy related to zygote.
+##
+
+# Allow zygote to initialize galcore
+#SEC removed: allow zygote mrvlgpu_device:chr_file create_file_perms;
+allow zygote mrvlgpu_device:chr_file rw_file_perms;
+#SEC removed: allow zygote graphics_device:dir create_dir_perms;
+allow zygote graphics_device:dir r_dir_perms;
+allow zygote system_file:file execmod;

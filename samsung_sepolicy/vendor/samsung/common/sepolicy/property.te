@@ -1,0 +1,72 @@
+#
+# property
+#
+
+############ aosp and sec_common #############
+type boot_prop, property_type;
+type bt_prop, property_type;
+type camera_prop, property_type;
+type csc_prop, property_type;
+type ctl_redsocks_prop, property_type, trstdomain_no_set_property;
+type dumpstate_prop, property_type;
+type etc_debug_prop, property_type, trstdomain_no_set_property;
+typealias radio_prop alias rild_prop;
+
+type frppath_prop, property_type;
+type hwui_prop, property_type;
+type kies_prop, property_type;
+type km_fips_prop, property_type;
+type log_prop, property_type;
+type mobicore_prop, property_type;
+type oneseg_prop, property_type;
+type recovery_prop, property_type;
+type sdcard_prop, property_type;
+type seclevel_prop, property_type;
+type secmm_prop, property_type;
+type setupwizard_prop, property_type;
+type tzdaemon_prop, property_type;
+type ucs_prop, property_type;
+type user_prop, property_type;
+type vpn_prop, property_type;
+type wifi_prop, property_type;
+
+type tunman_prop, property_type;
+
+############ knox_common #############
+type container_mgmt_prop, property_type;
+type denial_prop, property_type;
+type drs_date_prop, property_type;
+type good_mgmt_prop, property_type;
+type tlc_mgmt_prop, property_type;
+type knox_kap_prop, property_type;
+type policy_mgmt_prop, property_type;
+
+
+#changeBySEA: typeattribute bluetooth_prop mlstrustedobject;
+
+############ trstdomain_no_set_property #############
+typeattribute container_mgmt_prop trstdomain_no_set_property;
+typeattribute default_prop trstdomain_no_set_property;
+typeattribute drs_date_prop trstdomain_no_set_property;
+typeattribute frppath_prop trstdomain_no_set_property;
+typeattribute good_mgmt_prop trstdomain_no_set_property;
+typeattribute tlc_mgmt_prop trstdomain_no_set_property;
+typeattribute ucs_prop trstdomain_no_set_property;
+typeattribute knox_kap_prop trstdomain_no_set_property;
+typeattribute policy_mgmt_prop trstdomain_no_set_property;
+typeattribute security_prop trstdomain_no_set_property;
+typeattribute tzdaemon_prop trstdomain_no_set_property;
+
+### M added
+typeattribute hwui_prop trstdomain_no_set_property;
+typeattribute mobicore_prop trstdomain_no_set_property;
+typeattribute restorecon_prop trstdomain_no_set_property;
+typeattribute system_prop trstdomain_no_set_property;
+
+############ qcom_common #############
+type perf_prop, property_type;
+type freq_prop, property_type;
+type digitalpen_prop, property_type;
+
+############ slsi_common #############
+

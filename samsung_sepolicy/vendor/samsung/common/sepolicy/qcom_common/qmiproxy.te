@@ -1,0 +1,11 @@
+# qmiproxy
+type qmiproxy, domain;
+type qmiproxy_exec, exec_type, file_type;
+init_daemon_domain(qmiproxy)
+
+allow qmiproxy diag_device:chr_file rw_file_perms;
+allow qmiproxy init:unix_stream_socket connectto;
+allow qmiproxy property_socket:sock_file w_file_perms;
+allow qmiproxy qmux_radio_socket:dir w_dir_perms;
+allow qmiproxy qmux_radio_socket:sock_file create_file_perms;
+allow qmiproxy radio_prop:property_service set;

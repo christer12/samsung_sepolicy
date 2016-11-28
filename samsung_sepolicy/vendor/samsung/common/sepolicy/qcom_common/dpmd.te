@@ -1,0 +1,31 @@
+#
+# dpmd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute dpmd trusteddomain;
+typeattribute dpmd device_domain;
+
+unix_socket_connect(dpmd, property, init);
+########## self and domain_type
+allow dpmd self:capability { net_admin net_raw dac_read_search dac_override setgid setuid fsetid };
+
+########## fs_type
+########## dev_type
+########## file_type
+allow dpmd qmux_radio_socket:sock_file create_file_perms;
+
+########## etc_type
+########## known issue.
+############ avc_log #############
+
+
+########## self and domain_type
+#audit(1388477353.789:121): avc:  denied  { connectto } for  pid=329 comm="dpmd" path="/dev/socket/property_service" scontext=u:r:dpmd:s0 tcontext=u:r:init:s0 tclass=unix_stream_socket
+#audit(1388477353.789:121): arch=40000028 syscall=283 per=800000 success=yes exit=0 a0=11 a1=be84b4f4 a2=1f a3=b6f97ab0 items=1 ppid=1 pid=329 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="dpmd" exe="/system/bin/dpmd" subj=u:r:dpmd:s0 key=(null)
+#audit(1388477353.789:121): saddr=01002F6465762F736F636B65742F70726F70657274795F7365727669636500
+#audit(1388477353.789:121): item=0 name=(null) inode=11116 dev=00:0b mode=0140666 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:property_socket:s0
+
+

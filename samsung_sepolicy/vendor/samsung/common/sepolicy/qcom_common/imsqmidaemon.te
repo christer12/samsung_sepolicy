@@ -1,0 +1,9 @@
+# imsqmidaemon
+
+allow imsqmidaemon diag_device:chr_file rw_file_perms;
+allow imsqmidaemon init:unix_stream_socket connectto;
+allow imsqmidaemon property_socket:sock_file w_file_perms;
+allow imsqmidaemon system_data_file:dir w_dir_perms;
+allow imsqmidaemon system_data_file:sock_file create_file_perms;
+allow imsqmidaemon system_prop:property_service set;
+

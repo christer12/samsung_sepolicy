@@ -1,0 +1,82 @@
+#
+# syscope_app
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+#type definition is in each the model/ctsv# directory.
+
+dumplog_create(syscope_app)
+binder_call(syscope_app, servicemanager)
+
+########## self and domain_type
+#neverallow Google CTS :allow syscope_app init:binder call;
+
+########## fs_type
+allow syscope_app sdcard_type:dir create_dir_perms;
+allow syscope_app sdcard_type:file create_file_perms;
+allow syscope_app sysrq_proc:file r_file_perms;
+allow syscope_app sysrq_proc:file x_file_perms;
+
+########## dev_type
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app block_device:blk_file w_file_perms;
+allow syscope_app block_device:dir r_dir_perms;
+allow syscope_app block_device:lnk_file r_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app emmcblk_device:blk_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app paramblk_device:blk_file rw_file_perms;
+
+########## file_type
+allow syscope_app anr_data_file:dir w_dir_perms;
+allow syscope_app anr_data_file:file create_file_perms;
+#Remote Code Execution issue: allow syscope_app dalvikcache_data_file:file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app system_data_file:dir create_dir_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app system_data_file:file create_file_perms;
+allow syscope_app system_sysscope_file:dir create_dir_perms;
+allow syscope_app system_sysscope_file:file create_file_perms;
+
+########## etc_type
+########## known issue.
+#r_dir_file(syscope_app, file_type)
+# replacing r_dir_file macro and removing container related access
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:dir *
+#allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file  }:dir r_dir_perms;
+#changeBySEA allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file }:dir r_dir_perms;
+
+#neverallow Google CTS-android-m-preview: neverallow { domain -vold -init } vold_data_file:{ file lnk_file sock_file fifo_file } *
+#allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file }:{ file lnk_file } r_file_perms;
+#neverallow { domain -shell -uncrypt -installd } shell_data_file:lnk_file read
+#changeBySEA allow syscope_app { file_type -trstappdomain_no_read_file -trstdomain_no_read_file -vold_data_file -shell_data_file}:{ file lnk_file } r_file_perms;
+#changeBySEA allow syscope_app shell_data_file:file r_file_perms;
+
+#r_dir_file(syscope_app, appdomain)
+#r_dir_file(syscope_app, domain)
+# replacing r_dir_file macro and removing container related access
+allow syscope_app domain:dir r_dir_perms;
+allow syscope_app domain:{ file lnk_file } r_file_perms;
+
+# After removing android_cts, denials show the following rules are needed
+allow syscope_app block_device:lnk_file r_file_perms;
+
+# Read and write /data/data subdirectory.
+allow syscope_app system_app_data_file:dir create_dir_perms;
+allow syscope_app system_app_data_file:{ file fifo_file lnk_file sock_file }  create_file_perms;
+allow syscope_app system_app_data_file:file x_file_perms;
+
+
+
+############ qcom_common #############
+########## type and macro.
+########## self and domain_type
+########## fs_type
+########## dev_type
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app emmcblk_device:blk_file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app padblk_device:blk_file create_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow syscope_app persistblk_device:blk_file w_file_perms;
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############

@@ -1,0 +1,14 @@
+userdebug_or_eng(`
+########## androd-m-early_access: denials ########
+allow procrank debuggerd:fd use;
+allow procrank dumplog_data_file:file r_file_perms;
+allow procrank self:capability { sys_admin dac_override };
+')
+
+# avc:  denied  { dac_override } for  pid=13256 comm="procrank" capability=1  scontext=u:r:procrank:s0 tcontext=u:r:procrank:s0 tclass=capability permissive=1
+# avc:  denied  { sys_admin } for  pid=13256 comm="procrank" capability=21  scontext=u:r:procrank:s0 tcontext=u:r:procrank:s0 tclass=capability permissive=1
+# arch=c00000b7 syscall=56 success=yes exit=5 a0=ffffff9c a1=7ff7d74a78 a2=0 a3=0 items=0 ppid=12395 pid=13256 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="procrank" exe="/system/xbin/procrank" subj=u:r:procrank:s0 key=(null)
+# proctitle="procrank"
+# avc:  denied  { use } for  pid=4154 comm="procrank" path="/dev/pmsg0" dev="tmpfs" ino=11201 scontext=u:r:procrank:s0 tcontext=u:r:debuggerd:s0 tclass=fd permissive=1 SEPF_JOSHUA_6.0_0001
+
+

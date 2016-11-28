@@ -1,0 +1,23 @@
+#
+# mdnsd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+# for B2C users
+typeattribute mdnsd trusteddomain;
+#typeattribute mdnsd system_domain;
+# temporary permissive to gather the log.
+# permissive mdnsd;
+
+########## self and domain_type
+########## fs_type
+########## dev_type
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+
+

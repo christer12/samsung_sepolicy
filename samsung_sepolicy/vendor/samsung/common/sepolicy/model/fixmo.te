@@ -1,0 +1,11 @@
+#
+# fixmo_app
+
+type fixmo_app, domain;
+type fixmo_app_data_file, file_type;
+
+#neverallow Google CTS-android-5.0.2_r1 : add into appdomain
+app_domain(fixmo_app)
+net_domain(fixmo_app)
+bluetooth_domain(fixmo_app)
+

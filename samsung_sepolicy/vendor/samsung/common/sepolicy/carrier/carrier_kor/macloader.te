@@ -1,0 +1,4 @@
+
+allow macloader self:capability sys_module;
+
+#audit(1357140505.620:14): avc:  denied  { sys_module } for  pid=2544 comm="macloader" capability=16  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability

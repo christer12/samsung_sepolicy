@@ -1,0 +1,12 @@
+
+allow location_app dumplog_data_file:file write;
+allow location_app system_app_data_file:dir create_dir_perms;
+allow location_app system_app_data_file:file create_file_perms;
+allow location_app system_service:service_manager find;
+
+# avc:  denied  { write } for  pid=1892 comm="rvices.location" name="com.qualcomm.msapm" dev="mmcblk0p25" ino=524545 scontext=u:r:location_app:s0 tcontext=u:object_r:system_app_data_file:s0 tclass=dir
+# avc:  denied  { write } for  pid=2128 comm="Binder_5" path="/data/log/DumpsysAll_G935AUCU0AOKC-2015-11-23_11:48:35.txt.tmp" dev="sda23" ino=1048676 scontext=u:r:location_app:s0 tcontext=u:object_r:dumplog_data_file:s0 tclass=file permissive=0
+# avc:  denied  { find } for service=injection scontext=u:r:location_app:s0 tcontext=u:object_r:system_service:s0 tclass=service_manager
+
+
+

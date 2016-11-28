@@ -1,0 +1,38 @@
+#
+# energy-awareness
+# /etc/init.qcom.post_boot.sh execute /system/bin/energy-awareness
+#
+
+# conflict with Qcom BSP, type energy-awareness, domain;
+# conflict with Qcom BSP, type energy-awareness_exec, exec_type, file_type;
+
+############ qcom_common #############
+########## type and macro.
+#?domain_auto_trans(init_shell, energy-awareness_exec, energy-awareness)
+
+########## self and domain_type
+#?allow energy-awareness init_shell:fd use;
+#?allow energy-awareness self:netlink_kobject_uevent_socket create_socket_perms;
+#?allow energy-awareness self:capability net_admin;
+#neverallow Google CTS-android-5.0.2_r1 : allow energy-awareness self:capability sys_rawio;
+
+########## fs_type
+########## dev_type
+#?allow energy-awareness pta_device:chr_file rw_file_perms;
+#?allow energy-awareness uio_device:chr_file rw_file_perms;
+#neverallow Google CTS-android-5.0.2_r1 : allow energy-awareness kmem_device:chr_file r_file_perms;
+
+
+########## file_type
+########## etc_type
+########## known issue.
+
+
+############ avc_log #############
+# avc:  denied  { read write } for  pid=7590 comm="energy-awarenes" name="pta" dev="tmpfs" ino=6716 scontext=u:r:init_shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=7590 comm="energy-awarenes" path="/dev/pta" dev="tmpfs" ino=6716 scontext=u:r:init_shell:s0 tcontext=u:object_r:device:s0 tclass=chr_file permissive=1
+# avc:  denied  { read } for  pid=7590 comm="energy-awarenes" name="mem" dev="tmpfs" ino=6679 scontext=u:r:init_shell:s0 tcontext=u:object_r:kmem_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { open } for  pid=7590 comm="energy-awarenes" path="/dev/mem" dev="tmpfs" ino=6679 scontext=u:r:init_shell:s0 tcontext=u:object_r:kmem_device:s0 tclass=chr_file permissive=1
+# avc:  denied  { sys_rawio } for  pid=7590 comm="energy-awarenes" capability=17  scontext=u:r:init_shell:s0 tcontext=u:r:init_shell:s0 tclass=capability permissive=1
+# avc:  denied  { use } for  pid=3069 comm="energy-awarenes" path="/dev/null" dev="tmpfs" ino=11962 scontext=u:r:energy-awareness:s0 tcontext=u:r:init_shell:s0 tclass=fd permissive=1
+# avc:  denied  { read write } for  pid=3196 comm="energy-awarenes" name="uio4" dev="tmpfs" ino=11865 scontext=u:r:energy-awareness:s0 tcontext=u:object_r:uio_device:s0 tclass=chr_file permissive=0 SEPF_SM-N916S_5.0.2_0002

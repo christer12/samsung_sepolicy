@@ -1,0 +1,26 @@
+# playready
+
+type playready, domain;
+type playready_exec, exec_type, file_type;
+
+init_daemon_domain(playready)
+
+allow playready self:capability { dac_override chown };
+
+allow playready tmpfs:chr_file rw_file_perms;
+allow playready system_file:file x_file_perms;
+allow playready shell_exec:file rx_file_perms;
+allow playready qseecom_device:chr_file rw_file_perms;
+allow playready firmware:file r_file_perms;
+allow playready firmware:dir r_dir_perms;
+allow playready efs_file:file w_file_perms;
+allow playready efs_file:dir r_dir_perms;
+allow playready drm_efs_file:file create_file_perms;
+allow playready drm_efs_file:dir create_dir_perms;
+
+########## androd-m-preview: denials ########
+allow playready drm_data_file:dir r_dir_perms;
+
+# for B2C users
+typeattribute playready trusteddomain;
+typeattribute playready device_domain;

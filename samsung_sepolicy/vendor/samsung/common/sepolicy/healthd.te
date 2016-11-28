@@ -1,0 +1,65 @@
+#
+# healthd
+#
+
+############ aosp and sec_common #############
+########## type and macro.
+
+typeattribute healthd trusteddomain;
+#typeattribute healthd system_domain;
+# temporary permissive to gather the log.
+# permissive healthd;
+
+########## self and domain_type
+allow healthd init:unix_stream_socket { read write };
+allow healthd self:capability { dac_read_search dac_override fowner fsetid sys_nice };
+allow healthd system_app:fd use;
+
+########## fs_type
+allow healthd sysfs_battery_supply:file write;
+allow healthd sysfs_ss_writable:file rw_file_perms;
+
+
+########## dev_type
+########## file_type
+allow healthd app_data_file:file w_file_perms;
+allow healthd app_efs_file:dir rw_dir_perms;
+allow healthd app_efs_file:file create_file_perms;
+allow healthd { efs_type -nv_core_efs_file }:dir create_dir_perms;
+allow healthd { efs_type -nv_core_efs_file }:{ file lnk_file } create_file_perms;
+allow healthd platform_app_data_file:file w_file_perms;
+
+########## etc_type
+allow healthd permission_service:service_manager find;
+
+########## known issue.
+
+# support cryptfs_do_dumpstate
+allow healthd cache_file:file write;
+
+# P160127-00353 chown/chmod /efs/FactoryApp/batt_cable_count
+# Needs dac_override, fowner, fsetid, setattr
+allow healthd self:capability chown;
+# avc:  denied  { chown } for  pid=295 comm="healthd" capability=0  scontext=u:r:healthd:s0 tcontext=u:r:healthd:s0 tclass=capability permissive=0
+
+
+
+########## androd-m-early_access: denials ########
+allow healthd device:dir w_dir_perms;
+#avc:  denied  { unlink } for  pid=262 comm="healthd" name="__kmsg__" dev="tmpfs" ino=9235 scontext=u:r:healthd:s0 tcontext=u:object_r:device:s0 tclass=chr_file SEPF_SM-G900F_5.1.1_0023
+type_transition healthd device:chr_file klog_device "__kmsg__";
+allow healthd klog_device:chr_file create_file_perms;
+allow healthd tmpfs:chr_file rw_file_perms;
+
+############ avc_log #############
+#from CTS testing
+# avc:  denied  { search } for  pid=259 comm="healthd" name="/" dev="mmcblk0p11" ino=2 scontext=u:r:healthd:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+# avc:  denied  { write } for  pid=18336 comm="onCtsTestRunner" path="/data/data/com.android.cts.stub/cache/CTS_DUMP" dev="mmcblk0p25" #ino=915007 scontext=u:r:healthd:s0 tcontext=u:object_r:platform_app_data_file:s0 tclass=file SEPF_SAMSUNG-SM-N900A_4.4.2_0016
+# avc:  denied  { write } for  pid=31471 comm="onCtsTestRunner" path="/data/data/com.android.cts.stub/cache/CTS_DUMP" dev="mmcblk0p21" ino=1049584 scontext=u:r:healthd:s0 tcontext=u:object_r:app_data_file:s0 tclass=file SEPF_SM-N910C_4.4.4_0018
+# avc:  denied  { create setattr write } for  pid=419 comm="healthd" name="efs/FactoryApp/batt_cable_count" scontext=u:r:healthd:s0 tcontext=u:object_r:efs_file:s0 tclass=file SEPF_SAMSUNG-SM-N910A_4.4.4_A018
+# avc:  denied  { write add_name } for  pid=419 comm="healthd" name="FactoryApp" dev="mmcblk0p13" ino=24 scontext=u:r:healthd:s0 tcontext=u:object_r:efs_file:s0 tclass=dir SEPF_SAMSUNG-SM-N910A_4.4.4_A018
+# ZERO EUR avc:  denied  { write } for  pid=2874 comm="healthd" name="batt_capacity_max" dev="sysfs" ino=26989 scontext=u:r:healthd:s0 tcontext=u:object_r:sysfs_battery_supply:s0 tclass=file permissive=0 SEPF_SM-G925F_5.0.1_0002
+# avc:  denied  { write } for  pid=7899 comm="dumpsys" path="/cache/recovery/last_ode_dumpstate_error_unencrypted.log" dev="mmcblk0p24" ino=16002 scontext=u:r:healthd:s0 tcontext=u:object_r:cache_file:s0 tclass=file SEPF_SAMSUNG-SM-T537A_5.0.2_0009
+# avc:  denied  { find } for service=permission scontext=u:r:healthd:s0 tcontext=u:object_r:permission_service:s0 tclass=service_manager
+# avc:  denied  { sys_nice } for  pid=162 comm="healthd" capability=23  scontext=u:r:healthd:s0 tcontext=u:r:healthd:s0 tclass=capability permissive=0
+

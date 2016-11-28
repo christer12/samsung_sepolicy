@@ -1,0 +1,63 @@
+#
+# macloader
+#
+
+type macloader, domain;
+type macloader_exec, exec_type, file_type;
+init_daemon_domain(macloader)
+
+
+# Allow rules
+allow macloader self:capability { net_admin net_raw dac_read_search dac_override sys_module chown };
+
+
+# for B2C users
+typeattribute macloader trusteddomain;
+typeattribute macloader device_domain;
+
+
+## from J GED
+allow macloader wifi_efs_file:dir rw_dir_perms;
+allow macloader wifi_efs_file:file rw_file_perms;
+allow macloader system_data_file:file r_file_perms;
+
+#booting denial
+allow macloader sysfs:file rw_file_perms;
+allow macloader sysfs_ss_writable:file rw_file_perms;
+allow macloader kernel:system module_request;
+
+########## androd-m-preview: denials ########
+allow macloader system_data_file:dir w_dir_perms;
+allow macloader shell_exec:file { r_file_perms execute execute_no_trans };
+allow macloader efs_file:dir r_dir_perms;
+allow macloader kmsg_device:chr_file rw_file_perms;
+
+# update perms to access kernel key.
+allow macloader kernel:key search;
+# MSM8937 A7MVELTE avc:  denied  { search } for  pid=772 comm="macloader" scontext=u:r:macloader:s0 tcontext=u:r:kernel:s0 tclass=key permissive=1 SEPF_SECMOBILE_6.0.1_0004
+
+
+## avc_msg
+# avc:  denied  { dac_read_search } for  pid=17319 comm="macloader" capability=2  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability No Property
+# item=0 name="/efs/wifi/.mac.info" inode=37 dev=b3:0c mode=0100660 ouid=1000 ogid=1010 rdev=00:00 obj=u:object_r:wifi_efs_file:s0
+
+# avc:  denied  { dac_override } for  pid=17319 comm="macloader" capability=1  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability No Property
+# item=0 name="/efs/wifi" inode=26 dev=b3:0c mode=040775 ouid=1001 ogid=1000 rdev=00:00 obj=u:object_r:wifi_efs_file:s0
+# avc:  denied  { net_admin } for  pid=17319 comm="macloader" capability=12  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability No Property
+# avc:  denied  { net_admin } for  pid=336 comm="macloader" capability=12  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability No Property
+
+# audit(46768.524:8): avc:  denied  { read write } for  pid=213 comm="macloader" name="wifi" dev="mmcblk0p10" ino=12 scontext=u:r:macloader:s0 tcontext=u:object_r:efs_file:s0 tclass=dir
+# audit(46768.574:9): avc:  denied  { read } for  pid=213 comm="macloader" name=".mac.info" dev="mmcblk0p10" ino=13 scontext=u:r:macloader:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+# audit(46768.574:9): avc:  denied  { open } for  pid=213 comm="macloader" name=".mac.info" dev="mmcblk0p10" ino=13 scontext=u:r:macloader:s0 tcontext=u:object_r:efs_file:s0 tclass=file
+# audit(46768.574:9): item=0 name="/efs/wifi/.mac.info" inode=13 dev=b3:0a mode=0100664 ouid=1000 ogid=1000 rdev=00:00 obj=u:object_r:efs_file:s0
+# audit(46768.584:10): avc:  denied  { open } for  pid=213 comm="macloader" name=".cid.info" dev="mmcblk0p28" ino=15 scontext=u:r:macloader:s0 tcontext=u:object_r:system_data_file:s0 tclass=file
+# audit(46768.584:10): item=0 name="/data/.cid.info" inode=15 dev=b3:1c mode=0100664 ouid=1000 ogid=0 rdev=00:00 obj=u:object_r:system_data_file:s0
+#audit(1388534402.580:64): avc:  denied  { write } for  pid=314 comm="macloader" name="firmware_path" dev="sysfs" ino=6483 scontext=u:r:macloader:s0 tcontext=u:object_r:sysfs:s0 tclass=file
+#audit(1388534402.580:64): arch=40000028 syscall=322 per=800000 success=yes exit=7 a0=ffffff9c a1=b6f55fce a2=20001 a3=0 items=1 ppid=1 pid=314 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="macloader" exe="/system/bin/macloader" subj=u:r:macloader:s0 key=(null)
+#audit(1388534402.580:64):  cwd="/"
+#audit(1388534402.580:64): item=0 name="/sys/module/dhd/parameters/firmware_path" inode=6483 dev=00:0c mode=0100660 ouid=0 ogid=0 rdev=00:00 obj=u:object_r:sysfs:s0
+#audit(1357140505.620:14): avc:  denied  { sys_module } for  pid=2544 comm="macloader" capability=16  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability
+# avc:  denied  { chown } for  pid=320 comm="macloader" capability=0  scontext=u:r:macloader:s0 tcontext=u:r:macloader:s0 tclass=capability permissive=0 SEPF_SM-P355_5.0.2_0003
+# avc:  denied  { module_request } for  pid=307 comm="macloader" kmod="netdev-wlan0" scontext=u:r:macloader:s0 tcontext=u:r:kernel:s0 tclass=system permissive=0
+# avc:  denied  { write } for  pid=3176 comm="sh" name="kmsg" dev="tmpfs" ino=9766 scontext=u:r:macloader:s0 tcontext=u:object_r:kmsg_device:s0 tclass=chr_file permissive=1
+

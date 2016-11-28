@@ -1,0 +1,10 @@
+# for surfaceflinger
+#SEC removed: allow surfaceflinger sysfs:file create_file_perms;
+#SEC removed: allow surfaceflinger mrvlgpu_device:chr_file create_file_perms;
+#SEC removed: allow surfaceflinger graphics_device:dir create_dir_perms;
+#SEC removed: allow surfaceflinger system_data_file:file create_file_perms;
+allow surfaceflinger dump_log_data_file:file create_file_perms;
+allow surfaceflinger dump_log_data_file:dir create_dir_perms;
+# This is a known issue surfaceflinger cannot write to the SDcard.
+# allow surfaceflinger fuse:file write;
+

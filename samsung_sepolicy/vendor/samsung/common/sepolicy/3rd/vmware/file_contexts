@@ -1,0 +1,8 @@
+# VMware daemon
+/system/bin/mvpd	u:object_r:vmwared_exec:s0
+
+# Vmware device
+/dev/mvpkm		u:object_r:vmware_device:s0
+
+# VMWare sysfs
+/sys/hypervisor(/.*)	u:object_r:sysfs_vmware_writable:s0
